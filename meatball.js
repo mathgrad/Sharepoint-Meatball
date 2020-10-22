@@ -1,12 +1,26 @@
 (function() {
   //Initial Load, adds functionality
-  window.onload = function() {
-    getListItems();
+  var init = function() {
+    var promise = new Promise(function(resolve, reject) {
+      console.log("Promise Start");
+      getListItems();
+    });
+    promise
+      .then(function(success) {
+        meatball();
+        console.log("Promise Ended");
+      })
+      .catch(function(error) {
+        console.error("Promise Error: ", error);
+      });
   };
+  window.addEventListener("onload", function() {
+    init();
+  });
 
   //On change, adds functionality
   window.addEventListener("hashchange", function() {
-    meatball();
+    init();
   });
 
   //Entry Point and General Function
@@ -17,7 +31,15 @@
       { color: "yellow", text: "degraded" }
     ];
     //add jquery here.
-
+    var defaults = [
+      { color: "green", text: "up" },
+      { color: "red", text: "down" },
+      { color: "yellow", text: "degraded" },
+      { color: "green", text: "100-90" },
+      { color: "yellow", text: "89-80" },
+      { color: "red", text: "79-10" },
+      { color: "blue", text: "<10" }
+    ];
     //Step 1. Get all the tables -- create array
     var tables = [].slice.call(document.getElementsByTagName("table"));
 
@@ -25,7 +47,6 @@
       console.log("No Tables Found");
       return;
     }
-
     //Step 2. Defaults to apply across all solutions in sharepoint.
     var defaults = [
       { color: "green", text: "up" },
@@ -66,6 +87,7 @@
         return { color: key, text: uniqueObject[key] };
       });
     }
+
 
     if (userChoices) {
       var defaultText = userChoices.map(function(a) {
@@ -169,7 +191,6 @@
             "X-RequestDigest": $("#__REQUESTDIGEST").val()
           },
           success: function(data) {
-            console.log("Grabbed the list choices Successfully");
             meatball(data.d.results);
             return false;
           },
@@ -180,46 +201,72 @@
       });
     };
   }
-  /* This creates the modal for each cell */
-  function addModal(target, defaults, rowIndex, header, table) {
-    var border = "1px solid black";
-    var pad = "2.5px";
-    var modal = document.createElement("div");
-    //Step 1, creating child elements of the modal
-    //Step 1a, paragraph element
-    var paragraph = document.createElement("p");
-    paragraph.innerText = target.innerText;
-    // console.log("Inner Text: ", target.innerText);
-    //Step 1b, button element
-    var buttonToggle = document.createElement("button");
-    buttonToggle.innerText = " Toggle ";
-    buttonToggle.style.margin = pad;
-    paragraph.appendChild(buttonToggle);
-    //Step 1c, option element construction
+
+  /*
+    This creates the popover for each cell
+  */
+  function addPopover(target, defaults, rowIndex, header, table) {
+    //Create Popover Element
+    var popover = document.createElement("div");
+    popover.style.backgroundColor = "#d3d3d3";
+    popover.style.color = "#fff";
+    popover.style.padding = ".5rem";
+    popover.style.border = "1px solid black";
+    popover.style.borderRadius = ".25rem";
+    popover.style.fontWeight = "bold";
+    popover.style.zIndex = "1";
+
+    //Create Header Element
+    var header = document.createElement("div");
+    header.style.padding = ".25rem";
+    header.style.borderRadius = ".25rem";
+    header.style.textAlign = "center";
+    header.style.cursor = "pointer";
+    header.style.marginBottom = ".25rem";
+    header.style.backgroundColor = "#4b6ac6";
+    header.innerText = target.innerText;
+
+    //Create Options Panel Element
+
     var options = document.createElement("div");
     options.style.display = "none";
-    options.style.padding = pad;
-    options.style.border = border;
-    //Step 1d, adding in options
+    options.style.padding = ".25rem";
+    options.style.backgroundColor = "#60605f";
+    options.style.borderRadius = ".25rem";
+
+    //Create and Add Option Elements
     defaults.forEach(function(ele, index) {
-      var option = document.createElement("p");
-      option.className += " pointer";
+      var option = document.createElement("div");
       option.innerText = ele.text;
-      option.style.color = ele.color;
+      option.style.padding = ".25rem";
+      option.style.marginBottom = ".25rem";
+      option.style.cursor = "pointer";
+      option.style.textAlign = "center";
+      option.style.fontWeight = "bold";
+      option.style.borderRadius = ".25rem";
+
+      if (compareString(target.innerText, ele.text)) {
+        option.style.color = "black";
+        option.style.backgroundColor = ele.color;
+      } else {
+        option.style.color = ele.color;
+        option.style.backgroundColor = "#a9a9a9";
+      }
+
+      //Add Click Event to update list
       option.addEventListener("click", function() {
         updateMeatball(ele.text, rowIndex, header, table);
       });
       options.appendChild(option);
     });
-    //Step 1e, add paragraph
-    modal.appendChild(paragraph);
-    modal.appendChild(options);
-    modal.style.padding = pad;
-    modal.style.zIndex = "1";
-    modal.style.backgroundColor = "white";
-    modal.style.border = border;
-    //Step 2, toggle button event
-    buttonToggle.addEventListener("click", function() {
+
+    //Add Header Element
+    popover.appendChild(header);
+    //Add Options Panel
+    popover.appendChild(options);
+
+    //Add Click Event to display Options Panel
+    header.addEventListener("click", function() {
       var style = options.style.display;
       var change = false;
       change = style === "block";
@@ -227,19 +274,24 @@
         ? (options.style.display = "none")
         : (options.style.display = "block");
     });
-    //Step 3, mouse enter event, adds modal to body to display
-    target.onmouseenter = function() {
-      document.body.appendChild(modal);
-      modal.style.position = "fixed";
-      modal.style.left = target.getBoundingClientRect().left + "px";
-      modal.style.top = target.getBoundingClientRect().top + "px";
-    };
-    //Step 4, mouse leave event, removes modal from body
-    modal.onmouseleave = function() {
+
+    //Used addEventListener versus onmouseenter = function due to concerns of
+    //overriding other scripts
+    //Add Mouse Enter Event to display
+    target.addEventListener("mouseenter", function() {
+      document.body.appendChild(popover);
+      popover.style.position = "fixed";
+      popover.style.left = target.getBoundingClientRect().left + "px";
+      popover.style.top = target.getBoundingClientRect().top + "px";
+    });
+
+    //Add Mouse leave Event to hide
+    popover.addEventListener("mouseleave", function() {
       options.style.display = "none";
-      document.body.removeChild(modal);
-    };
+      document.body.removeChild(popover);
+    });
   }
+
   function updateMeatball(status, rowIndex, header, table) {
     var site = _spPageContextInfo.webServerRelativeUrl;
     var currentListName = ctx.ListTitle;
@@ -295,5 +347,9 @@
     }
 
     return false;
+  }
+
+  function compareString(s0, s1) {
+    return s0.trim().toLowerCase() === s1.trim().toLowerCase();
   }
 })();
