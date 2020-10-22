@@ -40,6 +40,7 @@
       { color: "red", text: "79-10" },
       { color: "blue", text: "<10" }
     ];
+
     //Step 1. Get all the tables -- create array
     var tables = [].slice.call(document.getElementsByTagName("table"));
 
@@ -145,10 +146,14 @@
     document.body.appendChild(scriptAjax);
     //Waits till Ajax loads to allow full functionality of
     scriptAjax.onload = function() {
-      //Create an array of all the tables on the page
-      var $tables = [].slice.call(document.getElementsByTagName("table"));
+      //Step 1. Get all the tables -- create array
+      var tables = [].slice.call(document.getElementsByTagName("table"));
+      if (errorChecking(tables)) {
+        console.log("No Tables Found");
+        return;
+      }
       //Include only the actual lists
-      $tables = $tables.filter(function(table) {
+      tables = tables.filter(function(table) {
         if (table.getAttribute("class") === "ms-listviewtable") {
           return table;
         }
@@ -156,7 +161,7 @@
       //Grabbing the list url
       var site = _spPageContextInfo.webServerRelativeUrl;
       //Iterate through the
-      $tables.forEach(function(table, index) {
+      tables.forEach(function(table, index) {
         var currentListName = table.getAttribute("id").substring(1, 37);
         var listName = "SP.Data." + table.summary + "ListItem";
         var data = {
