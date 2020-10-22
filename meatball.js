@@ -138,25 +138,13 @@
 
   /* get all the choices and send to main func*/
   function getListItems() {
-    var linkBootstrap = document.createElement("link");
     var scriptAjax = document.createElement("script");
-    var scriptBootstrap = document.createElement("script");
-    linkBootstrap.type = "text/css";
     scriptAjax.type = "text/javascript";
-    scriptBootstrap.type = "text/javascript";
-    linkBootstrap.href =
-      "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css";
     scriptAjax.src =
       "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
-    scriptBootstrap.src =
-      "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js";
-    document.head.appendChild(linkBootstrap);
     document.body.appendChild(scriptAjax);
     //Waits till Ajax loads to allow full functionality of
     scriptAjax.onload = function() {
-      document.body.appendChild(scriptBootstrap);
-    };
-    scriptBootstrap.onload = function() {
       //Create an array of all the tables on the page
       var $tables = [].slice.call(document.getElementsByTagName("table"));
       //Include only the actual lists
