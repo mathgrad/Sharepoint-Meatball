@@ -25,33 +25,24 @@
       console.log("No Tables Found");
       return;
     }
+
     //Step 2. Defaults to apply across all solutions in sharepoint.
-
-    if (window.hasOwnProperty("overrides")) {
-      defaults = defaults.concat(overrides);
-      var uniqueObject = defaults.reduce(function(a, b) {
-        a[b.color] = b.text;
-        return a;
-      }, {});
-      defaults = Object.keys(uniqueObject).map(function(key) {
-        return { color: key, text: uniqueObject[key] };
-      });
-    }
-
-    choiceData.forEach(function(data, index) {
+    var defaults = [
+      { color: "green", text: "up" },
+      { color: "red", text: "down" },
+      { color: "yellow", text: "degraded" },
+      { color: "green", text: "100-90" },
+      { color: "yellow", text: "89-80" },
+      { color: "red", text: "79-10" },
+      { color: "blue", text: "<10" }
+    ];
+    var userChoices = false;
+    choiceData.filter(function(data, index) {
       console.log(index);
-      if (data.Title === "popoverText") {
-        console.log("hit1");
-        defaults = [
-          { color: "green", text: data.Choices.results[0] },
-          { color: "red", text: data.Choices.results[1] },
-          { color: "yellow", text: data.Choices.results[2] },
-          { color: "green", text: data.Choices.results[3] },
-          { color: "yellow", text: data.Choices.results[4] },
-          { color: "red", text: data.Choices.results[5] },
-          { color: "blue", text: data.Choices.results[6] }
-        ];
-        return defaults;
+      if (data.Title === "meatballExplained") {
+        console.log("hit0");
+        userChoices = data.Choices.results;
+        return;
       } else {
         defaults = [
           { color: "green", text: "up" },
@@ -65,13 +56,31 @@
       }
     });
 
-    console.log("defaults", defaults);
+    if (window.hasOwnProperty("overrides")) {
+      defaults = defaults.concat(overrides);
+      var uniqueObject = defaults.reduce(function(a, b) {
+        a[b.color] = b.text;
+        return a;
+      }, {});
+      defaults = Object.keys(uniqueObject).map(function(key) {
+        return { color: key, text: uniqueObject[key] };
+      });
+    }
 
-    var defaultText = defaults.map(function(a) {
-      return a.text;
-    });
+    if (userChoices) {
+      var defaultText = userChoices.map(function(a) {
+        return a;
+      });
+    } else {
+      var defaultText = defaults.map(function(a) {
+        return a.text;
+      });
+    }
+
+    console.log("userChoices:", userChoices, "defaultText:", defaultText);
 
     //Step 3. Iterate over each cell and compare the inner text to the list of known defaults.
+
     tables.map(function(table, ti) {
       var rows = [].slice.call(table.getElementsByTagName("tr"));
       var thead = [].slice.call(table.getElementsByTagName("th"));
@@ -79,12 +88,20 @@
         rows.map(function(row, ri) {
           var cells = [].slice.call(row.getElementsByTagName("td"));
           if (cells.length > 0)
+            //this checks if the cell contains the text which is in defaults, select that cell to add the modal
             cells.map(function(cell, ci) {
-              var pos = defaultText.indexOf(
-                cell.innerText.trim().toLowerCase()
+              var pos = defaultText.filter(a =>
+                a.includes(cell.innerText.trim().toLowerCase())
               );
+              console.log(
+                defaultText.find(a =>
+                  a.indexOf(cell.innerText.trim().toLowerCase())
+                )
+              );
+
+              // );
               if (pos < 0) return;
-              if (table.getAttribute("id") && row.getAttribute("iid"))
+              if (table.getAttribute("id") && row.getAttribute("iid")) {
                 addModal(
                   cell,
                   defaults,
@@ -92,10 +109,12 @@
                   thead[ci],
                   table.getAttribute("id").substring(1, 37)
                 );
+              }
             });
         });
     });
   }
+
   /* get all the choices and send to main func*/
   function getListItems() {
     var linkBootstrap = document.createElement("link");
@@ -161,9 +180,7 @@
       });
     };
   }
-  /*
-    This creates the modal for each cell
-  */
+  /* This creates the modal for each cell */
   function addModal(target, defaults, rowIndex, header, table) {
     var border = "1px solid black";
     var pad = "2.5px";
@@ -265,7 +282,6 @@
       }
     });
   }
-
   //True, error.  False, no error.
   function errorChecking(obj) {
     if (!obj) {
