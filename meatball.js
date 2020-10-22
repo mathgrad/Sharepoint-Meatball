@@ -88,7 +88,6 @@
       });
     }
 
-
     if (userChoices) {
       var defaultText = userChoices.map(function(a) {
         return a;
@@ -124,7 +123,7 @@
               // );
               if (pos < 0) return;
               if (table.getAttribute("id") && row.getAttribute("iid")) {
-                addModal(
+                addPopover(
                   cell,
                   defaults,
                   row.getAttribute("iid").split(",")[1],
@@ -236,28 +235,40 @@
 
     //Create and Add Option Elements
     defaults.forEach(function(ele, index) {
+      var optionPanel = document.createElement("div");
+      optionPanel.style.padding = ".25rem";
+      optionPanel.style.marginBottom = ".25rem";
+      optionPanel.style.cursor = "pointer";
+      optionPanel.style.textAlign = "left";
+      optionPanel.style.fontWeight = "bold";
+      optionPanel.style.borderRadius = ".25rem";
+
       var option = document.createElement("div");
       option.innerText = ele.text;
-      option.style.padding = ".25rem";
-      option.style.marginBottom = ".25rem";
-      option.style.cursor = "pointer";
-      option.style.textAlign = "center";
-      option.style.fontWeight = "bold";
-      option.style.borderRadius = ".25rem";
+      option.style.marginLeft = ".25rem";
+      option.style.display = "inline";
+      var radio = document.createElement("input");
+      radio.type = "radio";
+      radio.style.margin = "0px";
+      radio.style.cursor = "pointer";
+      radio.style.display = "inline";
 
       if (compareString(target.innerText, ele.text)) {
         option.style.color = "black";
-        option.style.backgroundColor = ele.color;
+        optionPanel.style.backgroundColor = ele.color;
+        radio.checked = "checked";
       } else {
         option.style.color = ele.color;
-        option.style.backgroundColor = "#a9a9a9";
+        optionPanel.style.backgroundColor = "#a9a9a9";
       }
 
+      optionPanel.appendChild(radio);
+      optionPanel.appendChild(option);
       //Add Click Event to update list
-      option.addEventListener("click", function() {
+      optionPanel.addEventListener("click", function() {
         updateMeatball(ele.text, rowIndex, header, table);
       });
-      options.appendChild(option);
+      options.appendChild(optionPanel);
     });
 
     //Add Header Element
