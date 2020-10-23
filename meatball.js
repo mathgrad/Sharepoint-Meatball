@@ -4,8 +4,7 @@
     var promise = new Promise(function(resolve, reject) {
       console.log("Promise Start");
       getListItems();
-    });
-    promise
+    })
       .then(function(success) {
         meatball();
         console.log("Promise Ended");
@@ -14,7 +13,8 @@
         console.error("Promise Error: ", error);
       });
   };
-  window.addEventListener("onload", function() {
+
+  window.addEventListener("load", function() {
     init();
   });
 
@@ -59,24 +59,23 @@
       { color: "blue", text: "<10" }
     ];
     var userChoices = false;
-    choiceData.filter(function(data, index) {
-      console.log(index);
-      if (data.Title === "meatballExplained") {
-        console.log("hit0");
-        userChoices = data.Choices.results;
-        return;
-      } else {
-        defaults = [
-          { color: "green", text: "up" },
-          { color: "red", text: "down" },
-          { color: "yellow", text: "degraded" },
-          { color: "green", text: "100-90" },
-          { color: "yellow", text: "89-80" },
-          { color: "red", text: "79-10" },
-          { color: "blue", text: "<10" }
-        ];
-      }
-    });
+    if (choiceData)
+      choiceData.filter(function(data, index) {
+        if (data.Title === "meatballExplained") {
+          userChoices = data.Choices.results;
+          return;
+        } else {
+          defaults = [
+            { color: "green", text: "up" },
+            { color: "red", text: "down" },
+            { color: "yellow", text: "degraded" },
+            { color: "green", text: "100-90" },
+            { color: "yellow", text: "89-80" },
+            { color: "red", text: "79-10" },
+            { color: "blue", text: "<10" }
+          ];
+        }
+      });
 
     if (window.hasOwnProperty("overrides")) {
       defaults = defaults.concat(overrides);
@@ -99,13 +98,11 @@
       });
     }
 
-    console.log("userChoices:", userChoices, "defaultText:", defaultText);
-
     //Step 3. Iterate over each cell and compare the inner text to the list of known defaults.
-
     tables.map(function(table, ti) {
       var rows = [].slice.call(table.getElementsByTagName("tr"));
       var thead = [].slice.call(table.getElementsByTagName("th"));
+
       if (rows.length > 0)
         rows.map(function(row, ri) {
           var cells = [].slice.call(row.getElementsByTagName("td"));
@@ -115,15 +112,18 @@
               var pos = defaultText.filter(a =>
                 a.includes(cell.innerText.trim().toLowerCase())
               );
-              console.log(
-                defaultText.find(a =>
-                  a.indexOf(cell.innerText.trim().toLowerCase())
-                )
-              );
-
-              // );
+              var add = false;
               if (pos < 0) return;
-              if (table.getAttribute("id") && row.getAttribute("iid")) {
+              if (thead[ci])
+                [].slice.call(thead[ci].children).forEach((item, i) => {
+                  [].slice.call(item.children).forEach((item, i) => {
+                    if (item.innerText) {
+                      add = matchString(item.innerText, "status");
+                    }
+                  });
+                });
+
+              if (add && table.getAttribute("id") && row.getAttribute("iid")) {
                 addPopover(
                   cell,
                   defaults,
@@ -183,7 +183,11 @@
             "X-RequestDigest": $("#__REQUESTDIGEST").val()
           },
           success: function(data) {
-            meatball(data.d.results);
+            if (data) {
+              if (data.d)
+                if (data.d.results[0].Choices.results)
+                  meatball(data.d.results[0].Choices.results);
+            } else meatball([]);
             return false;
           },
           error: function(error) {
@@ -351,6 +355,13 @@
     }
 
     return false;
+  }
+
+  function matchString(s0, s1) {
+    return s0
+      .trim()
+      .toLowerCase()
+      .includes(s1);
   }
 
   function compareString(s0, s1) {
