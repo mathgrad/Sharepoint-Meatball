@@ -1,26 +1,11 @@
 (function() {
-  //Initial Load, adds functionality
-  var init = function() {
-    var promise = new Promise(function(resolve, reject) {
-      console.log("Promise Start");
-      getListItems();
-    })
-      .then(function(success) {
-        meatball();
-        console.log("Promise Ended");
-      })
-      .catch(function(error) {
-        console.error("Promise Error: ", error);
-      });
-  };
-
   window.addEventListener("load", function() {
-    init();
+    getListItems();
   });
 
   //On change, adds functionality
   window.addEventListener("hashchange", function() {
-    init();
+    getListItems();
   });
 
   //Entry Point and General Function
@@ -168,11 +153,13 @@
           __metadata: { type: listName }
         };
         var url =
-          "https://eis.usmc.mil/" +
+          "https://" +
+          window.location.hostname +
           site +
           "/_api/web/lists('" +
           currentListName +
           "')/fields?$filter=TypeDisplayName eq 'Choice'";
+
         $.ajax({
           url: url,
           type: "GET",
@@ -185,8 +172,11 @@
           success: function(data) {
             if (data) {
               if (data.d)
-                if (data.d.results[0].Choices.results)
+                if (data.d.results[0].Choices.results) {
+                  console.log(currentListName);
+                  console.log(data.d.results[0].Choices.results);
                   meatball(data.d.results[0].Choices.results);
+                }
             } else meatball([]);
             return false;
           },
