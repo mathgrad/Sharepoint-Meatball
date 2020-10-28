@@ -1,10 +1,10 @@
-(function () {
-  window.addEventListener("load", function () {
+(function() {
+  window.addEventListener("load", function() {
     getListItems();
   });
 
   //On change, adds functionality
-  window.addEventListener("hashchange", function () {
+  window.addEventListener("hashchange", function() {
     getListItems();
   });
 
@@ -16,7 +16,7 @@
       "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
     document.body.appendChild(scriptAjax);
     //Waits till Ajax loads to allow full functionality of
-    scriptAjax.onload = function () {
+    scriptAjax.onload = function() {
       //Step 1. Get all the tables -- create array
       var tables = [].slice.call(document.getElementsByTagName("table"));
       if (errorChecking(tables)) {
@@ -24,19 +24,19 @@
         return;
       }
       //Include only the actual lists
-      tables = tables.filter(function (table) {
+      tables = tables.filter(function(table) {
         return table.getAttribute("class") === "ms-listviewtable";
       });
       //Grabbing the list url
 
       //Iterate through the
 
-      tables.forEach(function (table, index) {
+      tables.forEach(function(table, index) {
         var currentListName = table.getAttribute("id").substring(1, 37);
         var root = ctx.HttpRoot;
         var listName = "SP.Data." + table.summary + "ListItem";
         var data = {
-          __metadata: { type: listName },
+          __metadata: { type: listName }
         };
         var url = root + "/_api/web/lists('" + currentListName + "')/fields";
 
@@ -47,12 +47,12 @@
             Accept: "application/json; odata=verbose",
             "Content-Type": "application/json;odata=verbose",
             credentials: true,
-            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+            "X-RequestDigest": $("#__REQUESTDIGEST").val()
           },
-          success: function (data) {
+          success: function(data) {
             if (data && data.d) {
               var popoverData = data.d.results.reduce(
-                function (acc, cv, ci, data) {
+                function(acc, cv, ci, data) {
                   var add = true;
                   if (containsString(cv.Title, "status")) {
                     if (containsString(cv.Title, "value")) {
@@ -72,7 +72,7 @@
                 {
                   status: "",
                   color: "",
-                  value: "",
+                  value: ""
                 }
               );
 
@@ -85,9 +85,9 @@
             }
             return false;
           },
-          error: function (error) {
+          error: function(error) {
             console.log("Error: Get list choices request Failed.");
-          },
+          }
         });
       });
     };
@@ -98,23 +98,23 @@
     var overrides = [
       { color: "green", text: "up" },
       { color: "red", text: "down" },
-      { color: "yellow", text: "degraded" },
+      { color: "yellow", text: "degraded" }
     ];
     if (!table || table.childNodes.length === 0) return;
 
     //Step 1. Choices to apply across all solutions in sharepoint.
     if (window.hasOwnProperty("overrides")) {
       defaults = values.concat(overrides);
-      var uniqueObject = values.reduce(function (a, b) {
+      var uniqueObject = values.reduce(function(a, b) {
         a[b.color] = b.text;
         return a;
       }, {});
-      defaults = Object.keys(uniqueObject).map(function (key) {
+      defaults = Object.keys(uniqueObject).map(function(key) {
         return { color: key, text: uniqueObject[key] };
       });
     }
 
-    var choiceText = values.map(function (a) {
+    var choiceText = values.map(function(a) {
       return a;
     });
 
@@ -124,28 +124,29 @@
     var displayValue = "";
     var displayColor = "";
 
-    rows.map(function (row, ri) {
+    rows.map(function(row, ri) {
       displayValue = "";
       displayColor = "";
       var cells = [].slice.call(row.getElementsByTagName("td"));
 
       if (cells.length > 0) {
         //this checks if the cell contains the text which is in user choices, select that cell to add the modal
-        cells.map(function (cell, ci) {
-          var pos = choiceText.filter(function (a) {
+        cells.map(function(cell, ci) {
+          var pos = choiceText.filter(function(a) {
             a.indexOf(cell.innerText.trim().toLowerCase()) > -1;
           });
           var add = false;
           if (pos < 0) return;
           if (thead[ci]) {
-            [].slice.call(thead[ci].children).forEach(function (item, ti) {
-              [].slice.call(item.children).forEach(function (item, tci) {
+            [].slice.call(thead[ci].children).forEach(function(item, ti) {
+              [].slice.call(item.children).forEach(function(item, tci) {
                 if (item.innerText) {
                   add = containsString(item.innerText, "status");
                   if (add) {
                     add =
                       !containsString(item.innerText, "value") &&
-                      !containsString(item.innerText, "color");
+                      !containsString(item.innerText, "color") &&
+                      !containsString(item.innerText, "status");
                   }
                   if (containsString(item.innerText, "value")) {
                     displayValue = cell.innerText;
@@ -159,8 +160,8 @@
           }
 
           if (add && table.getAttribute("id") && row.getAttribute("iid")) {
-            [].slice.call(cell.children).forEach(function (item, i) {
-              [].slice.call(item.children).forEach(function (item, i) {
+            [].slice.call(cell.children).forEach(function(item, i) {
+              [].slice.call(item.children).forEach(function(item, i) {
                 if (!displayValue) {
                   displayValue = item.getAttribute("key");
                   displayColor = item.style.backgroundColor;
@@ -228,7 +229,7 @@
     options.style.borderRadius = ".25rem";
 
     //Create and Add Option Elements
-    defaults.forEach(function (ele, index) {
+    defaults.forEach(function(ele, index) {
       var defaultColor;
       if (colors.length > index) {
         defaultColor = colors[index][0][1];
@@ -250,7 +251,6 @@
       var radio = document.createElement("input");
       radio.type = "radio";
       radio.style.margin = "0px";
-      radio.style.cursor = "pointer";
       radio.style.display = "inline";
 
       if (compareString(displayValue, ele)) {
@@ -263,16 +263,18 @@
         }
         radio.checked = "checked";
       } else {
+        radio.style.cursor = "pointer";
         option.style.textShadow = "1px 1px 1px black";
         option.style.color = defaultColor;
         optionPanel.style.backgroundColor = "#a9a9a9";
+
+        //Add Click Event to update list
+        optionPanel.addEventListener("click", function() {
+          updateTarget(ele, rowIndex, thead.innerText, table);
+        });
       }
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
-      //Add Click Event to update list
-      optionPanel.addEventListener("click", function () {
-        updateTarget(ele, rowIndex, thead.innerText, table);
-      });
       options.appendChild(optionPanel);
     });
 
@@ -282,7 +284,7 @@
     popover.appendChild(options);
 
     //Add Click Event to display Options Panel
-    header.addEventListener("click", function () {
+    header.addEventListener("click", function() {
       var style = options.style.display;
       var change = false;
       change = style === "block";
@@ -294,7 +296,7 @@
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
-    target.addEventListener("mouseenter", function () {
+    target.addEventListener("mouseenter", function() {
       document.body.appendChild(popover);
 
       popover.style.position = "fixed";
@@ -302,7 +304,7 @@
       popover.style.top = target.getBoundingClientRect().top + "px";
     });
 
-    target.addEventListener("mouseleave", function (e) {
+    target.addEventListener("mouseleave", function(e) {
       if (popover.contains(e.relatedTarget)) return;
       if (popover) {
         if (popover.parentNode) {
@@ -312,7 +314,7 @@
     });
 
     //Add Mouse leave Event to hide
-    popover.addEventListener("mouseleave", function () {
+    popover.addEventListener("mouseleave", function() {
       options.style.display = "none";
       if (popover) {
         if (popover.parentNode) {
@@ -329,7 +331,7 @@
     var listName = "SP.ListItem";
     var data = {
       __metadata: { type: listName },
-      status_value: ele,
+      status_value: ele
     };
     var url =
       window.location.origin +
@@ -350,30 +352,30 @@
         credentials: true,
         "If-Match": "*",
         "X-HTTP-Method": "MERGE",
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "X-RequestDigest": $("#__REQUESTDIGEST").val()
       },
-      success: function (data) {
+      success: function(data) {
         alert("Updated Target Successfully");
         location.reload();
         return false;
       },
-      error: function (error) {
+      error: function(error) {
         alert(
           "Error: Update Request Failed. Please Contact the 1MEF IMO",
           console.log(JSON.stringify(error))
         );
-      },
+      }
     });
   }
 
   function parseFormula(formula) {
     var init = formula.split("IF");
-    var second = init.reduce(function (acc, cv, ci, init) {
+    var second = init.reduce(function(acc, cv, ci, init) {
       if (ci !== 0) acc.push(cv.split("="));
       return acc;
     }, []);
 
-    return second.reduce(function (acc, cv, ci, init) {
+    return second.reduce(function(acc, cv, ci, init) {
       switch (cv.length) {
         case 2:
           if (cv[0].indexOf('"') > -1) {
@@ -386,7 +388,7 @@
           if (cv[0].indexOf('"') > -1) {
             acc.push([
               cv[0].split('"')[1],
-              (cv[1] + "=" + cv[2]).split(",")[1],
+              (cv[1] + "=" + cv[2]).split(",")[1]
             ]);
           } else {
             var temp = cv[1] + "=" + cv[2];
@@ -415,7 +417,12 @@
   }
 
   function containsString(s0, s1) {
-    return s0.trim().toLowerCase().indexOf(s1.trim().toLowerCase()) > -1;
+    return (
+      s0
+        .trim()
+        .toLowerCase()
+        .indexOf(s1.trim().toLowerCase()) > -1
+    );
   }
 
   function compareString(s0, s1) {
