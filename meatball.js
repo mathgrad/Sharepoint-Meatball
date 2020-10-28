@@ -60,13 +60,11 @@
             });
 
           if (add && table.getAttribute("id") && row.getAttribute("iid")) {
-            var test = thead[ci].childNodes[0];
-
             return new addPopover(
               cell,
               values,
               row.getAttribute("iid").split(",")[1],
-              test.getAttribute("displayname"),
+              thead[ci],
               table.getAttribute("id").substring(1, 37)
             );
           }
@@ -101,7 +99,6 @@
       tables.forEach(function (table, index) {
         var currentListName = table.getAttribute("id").substring(1, 37);
         var listName = "SP.Data." + table.summary + "ListItem";
-        // var listname = "SP.FieldCalculated"
         var data = {
           __metadata: { type: listName },
         };
@@ -112,7 +109,6 @@
           "/_api/web/lists('" +
           currentListName +
           "')/fields";
-        // "')/fields?$filter=TypeDisplayName eq 'Choice'";
 
         $.ajax({
           url: url,
@@ -170,8 +166,8 @@
   /*
     This creates the popover for each cell
   */
-  function addPopover(target, defaults, rowIndex, header, table) {
-    //Create Popover Element
+  function addPopover(target, defaults, rowIndex, thead, table) {
+    //Create Popover Ele:ment
     var popover = document.createElement("div");
     popover.style.backgroundColor = "#d3d3d3";
     popover.style.color = "#fff";
@@ -218,7 +214,6 @@
       radio.style.cursor = "pointer";
       radio.style.display = "inline";
 
-      //console.log("target.innerText:", target.innerText, "\nele:", ele);
       if (compareString(target.innerText, ele)) {
         option.style.color = "black";
         optionPanel.style.backgroundColor = ele.color;
@@ -227,12 +222,11 @@
         option.style.color = ele.color;
         optionPanel.style.backgroundColor = "#a9a9a9";
       }
-
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
       //Add Click Event to update list
       optionPanel.addEventListener("click", function () {
-        updateMeatball(ele.text, rowIndex, header, table);
+        updateMeatball(ele, rowIndex, thead.innerText, table);
       });
       options.appendChild(optionPanel);
     });
@@ -279,23 +273,23 @@
     });
   }
 
-  function updateMeatball(status, rowIndex, header, table) {
+  function updateMeatball(ele, rowIndex, header, table) {
+    console.log("ele in updateMeatball", ele);
     var site = _spPageContextInfo.webServerRelativeUrl;
     var currentListName = ctx.ListTitle;
-    var listName = "SP.Data." + currentListName + "ListItem";
+    var listName = "SP.ListItem";
     var data = {
       __metadata: { type: listName },
-      MeatballStatus: status,
+      status_value: ele,
     };
     var url =
-      "https://eis.usmc.mil/" +
+      "https://eis.usmc.mil" +
       site +
       "/_api/web/lists('" +
       table +
       "')/items(" +
       rowIndex +
-      ")?$select=" +
-      header;
+      ")?$select=status_value";
     $.ajax({
       url: url,
       type: "POST",
