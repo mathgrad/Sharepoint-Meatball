@@ -92,7 +92,7 @@
                 table,
                 popoverData.value
               );
-            } else findTargets([]);
+            }
             return false;
           },
           error: function (error) {
