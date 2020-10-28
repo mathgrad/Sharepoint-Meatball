@@ -302,7 +302,7 @@
       document.body.appendChild(popover);
 
       popover.style.position = "fixed";
-      popover.style.left = target.getBoundingClientRect().left + "px";
+      popover.style.left = target.getBoundingClientRect().right + "px";
       popover.style.top = target.getBoundingClientRect().top + "px";
     });
 
