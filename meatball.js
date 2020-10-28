@@ -1,12 +1,18 @@
-(function() {
-  window.addEventListener("load", function() {
-    getListItems();
+(function () {
+  window.addEventListener("load", function () {
+    Meatball.start;
   });
 
   //On change, adds functionality
-  window.addEventListener("hashchange", function() {
-    getListItems();
+  window.addEventListener("hashchange", function () {
+    Meatball.start;
   });
+
+  function Meatball() {}
+  Meatball.prototype.start = getListItems();
+  // Meatball.prototype.findTargets = findTargets();
+  // Meatball.prototype.addPopover = addPopover();
+  // Meatball.prototype.updateTarget = updateTarget();
 
   /* get all the choices and send to main func*/
   function getListItems() {
@@ -24,28 +30,25 @@
         return;
       }
       //Include only the actual lists
-      tables = tables.filter(function(table) {
+      tables = tables.filter(function (table) {
         return table.getAttribute("class") === "ms-listviewtable";
       });
       //Grabbing the list url
       var site = _spPageContextInfo.webServerRelativeUrl;
       //Iterate through the
 
-      tables.forEach(function(table, index) {
+      tables.forEach(function (table, index) {
         var currentListName = table.getAttribute("id").substring(1, 37);
         var listName = "SP.Data." + table.summary + "ListItem";
-        // var listname = "SP.FieldCalculated"
         var data = {
           __metadata: { type: listName }
         };
         var url =
-          "https://" +
-          window.location.hostname +
+          window.location.origin +
           site +
           "/_api/web/lists('" +
           currentListName +
           "')/fields";
-        // "')/fields?$filter=TypeDisplayName eq 'Choice'";
 
         $.ajax({
           url: url,
@@ -83,13 +86,13 @@
                 }
               );
 
-              meatball(
+              findTargets(
                 popoverData.color,
                 popoverData.status,
                 table,
                 popoverData.value
               );
-            } else meatball([]);
+            } else findTargets([]);
             return false;
           },
           error: function(error) {
@@ -101,72 +104,98 @@
   }
 
   //Entry Point and General Function
-  function meatball(colors, status, table, values) {
-    console.log("colors:", colors, "\nstatus:", status, "\nvalues:", values);
+  function findTargets(colors, status, table, values) {
     var overrides = [
       { color: "green", text: "up" },
       { color: "red", text: "down" },
-      { color: "yellow", text: "degraded" }
+      { color: "yellow", text: "degraded" },
     ];
+    console.log(table.childNodes);
+    if (!table || table.childNodes.length === 0) return;
 
     //Step 1. Choices to apply across all solutions in sharepoint.
     if (window.hasOwnProperty("overrides")) {
       defaults = values.concat(overrides);
-      var uniqueObject = values.reduce(function(a, b) {
+      var uniqueObject = values.reduce(function (a, b) {
         a[b.color] = b.text;
         return a;
       }, {});
-      defaults = Object.keys(uniqueObject).map(function(key) {
+      defaults = Object.keys(uniqueObject).map(function (key) {
         return { color: key, text: uniqueObject[key] };
       });
     }
 
-    var choiceText = values.map(function(a) {
+    var choiceText = values.map(function (a) {
       return a;
     });
 
-    //Step 2. Iterate over each cell and compare the inner text to the list of known defaults.
+    //Step 3. Iterate over each cell and compare the inner text to the list of known defaults.
     var rows = [].slice.call(table.getElementsByTagName("tr"));
     var thead = [].slice.call(table.getElementsByTagName("th"));
+    var displayValue = "";
+    var displayColor = "";
 
-    if (rows.length > 0)
-      rows.map(function(row) {
-        var cells = [].slice.call(row.getElementsByTagName("td"));
-        if (cells.length > 0)
-          //this checks if the cell contains the text which is in userCHoices, select that cell to add the modal
-          cells.map(function(cell, ci) {
-            var pos = choiceText.filter(a =>
-              a.includes(cell.innerText.trim().toLowerCase())
-            );
-            var add = false;
-            if (pos < 0) return;
-            if (thead[ci])
-              [].slice.call(thead[ci].children).forEach((item, i) => {
-                [].slice.call(item.children).forEach((item, i) => {
-                  if (item.innerText) {
-                    add = containsString(item.innerText, "status");
+    rows.map(function (row) {
+      var cells = [].slice.call(row.getElementsByTagName("td"));
+
+      if (cells.length > 0) {
+        //this checks if the cell contains the text which is in userCHoices, select that cell to add the modal
+        cells.map(function (cell, ci) {
+          var pos = choiceText.filter((a) =>
+            a.includes(cell.innerText.trim().toLowerCase())
+          );
+          var add = false;
+          if (pos < 0) return;
+          if (thead[ci]) {
+            [].slice.call(thead[ci].children).forEach((item, ti) => {
+              [].slice.call(item.children).forEach((item, tci) => {
+                if (item.innerText) {
+                  add = containsString(item.innerText, "status");
+                  if (add) {
+                    add =
+                      !containsString(item.innerText, "value") &&
+                      !containsString(item.innerText, "color");
                   }
-                });
+                  // if (containsString(item.innerText, "value")) {
+                  //   displayValue = cell.innerText;
+                  // }
+                  // if (containsString(item.innerText, "color")) {
+                  //   displayColor = cell.innerText;
+                  // }
+                }
               });
+            });
+          }
 
-            if (add && table.getAttribute("id") && row.getAttribute("iid")) {
-              return new addPopover(
-                cell,
-                values,
-                row.getAttribute("iid").split(",")[1],
-                thead[ci],
-                table.getAttribute("id").substring(1, 37)
-              );
-            }
-          });
-      });
+          if (add && table.getAttribute("id") && row.getAttribute("iid")) {
+            addPopover(
+              cell,
+              colors,
+              values,
+              displayValue,
+              row.getAttribute("iid").split(",")[1],
+              thead[ci],
+              table.getAttribute("id").substring(1, 37)
+            );
+          }
+        });
+      }
+    });
   }
 
   /*
     This creates the popover for each cell
   */
-  function addPopover(target, defaults, rowIndex, header, table) {
-    //Create Popover Element
+  function addPopover(
+    target,
+    colors,
+    defaults,
+    displayValue,
+    rowIndex,
+    thead,
+    table
+  ) {
+    //Create Popover Ele:ment
     var popover = document.createElement("div");
     popover.style.backgroundColor = "#d3d3d3";
     popover.style.color = "#fff";
@@ -184,10 +213,9 @@
     header.style.cursor = "pointer";
     header.style.marginBottom = ".25rem";
     header.style.backgroundColor = "#4b6ac6";
-    header.innerText = target.innerText;
+    header.innerText = displayValue;
 
     //Create Options Panel Element
-
     var options = document.createElement("div");
     options.style.display = "none";
     options.style.padding = ".25rem";
@@ -195,7 +223,13 @@
     options.style.borderRadius = ".25rem";
 
     //Create and Add Option Elements
-    defaults.forEach(function(ele, index) {
+    defaults.forEach(function (ele, index) {
+      var disColor;
+      if (colors.length > index) {
+        disColor = colors[index];
+      } else {
+        disColor = colors[index % colors.length];
+      }
       var optionPanel = document.createElement("div");
       optionPanel.style.padding = ".25rem";
       optionPanel.style.marginBottom = ".25rem";
@@ -214,21 +248,19 @@
       radio.style.cursor = "pointer";
       radio.style.display = "inline";
 
-      console.log("target.innerText:", target.innerText, "\nele:", ele);
-      if (compareString(target.innerText, ele)) {
+      if (compareString(displayValue, ele)) {
         option.style.color = "black";
-        optionPanel.style.backgroundColor = ele.color;
+        optionPanel.style.backgroundColor = disColor;
         radio.checked = "checked";
       } else {
-        option.style.color = ele.color;
+        option.style.color = disColor;
         optionPanel.style.backgroundColor = "#a9a9a9";
       }
-
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
       //Add Click Event to update list
-      optionPanel.addEventListener("click", function() {
-        updateMeatball(ele.text, rowIndex, header, table);
+      optionPanel.addEventListener("click", function () {
+        updateTarget(ele, rowIndex, thead.innerText, table);
       });
       options.appendChild(optionPanel);
     });
@@ -251,42 +283,42 @@
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
-    target.addEventListener("mouseenter", function() {
-      try {
-        document.body.removeChild(popover);
-      } catch {
-      } finally {
-        document.body.appendChild(popover);
-        popover.style.position = "fixed";
-        popover.style.left = target.getBoundingClientRect().left + "px";
-        popover.style.top = target.getBoundingClientRect().top + "px";
-      }
+    target.addEventListener("mouseenter", function () {
+      document.body.appendChild(popover);
+
+      popover.style.position = "fixed";
+      popover.style.left = target.getBoundingClientRect().left + "px";
+      popover.style.top = target.getBoundingClientRect().top + "px";
+    });
+
+    target.addEventListener("mouseleave", function (e) {
+      if (popover.contains(e.relatedTarget)) return;
+      if (popover) popover.parentNode.removeChild(popover);
     });
 
     //Add Mouse leave Event to hide
-    popover.addEventListener("mouseleave", function() {
+    popover.addEventListener("mouseleave", function () {
       options.style.display = "none";
-      document.body.removeChild(popover);
+      if (popover) popover.parentNode.removeChild(popover);
     });
   }
 
-  function updateMeatball(status, rowIndex, header, table) {
+  function updateTarget(ele, rowIndex, header, table) {
     var site = _spPageContextInfo.webServerRelativeUrl;
     var currentListName = ctx.ListTitle;
-    var listName = "SP.Data." + currentListName + "ListItem";
+    var listName = "SP.ListItem";
     var data = {
       __metadata: { type: listName },
-      MeatballStatus: status
+      status_value: ele,
     };
     var url =
-      "https://eis.usmc.mil/" +
+      window.location.origin +
       site +
       "/_api/web/lists('" +
       table +
       "')/items(" +
       rowIndex +
-      ")?$select=" +
-      header;
+      ")?$select=status_value";
     $.ajax({
       url: url,
       type: "POST",
@@ -299,8 +331,8 @@
         "X-HTTP-Method": "MERGE",
         "X-RequestDigest": $("#__REQUESTDIGEST").val()
       },
-      success: function(data) {
-        alert("Updated Meatball Successfully");
+      success: function (data) {
+        alert("Updated Target Successfully");
         location.reload();
         return false;
       },
