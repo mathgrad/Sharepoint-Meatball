@@ -365,6 +365,22 @@
       }
     });
   }
+  function parseFormulaColumn(formula) {
+    var init = formula.split("IF");
+    var second = init.reduce(function(acc, cv, ci, init) {
+      if (ci !== 0) acc.push(cv.split("="));
+      return acc;
+    }, []);
+    var third = second.reduce(function(acc, cv, ci, second) {
+      acc.push(cv[0].split(","));
+      return acc;
+    }, []);
+    var fourth = third.reduce(function(acc, cv, ci, third) {
+      acc.push(cv[1].replaceAll(")", ""));
+      return acc;
+    }, []);
+    return fourth[0];
+  }
 
   function parseFormula(formula) {
     var init = formula.split("IF");
