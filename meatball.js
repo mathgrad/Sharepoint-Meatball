@@ -131,8 +131,8 @@
 
       if (cells.length > 0) {
         //this checks if the cell contains the text which is in user choices, select that cell to add the modal
-        cells.map(function(cell, ci) {
-          var pos = choiceText.filter(function(a) {
+        cells.map(function (cell, ci) {
+          var pos = choiceText.filter(function (a) {
             a.indexOf(cell.innerText.trim().toLowerCase()) > -1;
           });
           var add = false;
@@ -413,12 +413,7 @@
   }
 
   function containsString(s0, s1) {
-    return (
-      s0
-        .trim()
-        .toLowerCase()
-        .indexOf(s1.trim().toLowerCase()) > -1
-    );
+    return s0.trim().toLowerCase().indexOf(s1.trim().toLowerCase()) > -1;
   }
 
   function compareString(s0, s1) {
