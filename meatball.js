@@ -323,6 +323,7 @@
   }
 
   function updateTarget(ele, rowIndex, header, table) {
+    console.log("header:", header);
     var site = _spPageContextInfo.webServerRelativeUrl;
     var currentListName = ctx.ListTitle;
     var listName = "SP.ListItem";
@@ -337,7 +338,8 @@
       table +
       "')/items(" +
       rowIndex +
-      ")?$select=status_value";
+      ")?$select=" +
+      header;
     $.ajax({
       url: url,
       type: "POST",
