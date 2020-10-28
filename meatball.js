@@ -33,7 +33,7 @@
 
       tables.forEach(function (table, index) {
         var currentListName = table.getAttribute("id").substring(1, 37);
-        var root = _spPageContextInfo.webAbsoluteUrl;
+        var root = ctx.HttpRoot;
         var listName = "SP.Data." + table.summary + "ListItem";
         var data = {
           __metadata: { type: listName },
@@ -45,7 +45,7 @@
           type: "GET",
           headers: {
             Accept: "application/json; odata=verbose",
-            "Content-Type": "application/json;odata=verbos",
+            "Content-Type": "application/json;odata=verbose",
             credentials: true,
             "X-RequestDigest": $("#__REQUESTDIGEST").val(),
           },
@@ -413,6 +413,7 @@
   }
 
   function containsString(s0, s1) {
+    console.log("containsString vals s0:", s0, "\ns1:", s1);
     return s0.trim().toLowerCase().includes(s1.trim().toLowerCase());
   }
 
