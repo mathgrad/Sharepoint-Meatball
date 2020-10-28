@@ -142,8 +142,8 @@
           var add = false;
           if (pos < 0) return;
           if (thead[ci]) {
-            [].slice.call(thead[ci].children).forEach(function(item, ti){
-              [].slice.call(item.children).forEach(function(item, tci){
+            [].slice.call(thead[ci].children).forEach(function(item, ti) {
+              [].slice.call(item.children).forEach(function(item, tci) {
                 if (item.innerText) {
                   add = containsString(item.innerText, "status");
                   if (add) {
@@ -163,8 +163,8 @@
           }
 
           if (add && table.getAttribute("id") && row.getAttribute("iid")) {
-            [].slice.call(cell.children).forEach(function(item, i){
-              [].slice.call(item.children).forEach(function(item, i){
+            [].slice.call(cell.children).forEach(function(item, i) {
+              [].slice.call(item.children).forEach(function(item, i) {
                 if (!displayValue) {
                   displayValue = item.getAttribute("key");
                   displayColor = item.style.backgroundColor;
@@ -267,8 +267,8 @@
         }
         radio.checked = "checked";
       } else {
-        optionPanel.style.textShadow = "1px 1px 1px black";
-        optionPanel.style.color = defaultColor;
+        option.style.textShadow = "1px 1px 1px black";
+        option.style.color = defaultColor;
         optionPanel.style.backgroundColor = "#a9a9a9";
       }
       optionPanel.appendChild(radio);
@@ -308,13 +308,21 @@
 
     target.addEventListener("mouseleave", function(e) {
       if (popover.contains(e.relatedTarget)) return;
-      if (popover) popover.parentNode.removeChild(popover);
+      if (popover) {
+        if (popover.parentNode) {
+          popover.parentNode.removeChild(popover);
+        }
+      }
     });
 
     //Add Mouse leave Event to hide
     popover.addEventListener("mouseleave", function() {
       options.style.display = "none";
-      if (popover) popover.parentNode.removeChild(popover);
+      if (popover) {
+        if (popover.parentNode) {
+          popover.parentNode.removeChild(popover);
+        }
+      }
     });
   }
 
@@ -359,10 +367,6 @@
       }
     });
   }
-
-  function generateColorArray(formula) {}
-
-  function generateChoiceArray(formula) {}
 
   function parseFormula(formula) {
     var init = formula.split("IF");
