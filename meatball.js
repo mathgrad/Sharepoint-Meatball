@@ -32,8 +32,8 @@
       //Iterate through the
 
       tables.forEach(function (table, index) {
-        var root = ctx.HttpRoot;
         var currentListName = table.getAttribute("id").substring(1, 37);
+        var root = _spPageContextInfo.webAbsoluteUrl;
         var listName = "SP.Data." + table.summary + "ListItem";
         var data = {
           __metadata: { type: listName },
@@ -45,7 +45,7 @@
           type: "GET",
           headers: {
             Accept: "application/json; odata=verbose",
-            "Content-Type": "application/json;odata=verbose",
+            "Content-Type": "application/json;odata=verbos",
             credentials: true,
             "X-RequestDigest": $("#__REQUESTDIGEST").val(),
           },
