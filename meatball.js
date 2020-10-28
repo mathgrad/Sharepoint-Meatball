@@ -133,7 +133,7 @@
         //this checks if the cell contains the text which is in user choices, select that cell to add the modal
         cells.map(function (cell, ci) {
           var pos = choiceText.filter(function (a) {
-            a.includes(cell.innerText.trim().toLowerCase());
+            a.indexOf(cell.innerText.trim().toLowerCase()) > -1;
           });
           var add = false;
           if (pos < 0) return;
@@ -298,7 +298,7 @@
       document.body.appendChild(popover);
 
       popover.style.position = "fixed";
-      popover.style.left = target.getBoundingClientRect().left + "px";
+      popover.style.left = target.getBoundingClientRect().right + "px";
       popover.style.top = target.getBoundingClientRect().top + "px";
     });
 
@@ -374,14 +374,14 @@
     return second.reduce(function (acc, cv, ci, init) {
       switch (cv.length) {
         case 2:
-          if (cv[0].includes('"')) {
+          if (cv[0].indexOf('"') > -1) {
             acc.push([cv[0].split('"')[1], cv[1].split(",")[1]]);
           } else {
             acc.push([cv[1].split(",")]);
           }
           break;
         case 3:
-          if (cv[0].includes('"')) {
+          if (cv[0].indexOf('"') > -1) {
             acc.push([
               cv[0].split('"')[1],
               (cv[1] + "=" + cv[2]).split(",")[1],
@@ -413,8 +413,7 @@
   }
 
   function containsString(s0, s1) {
-    console.log("containsString vals s0:", s0, "\ns1:", s1);
-    return s0.trim().toLowerCase().includes(s1.trim().toLowerCase());
+    return s0.trim().toLowerCase().indexOf(s1.trim().toLowerCase()) > -1;
   }
 
   function compareString(s0, s1) {
