@@ -1,18 +1,12 @@
-(function () {
-  window.addEventListener("load", function () {
-    Meatball.start;
+(function() {
+  window.addEventListener("load", function() {
+    getListItems();
   });
 
   //On change, adds functionality
-  window.addEventListener("hashchange", function () {
-    Meatball.start;
+  window.addEventListener("hashchange", function() {
+    getListItems();
   });
-
-  function Meatball() {}
-  Meatball.prototype.start = getListItems();
-  // Meatball.prototype.findTargets = findTargets();
-  // Meatball.prototype.addPopover = addPopover();
-  // Meatball.prototype.updateTarget = updateTarget();
 
   /* get all the choices and send to main func*/
   function getListItems() {
@@ -30,14 +24,14 @@
         return;
       }
       //Include only the actual lists
-      tables = tables.filter(function (table) {
+      tables = tables.filter(function(table) {
         return table.getAttribute("class") === "ms-listviewtable";
       });
       //Grabbing the list url
       var site = _spPageContextInfo.webServerRelativeUrl;
       //Iterate through the
 
-      tables.forEach(function (table, index) {
+      tables.forEach(function(table, index) {
         var currentListName = table.getAttribute("id").substring(1, 37);
         var listName = "SP.Data." + table.summary + "ListItem";
         var data = {
@@ -87,12 +81,12 @@
               );
 
               findTargets(
-                popoverData.color,
-                popoverData.status,
+                parseFormula(popoverData.color),
+                parseFormula(popoverData.status),
                 table,
                 popoverData.value
               );
-            } else findTargets([]);
+            }
             return false;
           },
           error: function(error) {
@@ -108,24 +102,23 @@
     var overrides = [
       { color: "green", text: "up" },
       { color: "red", text: "down" },
-      { color: "yellow", text: "degraded" },
+      { color: "yellow", text: "degraded" }
     ];
-    console.log(table.childNodes);
     if (!table || table.childNodes.length === 0) return;
 
     //Step 1. Choices to apply across all solutions in sharepoint.
     if (window.hasOwnProperty("overrides")) {
       defaults = values.concat(overrides);
-      var uniqueObject = values.reduce(function (a, b) {
+      var uniqueObject = values.reduce(function(a, b) {
         a[b.color] = b.text;
         return a;
       }, {});
-      defaults = Object.keys(uniqueObject).map(function (key) {
+      defaults = Object.keys(uniqueObject).map(function(key) {
         return { color: key, text: uniqueObject[key] };
       });
     }
 
-    var choiceText = values.map(function (a) {
+    var choiceText = values.map(function(a) {
       return a;
     });
 
@@ -135,20 +128,22 @@
     var displayValue = "";
     var displayColor = "";
 
-    rows.map(function (row) {
+    rows.map(function(row, ri) {
+      displayValue = "";
+      displayColor = "";
       var cells = [].slice.call(row.getElementsByTagName("td"));
 
       if (cells.length > 0) {
-        //this checks if the cell contains the text which is in userCHoices, select that cell to add the modal
-        cells.map(function (cell, ci) {
-          var pos = choiceText.filter((a) =>
-            a.includes(cell.innerText.trim().toLowerCase())
-          );
+        //this checks if the cell contains the text which is in user choices, select that cell to add the modal
+        cells.map(function(cell, ci) {
+          var pos = choiceText.filter(function(a) {
+            a.includes(cell.innerText.trim().toLowerCase());
+          });
           var add = false;
           if (pos < 0) return;
           if (thead[ci]) {
-            [].slice.call(thead[ci].children).forEach((item, ti) => {
-              [].slice.call(item.children).forEach((item, tci) => {
+            [].slice.call(thead[ci].children).forEach(function(item, ti){
+              [].slice.call(item.children).forEach(function(item, tci){
                 if (item.innerText) {
                   add = containsString(item.innerText, "status");
                   if (add) {
@@ -156,23 +151,36 @@
                       !containsString(item.innerText, "value") &&
                       !containsString(item.innerText, "color");
                   }
-                  // if (containsString(item.innerText, "value")) {
-                  //   displayValue = cell.innerText;
-                  // }
-                  // if (containsString(item.innerText, "color")) {
-                  //   displayColor = cell.innerText;
-                  // }
+                  if (containsString(item.innerText, "value")) {
+                    displayValue = cell.innerText;
+                  }
+                  if (containsString(item.innerText, "color")) {
+                    displayColor = cell.innerText;
+                  }
                 }
               });
             });
           }
 
           if (add && table.getAttribute("id") && row.getAttribute("iid")) {
+            [].slice.call(cell.children).forEach(function(item, i){
+              [].slice.call(item.children).forEach(function(item, i){
+                if (!displayValue) {
+                  displayValue = item.getAttribute("key");
+                  displayColor = item.style.backgroundColor;
+                } else if (displayValue.length < 1) {
+                  displayValue = item.getAttribute("key");
+                  displayColor = item.style.backgroundColor;
+                }
+              });
+            });
+
             addPopover(
               cell,
               colors,
               values,
               displayValue,
+              displayColor,
               row.getAttribute("iid").split(",")[1],
               thead[ci],
               table.getAttribute("id").substring(1, 37)
@@ -191,6 +199,7 @@
     colors,
     defaults,
     displayValue,
+    displayColor,
     rowIndex,
     thead,
     table
@@ -223,12 +232,12 @@
     options.style.borderRadius = ".25rem";
 
     //Create and Add Option Elements
-    defaults.forEach(function (ele, index) {
-      var disColor;
+    defaults.forEach(function(ele, index) {
+      var defaultColor;
       if (colors.length > index) {
-        disColor = colors[index];
+        defaultColor = colors[index][0][1];
       } else {
-        disColor = colors[index % colors.length];
+        defaultColor = colors[index % colors.length][0][1];
       }
       var optionPanel = document.createElement("div");
       optionPanel.style.padding = ".25rem";
@@ -250,16 +259,22 @@
 
       if (compareString(displayValue, ele)) {
         option.style.color = "black";
-        optionPanel.style.backgroundColor = disColor;
+
+        if (displayColor.length > 0) {
+          optionPanel.style.backgroundColor = displayColor;
+        } else {
+          optionPanel.style.backgroundColor = defaultColor;
+        }
         radio.checked = "checked";
       } else {
-        option.style.color = disColor;
+        optionPanel.style.textShadow = "1px 1px 1px black";
+        optionPanel.style.color = defaultColor;
         optionPanel.style.backgroundColor = "#a9a9a9";
       }
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
       //Add Click Event to update list
-      optionPanel.addEventListener("click", function () {
+      optionPanel.addEventListener("click", function() {
         updateTarget(ele, rowIndex, thead.innerText, table);
       });
       options.appendChild(optionPanel);
@@ -283,7 +298,7 @@
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
-    target.addEventListener("mouseenter", function () {
+    target.addEventListener("mouseenter", function() {
       document.body.appendChild(popover);
 
       popover.style.position = "fixed";
@@ -291,13 +306,13 @@
       popover.style.top = target.getBoundingClientRect().top + "px";
     });
 
-    target.addEventListener("mouseleave", function (e) {
+    target.addEventListener("mouseleave", function(e) {
       if (popover.contains(e.relatedTarget)) return;
       if (popover) popover.parentNode.removeChild(popover);
     });
 
     //Add Mouse leave Event to hide
-    popover.addEventListener("mouseleave", function () {
+    popover.addEventListener("mouseleave", function() {
       options.style.display = "none";
       if (popover) popover.parentNode.removeChild(popover);
     });
@@ -309,7 +324,7 @@
     var listName = "SP.ListItem";
     var data = {
       __metadata: { type: listName },
-      status_value: ele,
+      status_value: ele
     };
     var url =
       window.location.origin +
@@ -331,7 +346,7 @@
         "X-HTTP-Method": "MERGE",
         "X-RequestDigest": $("#__REQUESTDIGEST").val()
       },
-      success: function (data) {
+      success: function(data) {
         alert("Updated Target Successfully");
         location.reload();
         return false;
@@ -344,6 +359,44 @@
       }
     });
   }
+
+  function generateColorArray(formula) {}
+
+  function generateChoiceArray(formula) {}
+
+  function parseFormula(formula) {
+    var init = formula.split("IF");
+    var second = init.reduce(function(acc, cv, ci, init) {
+      if (ci !== 0) acc.push(cv.split("="));
+      return acc;
+    }, []);
+
+    return second.reduce(function(acc, cv, ci, init) {
+      switch (cv.length) {
+        case 2:
+          if (cv[0].includes('"')) {
+            acc.push([cv[0].split('"')[1], cv[1].split(",")[1]]);
+          } else {
+            acc.push([cv[1].split(",")]);
+          }
+          break;
+        case 3:
+          if (cv[0].includes('"')) {
+            acc.push([
+              cv[0].split('"')[1],
+              (cv[1] + "=" + cv[2]).split(",")[1]
+            ]);
+          } else {
+            var temp = cv[1] + "=" + cv[2];
+
+            acc.push([temp.split(",")]);
+          }
+          break;
+      }
+      return acc;
+    }, []);
+  }
+
   //True, error.  False, no error.
   function errorChecking(obj) {
     if (!obj) {
@@ -367,6 +420,10 @@
   }
 
   function compareString(s0, s1) {
-    return s0.trim().toLowerCase() === s1.trim().toLowerCase();
+    if (s0 && s1) {
+      return s0.trim().toLowerCase() === s1.trim().toLowerCase();
+    } else {
+      return false;
+    }
   }
 })();
