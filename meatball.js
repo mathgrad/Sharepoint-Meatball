@@ -229,7 +229,6 @@
       var optionPanel = document.createElement("div");
       optionPanel.style.padding = ".25rem";
       optionPanel.style.marginBottom = ".25rem";
-      optionPanel.style.cursor = "pointer";
       optionPanel.style.textAlign = "left";
       optionPanel.style.fontWeight = "bold";
       optionPanel.style.borderRadius = ".25rem";
@@ -243,7 +242,6 @@
       radio.style.margin = "0px";
       radio.style.display = "inline";
 
-      radio.style.cursor = "pointer";
       option.style.textShadow = "1px 1px 1px black";
       radio.style.color = "#f5f5f5";
       option.style.color = "#f5f5f5";
@@ -251,11 +249,14 @@
 
       if (compareString(displayValue, ele)) {
         radio.checked = "checked";
+      } else {
+        radio.style.cursor = "pointer";
+        optionPanel.style.cursor = "pointer";
+        optionPanel.addEventListener("click", function() {
+          updateTarget(ele, rowIndex, thead.innerText, table);
+        });
       }
       //Add Click Event to update list
-      optionPanel.addEventListener("click", function() {
-        updateTarget(ele, rowIndex, thead.innerText, table);
-      });
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
       options.appendChild(optionPanel);
