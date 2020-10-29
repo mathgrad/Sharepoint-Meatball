@@ -60,7 +60,11 @@
                     }
                     if (add && cv.Formula) {
                       acc.status.push(parseFormula(cv.Formula));
-                      acc.column.push(parseFormulaColumn(cv.Formula));
+                      var column = parseFormulaColumn(cv.Formula);
+                      if (column.indexOf("[") > -1) {
+                        column = column.substring(1, column.length - 1);
+                      }
+                      acc.column.push(column);
                     }
                   }
                   return acc;
@@ -108,9 +112,7 @@
     if (!table || table.childNodes.length === 0) {
       return;
     }
-    if (column.indexOf("[") > -1) {
-      column = column.substring(1, column.length - 1);
-    }
+
     //Step 3. Iterate over each cell and compare the inner text to the list of known defaults.
     var rows = [].slice.call(table.getElementsByTagName("tr"));
     var thead = [].slice.call(table.getElementsByTagName("th"));
@@ -141,12 +143,10 @@
                         column.split(" ").length !==
                         item.innerText.split(" ").length
                       ) {
-                        console.log("hit0:", column, item.innerText);
                         if (
                           column.split(" ").length - 1 ===
                           item.innerText.split(" ").length
                         ) {
-                          console.log("hit1:", column, item.innerText);
                           displayValue = cell.innerText;
                         }
                       }
@@ -170,14 +170,17 @@
                 }
               });
             });
-            addPopover(
-              cell,
-              values,
-              displayValue,
-              row.getAttribute("iid").split(",")[1],
-              thead[ci],
-              table.getAttribute("id").substring(1, 37)
-            );
+            if (displayValue) {
+              addPopover(
+                cell,
+                values,
+                displayValue,
+                row.getAttribute("iid").split(",")[1],
+                thead[ci],
+                table.getAttribute("id").substring(1, 37),
+                column
+              );
+            }
           }
         });
       }
@@ -187,7 +190,15 @@
   /*
     This creates the popover for each cell
   */
-  function addPopover(target, defaults, displayValue, rowIndex, thead, table) {
+  function addPopover(
+    target,
+    defaults,
+    displayValue,
+    rowIndex,
+    thead,
+    table,
+    column
+  ) {
     //Create Popover Element
     var popover = document.createElement("div");
     popover.style.backgroundColor = "	#676767";
@@ -239,13 +250,13 @@
       option.style.color = "#f5f5f5";
       optionPanel.style.backgroundColor = "#3D71EB";
 
-      if (compareString(displayValue, ele)) {
+      if (compareString(ele, displayValue)) {
         radio.checked = "checked";
       } else {
         radio.style.cursor = "pointer";
         optionPanel.style.cursor = "pointer";
         optionPanel.addEventListener("click", function () {
-          updateTarget(ele, rowIndex, thead.innerText, table);
+          updateTarget(ele, rowIndex, thead.innerText, table, column);
         });
       }
       //Add Click Event to update list
