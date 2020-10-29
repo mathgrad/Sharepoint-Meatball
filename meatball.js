@@ -59,7 +59,6 @@
                       add = false;
                     }
                     if (add && cv.Formula) {
-                      acc.status.push(parseFormula(cv.Formula));
                       var column = parseFormulaColumn(cv.Formula);
                       if (column.indexOf("[") > -1) {
                         column = column.substring(1, column.length - 1);
@@ -71,12 +70,11 @@
                 },
                 {
                   column: [],
-                  status: [],
                   value: [],
                 }
               );
 
-              popoverData.status.forEach(function (item, i) {
+              popoverData.value.forEach(function (item, i) {
                 if (!popoverData) {
                   return;
                 }
@@ -89,12 +87,7 @@
                 if (popoverData.value[i].length < 1) {
                   return;
                 }
-                findTargets(
-                  item,
-                  table,
-                  popoverData.value[i],
-                  popoverData.column[i]
-                );
+                findTargets(table, item, popoverData.column[i]);
               });
             }
             return false;
@@ -108,7 +101,7 @@
   }
 
   //Entry Point and General Function
-  function findTargets(status, table, values, column) {
+  function findTargets(table, values, column) {
     if (!table || table.childNodes.length === 0) {
       return;
     }
@@ -131,8 +124,7 @@
             [].slice.call(thead[ci].children).forEach(function (item, ti) {
               [].slice.call(item.children).forEach(function (item, tci) {
                 if (item.innerText) {
-                  add = containsString(item.innerText, "status");
-                  if (add) {
+                  if (containsString(item.innerText, "status")) {
                     add =
                       !containsString(item.innerText, "value") &&
                       !containsString(item.innerText, "type");
@@ -150,6 +142,8 @@
                           displayValue = cell.innerText;
                         }
                       }
+                    } else {
+                      add = false;
                     }
                   }
                 }
