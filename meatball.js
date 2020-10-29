@@ -244,10 +244,7 @@
       option.style.color = "#f5f5f5";
       optionPanel.style.backgroundColor = "#3D71EB";
 
-      if (
-        compareString(ele, displayValue) ||
-        compareString(displayValue, ele)
-      ) {
+      if (containsString(ele, displayValue)) {
         radio.checked = "checked";
       } else {
         radio.style.cursor = "pointer";
