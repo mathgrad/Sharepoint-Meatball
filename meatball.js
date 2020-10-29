@@ -315,7 +315,6 @@
     };
     data[spColumn] = ele;
     var url =
-      window.location.origin +
       site +
       "/_api/web/lists('" +
       table +
