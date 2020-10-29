@@ -59,10 +59,6 @@
                       acc.value.push(cv.Choices.results);
                       add = false;
                     }
-                    if (containsString(cv.Title, "color")) {
-                      acc.color.push(cv.Formula);
-                      add = false;
-                    }
                     if (add && cv.Formula) {
                       acc.status.push(cv.Formula);
                     }
@@ -71,7 +67,6 @@
                 },
                 {
                   status: [],
-                  color: [],
                   value: [],
                 }
               );
@@ -87,14 +82,19 @@
               []);
 
               popoverData.status.forEach(function (item, i) {
-                console.log(
-                  "popoverData" + i,
-                  popoverData.value[i],
-                  "colName:",
-                  columnNames[i]
-                );
+                if (!popoverData) {
+                  return;
+                }
+                if (!popoverData.value) {
+                  return;
+                }
+                if (!popoverData.value[i]) {
+                  return;
+                }
+                if (popoverData.value[i].length < 1) {
+                  return;
+                }
                 findTargets(
-                  [],
                   parseFormula(item),
                   table,
                   popoverData.value[i],
@@ -113,18 +113,10 @@
   }
 
   //Entry Point and General Function
-  function findTargets(colors, status, table, values, column) {
-    var overrides = [
-      { color: "green", text: "up" },
-      { color: "red", text: "down" },
-      { color: "yellow", text: "degraded" },
-    ];
-    if (!table || table.childNodes.length === 0) return;
-
-    //Step 1. Choices to apply across all solutions in sharepoint.
-    var choiceText = values.map(function (a) {
-      return a;
-    });
+  function findTargets(status, table, values) {
+    if (!table || table.childNodes.length === 0) {
+      return;
+    }
 
     //Step 3. Iterate over each cell and compare the inner text to the list of known defaults.
     var rows = [].slice.call(table.getElementsByTagName("tr"));
@@ -140,11 +132,7 @@
       if (cells.length > 0) {
         //this checks if the cell contains the text which is in user choices, select that cell to add the modal
         cells.map(function (cell, ci) {
-          var pos = choiceText.filter(function (a) {
-            a.indexOf(cell.innerText.trim().toLowerCase()) > -1;
-          });
           var add = false;
-          if (pos < 0) return;
           if (thead[ci]) {
             [].slice.call(thead[ci].children).forEach(function (item, ti) {
               [].slice.call(item.children).forEach(function (item, tci) {
@@ -172,20 +160,16 @@
               [].slice.call(item.children).forEach(function (item, i) {
                 if (!displayValue) {
                   displayValue = item.getAttribute("key");
-                  displayColor = item.style.backgroundColor;
                 } else if (displayValue.length < 1) {
                   displayValue = item.getAttribute("key");
-                  displayColor = item.style.backgroundColor;
                 }
               });
             });
 
             addPopover(
               cell,
-              colors,
               values,
               displayValue,
-              displayColor,
               row.getAttribute("iid").split(",")[1],
               thead[ci],
               table.getAttribute("id").substring(1, 37),
@@ -202,10 +186,8 @@
   */
   function addPopover(
     target,
-    colors,
     defaults,
     displayValue,
-    displayColor,
     rowIndex,
     thead,
     table,
@@ -214,12 +196,12 @@
     if (column.includes("[")) {
       column = column.substring(1, column.length - 1);
     }
-    //Create Popover Ele:ment
+    //Create Popover Element
     var popover = document.createElement("div");
-    popover.style.backgroundColor = "#d3d3d3";
-    popover.style.color = "#fff";
+    popover.style.backgroundColor = "#6b8e23";
+    popover.style.color = "#f2f3f4";
     popover.style.padding = ".5rem";
-    popover.style.border = "1px solid black";
+    popover.style.border = "1px solid";
     popover.style.borderRadius = ".25rem";
     popover.style.fontWeight = "bold";
     popover.style.zIndex = "1";
@@ -231,24 +213,19 @@
     header.style.textAlign = "center";
     header.style.cursor = "pointer";
     header.style.marginBottom = ".25rem";
-    header.style.backgroundColor = "#4b6ac6";
+    header.style.backgroundColor = "#236C8E";
     header.innerText = displayValue;
+    header.style.textShadow = "1px 1px 1px black";
 
     //Create Options Panel Element
     var options = document.createElement("div");
     options.style.display = "none";
     options.style.padding = ".25rem";
-    options.style.backgroundColor = "#60605f";
+    // options.style.backgroundColor = "#236C8E";
     options.style.borderRadius = ".25rem";
 
     //Create and Add Option Elements
     defaults.forEach(function (ele, index) {
-      var defaultColor = "#ffffff";
-      // if (colors.length > index) {
-      //   defaultColor = colors[index][0][1];
-      // } else {
-      //   defaultColor = colors[index % colors.length][0][1];
-      // }
       var optionPanel = document.createElement("div");
       optionPanel.style.padding = ".25rem";
       optionPanel.style.marginBottom = ".25rem";
@@ -266,26 +243,19 @@
       radio.style.margin = "0px";
       radio.style.display = "inline";
 
+      radio.style.cursor = "pointer";
+      option.style.textShadow = "1px 1px 1px black";
+      radio.style.color = "#f5f5f5";
+      option.style.color = "#f5f5f5";
+      optionPanel.style.backgroundColor = "#A8A8FF";
+
       if (compareString(displayValue, ele)) {
-        option.style.color = "black";
-
-        if (displayColor.length > 0) {
-          optionPanel.style.backgroundColor = displayColor;
-        } else {
-          optionPanel.style.backgroundColor = defaultColor;
-        }
         radio.checked = "checked";
-      } else {
-        radio.style.cursor = "pointer";
-        option.style.textShadow = "1px 1px 1px black";
-        option.style.color = defaultColor;
-        optionPanel.style.backgroundColor = "#a9a9a9";
-
-        //Add Click Event to update list
-        optionPanel.addEventListener("click", function () {
-          updateTarget(ele, rowIndex, thead.innerText, table, column);
-        });
       }
+      //Add Click Event to update list
+      optionPanel.addEventListener("click", function () {
+        updateTarget(ele, rowIndex, thead.innerText, table);
+      });
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
       options.appendChild(optionPanel);
@@ -381,6 +351,7 @@
     });
   }
   function parseFormulaColumn(formula) {
+    var reg = /([()])/g;
     var init = formula.split("IF");
     var second = init.reduce(function (acc, cv, ci, init) {
       if (ci !== 0) acc.push(cv.split("="));
@@ -392,9 +363,9 @@
     }, []);
     var fourth = third.reduce(function (acc, cv, ci, third) {
       if (cv[1]) {
-        acc.push(cv[1].replaceAll(")", ""));
+        acc.push(cv[1].replace(reg, ""));
       } else if (cv[0]) {
-        acc.push(cv[0].replaceAll("(", ""));
+        acc.push(cv[0].replace(reg, ""));
       }
       return acc;
     }, []);
