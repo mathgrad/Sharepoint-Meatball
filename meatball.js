@@ -1,10 +1,10 @@
-(function() {
-  window.addEventListener("load", function() {
+(function () {
+  window.addEventListener("load", function () {
     getListItems();
   });
 
   //On change, adds functionality
-  window.addEventListener("hashchange", function() {
+  window.addEventListener("hashchange", function () {
     getListItems();
   });
 
@@ -16,7 +16,7 @@
       "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
     document.body.appendChild(scriptAjax);
     //Waits till Ajax loads to allow full functionality of
-    scriptAjax.onload = function() {
+    scriptAjax.onload = function () {
       //Step 1. Get all the tables -- create array
       var tables = [].slice.call(document.getElementsByTagName("table"));
       if (errorChecking(tables)) {
@@ -24,19 +24,18 @@
         return;
       }
       //Include only the actual lists
-      tables = tables.filter(function(table) {
+      tables = tables.filter(function (table) {
         return table.getAttribute("class") === "ms-listviewtable";
       });
       //Grabbing the list url
 
-      //Iterate through the
-
-      tables.forEach(function(table, index) {
+      //Iterate through the table
+      tables.forEach(function (table, index) {
         var currentListName = table.getAttribute("id").substring(1, 37);
         var root = ctx.HttpRoot;
         var listName = "SP.Data." + table.summary + "ListItem";
         var data = {
-          __metadata: { type: listName }
+          __metadata: { type: listName },
         };
         var url = root + "/_api/web/lists('" + currentListName + "')/fields";
 
@@ -47,12 +46,12 @@
             Accept: "application/json; odata=verbose",
             "Content-Type": "application/json;odata=verbose",
             credentials: true,
-            "X-RequestDigest": $("#__REQUESTDIGEST").val()
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
           },
-          success: function(data) {
+          success: function (data) {
             if (data && data.d) {
               var popoverData = data.d.results.reduce(
-                function(acc, cv, ci, data) {
+                function (acc, cv, ci, data) {
                   var add = true;
                   if (containsString(cv.Title, "status")) {
                     if (containsString(cv.Title, "value")) {
@@ -69,11 +68,11 @@
                 {
                   column: [],
                   status: [],
-                  value: []
+                  value: [],
                 }
               );
 
-              popoverData.status.forEach(function(item, i) {
+              popoverData.status.forEach(function (item, i) {
                 if (!popoverData) {
                   return;
                 }
@@ -96,9 +95,9 @@
             }
             return false;
           },
-          error: function(error) {
+          error: function (error) {
             console.log("Error: Get list choices request Failed.");
-          }
+          },
         });
       });
     };
@@ -116,17 +115,17 @@
     var displayValue = "";
     var displayColor = "";
 
-    rows.map(function(row, ri) {
+    rows.map(function (row, ri) {
       displayValue = "";
       var cells = [].slice.call(row.getElementsByTagName("td"));
 
       if (cells.length > 0) {
         //this checks if the cell contains the text which is in user choices, select that cell to add the modal
-        cells.map(function(cell, ci) {
+        cells.map(function (cell, ci) {
           var add = false;
           if (thead[ci]) {
-            [].slice.call(thead[ci].children).forEach(function(item, ti) {
-              [].slice.call(item.children).forEach(function(item, tci) {
+            [].slice.call(thead[ci].children).forEach(function (item, ti) {
+              [].slice.call(item.children).forEach(function (item, tci) {
                 if (item.innerText) {
                   add = containsString(item.innerText, "status");
                   if (add) {
@@ -144,8 +143,8 @@
           }
 
           if (add && table.getAttribute("id") && row.getAttribute("iid")) {
-            [].slice.call(cell.children).forEach(function(item, i) {
-              [].slice.call(item.children).forEach(function(item, i) {
+            [].slice.call(cell.children).forEach(function (item, i) {
+              [].slice.call(item.children).forEach(function (item, i) {
                 if (!displayValue) {
                   displayValue = item.getAttribute("key");
                 } else if (displayValue.length < 1) {
@@ -201,7 +200,7 @@
     options.style.borderRadius = ".25rem";
 
     //Create and Add Option Elements
-    defaults.forEach(function(ele, index) {
+    defaults.forEach(function (ele, index) {
       var optionPanel = document.createElement("div");
       optionPanel.style.padding = ".25rem";
       optionPanel.style.marginBottom = ".25rem";
@@ -228,7 +227,7 @@
       } else {
         radio.style.cursor = "pointer";
         optionPanel.style.cursor = "pointer";
-        optionPanel.addEventListener("click", function() {
+        optionPanel.addEventListener("click", function () {
           updateTarget(ele, rowIndex, thead.innerText, table);
         });
       }
@@ -244,7 +243,7 @@
     popover.appendChild(options);
 
     //Add Click Event to display Options Panel
-    header.addEventListener("click", function() {
+    header.addEventListener("click", function () {
       var style = options.style.display;
       var change = false;
       change = style === "block";
@@ -256,7 +255,7 @@
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
-    target.addEventListener("mouseenter", function() {
+    target.addEventListener("mouseenter", function () {
       document.body.appendChild(popover);
 
       popover.style.position = "fixed";
@@ -264,7 +263,7 @@
       popover.style.top = target.getBoundingClientRect().top + "px";
     });
 
-    target.addEventListener("mouseleave", function(e) {
+    target.addEventListener("mouseleave", function (e) {
       if (popover.contains(e.relatedTarget)) return;
       if (popover) {
         if (popover.parentNode) {
@@ -274,7 +273,7 @@
     });
 
     //Add Mouse leave Event to hide
-    popover.addEventListener("mouseleave", function() {
+    popover.addEventListener("mouseleave", function () {
       options.style.display = "none";
       if (popover) {
         if (popover.parentNode) {
@@ -290,7 +289,7 @@
     var listName = "SP.ListItem";
     var data = {
       __metadata: { type: listName },
-      status_value: ele
+      status_value: ele,
     };
     var url =
       window.location.origin +
@@ -311,28 +310,25 @@
         credentials: true,
         "If-Match": "*",
         "X-HTTP-Method": "MERGE",
-        "X-RequestDigest": $("#__REQUESTDIGEST").val()
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
-      success: function(data) {
+      success: function (data) {
         alert("Updated Target Successfully");
         location.reload();
         return false;
       },
-      error: function(error) {
+      error: function (error) {
         alert(
           "Error: Update Request Failed. Please Contact the 1MEF IMO",
           console.log(JSON.stringify(error))
         );
-      }
+      },
     });
   }
 
   function parseFormulaColumn(formula) {
     var reg = /([()])/g;
-    var parsedFormula = formula
-      .split("IF")[1]
-      .split("=")[0]
-      .split(",");
+    var parsedFormula = formula.split("IF")[1].split("=")[0].split(",");
     switch (parsedFormula.length) {
       case 1:
         return parsedFormula[0].replace(reg, "");
@@ -344,7 +340,7 @@
   }
 
   function parseFormula(formula) {
-    return formula.split("IF").reduce(function(acc, cv, ci, init) {
+    return formula.split("IF").reduce(function (acc, cv, ci, init) {
       if (ci !== 0) {
         var splitEqual = cv.split("=");
         switch (splitEqual.length) {
@@ -352,7 +348,7 @@
             if (splitEqual[0].includes('"')) {
               acc.push([
                 splitEqual[0].split('"')[1],
-                splitEqual[1].split(",")[1]
+                splitEqual[1].split(",")[1],
               ]);
             } else {
               acc.push([splitEqual[1].split(",")]);
@@ -362,7 +358,7 @@
             if (splitEqual[0].indexOf('"') > -1) {
               acc.push([
                 splitEqual[0].split('"')[1],
-                (splitEqual[1] + "=" + splitEqual[2]).split(",")[1]
+                (splitEqual[1] + "=" + splitEqual[2]).split(",")[1],
               ]);
             } else {
               var temp = splitEqual[1] + "=" + splitEqual[2];
@@ -380,7 +376,7 @@
                   splitEqual[2] +
                   "=" +
                   splitEqual[3]
-                ).replace(",", "")
+                ).replace(",", ""),
               ]);
             } else {
               var temp = (
@@ -420,12 +416,7 @@
 
   /*Checks to see if s0 is contains to s1*/
   function containsString(s0, s1) {
-    return (
-      s0
-        .trim()
-        .toLowerCase()
-        .indexOf(s1.trim().toLowerCase()) > -1
-    );
+    return s0.trim().toLowerCase().indexOf(s1.trim().toLowerCase()) > -1;
   }
 
   /*Uses containsString to check to see if the two strings are equal*/
