@@ -244,7 +244,10 @@
       option.style.color = "#f5f5f5";
       optionPanel.style.backgroundColor = "#3D71EB";
 
-      if (compareString(ele, displayValue)) {
+      if (
+        compareString(ele, displayValue) ||
+        compareString(displayValue, ele)
+      ) {
         radio.checked = "checked";
       } else {
         radio.style.cursor = "pointer";
@@ -306,13 +309,14 @@
   }
 
   function updateTarget(ele, rowIndex, header, table, column) {
+    var spColumn = column.trim().replace(/\s/g, "_x0020_");
     var site = _spPageContextInfo.webServerRelativeUrl;
     var currentListName = ctx.ListTitle;
     var listName = "SP.ListItem";
     var data = {
       __metadata: { type: listName },
     };
-    data[column] = ele;
+    data[spColumn] = ele;
     var url =
       window.location.origin +
       site +
@@ -321,7 +325,7 @@
       "')/items(" +
       rowIndex +
       ")?$select=" +
-      column;
+      spColumn;
     $.ajax({
       url: url,
       type: "POST",
