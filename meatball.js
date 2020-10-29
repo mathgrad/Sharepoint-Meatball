@@ -70,7 +70,6 @@
                   value: [],
                 }
               );
-
               var columnNames = popoverData.status.reduce(function (
                 acc,
                 cv,
@@ -80,6 +79,7 @@
                 return acc;
               },
               []);
+              //console.log("Column Names: ", columnNames);
 
               popoverData.status.forEach(function (item, i) {
                 if (!popoverData) {
@@ -113,11 +113,13 @@
   }
 
   //Entry Point and General Function
-  function findTargets(status, table, values) {
+  function findTargets(status, table, values, column) {
     if (!table || table.childNodes.length === 0) {
       return;
     }
-
+    if (column.includes("[")) {
+      column = column.substring(1, column.length - 1);
+    }
     //Step 3. Iterate over each cell and compare the inner text to the list of known defaults.
     var rows = [].slice.call(table.getElementsByTagName("tr"));
     var thead = [].slice.call(table.getElementsByTagName("th"));
@@ -141,15 +143,36 @@
                   if (add) {
                     add =
                       !containsString(item.innerText, "value") &&
-                      !containsString(item.innerText, "color") &&
                       !containsString(item.innerText, "type");
+
+                    if (containsString(column, item.innerText)) {
+                      //Pseudo function
+                      if (
+                        column.split(" ").length !==
+                        item.innerText.split(" ").length
+                      ) {
+                        console.log("hit0:", column, item.innerText);
+                          if (
+                            column.split(" ").length - 1 ===
+                            item.innerText.split(" ").length
+                          ) {
+                            console.log("hit1:", column, item.innerText);
+                            displayValue = cell.innerText;
+                          }
+                        }
+                      }
+                    }
                   }
-                  if (containsString(item.innerText, "value")) {
-                    displayValue = cell.innerText;
-                  }
-                  if (containsString(item.innerText, "color")) {
-                    displayColor = cell.innerText;
-                  }
+                  /* match text counter example*/
+
+                  // if (item.innerText) {
+                  //   var value = column;
+                  //   var status = item.innerText.toString();
+                  //   var regex = new RegExp(status, "gi");
+                  //   if (value.match(regex)) {
+                  //     console.log(value.match(regex)[0].length);
+                  //   }
+                  // }
                 }
               });
             });
@@ -165,7 +188,6 @@
                 }
               });
             });
-
             addPopover(
               cell,
               values,
@@ -254,7 +276,7 @@
       }
       //Add Click Event to update list
       optionPanel.addEventListener("click", function () {
-        updateTarget(ele, rowIndex, thead.innerText, table);
+        updateTarget(ele, rowIndex, thead.innerText, table, column);
       });
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
@@ -308,14 +330,14 @@
   }
 
   function updateTarget(ele, rowIndex, header, table, column) {
-    console.log("col in the POST:", column, "\nheader", header);
+    console.log("col in the POST:", column, "\nheader", header, "\nele:", ele);
     var site = _spPageContextInfo.webServerRelativeUrl;
     var currentListName = ctx.ListTitle;
     var listName = "SP.ListItem";
     var data = {
       __metadata: { type: listName },
-      status_value: ele,
     };
+    data[column] = ele;
     var url =
       window.location.origin +
       site +
@@ -350,6 +372,7 @@
       },
     });
   }
+
   function parseFormulaColumn(formula) {
     var reg = /([()])/g;
     var init = formula.split("IF");
@@ -441,7 +464,7 @@
   }
 
   function containsString(s0, s1) {
-    return s0.trim().toLowerCase().indexOf(s1.trim().toLowerCase()) > -1;
+    return s0.toLowerCase().indexOf(s1.toLowerCase()) > -1;
   }
 
   function compareString(s0, s1) {
