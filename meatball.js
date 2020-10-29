@@ -108,7 +108,7 @@
     if (!table || table.childNodes.length === 0) {
       return;
     }
-    if (column.includes("[")) {
+    if (column.indexOf("[") > -1) {
       column = column.substring(1, column.length - 1);
     }
     //Step 3. Iterate over each cell and compare the inner text to the list of known defaults.
@@ -362,7 +362,7 @@
         var splitEqual = cv.split("=");
         switch (splitEqual.length) {
           case 2:
-            if (splitEqual[0].includes('"')) {
+            if (splitEqual[0].indexOf('"') > -1) {
               acc.push([
                 splitEqual[0].split('"')[1],
                 splitEqual[1].split(",")[1],
