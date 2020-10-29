@@ -285,7 +285,6 @@
   }
 
   function updateTarget(ele, rowIndex, header, table, column) {
-    console.log("col in the POST:", column, "\nheader", header);
     var site = _spPageContextInfo.webServerRelativeUrl;
     var currentListName = ctx.ListTitle;
     var listName = "SP.ListItem";
