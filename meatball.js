@@ -185,7 +185,7 @@
     table,
     column
   ) {
-    if (column.includes("[")) {
+    if (column.indexOf("[") > -1) {
       column = column.substring(1, column.length - 1);
     }
     //Create Popover Element
@@ -343,6 +343,7 @@
       }
     });
   }
+
   function parseFormulaColumn(formula) {
     var reg = /([()])/g;
     var init = formula.split("IF");
