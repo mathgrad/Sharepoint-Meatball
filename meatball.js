@@ -29,8 +29,7 @@
       });
       //Grabbing the list url
 
-      //Iterate through the
-
+      //Iterate through the table
       tables.forEach(function (table, index) {
         var currentListName = table.getAttribute("id").substring(1, 37);
         var root = ctx.HttpRoot;
@@ -60,26 +59,18 @@
                       add = false;
                     }
                     if (add && cv.Formula) {
-                      acc.status.push(cv.Formula);
+                      acc.status.push(parseFormula(cv.Formula));
+                      acc.column.push(parseFormulaColumn(cv.Formula));
                     }
                   }
                   return acc;
                 },
                 {
+                  column: [],
                   status: [],
                   value: [],
                 }
               );
-              var columnNames = popoverData.status.reduce(function (
-                acc,
-                cv,
-                ci
-              ) {
-                if (cv) acc.push(parseFormulaColumn(cv));
-                return acc;
-              },
-              []);
-              //console.log("Column Names: ", columnNames);
 
               popoverData.status.forEach(function (item, i) {
                 if (!popoverData) {
@@ -95,10 +86,10 @@
                   return;
                 }
                 findTargets(
-                  parseFormula(item),
+                  item,
                   table,
                   popoverData.value[i],
-                  columnNames[i]
+                  popoverData.column[i]
                 );
               });
             }
@@ -128,7 +119,6 @@
 
     rows.map(function (row, ri) {
       displayValue = "";
-      displayColor = "";
       var cells = [].slice.call(row.getElementsByTagName("td"));
 
       if (cells.length > 0) {
@@ -152,27 +142,19 @@
                         item.innerText.split(" ").length
                       ) {
                         console.log("hit0:", column, item.innerText);
-                          if (
-                            column.split(" ").length - 1 ===
-                            item.innerText.split(" ").length
-                          ) {
-                            console.log("hit1:", column, item.innerText);
-                            displayValue = cell.innerText;
-                          }
+                        if (
+                          column.split(" ").length - 1 ===
+                          item.innerText.split(" ").length
+                        ) {
+                          console.log("hit1:", column, item.innerText);
+                          displayValue = cell.innerText;
                         }
                       }
                     }
                   }
-                  /* match text counter example*/
-
-                  // if (item.innerText) {
-                  //   var value = column;
-                  //   var status = item.innerText.toString();
-                  //   var regex = new RegExp(status, "gi");
-                  //   if (value.match(regex)) {
-                  //     console.log(value.match(regex)[0].length);
-                  //   }
-                  // }
+                }
+                if (containsString(item.innerText, "value")) {
+                  displayValue = cell.innerText;
                 }
               });
             });
@@ -194,8 +176,7 @@
               displayValue,
               row.getAttribute("iid").split(",")[1],
               thead[ci],
-              table.getAttribute("id").substring(1, 37),
-              column
+              table.getAttribute("id").substring(1, 37)
             );
           }
         });
@@ -206,21 +187,10 @@
   /*
     This creates the popover for each cell
   */
-  function addPopover(
-    target,
-    defaults,
-    displayValue,
-    rowIndex,
-    thead,
-    table,
-    column
-  ) {
-    if (column.includes("[")) {
-      column = column.substring(1, column.length - 1);
-    }
+  function addPopover(target, defaults, displayValue, rowIndex, thead, table) {
     //Create Popover Element
     var popover = document.createElement("div");
-    popover.style.backgroundColor = "#6b8e23";
+    popover.style.backgroundColor = "	#676767";
     popover.style.color = "#f2f3f4";
     popover.style.padding = ".5rem";
     popover.style.border = "1px solid";
@@ -235,7 +205,7 @@
     header.style.textAlign = "center";
     header.style.cursor = "pointer";
     header.style.marginBottom = ".25rem";
-    header.style.backgroundColor = "#236C8E";
+    header.style.backgroundColor = "#3D71EB";
     header.innerText = displayValue;
     header.style.textShadow = "1px 1px 1px black";
 
@@ -243,7 +213,7 @@
     var options = document.createElement("div");
     options.style.display = "none";
     options.style.padding = ".25rem";
-    // options.style.backgroundColor = "#236C8E";
+    // options.style.backgroundColor = "#1C9BF0";
     options.style.borderRadius = ".25rem";
 
     //Create and Add Option Elements
@@ -251,7 +221,6 @@
       var optionPanel = document.createElement("div");
       optionPanel.style.padding = ".25rem";
       optionPanel.style.marginBottom = ".25rem";
-      optionPanel.style.cursor = "pointer";
       optionPanel.style.textAlign = "left";
       optionPanel.style.fontWeight = "bold";
       optionPanel.style.borderRadius = ".25rem";
@@ -265,19 +234,21 @@
       radio.style.margin = "0px";
       radio.style.display = "inline";
 
-      radio.style.cursor = "pointer";
       option.style.textShadow = "1px 1px 1px black";
       radio.style.color = "#f5f5f5";
       option.style.color = "#f5f5f5";
-      optionPanel.style.backgroundColor = "#A8A8FF";
+      optionPanel.style.backgroundColor = "#3D71EB";
 
       if (compareString(displayValue, ele)) {
         radio.checked = "checked";
+      } else {
+        radio.style.cursor = "pointer";
+        optionPanel.style.cursor = "pointer";
+        optionPanel.addEventListener("click", function () {
+          updateTarget(ele, rowIndex, thead.innerText, table);
+        });
       }
       //Add Click Event to update list
-      optionPanel.addEventListener("click", function () {
-        updateTarget(ele, rowIndex, thead.innerText, table, column);
-      });
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
       options.appendChild(optionPanel);
@@ -330,7 +301,6 @@
   }
 
   function updateTarget(ele, rowIndex, header, table, column) {
-    console.log("col in the POST:", column, "\nheader", header, "\nele:", ele);
     var site = _spPageContextInfo.webServerRelativeUrl;
     var currentListName = ctx.ListTitle;
     var listName = "SP.ListItem";
@@ -375,74 +345,70 @@
 
   function parseFormulaColumn(formula) {
     var reg = /([()])/g;
-    var init = formula.split("IF");
-    var second = init.reduce(function (acc, cv, ci, init) {
-      if (ci !== 0) acc.push(cv.split("="));
-      return acc;
-    }, []);
-    var third = second.reduce(function (acc, cv, ci, second) {
-      acc.push(cv[0].split(","));
-      return acc;
-    }, []);
-    var fourth = third.reduce(function (acc, cv, ci, third) {
-      if (cv[1]) {
-        acc.push(cv[1].replace(reg, ""));
-      } else if (cv[0]) {
-        acc.push(cv[0].replace(reg, ""));
-      }
-      return acc;
-    }, []);
-    return fourth[0];
+    var parsedFormula = formula.split("IF")[1].split("=")[0].split(",");
+    switch (parsedFormula.length) {
+      case 1:
+        return parsedFormula[0].replace(reg, "");
+      case 2:
+        return parsedFormula[1].replace(reg, "");
+      default:
+        throw new Error("Formula incorrect size");
+    }
   }
 
   function parseFormula(formula) {
-    var init = formula.split("IF");
-    var second = init.reduce(function (acc, cv, ci, init) {
-      if (ci !== 0) acc.push(cv.split("="));
-      return acc;
-    }, []);
+    return formula.split("IF").reduce(function (acc, cv, ci, init) {
+      if (ci !== 0) {
+        var splitEqual = cv.split("=");
+        switch (splitEqual.length) {
+          case 2:
+            if (splitEqual[0].includes('"')) {
+              acc.push([
+                splitEqual[0].split('"')[1],
+                splitEqual[1].split(",")[1],
+              ]);
+            } else {
+              acc.push([splitEqual[1].split(",")]);
+            }
+            break;
+          case 3:
+            if (splitEqual[0].indexOf('"') > -1) {
+              acc.push([
+                splitEqual[0].split('"')[1],
+                (splitEqual[1] + "=" + splitEqual[2]).split(",")[1],
+              ]);
+            } else {
+              var temp = splitEqual[1] + "=" + splitEqual[2];
 
-    return second.reduce(function (acc, cv, ci, init) {
-      switch (cv.length) {
-        case 2:
-          if (cv[0].indexOf('"') > -1) {
-            acc.push([cv[0].split('"')[1], cv[1].split(",")[1]]);
-          } else {
-            acc.push([cv[1].split(",")]);
-          }
-          break;
-        case 3:
-          if (cv[0].indexOf('"') > -1) {
-            acc.push([
-              cv[0].split('"')[1],
-              (cv[1] + "=" + cv[2]).split(",")[1],
-            ]);
-          } else {
-            var temp = cv[1] + "=" + cv[2];
-
-            acc.push([temp.split(",")]);
-          }
-          break;
-        case 4:
-          if (cv[0].indexOf('"') > -1) {
-            acc.push([
-              cv[0].split('"')[1],
-              (cv[1].split(",")[1] + "=" + cv[2] + "=" + cv[3]).replace(
-                ",",
-                ""
-              ),
-            ]);
-          } else {
-            var temp = (
-              cv[1].split(",")[1] +
-              "=" +
-              cv[2] +
-              "=" +
-              cv[3]
-            ).replace(",", "");
-            acc.push([temp]);
-          }
-          break;
+              acc.push([temp.split(",")]);
+            }
+            break;
+          case 4:
+            if (splitEqual[0].indexOf('"') > -1) {
+              acc.push([
+                splitEqual[0].split('"')[1],
+                (
+                  splitEqual[1].split(",")[1] +
+                  "=" +
+                  splitEqual[2] +
+                  "=" +
+                  splitEqual[3]
+                ).replace(",", ""),
+              ]);
+            } else {
+              var temp = (
+                splitEqual[1].split(",")[1] +
+                "=" +
+                splitEqual[2] +
+                "=" +
+                splitEqual[3]
+              ).replace(",", "");
+              acc.push([temp]);
+            }
+            break;
+          default:
+            break;
+        }
       }
       return acc;
     }, []);
@@ -455,23 +421,23 @@
       return true;
     }
 
-    if (obj.length === 0) {
-      console.error("Nothing in the array");
-      return true;
+    if (obj.length) {
+      if (obj.length === 0) {
+        console.error("Nothing in the array");
+        return true;
+      }
     }
 
     return false;
   }
 
+  /*Checks to see if s0 is contains to s1*/
   function containsString(s0, s1) {
     return s0.toLowerCase().indexOf(s1.toLowerCase()) > -1;
   }
 
+  /*Uses containsString to check to see if the two strings are equal*/
   function compareString(s0, s1) {
-    if (s0 && s1) {
-      return s0.trim().toLowerCase() === s1.trim().toLowerCase();
-    } else {
-      return false;
-    }
+    return containsString(s0, s1) && containsString(s1, s0);
   }
 })();
