@@ -87,11 +87,18 @@
               []);
 
               popoverData.status.forEach(function (item, i) {
+                console.log(
+                  "popoverData" + i,
+                  popoverData.value[i],
+                  "colName:",
+                  columnNames[i]
+                );
                 findTargets(
                   [],
                   parseFormula(item),
                   table,
-                  popoverData.value[i]
+                  popoverData.value[i],
+                  columnNames[i]
                 );
               });
             }
@@ -106,7 +113,7 @@
   }
 
   //Entry Point and General Function
-  function findTargets(colors, status, table, values) {
+  function findTargets(colors, status, table, values, column) {
     var overrides = [
       { color: "green", text: "up" },
       { color: "red", text: "down" },
@@ -115,17 +122,6 @@
     if (!table || table.childNodes.length === 0) return;
 
     //Step 1. Choices to apply across all solutions in sharepoint.
-    if (window.hasOwnProperty("overrides")) {
-      defaults = values.concat(overrides);
-      var uniqueObject = values.reduce(function (a, b) {
-        a[b.color] = b.text;
-        return a;
-      }, {});
-      defaults = Object.keys(uniqueObject).map(function (key) {
-        return { color: key, text: uniqueObject[key] };
-      });
-    }
-
     var choiceText = values.map(function (a) {
       return a;
     });
@@ -192,7 +188,8 @@
               displayColor,
               row.getAttribute("iid").split(",")[1],
               thead[ci],
-              table.getAttribute("id").substring(1, 37)
+              table.getAttribute("id").substring(1, 37),
+              column
             );
           }
         });
@@ -211,8 +208,12 @@
     displayColor,
     rowIndex,
     thead,
-    table
+    table,
+    column
   ) {
+    if (column.includes("[")) {
+      column = column.substring(1, column.length - 1);
+    }
     //Create Popover Ele:ment
     var popover = document.createElement("div");
     popover.style.backgroundColor = "#d3d3d3";
@@ -282,7 +283,7 @@
 
         //Add Click Event to update list
         optionPanel.addEventListener("click", function () {
-          updateTarget(ele, rowIndex, thead.innerText, table);
+          updateTarget(ele, rowIndex, thead.innerText, table, column);
         });
       }
       optionPanel.appendChild(radio);
@@ -336,8 +337,8 @@
     });
   }
 
-  function updateTarget(ele, rowIndex, header, table) {
-    console.log("header:", header);
+  function updateTarget(ele, rowIndex, header, table, column) {
+    console.log("col in the POST:", column, "\nheader", header);
     var site = _spPageContextInfo.webServerRelativeUrl;
     var currentListName = ctx.ListTitle;
     var listName = "SP.ListItem";
@@ -353,7 +354,7 @@
       "')/items(" +
       rowIndex +
       ")?$select=" +
-      header;
+      column;
     $.ajax({
       url: url,
       type: "POST",
