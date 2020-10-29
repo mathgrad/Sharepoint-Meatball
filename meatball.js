@@ -108,7 +108,9 @@
     if (!table || table.childNodes.length === 0) {
       return;
     }
-
+    if (column.includes("[")) {
+      column = column.substring(1, column.length - 1);
+    }
     //Step 3. Iterate over each cell and compare the inner text to the list of known defaults.
     var rows = [].slice.call(table.getElementsByTagName("tr"));
     var thead = [].slice.call(table.getElementsByTagName("th"));
@@ -131,12 +133,28 @@
                   if (add) {
                     add =
                       !containsString(item.innerText, "value") &&
-                      !containsString(item.innerText, "color") &&
                       !containsString(item.innerText, "type");
+
+                    if (containsString(column, item.innerText)) {
+                      //Pseudo function
+                      if (
+                        column.split(" ").length !==
+                        item.innerText.split(" ").length
+                      ) {
+                        console.log("hit0:", column, item.innerText);
+                        if (
+                          column.split(" ").length - 1 ===
+                          item.innerText.split(" ").length
+                        ) {
+                          console.log("hit1:", column, item.innerText);
+                          displayValue = cell.innerText;
+                        }
+                      }
+                    }
                   }
-                  if (containsString(item.innerText, "value")) {
-                    displayValue = cell.innerText;
-                  }
+                }
+                if (containsString(item.innerText, "value")) {
+                  displayValue = cell.innerText;
                 }
               });
             });
@@ -152,7 +170,6 @@
                 }
               });
             });
-
             addPopover(
               cell,
               values,
@@ -289,8 +306,8 @@
     var listName = "SP.ListItem";
     var data = {
       __metadata: { type: listName },
-      status_value: ele,
     };
+    data[column] = ele;
     var url =
       window.location.origin +
       site +
@@ -416,7 +433,7 @@
 
   /*Checks to see if s0 is contains to s1*/
   function containsString(s0, s1) {
-    return s0.trim().toLowerCase().indexOf(s1.trim().toLowerCase()) > -1;
+    return s0.toLowerCase().indexOf(s1.toLowerCase()) > -1;
   }
 
   /*Uses containsString to check to see if the two strings are equal*/
