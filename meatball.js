@@ -60,26 +60,18 @@
                       add = false;
                     }
                     if (add && cv.Formula) {
-                      acc.status.push(cv.Formula);
+                      acc.status.push(parseFormula(cv.Formula));
+                      acc.column.push(parseFormulaColumn(cv.Formula));
                     }
                   }
                   return acc;
                 },
                 {
+                  column: [],
                   status: [],
                   value: []
                 }
               );
-
-              var columnNames = popoverData.status.reduce(function(
-                acc,
-                cv,
-                ci
-              ) {
-                if (cv) acc.push(parseFormulaColumn(cv));
-                return acc;
-              },
-              []);
 
               popoverData.status.forEach(function(item, i) {
                 if (!popoverData) {
@@ -95,10 +87,10 @@
                   return;
                 }
                 findTargets(
-                  parseFormula(item),
+                  item,
                   table,
                   popoverData.value[i],
-                  columnNames[i]
+                  popoverData.column[i]
                 );
               });
             }
