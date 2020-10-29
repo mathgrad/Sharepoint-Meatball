@@ -380,6 +380,7 @@
     });
   }
   function parseFormulaColumn(formula) {
+    var reg = /([()])/g;
     var init = formula.split("IF");
     var second = init.reduce(function (acc, cv, ci, init) {
       if (ci !== 0) acc.push(cv.split("="));
@@ -391,9 +392,9 @@
     }, []);
     var fourth = third.reduce(function (acc, cv, ci, third) {
       if (cv[1]) {
-        acc.push(cv[1].replaceAll(")", ""));
+        acc.push(cv[1].replace(reg, ""));
       } else if (cv[0]) {
-        acc.push(cv[0].replaceAll("(", ""));
+        acc.push(cv[0].replace(reg, ""));
       }
       return acc;
     }, []);
