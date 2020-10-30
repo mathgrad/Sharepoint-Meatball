@@ -1,8 +1,9 @@
-Sharepoint-Meatball
-<h1>Test</h1>
-Mission Statement:
-Allows users to change color circles (meatballs) through a popover inorder to improve work productivity
-
+<h1>Sharepoint-Meatball</h1>
+<h3>
+  <dl><dt>Mission Statement:</dt>
+<dd>Allows users to change color circles (meatballs) through a popover inorder to improve work productivity></dd>
+  </dl>
+</h3>
 Exection:
 The meatball script exists on the sharepoint main page.  If you do not see the script, then proceed to request it to be added to your organization's main page.
 Inorder for it to be used, the following must be met:
