@@ -1,10 +1,3 @@
-<style type="text/css">
-      body{
-        background-color: "black";
-        color: "black";
-        text-shadow: "1px 1px 1px white";
-      }
-    </style>
     <h1>Sharepoint-Meatball</h1>
     <h3>
       <dl>
