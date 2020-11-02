@@ -13,6 +13,13 @@
     var scriptAjax = document.createElement("script");
     scriptAjax.type = "text/javascript";
     //SPIR CODE
+    // var script = [].slice
+    //   .call(document.getElementsByTagName("script"))
+    //   .filter(function (item) {
+    //     if (item.src.indexOf("meatball") > -1) {
+    //       return item;
+    //     }
+    //   })[0];
     // var scriptSrc = script.src.substring(0, script.src.indexOf("meatball.js"));
     // scriptAjax.src = scriptSrc + "ajax.js";
     //TEST CODE
