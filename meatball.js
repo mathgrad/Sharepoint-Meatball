@@ -12,6 +12,10 @@
   function getListItems() {
     var scriptAjax = document.createElement("script");
     scriptAjax.type = "text/javascript";
+    //SPIR CODE
+    // var scriptSrc = script.src.substring(0, script.src.indexOf("meatball.js"));
+    // scriptAjax.src = scriptSrc + "ajax.js";
+    //TEST CODE
     scriptAjax.src =
       "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
     document.body.appendChild(scriptAjax);
