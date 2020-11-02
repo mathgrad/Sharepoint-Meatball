@@ -13,18 +13,18 @@
     var scriptAjax = document.createElement("script");
     scriptAjax.type = "text/javascript";
     //SPIR CODE
-    // var script = [].slice
-    //   .call(document.getElementsByTagName("script"))
-    //   .filter(function (item) {
-    //     if (item.src.indexOf("meatball") > -1) {
-    //       return item;
-    //     }
-    //   })[0];
-    // var scriptSrc = script.src.substring(0, script.src.indexOf("meatball.js"));
-    // scriptAjax.src = scriptSrc + "ajax.js";
+    var script = [].slice
+      .call(document.getElementsByTagName("script"))
+      .filter(function (item) {
+        if (item.src.indexOf("meatball") > -1) {
+          return item;
+        }
+      })[0];
+    var scriptSrc = script.src.substring(0, script.src.indexOf("meatball.js"));
+    scriptAjax.src = scriptSrc + "ajax.js";
     //TEST CODE
-    scriptAjax.src =
-      "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
+    // scriptAjax.src =
+    //   "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
     document.body.appendChild(scriptAjax);
     //Waits till Ajax loads to allow full functionality of
     scriptAjax.onload = function () {
@@ -80,7 +80,9 @@
                       if (column.indexOf("[") > -1) {
                         column = column.substring(1, column.length - 1);
                       }
-                      acc.externalColumn.push(column);
+                      if (acc.externalColumn.indexOf(column) < 0) {
+                        acc.externalColumn.push(column);
+                      }
                     }
                   }
                   return acc;
