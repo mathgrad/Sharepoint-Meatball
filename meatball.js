@@ -55,39 +55,39 @@
                   var add = true;
                   if (containsString(cv.Title, "status")) {
                     if (containsString(cv.Title, "value")) {
-                      acc.value.push(cv.Choices.results);
-                      add = false;
+                      if (acc.value.indexOf(cv.Choices.results) < 0) {
+                        acc.value.push(cv.Choices.results);
+                        add = false;
+                      }
+                      if (acc.value.indexOf(cv.InternalName) < 0) {
+                        acc.internalColumn.push(cv.InternalName);
+                        add = false;
+                      }
                     }
                     if (add && cv.Formula) {
                       var column = parseFormulaColumn(cv.Formula);
                       if (column.indexOf("[") > -1) {
                         column = column.substring(1, column.length - 1);
                       }
-                      acc.column.push(column);
+                      acc.externalColumn.push(column);
                     }
                   }
                   return acc;
                 },
                 {
-                  column: [],
+                  externalColumn: [],
+                  internalColumn: [],
                   value: [],
                 }
               );
 
               popoverData.value.forEach(function (item, i) {
-                if (!popoverData) {
-                  return;
-                }
-                if (!popoverData.value) {
-                  return;
-                }
-                if (!popoverData.value[i]) {
-                  return;
-                }
-                if (popoverData.value[i].length < 1) {
-                  return;
-                }
-                findTargets(table, item, popoverData.column[i]);
+                findTargets(
+                  table,
+                  item,
+                  popoverData.externalColumn[i],
+                  popoverData.internalColumn[i]
+                );
               });
             }
             return false;
@@ -101,7 +101,7 @@
   }
 
   //Entry Point and General Function
-  function findTargets(table, values, column) {
+  function findTargets(table, values, externalColumn, internalColumn) {
     if (!table || table.childNodes.length === 0) {
       return;
     }
@@ -128,27 +128,18 @@
                     add =
                       !containsString(item.innerText, "value") &&
                       !containsString(item.innerText, "type");
-
-                    if (containsString(column, item.innerText)) {
+                    if (containsString(externalColumn, item.innerText)) {
                       //Pseudo function
                       if (
-                        column.split(" ").length !==
+                        externalColumn.split(" ").length - 1 ===
                         item.innerText.split(" ").length
                       ) {
-                        if (
-                          column.split(" ").length - 1 ===
-                          item.innerText.split(" ").length
-                        ) {
-                          displayValue = cell.innerText;
-                        }
+                        displayValue = cell.innerText;
                       }
                     } else {
                       add = false;
                     }
                   }
-                }
-                if (containsString(item.innerText, "value")) {
-                  displayValue = cell.innerText;
                 }
               });
             });
@@ -172,7 +163,8 @@
                 row.getAttribute("iid").split(",")[1],
                 thead[ci],
                 table.getAttribute("id").substring(1, 37),
-                column
+                externalColumn,
+                internalColumn
               );
             }
           }
@@ -191,7 +183,8 @@
     rowIndex,
     thead,
     table,
-    column
+    externalColumn,
+    internalColumn
   ) {
     //Create Popover Element
     var popover = document.createElement("div");
@@ -250,7 +243,14 @@
         radio.style.cursor = "pointer";
         optionPanel.style.cursor = "pointer";
         optionPanel.addEventListener("click", function () {
-          updateTarget(ele, rowIndex, thead.innerText, table, column);
+          updateTarget(
+            ele,
+            rowIndex,
+            thead.innerText,
+            table,
+            externalColumn,
+            internalColumn
+          );
         });
       }
       //Add Click Event to update list
@@ -305,15 +305,21 @@
     });
   }
 
-  function updateTarget(ele, rowIndex, header, table, column) {
-    var spColumn = column.trim().replace(/\s/g, "_x0020_");
+  function updateTarget(
+    ele,
+    rowIndex,
+    header,
+    table,
+    externalColumn,
+    internalColumn
+  ) {
     var site = _spPageContextInfo.webServerRelativeUrl;
     var currentListName = ctx.ListTitle;
     var listName = "SP.ListItem";
     var data = {
       __metadata: { type: listName },
     };
-    data[spColumn] = ele;
+    data[internalColumn] = ele;
     var url =
       site +
       "/_api/web/lists('" +
@@ -321,7 +327,7 @@
       "')/items(" +
       rowIndex +
       ")?$select=" +
-      spColumn;
+      internalColumn;
     $.ajax({
       url: url,
       type: "POST",
