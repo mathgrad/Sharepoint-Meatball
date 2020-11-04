@@ -16,13 +16,24 @@
   }
   /* get all the choices and send to main func*/
   function getListItems() {
-    var scripts = [
-      "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js",
-      "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js",
-    ].map(buildScript);
-    console.log(scripts);
-    scripts[0].onload = function () {
-      //Waits till Ajax loads to allow full functionality of
+    var scriptAjax = document.createElement("script");
+    scriptAjax.type = "text/javascript";
+    //SPIR CODE
+    // var script = [].slice
+    //   .call(document.getElementsByTagName("script"))
+    //   .filter(function (item) {
+    //     if (item.src.indexOf("meatball") > -1) {
+    //       return item;
+    //     }
+    //   })[0];
+    // var scriptSrc = script.src.substring(0, script.src.indexOf("meatball.js"));
+    // scriptAjax.src = scriptSrc + "ajax.js";
+    //TEST CODE
+    scriptAjax.src =
+      "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
+    document.body.appendChild(scriptAjax);
+    //Waits till Ajax loads to allow full functionality of
+    scriptAjax.onload = function () {
       //Step 1. Get all the tables -- create array
       var tables = [].slice.call(document.getElementsByTagName("table"));
       if (errorChecking(tables)) {
@@ -331,7 +342,6 @@
 
     //Add Mouse leave Event to hide
     popover.addEventListener("mouseleave", function () {
-      options.style.display = "none";
       if (popover) {
         if (popover.parentNode) {
           popover.parentNode.removeChild(popover);
@@ -475,6 +485,15 @@
     }
 
     return false;
+  }
+
+  function containsSubString(knownValue, givenValue) {
+    return (
+      givenValue
+        .slice(0, knownValue.length)
+        .toLowerCase()
+        .indexOf(knownValue.toLowerCase()) > -1
+    );
   }
 
   /*Checks to see if s0 is contains to s1*/
