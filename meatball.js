@@ -199,12 +199,30 @@
     externalColumn,
     internalColumn
   ) {
+    var popoverBC = "#ffffff";
+    var popoverPanel = document.createElement("div");
+    popoverPanel.style.display = "inline-block";
+    popoverPanel.style.margin = "0px";
+    popoverPanel.style.padding = "0px";
+
+    var carret = document.createElement("div");
+    carret.style.margin = "0px";
+    carret.style.display = "inline-block";
+    carret.style.position = "fixed";
+    carret.style.height = "0px";
+    carret.style.width = "0px";
+    carret.style.borderTop = "15px solid transparent";
+    carret.style.borderBottom = "15px solid transparent";
+    carret.style.borderRight = "15px solid " + popoverBC;
+    popoverPanel.appendChild(carret);
+
     //Create Popover Element
     var popover = document.createElement("div");
-    popover.style.backgroundColor = "	#ffffff";
+    popover.style.display = "inline-block";
+    popover.style.backgroundColor = popoverBC;
     popover.style.color = "#000000";
     popover.style.padding = ".5rem";
-    popover.style.border = "1px solid";
+    popover.style.border = "1px solid black";
     popover.style.borderRadius = ".25rem";
     popover.style.zIndex = "1";
 
@@ -287,31 +305,40 @@
         : (options.style.display = "block");
     });
 
+    popoverPanel.appendChild(popover);
+
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
     target.addEventListener("mouseenter", function () {
-      document.body.appendChild(popover);
+      document.body.appendChild(popoverPanel);
 
-      popover.style.position = "fixed";
-      popover.style.left = target.getBoundingClientRect().right + "px";
-      popover.style.top = target.getBoundingClientRect().top + "px";
+      var left = Math.round(target.getBoundingClientRect().width * (2 / 3));
+      popoverPanel.style.position = "fixed";
+      popoverPanel.style.left =
+        Math.max(
+          target.getBoundingClientRect().left + left,
+          target.getBoundingClientRect().right
+        ) + "px";
+      popoverPanel.style.top = target.getBoundingClientRect().top - 7.5 + "px";
+      carret.style.left = target.getBoundingClientRect().left + left + "px";
+      carret.style.top = target.getBoundingClientRect().top + "px";
     });
 
     target.addEventListener("mouseleave", function (e) {
-      if (popover.contains(e.relatedTarget)) return;
-      if (popover) {
-        if (popover.parentNode) {
-          popover.parentNode.removeChild(popover);
+      if (popoverPanel.contains(e.relatedTarget)) return;
+      if (popoverPanel) {
+        if (popoverPanel.parentNode) {
+          popoverPanel.parentNode.removeChild(popoverPanel);
         }
       }
     });
 
     //Add Mouse leave Event to hide
-    popover.addEventListener("mouseleave", function () {
-      if (popover) {
-        if (popover.parentNode) {
-          popover.parentNode.removeChild(popover);
+    popoverPanel.addEventListener("mouseleave", function () {
+      if (popoverPanel) {
+        if (popoverPanel.parentNode) {
+          popoverPanel.parentNode.removeChild(popoverPanel);
         }
       }
     });
