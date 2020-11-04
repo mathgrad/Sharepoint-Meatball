@@ -35,9 +35,7 @@
       });
       //Grabbing the list url
 
-      var axios = require;
-
-      //Iterate through the table
+      //Iterate through the set of tables
       tables.forEach(function (table, index) {
         var currentListName = table.getAttribute("id").substring(1, 37);
         var root = ctx.HttpRoot;
@@ -46,74 +44,71 @@
           __metadata: { type: listName },
         };
         var url = root + "/_api/web/lists('" + currentListName + "')/fields";
-        $.ajax({
-          url: url,
-          type: "GET",
-          headers: {
-            Accept: "application/json; odata=verbose",
-            "Content-Type": "application/json;odata=verbose",
-            credentials: true,
-            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-          },
-          success: function (data) {
-            if (data && data.d) {
-              var popoverData = data.d.results.reduce(
-                function (acc, cv, ci, data) {
-                  var add = true;
-                  if (containsString(cv.Title, "status")) {
-                    if (containsString(cv.Title, "value")) {
-                      if (acc.value.indexOf(cv.Choices.results) < 0) {
-                        acc.value.push(cv.Choices.results);
-                        add = false;
-                      }
-                      if (acc.value.indexOf(cv.InternalName) < 0) {
-                        acc.internalColumn.push(cv.InternalName);
-                        add = false;
-                      }
-                    }
-                    if (add && cv.Formula) {
-                      var column = parseFormulaColumn(cv.Formula);
-                      if (column.indexOf("[") > -1) {
-                        column = column.substring(1, column.length - 1);
-                      }
-                      if (acc.externalColumn.indexOf(column) < 0) {
-                        acc.externalColumn.push(column);
-                      }
-                    }
-                  }
-                  return acc;
-                },
-                {
-                  externalColumn: [],
-                  internalColumn: [],
-                  value: [],
-                }
-              );
-              console.log("popoverData:", popoverData);
-              popoverData.value.forEach(function (item, i) {
-                findTargets(
-                  table,
-                  item,
-                  popoverData.externalColumn[i],
-                  popoverData.internalColumn[i]
-                );
-              });
-            }
-            return false;
-          },
-          error: function (error) {
-            console.log("Error: Get list choices request Failed.");
-          },
-        });
+
+        // var axios = require('axios')
+
+        // $.ajax({
+        //   url: url,
+        //   type: "GET",
+        //   headers: {
+        //     Accept: "application/json; odata=verbose",
+        //     "Content-Type": "application/json;odata=verbose",
+        //     credentials: true,
+        //     "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        //   },
+        //   success: function (data) {
+        //     if (data && data.d) {
+        //       var popoverData = data.d.results.reduce(
+        //         function (acc, cv, ci, data) {
+        //           var add = true;
+        //           if (containsString(cv.Title, "status")) {
+        //             if (containsString(cv.Title, "value")) {
+        //               if (acc.value.indexOf(cv.Choices.results) < 0) {
+        //                 acc.value.push(cv.Choices.results);
+        //                 add = false;
+        //               }
+        //               if (acc.value.indexOf(cv.InternalName) < 0) {
+        //                 acc.internalColumn.push(cv.InternalName);
+        //                 add = false;
+        //               }
+        //             }
+        //             if (add && cv.Formula) {
+        //               var column = parseFormulaColumn(cv.Formula);
+        //               if (column.indexOf("[") > -1) {
+        //                 column = column.substring(1, column.length - 1);
+        //               }
+        //               if (acc.externalColumn.indexOf(column) < 0) {
+        //                 acc.externalColumn.push(column);
+        //               }
+        //             }
+        //           }
+        //           return acc;
+        //         },
+        //         {
+        //           externalColumn: [],
+        //           internalColumn: [],
+        //           value: [],
+        //         }
+        //       );
+        //       console.log("popoverData:", popoverData);
+        //       popoverData.value.forEach(function (item, i) {
+        //         findTargets(
+        //           table,
+        //           item,
+        //           popoverData.externalColumn[i],
+        //           popoverData.internalColumn[i]
+        //         );
+        //       });
+        //     }
+        //     return false;
+        //   },
+        //   error: function (error) {
+        //     console.log("Error: Get list choices request Failed.");
+        //   },
+        // });
       });
     };
   }
-
-  var styler = function ({ color, width }) {
-    return `width:${width}px;height:${width}px;border-radius:${
-      width / 2
-    }px;background-color:${color}`;
-  };
 
   //Entry Point and General Function
   function findTargets($table, values, externalColumn, internalColumn, colors) {
@@ -152,69 +147,58 @@
           });
           var pos = defaultText.indexOf(text.toLowerCase());
 
-          //get the mouse Event over the cell
-          // $(cell).hover(function () {
-          //   var position = $(this).offset();
-          // });
           console.log("pos:", pos, "\ncell:", $cell);
 
-          if (pos > -1) {
-            $cell.innerHTML = `<div data-toggle='tooltip' title="moreInformation" ><div style=${styler(
-              { color: defaults[pos].color, width: 20 }
-            )}></div></div>`;
+          //Get the position of the td and find the c
+          var add = false;
+          if (thead[ci]) {
+            [].slice.call(thead[ci].children).forEach(function (item, ti) {
+              [].slice.call(item.children).forEach(function (item, tci) {
+                if (item.innerText) {
+                  if (containsString(item.innerText, "status")) {
+                    add =
+                      !containsString(item.innerText, "value") &&
+                      !containsString(item.innerText, "type");
+                    if (containsString(externalColumn, item.innerText)) {
+                      //Pseudo function
+                      if (
+                        externalColumn.split(" ").length - 1 ===
+                        item.innerText.split(" ").length
+                      ) {
+                        displayValue = cell.innerText;
+                      }
+                    } else {
+                      add = false;
+                    }
+                  }
+                }
+              });
+            });
           }
 
-          //Get the position of the td and find the c
-          //old logic of finding the cell and assinging values
-          // var add = false;
-          // if (thead[ci]) {
-          //   [].slice.call(thead[ci].children).forEach(function (item, ti) {
-          //     [].slice.call(item.children).forEach(function (item, tci) {
-          //       if (item.innerText) {
-          //         if (containsString(item.innerText, "status")) {
-          //           add =
-          //             !containsString(item.innerText, "value") &&
-          //             !containsString(item.innerText, "type");
-          //           if (containsString(externalColumn, item.innerText)) {
-          //             //Pseudo function
-          //             if (
-          //               externalColumn.split(" ").length - 1 ===
-          //               item.innerText.split(" ").length
-          //             ) {
-          //               displayValue = cell.innerText;
-          //             }
-          //           } else {
-          //             add = false;
-          //           }
-          //         }
-          //       }
-          //     });
-          //   });
-          // }
-          //
-          // if (add && table.getAttribute("id") && row.getAttribute("iid")) {
-          //   [].slice.call(cell.children).forEach(function (item, i) {
-          //     [].slice.call(item.children).forEach(function (item, i) {
-          //       if (!displayValue) {
-          //         displayValue = item.getAttribute("key");
-          //       } else if (displayValue.length < 1) {
-          //         displayValue = item.getAttribute("key");
-          //       }
-          //     });
-          //   });
-          //   if (displayValue) {
-          //     addPopover(
-          //       cell,
-          //       values,
-          //       displayValue,
-          //       row.getAttribute("iid").split(",")[1],
-          //       thead[ci],
-          //       table.getAttribute("id").substring(1, 37),
-          //       externalColumn,
-          //       internalColumn
-          //     );
-          //   }
-          // }
+          if (add && table.getAttribute("id") && row.getAttribute("iid")) {
+            [].slice.call(cell.children).forEach(function (item, i) {
+              [].slice.call(item.children).forEach(function (item, i) {
+                if (!displayValue) {
+                  displayValue = item.getAttribute("key");
+                } else if (displayValue.length < 1) {
+                  displayValue = item.getAttribute("key");
+                }
+              });
+            });
+            if (displayValue) {
+              addPopover(
+                cell,
+                values,
+                displayValue,
+                row.getAttribute("iid").split(",")[1],
+                thead[ci],
+                table.getAttribute("id").substring(1, 37),
+                externalColumn,
+                internalColumn
+              );
+            }
+          }
         });
       }
     });
