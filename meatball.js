@@ -13,18 +13,18 @@
     var scriptAjax = document.createElement("script");
     scriptAjax.type = "text/javascript";
     //SPIR CODE
-    var script = [].slice
-      .call(document.getElementsByTagName("script"))
-      .filter(function (item) {
-        if (item.src.indexOf("meatball") > -1) {
-          return item;
-        }
-      })[0];
-    var scriptSrc = script.src.substring(0, script.src.indexOf("meatball.js"));
-    scriptAjax.src = scriptSrc + "ajax.js";
+    // var script = [].slice
+    //   .call(document.getElementsByTagName("script"))
+    //   .filter(function (item) {
+    //     if (item.src.indexOf("meatball") > -1) {
+    //       return item;
+    //     }
+    //   })[0];
+    // var scriptSrc = script.src.substring(0, script.src.indexOf("meatball.js"));
+    // scriptAjax.src = scriptSrc + "ajax.js";
     //TEST CODE
-    // scriptAjax.src =
-    //   "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
+    scriptAjax.src =
+      "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
     document.body.appendChild(scriptAjax);
     //Waits till Ajax loads to allow full functionality of
     scriptAjax.onload = function () {
@@ -114,7 +114,7 @@
   }
 
   //Entry Point and General Function
-  function findTargets(table, values, externalColumn, internalColumn) {
+  function findTargets(table, values, externalColumn, internalColumn, colors) {
     if (!table || table.childNodes.length === 0) {
       return;
     }
@@ -201,12 +201,11 @@
   ) {
     //Create Popover Element
     var popover = document.createElement("div");
-    popover.style.backgroundColor = "	#676767";
-    popover.style.color = "#f2f3f4";
+    popover.style.backgroundColor = "	#ffffff";
+    popover.style.color = "#000000";
     popover.style.padding = ".5rem";
     popover.style.border = "1px solid";
     popover.style.borderRadius = ".25rem";
-    popover.style.fontWeight = "bold";
     popover.style.zIndex = "1";
 
     //Create Header Element
@@ -216,15 +215,12 @@
     header.style.textAlign = "center";
     header.style.cursor = "pointer";
     header.style.marginBottom = ".25rem";
-    header.style.backgroundColor = "#3D71EB";
+    header.style.backgroundColor = "#BABBFD";
     header.innerText = displayValue;
-    header.style.textShadow = "1px 1px 1px black";
 
     //Create Options Panel Element
     var options = document.createElement("div");
-    options.style.display = "none";
     options.style.padding = ".25rem";
-    // options.style.backgroundColor = "#1C9BF0";
     options.style.borderRadius = ".25rem";
 
     //Create and Add Option Elements
@@ -233,7 +229,6 @@
       optionPanel.style.padding = ".25rem";
       optionPanel.style.marginBottom = ".25rem";
       optionPanel.style.textAlign = "left";
-      optionPanel.style.fontWeight = "bold";
       optionPanel.style.borderRadius = ".25rem";
 
       var option = document.createElement("div");
@@ -245,17 +240,15 @@
       radio.style.margin = "0px";
       radio.style.display = "inline";
 
-      option.style.textShadow = "1px 1px 1px black";
-      radio.style.color = "#f5f5f5";
-      option.style.color = "#f5f5f5";
-      optionPanel.style.backgroundColor = "#3D71EB";
-
       if (containsString(ele, displayValue)) {
         radio.checked = "checked";
+        optionPanel.style.backgroundColor = "#BABBFD";
       } else {
         radio.style.cursor = "pointer";
         optionPanel.style.cursor = "pointer";
         optionPanel.addEventListener("click", function () {
+          radio.checked = "checked";
+          optionPanel.style.backgroundColor = "#BABBFD";
           updateTarget(
             ele,
             rowIndex,
@@ -265,7 +258,14 @@
             internalColumn
           );
         });
+        optionPanel.addEventListener("mouseenter", function () {
+          optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
+        });
+        optionPanel.addEventListener("mouseleave", function () {
+          optionPanel.style.boxShadow = "0px 0px 0px";
+        });
       }
+
       //Add Click Event to update list
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
@@ -309,7 +309,6 @@
 
     //Add Mouse leave Event to hide
     popover.addEventListener("mouseleave", function () {
-      options.style.display = "none";
       if (popover) {
         if (popover.parentNode) {
           popover.parentNode.removeChild(popover);
@@ -354,7 +353,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        alert("Updated Target Successfully");
+        alert("Updated " + header + " Successfully");
         location.reload();
         return false;
       },
@@ -453,6 +452,15 @@
     }
 
     return false;
+  }
+
+  function containsSubString(knownValue, givenValue) {
+    return (
+      givenValue
+        .slice(0, knownValue.length)
+        .toLowerCase()
+        .indexOf(knownValue.toLowerCase()) > -1
+    );
   }
 
   /*Checks to see if s0 is contains to s1*/
