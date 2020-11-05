@@ -357,7 +357,7 @@
     table,
     value
   ) {
-    this.element.style.backgroundColor = colors.get(value);
+    this.element.style.backgroundColor = colors.get(selectValue);
     var popoverBC = "#ffffff";
     var triangleSize = 15;
 
@@ -395,7 +395,7 @@
     header.style.cursor = "pointer";
     header.style.marginBottom = ".25rem";
     header.style.backgroundColor = "#BABBFD";
-    header.innerText = value;
+    header.innerText = parent.innerText;
 
     //Create Options Panel Element
     var options = document.createElement("div");
@@ -419,7 +419,7 @@
       radio.style.margin = "0px";
       radio.style.display = "inline";
 
-      if (containsSubString(ele, value)) {
+      if (containsSubString(ele, selectValue)) {
         radio.checked = "checked";
         optionPanel.style.backgroundColor = "#BABBFD";
       } else {
@@ -483,7 +483,7 @@
         ) + "px";
       popoverPanel.style.top =
         this.getBoundingClientRect().top - triangleSize / 2 + "px";
-      carret.style.left = this.getBoundingClientRect().left + left + "px";
+      carret.style.right = popoverPanel.style.left;
       carret.style.top = this.getBoundingClientRect().top + "px";
     });
 
@@ -630,7 +630,7 @@
           }
         }
       },
-      2500,
+      5000,
       note
     );
   };
