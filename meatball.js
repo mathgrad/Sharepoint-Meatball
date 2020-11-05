@@ -1,5 +1,14 @@
 (function () {
+  var colors = new Colors();
+  var size = 15;
+
   window.addEventListener("load", function () {
+    if (document.body.hasAttribute("meatball_override")) {
+      var overrides = window.meatball_override;
+      overrides.forEach(function (item) {
+        colors.set(item.value, item.color);
+      });
+    }
     getListItems();
   });
 
@@ -181,12 +190,32 @@
     externalColumn,
     internalColumn
   ) {
+    var popoverBC = "#ffffff";
+    var triangleSize = 15;
+
+    var popoverPanel = document.createElement("div");
+    popoverPanel.style.display = "inline-block";
+    popoverPanel.style.margin = "0px";
+    popoverPanel.style.padding = "0px";
+
+    var carret = document.createElement("div");
+    carret.style.margin = "0px";
+    carret.style.display = "inline-block";
+    carret.style.position = "fixed";
+    carret.style.height = "0px";
+    carret.style.width = "0px";
+    carret.style.borderTop = triangleSize + "px solid transparent";
+    carret.style.borderBottom = triangleSize + "px solid transparent";
+    carret.style.borderRight = triangleSize + "px solid " + popoverBC;
+    popoverPanel.appendChild(carret);
+
     //Create Popover Element
     var popover = document.createElement("div");
-    popover.style.backgroundColor = "	#ffffff";
+    popover.style.display = "inline-block";
+    popover.style.backgroundColor = popoverBC;
     popover.style.color = "#000000";
     popover.style.padding = ".5rem";
-    popover.style.border = "1px solid";
+    popover.style.border = "1px solid black";
     popover.style.borderRadius = ".25rem";
     popover.style.zIndex = "1";
 
@@ -269,35 +298,214 @@
         : (options.style.display = "block");
     });
 
+    popoverPanel.appendChild(popover);
+
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
     target.addEventListener("mouseenter", function () {
-      document.body.appendChild(popover);
+      document.body.appendChild(popoverPanel);
 
-      popover.style.position = "fixed";
-      popover.style.left = target.getBoundingClientRect().right + "px";
-      popover.style.top = target.getBoundingClientRect().top + "px";
+      var left = Math.round(target.getBoundingClientRect().width * (2 / 3));
+      popoverPanel.style.position = "fixed";
+      popoverPanel.style.left =
+        Math.max(
+          target.getBoundingClientRect().left + left,
+          target.getBoundingClientRect().right
+        ) + "px";
+      popoverPanel.style.top =
+        target.getBoundingClientRect().top - triangleSize / 2 + "px";
+      carret.style.left = target.getBoundingClientRect().left + left + "px";
+      carret.style.top = target.getBoundingClientRect().top + "px";
     });
 
     target.addEventListener("mouseleave", function (e) {
-      if (popover.contains(e.relatedTarget)) return;
-      if (popover) {
-        if (popover.parentNode) {
-          popover.parentNode.removeChild(popover);
+      if (popoverPanel.contains(e.relatedTarget)) return;
+      if (popoverPanel) {
+        if (popoverPanel.parentNode) {
+          popoverPanel.parentNode.removeChild(popoverPanel);
         }
       }
     });
 
     //Add Mouse leave Event to hide
-    popover.addEventListener("mouseleave", function () {
-      if (popover) {
-        if (popover.parentNode) {
-          popover.parentNode.removeChild(popover);
+    popoverPanel.addEventListener("mouseleave", function () {
+      if (popoverPanel) {
+        if (popoverPanel.parentNode) {
+          popoverPanel.parentNode.removeChild(popoverPanel);
         }
       }
     });
   }
+
+  function Meatball(size) {
+    this.size = size + "px";
+    this.element = document.createElement("div");
+    this.element.style.width = this.size;
+    this.element.style.height = this.size;
+    this.element.style.borderRadius = this.size;
+  }
+
+  Meatball.prototype.init = function (
+    defaults,
+    externalColumn,
+    internalColumn,
+    parent,
+    rowIndex,
+    thead,
+    table,
+    value
+  ) {
+    this.element.style.backgroundColor = colors.get(value);
+    var popoverBC = "#ffffff";
+    var triangleSize = 15;
+
+    var popoverPanel = document.createElement("div");
+    popoverPanel.style.display = "inline-block";
+    popoverPanel.style.margin = "0px";
+    popoverPanel.style.padding = "0px";
+
+    var carret = document.createElement("div");
+    carret.style.margin = "0px";
+    carret.style.display = "inline-block";
+    carret.style.position = "fixed";
+    carret.style.height = "0px";
+    carret.style.width = "0px";
+    carret.style.borderTop = triangleSize + "px solid transparent";
+    carret.style.borderBottom = triangleSize + "px solid transparent";
+    carret.style.borderRight = triangleSize + "px solid " + popoverBC;
+    popoverPanel.appendChild(carret);
+
+    //Create Popover Element
+    var popover = document.createElement("div");
+    popover.style.display = "inline-block";
+    popover.style.backgroundColor = popoverBC;
+    popover.style.color = "#000000";
+    popover.style.padding = ".5rem";
+    popover.style.border = "1px solid black";
+    popover.style.borderRadius = ".25rem";
+    popover.style.zIndex = "1";
+
+    //Create Header Element
+    var header = document.createElement("div");
+    header.style.padding = ".25rem";
+    header.style.borderRadius = ".25rem";
+    header.style.textAlign = "center";
+    header.style.cursor = "pointer";
+    header.style.marginBottom = ".25rem";
+    header.style.backgroundColor = "#BABBFD";
+    header.innerText = value;
+
+    //Create Options Panel Element
+    var options = document.createElement("div");
+    options.style.padding = ".25rem";
+    options.style.borderRadius = ".25rem";
+
+    //Create and Add Option Elements
+    defaults.forEach(function (ele, index) {
+      var optionPanel = document.createElement("div");
+      optionPanel.style.padding = ".25rem";
+      optionPanel.style.marginBottom = ".25rem";
+      optionPanel.style.textAlign = "left";
+      optionPanel.style.borderRadius = ".25rem";
+
+      var option = document.createElement("div");
+      option.innerText = ele;
+      option.style.marginLeft = ".25rem";
+      option.style.display = "inline";
+      var radio = document.createElement("input");
+      radio.type = "radio";
+      radio.style.margin = "0px";
+      radio.style.display = "inline";
+
+      if (containsSubString(ele, value)) {
+        radio.checked = "checked";
+        optionPanel.style.backgroundColor = "#BABBFD";
+      } else {
+        radio.style.cursor = "pointer";
+        optionPanel.style.cursor = "pointer";
+        optionPanel.addEventListener("click", function () {
+          radio.checked = "checked";
+          optionPanel.style.backgroundColor = "#BABBFD";
+          updateTarget(
+            ele,
+            rowIndex,
+            thead.innerText,
+            table,
+            externalColumn,
+            internalColumn
+          );
+        });
+        optionPanel.addEventListener("mouseenter", function () {
+          optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
+        });
+        optionPanel.addEventListener("mouseleave", function () {
+          optionPanel.style.boxShadow = "0px 0px 0px";
+        });
+      }
+
+      //Add Click Event to update list
+      optionPanel.appendChild(radio);
+      optionPanel.appendChild(option);
+      options.appendChild(optionPanel);
+    });
+
+    //Add Header Element
+    popover.appendChild(header);
+    //Add Options Panel
+    popover.appendChild(options);
+
+    //Add Click Event to display Options Panel
+    header.addEventListener("click", function () {
+      var style = options.style.display;
+      var change = false;
+      change = style === "block";
+      change
+        ? (options.style.display = "none")
+        : (options.style.display = "block");
+    });
+
+    popoverPanel.appendChild(popover);
+
+    //Used addEventListener versus onmouseenter = function due to concerns of
+    //overriding other scripts
+    //Add Mouse Enter Event to display
+    this.addEventListener("mouseenter", function () {
+      document.body.appendChild(popoverPanel);
+
+      var left = Math.round(this.getBoundingClientRect().width * (2 / 3));
+      popoverPanel.style.position = "fixed";
+      popoverPanel.style.left =
+        Math.max(
+          this.getBoundingClientRect().left + left,
+          this.getBoundingClientRect().right
+        ) + "px";
+      popoverPanel.style.top =
+        this.getBoundingClientRect().top - triangleSize / 2 + "px";
+      carret.style.left = this.getBoundingClientRect().left + left + "px";
+      carret.style.top = this.getBoundingClientRect().top + "px";
+    });
+
+    this.addEventListener("mouseleave", function (e) {
+      if (popoverPanel.contains(e.relatedTarget)) return;
+      if (popoverPanel) {
+        if (popoverPanel.parentNode) {
+          popoverPanel.parentNode.removeChild(popoverPanel);
+        }
+      }
+    });
+
+    //Add Mouse leave Event to hide
+    popoverPanel.addEventListener("mouseleave", function () {
+      if (popoverPanel) {
+        if (popoverPanel.parentNode) {
+          popoverPanel.parentNode.removeChild(popoverPanel);
+        }
+      }
+    });
+    parent.innerText = "";
+    parent.appendChild(this.element);
+  };
 
   function updateTarget(
     ele,
@@ -342,6 +550,49 @@
         console.log(error);
       });
   }
+
+  //Easier way of handling the different colors and defaults
+  function Colors() {
+    this.blue = "#6063fa";
+    this.green = "#27e833";
+    this.red = "#d71010";
+    this.yellow = "#f6de1c";
+    this.defaults = [
+      {
+        value: "Up",
+        color: this.green,
+      },
+      { value: "Down", color: this.yellow },
+      { value: "Degraded", color: this.red },
+      { value: "NA", color: this.blue },
+      { value: "100-90", color: this.green },
+      { value: "89-80", color: this.yellow },
+      { value: "79-10", color: this.red },
+      { value: "<10", color: this.blue },
+    ];
+  }
+
+  Colors.prototype.get = function (value) {
+    return this.defaults.filter(function (item) {
+      if (containsSubString(item.value, value)) {
+        return item;
+      }
+    })[0].color;
+  };
+
+  Colors.prototype.set = function (value, color) {
+    if (compareString(color, "blue")) {
+      this.defaults.push({ value: value, color: this.blue });
+    } else if (compareString(color, "green")) {
+      this.defaults.push({ value: value, color: this.green });
+    } else if (compareString(color, "red")) {
+      this.defaults.push({ value: value, color: this.red });
+    } else if (compareString(color, "yellow")) {
+      this.defaults.push({ value: value, color: this.yellow });
+    } else {
+      this.defaults.push({ value: value, color: color });
+    }
+  };
 
   function parseFormulaColumn(formula) {
     var reg = /([()])/g;
