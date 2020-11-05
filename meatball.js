@@ -501,7 +501,7 @@
     externalColumn,
     internalColumn
   ) {
-    var site = _spPageContextInfo.webServerRelativeUrl;
+    var root = ctx.HttpRoot;
     var currentListName = ctx.ListTitle;
     var listName = "SP.ListItem";
     var data = {
@@ -511,7 +511,7 @@
 
     console.log("Post Data:", data);
     var url =
-      site +
+      root +
       "/_api/web/lists('" +
       table +
       "')/items(" +
@@ -521,7 +521,8 @@
 
     var configureAxios = {
       headers: {
-        Accept: "application/json; odata=verbose",
+        Accept: "application/json;odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
         "If-Match": "*",
         "X-HTTP-Method": "MERGE",
         "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
