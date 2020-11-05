@@ -1,9 +1,3 @@
-<style>
-  body {
-    background-color: black;
-    color: white;
-  }
-</style>
 <h1>Sharepoint-Meatball</h1>
 <h3>
   <dl>
