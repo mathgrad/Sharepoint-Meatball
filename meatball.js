@@ -122,43 +122,28 @@
           });
           var pos = defaultText.indexOf(text.toLowerCase());
 
-          //Get the position of the td and find the c
+          //Comparing the thead with the external
           var add = false;
           if (thead[ci]) {
             [].slice.call(thead[ci].children).forEach(function (item, ti) {
+              if (add) {
+                return;
+              }
               [].slice.call(item.children).forEach(function (item, tci) {
+                if (add) {
+                  return;
+                }
+
                 if (item.innerText) {
-                  if (containsString(item.innerText, "status")) {
-                    add =
-                      !containsString(item.innerText, "value") &&
-                      !containsString(item.innerText, "type");
-                    if (containsString(externalColumn, item.innerText)) {
-                      //Pseudo function
-                      if (
-                        externalColumn.split(" ").length - 1 ===
-                        item.innerText.split(" ").length
-                      ) {
-                        displayValue = $cell.innerText;
-                      }
-                    } else {
-                      add = false;
-                    }
-                  }
+                  add = compareString(externalColumn, item.innerText);
                 }
               });
             });
           }
 
           if (add && $table.getAttribute("id") && $row.getAttribute("iid")) {
-            [].slice.call($cell.children).forEach(function (item, i) {
-              [].slice.call(item.children).forEach(function (item, i) {
-                if (!displayValue) {
-                  displayValue = item.getAttribute("key");
-                } else if (displayValue.length < 1) {
-                  displayValue = item.getAttribute("key");
-                }
-              });
-            });
+            displayValue = $row.childNodes[1].innerText + ": " + externalColumn;
+
             if (displayValue) {
               addPopover(
                 $cell,
@@ -315,7 +300,7 @@
         ) + "px";
       popoverPanel.style.top =
         target.getBoundingClientRect().top - triangleSize / 2 + "px";
-      carret.style.left = target.getBoundingClientRect().left + left + "px";
+      carret.style.right = popoverPanel.style.left;
       carret.style.top = target.getBoundingClientRect().top + "px";
     });
 
@@ -523,6 +508,7 @@
     };
     data[internalColumn] = ele;
 
+    console.log("Post Data:", data);
     var url =
       site +
       "/_api/web/lists('" +
@@ -542,12 +528,12 @@
       credentials: true,
     };
     axios
-      .post(url, { data: JSON.stringify(data) }, configureAxios)
+      .post(url, data, configureAxios)
       .then(function (res) {
         console.log("POST works");
       })
       .catch(function (e) {
-        console.log(error);
+        console.log(e);
       });
   }
 
