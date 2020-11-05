@@ -1,14 +1,9 @@
 (function () {
   var colors = new Colors();
   var size = 15;
+  var notification = new Notification("");
 
   window.addEventListener("load", function () {
-    if (document.body.hasAttribute("meatball_override")) {
-      var overrides = window.meatball_override;
-      overrides.forEach(function (item) {
-        colors.set(item.value, item.color);
-      });
-    }
     getListItems();
   });
 
@@ -19,6 +14,12 @@
 
   /* get all the choices and send to main func*/
   function getListItems() {
+    if (document.body.hasAttribute("meatball_override")) {
+      var overrides = window.meatball_override;
+      overrides.forEach(function (item) {
+        colors.set(item.value, item.color);
+      });
+    }
     //Step 1. Get all the tables -- create array
     var tables = [].slice.call(document.getElementsByTagName("table"));
     if (errorChecking(tables)) {
@@ -530,10 +531,13 @@
     axios
       .post(url, data, configureAxios)
       .then(function (res) {
-        console.log("POST works");
+        notification.setMessage("Update Success");
+        notification.show();
       })
       .catch(function (e) {
-        console.log(e);
+        notification.setMessage("Update Failed");
+        notification.show();
+        console.log(error);
       });
   }
 
@@ -578,6 +582,47 @@
     } else {
       this.defaults.push({ value: value, color: color });
     }
+  };
+
+  //In house build of a notification feature
+  function Notification(message) {
+    this.notification = document.createElement("div");
+    this.notification.style.textAlign = "center";
+    this.notification.style.fontSize = "16pt";
+    this.notification.style.width = "250px";
+    this.notification.style.height = "50px";
+    this.notification.style.backgroundColor = "white";
+    this.notification.style.border = "1px solid black";
+    this.notification.style.position = "fixed";
+    this.notification.style.right = "10px";
+    this.notification.style.top = "10px";
+    this.notification.style.zIndex = "1";
+    this.notification.style.borderRadius = ".25rem";
+    this.notification.innerText = message;
+  }
+
+  Notification.prototype.setMessage = function (message) {
+    this.notification.innerText = message;
+  };
+
+  Notification.prototype.show = function () {
+    var note = this.notification;
+    document.body.appendChild(note);
+    var timer = setTimeout(
+      function (note) {
+        if (note) {
+          if (note.parentNode) {
+            note.parentNode.removeChild(note);
+          }
+        }
+      },
+      2500,
+      note
+    );
+  };
+
+  Notification.prototype.debug = function () {
+    document.body.appendChild(this.notification);
   };
 
   function parseFormulaColumn(formula) {
