@@ -41,9 +41,9 @@
           <li>
             Write the following inside the script editor:
             <script>
-              var meatball_override = [
-                { value: "", color: "" },
-                { value: "", color: "" },
+              var meatball_override = [</br>
+                { value: "", color: "" },</br>
+                { value: "", color: "" },</br>
               ];
             </script>
           </li>
