@@ -7,118 +7,73 @@
   window.addEventListener("hashchange", function () {
     getListItems();
   });
-  function buildScript(source) {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = source;
-    document.body.appendChild(script);
-    return script;
-  }
+
   /* get all the choices and send to main func*/
   function getListItems() {
-    var scriptAjax = document.createElement("script");
-    scriptAjax.type = "text/javascript";
-    //SPIR CODE
-    // var script = [].slice
-    //   .call(document.getElementsByTagName("script"))
-    //   .filter(function (item) {
-    //     if (item.src.indexOf("meatball") > -1) {
-    //       return item;
-    //     }
-    //   })[0];
-    // var scriptSrc = script.src.substring(0, script.src.indexOf("meatball.js"));
-    // scriptAjax.src = scriptSrc + "ajax.js";
-    //TEST CODE
-    scriptAjax.src =
-      "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
-    document.body.appendChild(scriptAjax);
-    //Waits till Ajax loads to allow full functionality of
-    scriptAjax.onload = function () {
-      //Step 1. Get all the tables -- create array
-      var tables = [].slice.call(document.getElementsByTagName("table"));
-      if (errorChecking(tables)) {
-        console.log("No Tables Found");
-        return;
-      }
-      //Include only the actual lists
-      tables = tables.filter(function (table) {
-        return table.getAttribute("class") === "ms-listviewtable";
-      });
-      //Grabbing the list url
-
-      //Iterate through the set of tables
-      tables.forEach(function (table, index) {
-        var currentListName = table.getAttribute("id").substring(1, 37);
-        var root = ctx.HttpRoot;
-        var listName = "SP.Data." + table.summary + "ListItem";
-        var data = {
-          __metadata: { type: listName },
-        };
-        var url = root + "/_api/web/lists('" + currentListName + "')/fields";
-
-        // var axios = require('axios')
-
-        // $.ajax({
-        //   url: url,
-        //   type: "GET",
-        //   headers: {
-        //     Accept: "application/json; odata=verbose",
-        //     "Content-Type": "application/json;odata=verbose",
-        //     credentials: true,
-        //     "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-        //   },
-        //   success: function (data) {
-        //     if (data && data.d) {
-        //       var popoverData = data.d.results.reduce(
-        //         function (acc, cv, ci, data) {
-        //           var add = true;
-        //           if (containsString(cv.Title, "status")) {
-        //             if (containsString(cv.Title, "value")) {
-        //               if (acc.value.indexOf(cv.Choices.results) < 0) {
-        //                 acc.value.push(cv.Choices.results);
-        //                 add = false;
-        //               }
-        //               if (acc.value.indexOf(cv.InternalName) < 0) {
-        //                 acc.internalColumn.push(cv.InternalName);
-        //                 add = false;
-        //               }
-        //             }
-        //             if (add && cv.Formula) {
-        //               var column = parseFormulaColumn(cv.Formula);
-        //               if (column.indexOf("[") > -1) {
-        //                 column = column.substring(1, column.length - 1);
-        //               }
-        //               if (acc.externalColumn.indexOf(column) < 0) {
-        //                 acc.externalColumn.push(column);
-        //               }
-        //             }
-        //           }
-        //           return acc;
-        //         },
-        //         {
-        //           externalColumn: [],
-        //           internalColumn: [],
-        //           value: [],
-        //         }
-        //       );
-        //       console.log("popoverData:", popoverData);
-        //       popoverData.value.forEach(function (item, i) {
-        //         findTargets(
-        //           table,
-        //           item,
-        //           popoverData.externalColumn[i],
-        //           popoverData.internalColumn[i]
-        //         );
-        //       });
-        //     }
-        //     return false;
-        //   },
-        //   error: function (error) {
-        //     console.log("Error: Get list choices request Failed.");
-        //   },
-        // });
-      });
-    };
+    //Step 1. Get all the tables -- create array
+    var tables = [].slice.call(document.getElementsByTagName("table"));
+    if (errorChecking(tables)) {
+      console.log("No Tables Found");
+      return;
+    }
+    //Include only the actual lists
+    tables = tables.filter(function (table) {
+      return table.getAttribute("class") === "ms-listviewtable";
+    });
+    //Grabbing the list url + Iterate through the set of tables
+    tables.forEach(function (table, index) {
+      var currentListId = table.getAttribute("id").substring(1, 37);
+      var root = ctx.HttpRoot;
+      var url =
+        root +
+        "/_api/web/lists('" +
+        currentListId +
+        `')/fields?$filter=TypeDisplayName eq 'Choice'`;
+      var configureAxios = {
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+        },
+        credentials: true,
+      };
+      axios
+        .get(url, configureAxios)
+        .then(function (res) {
+          if (res.data && res.data.d) {
+            var popoverData = res.data.d.results.reduce(
+              function (acc, cv, ci, data) {
+                var add = true;
+                if (cv.Choices) {
+                  if (acc.value.indexOf(cv.Choices.results) < 0) {
+                    acc.value.push(cv.Choices.results);
+                    acc.internalColumn.push(cv.InternalName);
+                    acc.externalColumn.push(cv.Title);
+                  }
+                }
+                return acc;
+              },
+              {
+                externalColumn: [],
+                internalColumn: [],
+                value: [],
+              }
+            );
+            console.log("popoverData:", popoverData);
+            popoverData.value.forEach(function (item, i) {
+              findTargets(
+                table,
+                item,
+                popoverData.externalColumn[i],
+                popoverData.internalColumn[i]
+              );
+            });
+          }
+          return false;
+        })
+        .catch(function (e) {
+          console.log("Error: Get list choices request Failed", e);
+        });
+    });
   }
 
   //Entry Point and General Function
@@ -158,8 +113,6 @@
           });
           var pos = defaultText.indexOf(text.toLowerCase());
 
-          console.log("pos:", pos, "\ncell:", $cell);
-
           //Get the position of the td and find the c
           var add = false;
           if (thead[ci]) {
@@ -176,7 +129,7 @@
                         externalColumn.split(" ").length - 1 ===
                         item.innerText.split(" ").length
                       ) {
-                        displayValue = cell.innerText;
+                        displayValue = $cell.innerText;
                       }
                     } else {
                       add = false;
@@ -187,8 +140,8 @@
             });
           }
 
-          if (add && table.getAttribute("id") && row.getAttribute("iid")) {
-            [].slice.call(cell.children).forEach(function (item, i) {
+          if (add && $table.getAttribute("id") && $row.getAttribute("iid")) {
+            [].slice.call($cell.children).forEach(function (item, i) {
               [].slice.call(item.children).forEach(function (item, i) {
                 if (!displayValue) {
                   displayValue = item.getAttribute("key");
@@ -199,12 +152,12 @@
             });
             if (displayValue) {
               addPopover(
-                cell,
+                $cell,
                 values,
                 displayValue,
-                row.getAttribute("iid").split(",")[1],
+                $row.getAttribute("iid").split(",")[1],
                 thead[ci],
-                table.getAttribute("id").substring(1, 37),
+                $table.getAttribute("id").substring(1, 37),
                 externalColumn,
                 internalColumn
               );
@@ -212,10 +165,6 @@
           }
         });
       }
-    });
-    $(`[data-toggle="tooltip"]`).popover({
-      placement: "right",
-      trigger: "hover",
     });
   }
 
@@ -365,6 +314,7 @@
       __metadata: { type: listName },
     };
     data[internalColumn] = ele;
+
     var url =
       site +
       "/_api/web/lists('" +
@@ -373,30 +323,24 @@
       rowIndex +
       ")?$select=" +
       internalColumn;
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
+
+    var configureAxios = {
       headers: {
         Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
         "If-Match": "*",
         "X-HTTP-Method": "MERGE",
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
       },
-      success: function (data) {
-        alert("Updated " + header + " Successfully");
-        location.reload();
-        return false;
-      },
-      error: function (error) {
-        alert(
-          "Error: Update Request Failed. Please Contact the 1MEF IMO",
-          console.log(JSON.stringify(error))
-        );
-      },
-    });
+      credentials: true,
+    };
+    axios
+      .post(url, { data: JSON.stringify(data) }, configureAxios)
+      .then(function (res) {
+        console.log("POST works");
+      })
+      .catch(function (e) {
+        console.log(error);
+      });
   }
 
   function parseFormulaColumn(formula) {
