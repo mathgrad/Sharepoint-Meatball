@@ -17,28 +17,56 @@
   </dd>
   <dt>Inorder for it to be used, the following must be met</dt>
   <dd>
-    <ol>
+    <ul>
       <li>
-        Two columns that must contain status, and another that contains value.
-        For example: NIPR Status and NIPR Status Value are valid.
+        One select column of values. The presumed values are:
+        <ul>
+          <li>Up</li>
+          <li>Down</li>
+          <li>Degraded</li>
+          <li>NA</li>
+          <li>100-90</li>
+          <li>89-80</li>
+          <li>79-10</li>
+          <li><10</li>
+        </ul>
+        It can be any combination of these values.
       </li>
       <li>
-        In the calculation column, the meatball element must have a key value.
-        For example: if a green meatball is displayed if the value is (100 -
-        90). Then set the key attribute to be (100 - 90) like this
-        [key="100-90"]
+        If you wish to have custom values:
+        <ol>
+          <li>
+            Add a script editor to the page
+          </li>
+          <li>
+            Write the following inside the script editor:
+            <script>
+              var meatball_override = [
+                { value: "", color: "" },
+                { value: "", color: "" },
+              ];
+            </script>
+          </li>
+          <li>
+            The values must line up with the custom values. The colors can be
+            words or # code.
+            <a href="http://colorcode.is/">Color Code</a> can be helpful here.
+          </li>
+          <li>
+            Example:
+            <script>
+              var meatball_override = [
+                { value: "Hi", color: "orange" },
+                { value: "Editor", color: "brown" },
+                { value: "You", color: "black" },
+                { value: "Got", color: "gray" },
+                { value: "This", color: "#ee00ee" },
+              ];
+            </script>
+          </li>
+        </ol>
       </li>
-      <li>
-        The value column, must be a select column.
-      </li>
-      <li>
-        The names for both of the columns must be the original names. If the
-        names have changed, then the script will not work. You will need to
-        delete and add in the new column with the appropriate name. (This is a
-        quirk of Sharepoint's ID management system, and beyond what the script
-        can do).
-      </li>
-    </ol>
+    </ul>
   </dd>
   <dt>Debugging</dt>
   <dd>
@@ -54,24 +82,11 @@
         Verify column names haven't been changed.
       </li>
       <li>
-        Check the forumlas.
+        Verify the values in each select column and ensure they match with
+        defaults or overrides.
       </li>
-      <ol>
-        <li>
-          Check to see if the key attribute in the calculation column exists. It
-          should look like this "<\div key='desired value' style='width:15px;
-          height:15px; background-color:'desired color' border-radius: 15px;'
-          <\/div>"
-        </li>
-        <li>
-          Check to see if the forumla in the calculation column contains the
-          correct source list. It should match the naming convention. For
-          example: NIPR status, NIPR status value; SIPR status, SPIR status
-          value.
-        </li>
-      </ol>
       <li>
-        If changing these things does not fix the issue.  Please contact the help desk.
+        Verify the overrides are created correctly.
       </li>
     </ol>
   </dd>
