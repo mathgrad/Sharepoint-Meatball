@@ -41,10 +41,10 @@
           <li>
             Write the following inside the script editor:
             <script>
-              var meatball_override = [
-                { value: "", color: "" },
-                { value: "", color: "" },
-              ];
+              var meatball_override = [ </br>
+                { value: "", color: "" }, </br>
+                { value: "", color: "" }, </br>
+              ];</br>
             </script>
           </li>
           <li>
@@ -55,13 +55,13 @@
           <li>
             Example:
             <script>
-              var meatball_override = [
-                { value: "Hi", color: "orange" },
-                { value: "Editor", color: "brown" },
-                { value: "You", color: "black" },
-                { value: "Got", color: "gray" },
-                { value: "This", color: "#ee00ee" },
-              ];
+              var meatball_override = [</br>
+                { value: "Hi", color: "orange" },</br>
+                { value: "Editor", color: "brown" },</br>
+                { value: "You", color: "black" },</br>
+                { value: "Got", color: "gray" },</br>
+                { value: "This", color: "#ee00ee" },</br>
+              ];</br>
             </script>
           </li>
         </ol>
