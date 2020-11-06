@@ -4,12 +4,16 @@
   var notification = new Notification("");
 
   window.addEventListener("load", function () {
+    notification.startLoading();
     getListItems();
+    notification.endLoading();
   });
 
   //On change, adds functionality
   window.addEventListener("hashchange", function () {
+    notification.startLoading();
     getListItems();
+    notification.endLoading();
   });
 
   /* get all the choices and send to main func*/
@@ -253,6 +257,7 @@
         radio.style.cursor = "pointer";
         optionPanel.style.cursor = "pointer";
         optionPanel.addEventListener("click", function () {
+          notification.startLoading();
           radio.checked = "checked";
           optionPanel.style.backgroundColor = "#BABBFD";
 
@@ -392,14 +397,15 @@
     this.green = "#27e833";
     this.red = "#d71010";
     this.yellow = "#f6de1c";
+    this.transparent = "transparent";
     this.defaults = [
       {
         value: "Up",
         color: this.green,
       },
-      { value: "Down", color: this.yellow },
-      { value: "Degraded", color: this.red },
-      { value: "NA", color: this.blue },
+      { value: "Down", color: this.red },
+      { value: "Degraded", color: this.yellow },
+      { value: "NA", color: this.transparent },
       { value: "100-90", color: this.green },
       { value: "89-80", color: this.yellow },
       { value: "79-10", color: this.red },
@@ -459,6 +465,11 @@
   };
 
   Notification.prototype.show = function () {
+    if (this.notification) {
+      if (this.notification.parentNode) {
+        this.notification.parentNode.removeChild(this.notification);
+      }
+    }
     var note = this.notification;
     document.body.appendChild(note);
     var timer = setTimeout(
