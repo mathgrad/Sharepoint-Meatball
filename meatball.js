@@ -163,6 +163,67 @@
     });
   }
 
+  function updateTarget(
+    ele,
+    rowIndex,
+    meatball,
+    header,
+    table,
+    externalColumn,
+    internalColumn
+  ) {
+    var root = ctx.HttpRoot;
+    var currentListName = ctx.ListTitle;
+    var listName = "SP.ListItem";
+    var data = {
+      __metadata: { type: listName },
+    };
+    data[internalColumn] = ele;
+
+    var url =
+      root +
+      "/_api/web/lists('" +
+      table +
+      "')/items(" +
+      rowIndex +
+      ")?$select=" +
+      internalColumn;
+
+    var configureAxios = {
+      headers: {
+        Accept: "application/json;odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        "If-Match": "*",
+        "X-HTTP-Method": "MERGE",
+        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+      },
+      credentials: true,
+    };
+    axios
+      .post(url, data, configureAxios)
+      .then(function (res) {
+        meatball.setColor(data[internalColumn]);
+        notification.setMessage("Update Success");
+        notification.show();
+      })
+      .catch(function (e) {
+        notification.setMessage("Update Failed");
+        notification.show();
+      });
+  }
+
+  function Options() {}
+  Options.prototype.set = function (
+    defaults,
+    externalColumn,
+    internalColumn,
+    parent,
+    rowIndex,
+    thead,
+    table,
+    value
+  ) {};
+
   function Meatball(size) {
     this.size = size + "px";
     this.element = document.createElement("div");
@@ -266,17 +327,17 @@
           popoverPanel.parentNode.removeChild(popoverPanel);
           //redraw the popover so it only has the new value selected////////////////////////////////////////////////////////////////////////////////////////////////////////////
           parent.innerText = ele; // the new selection is the value getting passed for the redraw
-          //redraw'd
-          new Meatball(size).init(
-            defaults,
-            externalColumn,
-            internalColumn,
-            parent,
-            rowIndex,
-            thead,
-            table,
-            value
-          );
+          //redraw'd with the options pro
+          // new Meatball(size).init(
+          //   defaults,
+          //   externalColumn,
+          //   internalColumn,
+          //   parent,
+          //   rowIndex,
+          //   thead,
+          //   table,
+          //   value
+          // );
         });
         optionPanel.addEventListener("mouseenter", function () {
           optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
@@ -353,55 +414,6 @@
     this.element.style.backgroundColor = colors.get(value);
   };
 
-  function updateTarget(
-    ele,
-    rowIndex,
-    meatball,
-    header,
-    table,
-    externalColumn,
-    internalColumn
-  ) {
-    var root = ctx.HttpRoot;
-    var currentListName = ctx.ListTitle;
-    var listName = "SP.ListItem";
-    var data = {
-      __metadata: { type: listName },
-    };
-    data[internalColumn] = ele;
-
-    var url =
-      root +
-      "/_api/web/lists('" +
-      table +
-      "')/items(" +
-      rowIndex +
-      ")?$select=" +
-      internalColumn;
-
-    var configureAxios = {
-      headers: {
-        Accept: "application/json;odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        "If-Match": "*",
-        "X-HTTP-Method": "MERGE",
-        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
-      },
-      credentials: true,
-    };
-    axios
-      .post(url, data, configureAxios)
-      .then(function (res) {
-        meatball.setColor(data[internalColumn]);
-        notification.setMessage("Update Success");
-        notification.show();
-      })
-      .catch(function (e) {
-        notification.setMessage("Update Failed");
-        notification.show();
-      });
-  }
-
   //Easier way of handling the different colors and defaults
   function Colors() {
     this.blue = "#0075ff";
@@ -409,10 +421,7 @@
     this.red = "#d71010";
     this.yellow = "#f6de1c";
     this.defaults = [
-      {
-        value: "Up",
-        color: this.green,
-      },
+      { value: "Up", color: this.green },
       { value: "Down", color: this.yellow },
       { value: "Degraded", color: this.red },
       { value: "NA", color: this.blue },
