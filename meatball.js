@@ -331,7 +331,6 @@
     this.element.style.height = this.size;
     this.element.style.borderRadius = this.size;
   }
-
   Meatball.prototype.init = function (
     defaults,
     externalColumn,
@@ -538,7 +537,7 @@
       .catch(function (e) {
         notification.setMessage("Update Failed");
         notification.show();
-        console.log(error);
+        console.log(e);
       });
   }
 
