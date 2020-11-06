@@ -430,6 +430,9 @@
   };
 
   Colors.prototype.set = function (value, color) {
+    if (this.replaceValue(value, color)) {
+      return;
+    }
     if (compareString(color, "blue")) {
       this.defaults.push({ value: value, color: this.blue });
     } else if (compareString(color, "green")) {
@@ -441,6 +444,17 @@
     } else {
       this.defaults.push({ value: value, color: color });
     }
+  };
+
+  Colors.prototype.replaceValue = function (value, color) {
+    var found = false;
+    this.defaults.map(function (item, index) {
+      if (compareString(value, item.value)) {
+        found = true;
+        item = { value: value, color: color };
+      }
+    });
+    return true;
   };
 
   //In house build of a notification feature
