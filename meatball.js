@@ -68,7 +68,6 @@
                 value: [],
               }
             );
-            console.log("popoverData:", popoverData);
             popoverData.value.forEach(function (item, i) {
               findTargets(
                 table,
@@ -146,180 +145,19 @@
             displayValue = $row.childNodes[1].innerText + ": " + externalColumn;
 
             if (displayValue) {
-              addPopover(
-                $cell,
+              new Meatball(size).init(
                 values,
-                displayValue,
+                externalColumn,
+                internalColumn,
+                $cell,
                 $row.getAttribute("iid").split(",")[1],
                 thead[ci],
                 $table.getAttribute("id").substring(1, 37),
-                externalColumn,
-                internalColumn
+                displayValue
               );
             }
           }
         });
-      }
-    });
-  }
-
-  /*
-    This creates the popover for each cell
-  */
-  function addPopover(
-    target,
-    defaults,
-    displayValue,
-    rowIndex,
-    thead,
-    table,
-    externalColumn,
-    internalColumn
-  ) {
-    var popoverBC = "#ffffff";
-    var triangleSize = 15;
-
-    var popoverPanel = document.createElement("div");
-    popoverPanel.style.display = "inline-block";
-    popoverPanel.style.margin = "0px";
-    popoverPanel.style.padding = "0px";
-
-    var carret = document.createElement("div");
-    carret.style.margin = "0px";
-    carret.style.display = "inline-block";
-    carret.style.position = "fixed";
-    carret.style.height = "0px";
-    carret.style.width = "0px";
-    carret.style.borderTop = triangleSize + "px solid transparent";
-    carret.style.borderBottom = triangleSize + "px solid transparent";
-    carret.style.borderRight = triangleSize + "px solid " + popoverBC;
-    popoverPanel.appendChild(carret);
-
-    //Create Popover Element
-    var popover = document.createElement("div");
-    popover.style.display = "inline-block";
-    popover.style.backgroundColor = popoverBC;
-    popover.style.color = "#000000";
-    popover.style.padding = ".5rem";
-    popover.style.border = "1px solid black";
-    popover.style.borderRadius = ".25rem";
-    popover.style.zIndex = "1";
-
-    //Create Header Element
-    var header = document.createElement("div");
-    header.style.padding = ".25rem";
-    header.style.borderRadius = ".25rem";
-    header.style.textAlign = "center";
-    header.style.cursor = "pointer";
-    header.style.marginBottom = ".25rem";
-    header.style.backgroundColor = "#BABBFD";
-    header.innerText = displayValue;
-
-    //Create Options Panel Element
-    var options = document.createElement("div");
-    options.style.padding = ".25rem";
-    options.style.borderRadius = ".25rem";
-
-    //Create and Add Option Elements
-    defaults.forEach(function (ele, index) {
-      var optionPanel = document.createElement("div");
-      optionPanel.style.padding = ".25rem";
-      optionPanel.style.marginBottom = ".25rem";
-      optionPanel.style.textAlign = "left";
-      optionPanel.style.borderRadius = ".25rem";
-
-      var option = document.createElement("div");
-      option.innerText = ele;
-      option.style.marginLeft = ".25rem";
-      option.style.display = "inline";
-      var radio = document.createElement("input");
-      radio.type = "radio";
-      radio.style.margin = "0px";
-      radio.style.display = "inline";
-
-      if (containsString(ele, displayValue)) {
-        radio.checked = "checked";
-        optionPanel.style.backgroundColor = "#BABBFD";
-      } else {
-        radio.style.cursor = "pointer";
-        optionPanel.style.cursor = "pointer";
-        optionPanel.addEventListener("click", function () {
-          radio.checked = "checked";
-          optionPanel.style.backgroundColor = "#BABBFD";
-          updateTarget(
-            ele,
-            rowIndex,
-            thead.innerText,
-            table,
-            externalColumn,
-            internalColumn
-          );
-        });
-        optionPanel.addEventListener("mouseenter", function () {
-          optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
-        });
-        optionPanel.addEventListener("mouseleave", function () {
-          optionPanel.style.boxShadow = "0px 0px 0px";
-        });
-      }
-
-      //Add Click Event to update list
-      optionPanel.appendChild(radio);
-      optionPanel.appendChild(option);
-      options.appendChild(optionPanel);
-    });
-
-    //Add Header Element
-    popover.appendChild(header);
-    //Add Options Panel
-    popover.appendChild(options);
-
-    //Add Click Event to display Options Panel
-    header.addEventListener("click", function () {
-      var style = options.style.display;
-      var change = false;
-      change = style === "block";
-      change
-        ? (options.style.display = "none")
-        : (options.style.display = "block");
-    });
-
-    popoverPanel.appendChild(popover);
-
-    //Used addEventListener versus onmouseenter = function due to concerns of
-    //overriding other scripts
-    //Add Mouse Enter Event to display
-    target.addEventListener("mouseenter", function () {
-      document.body.appendChild(popoverPanel);
-
-      var left = Math.round(target.getBoundingClientRect().width * (2 / 3));
-      popoverPanel.style.position = "fixed";
-      popoverPanel.style.left =
-        Math.max(
-          target.getBoundingClientRect().left + left,
-          target.getBoundingClientRect().right
-        ) + "px";
-      popoverPanel.style.top =
-        target.getBoundingClientRect().top - triangleSize / 2 + "px";
-      carret.style.right = popoverPanel.style.left;
-      carret.style.top = target.getBoundingClientRect().top + "px";
-    });
-
-    target.addEventListener("mouseleave", function (e) {
-      if (popoverPanel.contains(e.relatedTarget)) return;
-      if (popoverPanel) {
-        if (popoverPanel.parentNode) {
-          popoverPanel.parentNode.removeChild(popoverPanel);
-        }
-      }
-    });
-
-    //Add Mouse leave Event to hide
-    popoverPanel.addEventListener("mouseleave", function () {
-      if (popoverPanel) {
-        if (popoverPanel.parentNode) {
-          popoverPanel.parentNode.removeChild(popoverPanel);
-        }
       }
     });
   }
@@ -342,7 +180,8 @@
     table,
     value
   ) {
-    this.element.style.backgroundColor = colors.get(selectValue);
+    var meatball = this;
+    this.setColor(colors.get(parent.innerText));
     var popoverBC = "#ffffff";
     var triangleSize = 15;
 
@@ -380,7 +219,7 @@
     header.style.cursor = "pointer";
     header.style.marginBottom = ".25rem";
     header.style.backgroundColor = "#BABBFD";
-    header.innerText = parent.innerText;
+    header.innerText = value;
 
     //Create Options Panel Element
     var options = document.createElement("div");
@@ -404,7 +243,7 @@
       radio.style.margin = "0px";
       radio.style.display = "inline";
 
-      if (containsSubString(ele, selectValue)) {
+      if (containsSubString(ele, parent.innerText)) {
         radio.checked = "checked";
         optionPanel.style.backgroundColor = "#BABBFD";
       } else {
@@ -413,9 +252,11 @@
         optionPanel.addEventListener("click", function () {
           radio.checked = "checked";
           optionPanel.style.backgroundColor = "#BABBFD";
+
           updateTarget(
             ele,
             rowIndex,
+            meatball,
             thead.innerText,
             table,
             externalColumn,
@@ -456,7 +297,7 @@
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
-    this.addEventListener("mouseenter", function () {
+    this.element.addEventListener("mouseenter", function () {
       document.body.appendChild(popoverPanel);
 
       var left = Math.round(this.getBoundingClientRect().width * (2 / 3));
@@ -472,7 +313,7 @@
       carret.style.top = this.getBoundingClientRect().top + "px";
     });
 
-    this.addEventListener("mouseleave", function (e) {
+    this.element.addEventListener("mouseleave", function (e) {
       if (popoverPanel.contains(e.relatedTarget)) return;
       if (popoverPanel) {
         if (popoverPanel.parentNode) {
@@ -493,9 +334,14 @@
     parent.appendChild(this.element);
   };
 
+  Meatball.prototype.setColor = function (value) {
+    this.element.style.backgroundColor = colors.get(value);
+  };
+
   function updateTarget(
     ele,
     rowIndex,
+    meatball,
     header,
     table,
     externalColumn,
@@ -509,7 +355,6 @@
     };
     data[internalColumn] = ele;
 
-    console.log("Post Data:", data);
     var url =
       root +
       "/_api/web/lists('" +
@@ -532,19 +377,19 @@
     axios
       .post(url, data, configureAxios)
       .then(function (res) {
+        meatball.setColor(data[internalColumn]);
         notification.setMessage("Update Success");
         notification.show();
       })
       .catch(function (e) {
         notification.setMessage("Update Failed");
         notification.show();
-        console.log(error);
       });
   }
 
   //Easier way of handling the different colors and defaults
   function Colors() {
-    this.blue = "#6063fa";
+    this.blue = "#0075ff";
     this.green = "#27e833";
     this.red = "#d71010";
     this.yellow = "#f6de1c";
@@ -564,11 +409,19 @@
   }
 
   Colors.prototype.get = function (value) {
-    return this.defaults.filter(function (item) {
+    var test = this.defaults.filter(function (item) {
+      // console.log(value, " : ", item.value);
       if (containsSubString(item.value, value)) {
         return item;
       }
-    })[0].color;
+    });
+    // console.log(test);
+
+    if (test[0]) {
+      return test[0].color;
+    } else {
+      return "#000000";
+    }
   };
 
   Colors.prototype.set = function (value, color) {
@@ -618,6 +471,33 @@
         }
       },
       5000,
+      note
+    );
+  };
+
+  Notification.prototype.startLoading = function () {
+    this.notification.innerText = "Loading";
+    document.body.appendChild(this.notification);
+  };
+
+  Notification.prototype.endLoading = function () {
+    if (this.notification) {
+      if (this.notification.parentNode) {
+        this.notification.parentNode.removeChild(this.notification);
+      }
+    }
+    this.notification.innerText = "Done";
+    var note = this.notification;
+    document.body.appendChild(note);
+    var timer = setTimeout(
+      function (note) {
+        if (note) {
+          if (note.parentNode) {
+            note.parentNode.removeChild(note);
+          }
+        }
+      },
+      1000,
       note
     );
   };
