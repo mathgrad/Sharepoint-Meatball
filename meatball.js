@@ -153,6 +153,7 @@
                 $row.getAttribute("iid").split(",")[1],
                 thead[ci],
                 $table.getAttribute("id").substring(1, 37),
+                text,
                 displayValue
               );
             }
@@ -178,10 +179,11 @@
     rowIndex,
     thead,
     table,
+    cellText,
     value
   ) {
     var meatball = this;
-    this.setColor(colors.get(parent.innerText));
+    this.element.style.backgroundColor = colors.get(cellText);
     var popoverBC = "#ffffff";
     var triangleSize = 15;
 
@@ -243,7 +245,7 @@
       radio.style.margin = "0px";
       radio.style.display = "inline";
 
-      if (containsSubString(ele, parent.innerText)) {
+      if (containsSubString(ele, cellText)) {
         radio.checked = "checked";
         optionPanel.style.backgroundColor = "#BABBFD";
       } else {
