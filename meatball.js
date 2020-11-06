@@ -301,17 +301,13 @@
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
       document.body.appendChild(popoverPanel);
-
-      var left = Math.round(this.getBoundingClientRect().width * (2 / 3));
       popoverPanel.style.position = "fixed";
       popoverPanel.style.left =
-        Math.max(
-          this.getBoundingClientRect().left + left,
-          this.getBoundingClientRect().right
-        ) + "px";
+        this.getBoundingClientRect().right + triangleSize + "px";
       popoverPanel.style.top =
-        this.getBoundingClientRect().top - triangleSize / 2 + "px";
-      carret.style.right = popoverPanel.style.left;
+        this.getBoundingClientRect().top - triangleSize + "px";
+      carret.style.left =
+        popoverPanel.getBoundingClientRect().left - triangleSize + "px";
       carret.style.top = this.getBoundingClientRect().top + "px";
     });
 
