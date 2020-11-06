@@ -251,7 +251,6 @@
         optionPanel.addEventListener("click", function () {
           radio.checked = "checked";
           optionPanel.style.backgroundColor = "#BABBFD";
-
           updateTarget(
             ele,
             rowIndex,
@@ -260,6 +259,21 @@
             table,
             externalColumn,
             internalColumn
+          );
+          //after remove the popover from the view
+          popoverPanel.parentNode.removeChild(popoverPanel);
+          //redraw the popover so it only has the new value selected////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          parent.innerText = ele; // the new selection is the value getting passed for the redraw
+          //redraw'd
+          new Meatball(size).init(
+            defaults,
+            externalColumn,
+            internalColumn,
+            parent,
+            rowIndex,
+            thead,
+            table,
+            value
           );
         });
         optionPanel.addEventListener("mouseenter", function () {
