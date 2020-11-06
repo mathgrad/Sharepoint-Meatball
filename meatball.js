@@ -244,8 +244,9 @@
   ) {
     var meatball = this;
     this.element.style.backgroundColor = colors.get(cellText);
-    var popoverBC = "#ffffff";
-    var triangleSize = 15;
+
+    var popoverBorder = "#c4c3d0";
+    var triangleSize = 10;
 
     var popoverPanel = document.createElement("div");
     popoverPanel.style.display = "inline-block";
@@ -260,16 +261,16 @@
     carret.style.width = "0px";
     carret.style.borderTop = triangleSize + "px solid transparent";
     carret.style.borderBottom = triangleSize + "px solid transparent";
-    carret.style.borderRight = triangleSize + "px solid " + popoverBC;
+    carret.style.borderRight = triangleSize + "px solid " + popoverBorder;
     popoverPanel.appendChild(carret);
 
     //Create Popover Element
     var popover = document.createElement("div");
     popover.style.display = "inline-block";
-    popover.style.backgroundColor = popoverBC;
+    popover.style.backgroundColor = "#ffffff";
     popover.style.color = "#000000";
     popover.style.padding = ".5rem";
-    popover.style.border = "1px solid black";
+    popover.style.border = "1px solid " + popoverBorder;
     popover.style.borderRadius = ".25rem";
     popover.style.zIndex = "1";
 
