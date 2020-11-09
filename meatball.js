@@ -15,9 +15,7 @@
   /* get all the choices and send to main func*/
   function getListItems() {
     if (meatball_override) {
-      console.log("meatball_override:", meatball_override);
       meatball_override.forEach(function (item) {
-        console.log(item);
         colors.set(item.value, item.color);
       });
     }
