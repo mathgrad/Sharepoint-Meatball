@@ -15,6 +15,7 @@
   /* get all the choices and send to main func*/
   function getListItems() {
     if (document.body.hasAttribute("meatball_override")) {
+      console.log(window.meatball_override);
       var overrides = window.meatball_override;
       overrides.forEach(function (item) {
         colors.set(item.value, item.color);
@@ -211,26 +212,25 @@
         notification.show();
       });
   }
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  function Options() {
+
+  function OptionPanel() {
     this.options = document.createElement("div");
     this.options.style.padding = ".25rem";
     this.options.style.borderRadius = ".25rem";
   }
 
-  Options.prototype.set = function (
+  OptionPanel.prototype.create = function (
     defaults,
-    externalColumn,
-    internalColumn,
-    parent,
     rowIndex,
+    meatball,
     thead,
     table,
-    value,
-    cellText,
-    meatball
+    externalColumn,
+    internalColumn,
+    cellText
   ) {
-    var options = this;
+    var optionsPanel = this;
+    //Create and Add Option Elements
     defaults.forEach(function (ele, index) {
       var optionPanel = document.createElement("div");
       optionPanel.style.padding = ".25rem";
@@ -246,58 +246,60 @@
       radio.type = "radio";
       radio.style.margin = "0px";
       radio.style.display = "inline";
-      console.log(ele, cellText);
+
       if (containsSubString(ele, cellText)) {
-        radio.checked = "checked";
+        radio.checked = true;
         optionPanel.style.backgroundColor = "#BABBFD";
       } else {
         radio.style.cursor = "pointer";
         optionPanel.style.cursor = "pointer";
-        optionPanel.addEventListener("click", function () {
-          radio.checked = "checked";
-          optionPanel.style.backgroundColor = "#BABBFD";
+      }
+      optionPanel.addEventListener("click", function () {
+        if (!radio.checked) {
+          notification.startLoading();
+          optionsPanel.draw(ele);
           updateTarget(
             ele,
             rowIndex,
             meatball,
-            thead.innerText,
+            thead,
             table,
             externalColumn,
             internalColumn
           );
-          //after remove the popover from the view
-          popoverPanel.parentNode.removeChild(popoverPanel);
-          //redraw the popover so it only has the new value selected////////////////////////////////////////////////////////////////////////////////////////////////////////////
-          parent.innerText = ele; // the new selection is the value getting passed for the redraw
-          //redraw'd with the options
-          options.set(
-            defaults,
-            externalColumn,
-            internalColumn,
-            parent,
-            rowIndex,
-            thead,
-            table,
-            value,
-            cellText,
-            meatball
-          );
-        });
-        optionPanel.addEventListener("mouseenter", function () {
-          optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
-        });
-        optionPanel.addEventListener("mouseleave", function () {
-          optionPanel.style.boxShadow = "0px 0px 0px";
-        });
-      }
+        }
+      });
+      optionPanel.addEventListener("mouseenter", function () {
+        optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
+      });
+      optionPanel.addEventListener("mouseleave", function () {
+        optionPanel.style.boxShadow = "0px 0px 0px";
+      });
 
       //Add Click Event to update list
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
-      options.appendChild(optionPanel);
+      optionsPanel.options.appendChild(optionPanel);
     });
   };
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  OptionPanel.prototype.draw = function (text) {
+    this.options.childNodes.forEach(function (item, i) {
+      let radio = item.childNodes[0];
+      let div = item.childNodes[1];
+      radio.checked = false;
+      radio.style.cursor = "pointer";
+      item.style.backgroundColor = "inherit";
+      item.style.cursor = "pointer";
+
+      if (containsSubString(text, div.innerText)) {
+        radio.checked = true;
+        radio.style.cursor = "auto";
+        item.style.backgroundColor = "#BABBFD";
+        item.style.cursor = "auto";
+      }
+    });
+  };
 
   function Meatball(size) {
     this.size = size + "px";
@@ -335,6 +337,7 @@
     carret.style.position = "fixed";
     carret.style.height = "0px";
     carret.style.width = "0px";
+    carret.style.boxShadow = "0px 0px 5px " + popoverBorder;
     carret.style.borderTop = triangleSize + "px solid transparent";
     carret.style.borderBottom = triangleSize + "px solid transparent";
     carret.style.borderRight = triangleSize + "px solid " + popoverBorder;
@@ -346,7 +349,8 @@
     popover.style.backgroundColor = "#ffffff";
     popover.style.color = "#000000";
     popover.style.padding = ".5rem";
-    popover.style.border = "1px solid " + popoverBorder;
+    popover.style.boxShadow = "0px 0px 5px " + popoverBorder;
+    // popover.style.border = "1px solid " + popoverBorder;
     popover.style.borderRadius = ".25rem";
     popover.style.zIndex = "1";
 
@@ -359,15 +363,23 @@
     header.style.marginBottom = ".25rem";
     header.style.backgroundColor = "#BABBFD";
     header.innerText = value;
-
     //Create Options Panel Element
-    var optionsPanel = new Options();
-    optionsPanel.set();
+    var options = new OptionPanel();
+    options.create(
+      defaults,
+      rowIndex,
+      meatball,
+      thead.innerText,
+      table,
+      externalColumn,
+      internalColumn,
+      cellText
+    );
 
     //Add Header Element
     popover.appendChild(header);
     //Add Options Panel
-    popover.appendChild(optionsPanel.options);
+    popover.appendChild(options.options);
 
     //Add Click Event to display Options Panel
     header.addEventListener("click", function () {
@@ -441,12 +453,10 @@
 
   Colors.prototype.get = function (value) {
     var test = this.defaults.filter(function (item) {
-      // console.log(value, " : ", item.value);
       if (containsSubString(item.value, value)) {
         return item;
       }
     });
-    // console.log(test);
 
     if (test[0]) {
       return test[0].color;
@@ -456,6 +466,9 @@
   };
 
   Colors.prototype.set = function (value, color) {
+    if (this.replaceValue(value, color)) {
+      return;
+    }
     if (compareString(color, "blue")) {
       this.defaults.push({ value: value, color: this.blue });
     } else if (compareString(color, "green")) {
@@ -469,6 +482,17 @@
     }
   };
 
+  Colors.prototype.replaceValue = function (value, color) {
+    var found = false;
+    this.defaults.map(function (item, index) {
+      if (compareString(value, item.value)) {
+        found = true;
+        item = { value: value, color: color };
+      }
+    });
+    return true;
+  };
+
   //In house build of a notification feature
   function Notification(message) {
     this.notification = document.createElement("div");
@@ -477,10 +501,11 @@
     this.notification.style.width = "250px";
     this.notification.style.height = "50px";
     this.notification.style.backgroundColor = "white";
+    this.notification.style.color = "black";
     this.notification.style.border = "1px solid black";
     this.notification.style.position = "fixed";
     this.notification.style.right = "10px";
-    this.notification.style.top = "10px";
+    this.notification.style.top = "50px";
     this.notification.style.zIndex = "1";
     this.notification.style.borderRadius = ".25rem";
     this.notification.innerText = message;
@@ -536,77 +561,6 @@
   Notification.prototype.debug = function () {
     document.body.appendChild(this.notification);
   };
-
-  function parseFormulaColumn(formula) {
-    var reg = /([()])/g;
-    var parsedFormula = formula.split("IF")[1].split("=")[0].split(",");
-    switch (parsedFormula.length) {
-      case 1:
-        return parsedFormula[0].replace(reg, "");
-      case 2:
-        return parsedFormula[1].replace(reg, "");
-      default:
-        throw new Error("Formula incorrect size");
-    }
-  }
-
-  function parseFormula(formula) {
-    return formula.split("IF").reduce(function (acc, cv, ci, init) {
-      if (ci !== 0) {
-        var splitEqual = cv.split("=");
-        switch (splitEqual.length) {
-          case 2:
-            if (splitEqual[0].indexOf('"') > -1) {
-              acc.push([
-                splitEqual[0].split('"')[1],
-                splitEqual[1].split(",")[1],
-              ]);
-            } else {
-              acc.push([splitEqual[1].split(",")]);
-            }
-            break;
-          case 3:
-            if (splitEqual[0].indexOf('"') > -1) {
-              acc.push([
-                splitEqual[0].split('"')[1],
-                (splitEqual[1] + "=" + splitEqual[2]).split(",")[1],
-              ]);
-            } else {
-              var temp = splitEqual[1] + "=" + splitEqual[2];
-
-              acc.push([temp.split(",")]);
-            }
-            break;
-          case 4:
-            if (splitEqual[0].indexOf('"') > -1) {
-              acc.push([
-                splitEqual[0].split('"')[1],
-                (
-                  splitEqual[1].split(",")[1] +
-                  "=" +
-                  splitEqual[2] +
-                  "=" +
-                  splitEqual[3]
-                ).replace(",", ""),
-              ]);
-            } else {
-              var temp = (
-                splitEqual[1].split(",")[1] +
-                "=" +
-                splitEqual[2] +
-                "=" +
-                splitEqual[3]
-              ).replace(",", "");
-              acc.push([temp]);
-            }
-            break;
-          default:
-            break;
-        }
-      }
-      return acc;
-    }, []);
-  }
 
   //True, error.  False, no error.
   function errorChecking(obj) {
