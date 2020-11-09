@@ -50,11 +50,18 @@
         },
         credentials: true,
       };
-      axios
-        .get(url, configureAxios)
-        .then(function (res) {
-          if (res.data && res.data.d) {
-            var popoverData = res.data.d.results.reduce(
+      $.ajax({
+        url: url,
+        type: "GET",
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          if (data && data.d) {
+            var popoverData = data.data.d.results.reduce(
               function (acc, cv, ci, data) {
                 var add = true;
                 if (cv.Choices) {
@@ -82,10 +89,11 @@
             });
           }
           return false;
-        })
-        .catch(function (e) {
-          console.log("Error: Get list choices request Failed", e);
-        });
+        },
+        error: function (error) {
+          console.log("Error: Get list choices request Failed.");
+        },
+      });
     });
   }
 
@@ -193,27 +201,31 @@
       ")?$select=" +
       internalColumn;
 
-    var configureAxios = {
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
       headers: {
-        Accept: "application/json;odata=verbose",
+        Accept: "application/json; odata=verbose",
         "Content-Type": "application/json;odata=verbose",
+        credentials: true,
         "If-Match": "*",
         "X-HTTP-Method": "MERGE",
-        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
-      credentials: true,
-    };
-    axios
-      .post(url, data, configureAxios)
-      .then(function (res) {
+      success: function (data) {
         meatball.setColor(data[internalColumn]);
         notification.setMessage("Update Success");
         notification.show();
-      })
-      .catch(function (e) {
-        notification.setMessage("Update Failed");
-        notification.show();
-      });
+        return false;
+      },
+      error: function (error) {
+        alert(
+          "Error: Update Request Failed. Please Contact the 1MEF IMO",
+          console.log(JSON.stringify(error))
+        );
+      },
+    });
   }
 
   function OptionPanel() {
