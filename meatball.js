@@ -508,10 +508,11 @@
     this.notification.style.width = "250px";
     this.notification.style.height = "50px";
     this.notification.style.backgroundColor = "white";
+    this.notification.style.color = "black";
     this.notification.style.border = "1px solid black";
     this.notification.style.position = "fixed";
     this.notification.style.right = "10px";
-    this.notification.style.top = "10px";
+    this.notification.style.top = "50px";
     this.notification.style.zIndex = "1";
     this.notification.style.borderRadius = ".25rem";
     this.notification.innerText = message;
