@@ -14,13 +14,14 @@
 
   /* get all the choices and send to main func*/
   function getListItems() {
-    if (document.body.hasAttribute("meatball_override")) {
-      console.log(window.meatball_override);
-      var overrides = window.meatball_override;
-      overrides.forEach(function (item) {
+    if (meatball_override) {
+      console.log("meatball_override:", meatball_override);
+      meatball_override.forEach(function (item) {
+        console.log(item);
         colors.set(item.value, item.color);
       });
     }
+
     //Step 1. Get all the tables -- create array
     var tables = [].slice.call(document.getElementsByTagName("table"));
     if (errorChecking(tables)) {
@@ -490,7 +491,7 @@
         item = { value: value, color: color };
       }
     });
-    return true;
+    return found;
   };
 
   //In house build of a notification feature
