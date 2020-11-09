@@ -4,16 +4,12 @@
   var notification = new Notification("");
 
   window.addEventListener("load", function () {
-    notification.startLoading();
     getListItems();
-    notification.endLoading();
   });
 
   //On change, adds functionality
   window.addEventListener("hashchange", function () {
-    notification.startLoading();
     getListItems();
-    notification.endLoading();
   });
 
   /* get all the choices and send to main func*/
@@ -215,8 +211,13 @@
         notification.show();
       });
   }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function Options() {
+    this.options = document.createElement("div");
+    this.options.style.padding = ".25rem";
+    this.options.style.borderRadius = ".25rem";
+  }
 
-  function Options() {}
   Options.prototype.set = function (
     defaults,
     externalColumn,
@@ -225,8 +226,78 @@
     rowIndex,
     thead,
     table,
-    value
-  ) {};
+    value,
+    cellText,
+    meatball
+  ) {
+    var options = this;
+    defaults.forEach(function (ele, index) {
+      var optionPanel = document.createElement("div");
+      optionPanel.style.padding = ".25rem";
+      optionPanel.style.marginBottom = ".25rem";
+      optionPanel.style.textAlign = "left";
+      optionPanel.style.borderRadius = ".25rem";
+
+      var option = document.createElement("div");
+      option.innerText = ele;
+      option.style.marginLeft = ".25rem";
+      option.style.display = "inline";
+      var radio = document.createElement("input");
+      radio.type = "radio";
+      radio.style.margin = "0px";
+      radio.style.display = "inline";
+      console.log(ele, cellText);
+      if (containsSubString(ele, cellText)) {
+        radio.checked = "checked";
+        optionPanel.style.backgroundColor = "#BABBFD";
+      } else {
+        radio.style.cursor = "pointer";
+        optionPanel.style.cursor = "pointer";
+        optionPanel.addEventListener("click", function () {
+          radio.checked = "checked";
+          optionPanel.style.backgroundColor = "#BABBFD";
+          updateTarget(
+            ele,
+            rowIndex,
+            meatball,
+            thead.innerText,
+            table,
+            externalColumn,
+            internalColumn
+          );
+          //after remove the popover from the view
+          popoverPanel.parentNode.removeChild(popoverPanel);
+          //redraw the popover so it only has the new value selected////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          parent.innerText = ele; // the new selection is the value getting passed for the redraw
+          //redraw'd with the options
+          options.set(
+            defaults,
+            externalColumn,
+            internalColumn,
+            parent,
+            rowIndex,
+            thead,
+            table,
+            value,
+            cellText,
+            meatball
+          );
+        });
+        optionPanel.addEventListener("mouseenter", function () {
+          optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
+        });
+        optionPanel.addEventListener("mouseleave", function () {
+          optionPanel.style.boxShadow = "0px 0px 0px";
+        });
+      }
+
+      //Add Click Event to update list
+      optionPanel.appendChild(radio);
+      optionPanel.appendChild(option);
+      options.appendChild(optionPanel);
+    });
+  };
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   function Meatball(size) {
     this.size = size + "px";
@@ -235,6 +306,7 @@
     this.element.style.height = this.size;
     this.element.style.borderRadius = this.size;
   }
+
   Meatball.prototype.init = function (
     defaults,
     externalColumn,
@@ -289,80 +361,13 @@
     header.innerText = value;
 
     //Create Options Panel Element
-    var options = document.createElement("div");
-    options.style.padding = ".25rem";
-    options.style.borderRadius = ".25rem";
-
-    //Create and Add Option Elements
-    defaults.forEach(function (ele, index) {
-      var optionPanel = document.createElement("div");
-      optionPanel.style.padding = ".25rem";
-      optionPanel.style.marginBottom = ".25rem";
-      optionPanel.style.textAlign = "left";
-      optionPanel.style.borderRadius = ".25rem";
-
-      var option = document.createElement("div");
-      option.innerText = ele;
-      option.style.marginLeft = ".25rem";
-      option.style.display = "inline";
-      var radio = document.createElement("input");
-      radio.type = "radio";
-      radio.style.margin = "0px";
-      radio.style.display = "inline";
-
-      if (containsSubString(ele, cellText)) {
-        radio.checked = "checked";
-        optionPanel.style.backgroundColor = "#BABBFD";
-      } else {
-        radio.style.cursor = "pointer";
-        optionPanel.style.cursor = "pointer";
-        optionPanel.addEventListener("click", function () {
-          notification.startLoading();
-          radio.checked = "checked";
-          optionPanel.style.backgroundColor = "#BABBFD";
-          updateTarget(
-            ele,
-            rowIndex,
-            meatball,
-            thead.innerText,
-            table,
-            externalColumn,
-            internalColumn
-          );
-          //after remove the popover from the view
-          popoverPanel.parentNode.removeChild(popoverPanel);
-          //redraw the popover so it only has the new value selected////////////////////////////////////////////////////////////////////////////////////////////////////////////
-          parent.innerText = ele; // the new selection is the value getting passed for the redraw
-          //redraw'd with the options pro
-          // new Meatball(size).init(
-          //   defaults,
-          //   externalColumn,
-          //   internalColumn,
-          //   parent,
-          //   rowIndex,
-          //   thead,
-          //   table,
-          //   value
-          // );
-        });
-        optionPanel.addEventListener("mouseenter", function () {
-          optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
-        });
-        optionPanel.addEventListener("mouseleave", function () {
-          optionPanel.style.boxShadow = "0px 0px 0px";
-        });
-      }
-
-      //Add Click Event to update list
-      optionPanel.appendChild(radio);
-      optionPanel.appendChild(option);
-      options.appendChild(optionPanel);
-    });
+    var optionsPanel = new Options();
+    optionsPanel.set();
 
     //Add Header Element
     popover.appendChild(header);
     //Add Options Panel
-    popover.appendChild(options);
+    popover.appendChild(optionsPanel.options);
 
     //Add Click Event to display Options Panel
     header.addEventListener("click", function () {
@@ -422,15 +427,11 @@
     this.green = "#27e833";
     this.red = "#d71010";
     this.yellow = "#f6de1c";
-    this.transparent = "transparent";
     this.defaults = [
-      {
-        value: "Up",
-        color: this.green,
-      },
+      { value: "Up", color: this.green },
       { value: "Down", color: this.red },
       { value: "Degraded", color: this.yellow },
-      { value: "NA", color: this.transparent },
+      { value: "NA", color: this.blue }, //prop called inherit pierre
       { value: "100-90", color: this.green },
       { value: "89-80", color: this.yellow },
       { value: "79-10", color: this.red },
@@ -490,11 +491,6 @@
   };
 
   Notification.prototype.show = function () {
-    if (this.notification) {
-      if (this.notification.parentNode) {
-        this.notification.parentNode.removeChild(this.notification);
-      }
-    }
     var note = this.notification;
     document.body.appendChild(note);
     var timer = setTimeout(
