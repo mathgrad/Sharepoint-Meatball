@@ -203,6 +203,7 @@
     carret.style.position = "fixed";
     carret.style.height = "0px";
     carret.style.width = "0px";
+    carret.style.boxShadow = "0px 0px 5px " + popoverBorder;
     carret.style.borderTop = triangleSize + "px solid transparent";
     carret.style.borderBottom = triangleSize + "px solid transparent";
     carret.style.borderRight = triangleSize + "px solid " + popoverBorder;
@@ -214,7 +215,8 @@
     popover.style.backgroundColor = "#ffffff";
     popover.style.color = "#000000";
     popover.style.padding = ".5rem";
-    popover.style.border = "1px solid " + popoverBorder;
+    popover.style.boxShadow = "0px 0px 5px " + popoverBorder;
+    // popover.style.border = "1px solid " + popoverBorder;
     popover.style.borderRadius = ".25rem";
     popover.style.zIndex = "1";
 
@@ -227,68 +229,23 @@
     header.style.marginBottom = ".25rem";
     header.style.backgroundColor = "#BABBFD";
     header.innerText = value;
-
     //Create Options Panel Element
-    var options = document.createElement("div");
-    options.style.padding = ".25rem";
-    options.style.borderRadius = ".25rem";
-
-    //Create and Add Option Elements
-    defaults.forEach(function (ele, index) {
-      var optionPanel = document.createElement("div");
-      optionPanel.style.padding = ".25rem";
-      optionPanel.style.marginBottom = ".25rem";
-      optionPanel.style.textAlign = "left";
-      optionPanel.style.borderRadius = ".25rem";
-
-      var option = document.createElement("div");
-      option.innerText = ele;
-      option.style.marginLeft = ".25rem";
-      option.style.display = "inline";
-      var radio = document.createElement("input");
-      radio.type = "radio";
-      radio.style.margin = "0px";
-      radio.style.display = "inline";
-
-      if (containsSubString(ele, cellText)) {
-        radio.checked = "checked";
-        optionPanel.style.backgroundColor = "#BABBFD";
-      } else {
-        radio.style.cursor = "pointer";
-        optionPanel.style.cursor = "pointer";
-        optionPanel.addEventListener("click", function () {
-          notification.startLoading();
-          radio.checked = "checked";
-          optionPanel.style.backgroundColor = "#BABBFD";
-
-          updateTarget(
-            ele,
-            rowIndex,
-            meatball,
-            thead.innerText,
-            table,
-            externalColumn,
-            internalColumn
-          );
-        });
-        optionPanel.addEventListener("mouseenter", function () {
-          optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
-        });
-        optionPanel.addEventListener("mouseleave", function () {
-          optionPanel.style.boxShadow = "0px 0px 0px";
-        });
-      }
-
-      //Add Click Event to update list
-      optionPanel.appendChild(radio);
-      optionPanel.appendChild(option);
-      options.appendChild(optionPanel);
-    });
+    var options = new OptionPanel();
+    options.create(
+      defaults,
+      rowIndex,
+      meatball,
+      thead.innerText,
+      table,
+      externalColumn,
+      internalColumn,
+      cellText
+    );
 
     //Add Header Element
     popover.appendChild(header);
     //Add Options Panel
-    popover.appendChild(options);
+    popover.appendChild(options.options);
 
     //Add Click Event to display Options Panel
     header.addEventListener("click", function () {
@@ -391,6 +348,94 @@
       });
   }
 
+  function OptionPanel() {
+    this.options = document.createElement("div");
+    this.options.style.padding = ".25rem";
+    this.options.style.borderRadius = ".25rem";
+  }
+
+  OptionPanel.prototype.create = function (
+    defaults,
+    rowIndex,
+    meatball,
+    thead,
+    table,
+    externalColumn,
+    internalColumn,
+    cellText
+  ) {
+    var optionsPanel = this;
+    //Create and Add Option Elements
+    defaults.forEach(function (ele, index) {
+      var optionPanel = document.createElement("div");
+      optionPanel.style.padding = ".25rem";
+      optionPanel.style.marginBottom = ".25rem";
+      optionPanel.style.textAlign = "left";
+      optionPanel.style.borderRadius = ".25rem";
+
+      var option = document.createElement("div");
+      option.innerText = ele;
+      option.style.marginLeft = ".25rem";
+      option.style.display = "inline";
+      var radio = document.createElement("input");
+      radio.type = "radio";
+      radio.style.margin = "0px";
+      radio.style.display = "inline";
+
+      if (containsSubString(ele, cellText)) {
+        radio.checked = true;
+        optionPanel.style.backgroundColor = "#BABBFD";
+      } else {
+        radio.style.cursor = "pointer";
+        optionPanel.style.cursor = "pointer";
+      }
+      optionPanel.addEventListener("click", function () {
+        if (!radio.checked) {
+          notification.startLoading();
+          optionsPanel.draw(ele);
+          updateTarget(
+            ele,
+            rowIndex,
+            meatball,
+            thead,
+            table,
+            externalColumn,
+            internalColumn
+          );
+        }
+      });
+      optionPanel.addEventListener("mouseenter", function () {
+        optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
+      });
+      optionPanel.addEventListener("mouseleave", function () {
+        optionPanel.style.boxShadow = "0px 0px 0px";
+      });
+
+      //Add Click Event to update list
+      optionPanel.appendChild(radio);
+      optionPanel.appendChild(option);
+      optionsPanel.options.appendChild(optionPanel);
+    });
+  };
+
+  OptionPanel.prototype.draw = function (text) {
+    this.options.childNodes.forEach(function (item, i) {
+      let radio = item.childNodes[0];
+      let div = item.childNodes[1];
+      radio.checked = false;
+      radio.style.cursor = "pointer";
+      item.style.backgroundColor = "inherit";
+      item.style.cursor = "pointer";
+
+      if (containsSubString(text, div.innerText)) {
+        radio.checked = true;
+        radio.style.cursor = "auto";
+        item.style.backgroundColor = "#BABBFD";
+        item.style.cursor = "auto";
+      }
+    });
+  };
+
   //Easier way of handling the different colors and defaults
   function Colors() {
     this.blue = "#0075ff";
@@ -415,12 +460,10 @@
 
   Colors.prototype.get = function (value) {
     var test = this.defaults.filter(function (item) {
-      // console.log(value, " : ", item.value);
       if (containsSubString(item.value, value)) {
         return item;
       }
     });
-    // console.log(test);
 
     if (test[0]) {
       return test[0].color;
