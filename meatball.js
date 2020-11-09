@@ -4,23 +4,18 @@
   var notification = new Notification("");
 
   window.addEventListener("load", function () {
-    notification.startLoading();
     getListItems();
-    notification.endLoading();
   });
 
   //On change, adds functionality
   window.addEventListener("hashchange", function () {
-    notification.startLoading();
     getListItems();
-    notification.endLoading();
   });
 
   /* get all the choices and send to main func*/
   function getListItems() {
     if (meatball_override) {
       meatball_override.forEach(function (item) {
-        console.log(item);
         colors.set(item.value, item.color);
       });
     }
@@ -168,138 +163,6 @@
     });
   }
 
-  function Meatball(size) {
-    this.size = size + "px";
-    this.element = document.createElement("div");
-    this.element.style.width = this.size;
-    this.element.style.height = this.size;
-    this.element.style.borderRadius = this.size;
-  }
-
-  Meatball.prototype.init = function (
-    defaults,
-    externalColumn,
-    internalColumn,
-    parent,
-    rowIndex,
-    thead,
-    table,
-    cellText,
-    value
-  ) {
-    var meatball = this;
-    this.element.style.backgroundColor = colors.get(cellText);
-
-    var popoverBorder = "#c4c3d0";
-    var triangleSize = 10;
-
-    var popoverPanel = document.createElement("div");
-    popoverPanel.style.display = "inline-block";
-    popoverPanel.style.margin = "0px";
-    popoverPanel.style.padding = "0px";
-
-    var carret = document.createElement("div");
-    carret.style.margin = "0px";
-    carret.style.display = "inline-block";
-    carret.style.position = "fixed";
-    carret.style.height = "0px";
-    carret.style.width = "0px";
-    carret.style.boxShadow = "0px 0px 5px " + popoverBorder;
-    carret.style.borderTop = triangleSize + "px solid transparent";
-    carret.style.borderBottom = triangleSize + "px solid transparent";
-    carret.style.borderRight = triangleSize + "px solid " + popoverBorder;
-    popoverPanel.appendChild(carret);
-
-    //Create Popover Element
-    var popover = document.createElement("div");
-    popover.style.display = "inline-block";
-    popover.style.backgroundColor = "#ffffff";
-    popover.style.color = "#000000";
-    popover.style.padding = ".5rem";
-    popover.style.boxShadow = "0px 0px 5px " + popoverBorder;
-    // popover.style.border = "1px solid " + popoverBorder;
-    popover.style.borderRadius = ".25rem";
-    popover.style.zIndex = "1";
-
-    //Create Header Element
-    var header = document.createElement("div");
-    header.style.padding = ".25rem";
-    header.style.borderRadius = ".25rem";
-    header.style.textAlign = "center";
-    header.style.cursor = "pointer";
-    header.style.marginBottom = ".25rem";
-    header.style.backgroundColor = "#BABBFD";
-    header.innerText = value;
-    //Create Options Panel Element
-    var options = new OptionPanel();
-    options.create(
-      defaults,
-      rowIndex,
-      meatball,
-      thead.innerText,
-      table,
-      externalColumn,
-      internalColumn,
-      cellText
-    );
-
-    //Add Header Element
-    popover.appendChild(header);
-    //Add Options Panel
-    popover.appendChild(options.options);
-
-    //Add Click Event to display Options Panel
-    header.addEventListener("click", function () {
-      var style = options.style.display;
-      var change = false;
-      change = style === "block";
-      change
-        ? (options.style.display = "none")
-        : (options.style.display = "block");
-    });
-
-    popoverPanel.appendChild(popover);
-
-    //Used addEventListener versus onmouseenter = function due to concerns of
-    //overriding other scripts
-    //Add Mouse Enter Event to display
-    this.element.addEventListener("mouseenter", function () {
-      document.body.appendChild(popoverPanel);
-      popoverPanel.style.position = "fixed";
-      popoverPanel.style.left =
-        this.getBoundingClientRect().right + triangleSize + "px";
-      popoverPanel.style.top =
-        this.getBoundingClientRect().top - triangleSize + "px";
-      carret.style.left =
-        popoverPanel.getBoundingClientRect().left - triangleSize + "px";
-      carret.style.top = this.getBoundingClientRect().top + "px";
-    });
-
-    this.element.addEventListener("mouseleave", function (e) {
-      if (popoverPanel.contains(e.relatedTarget)) return;
-      if (popoverPanel) {
-        if (popoverPanel.parentNode) {
-          popoverPanel.parentNode.removeChild(popoverPanel);
-        }
-      }
-    });
-
-    //Add Mouse leave Event to hide
-    popoverPanel.addEventListener("mouseleave", function () {
-      if (popoverPanel) {
-        if (popoverPanel.parentNode) {
-          popoverPanel.parentNode.removeChild(popoverPanel);
-        }
-      }
-    });
-    parent.innerText = "";
-    parent.appendChild(this.element);
-  };
-
-  Meatball.prototype.setColor = function (value) {
-    this.element.style.backgroundColor = colors.get(value);
-  };
-
   function updateTarget(
     ele,
     rowIndex,
@@ -437,21 +300,149 @@
     });
   };
 
+  function Meatball(size) {
+    this.size = size + "px";
+    this.element = document.createElement("div");
+    this.element.style.width = this.size;
+    this.element.style.height = this.size;
+    this.element.style.borderRadius = this.size;
+  }
+
+  Meatball.prototype.init = function (
+    defaults,
+    externalColumn,
+    internalColumn,
+    parent,
+    rowIndex,
+    thead,
+    table,
+    cellText,
+    value
+  ) {
+    var meatball = this;
+    this.element.style.backgroundColor = colors.get(cellText);
+
+    var popoverBorder = "#c4c3d0";
+    var triangleSize = 10;
+
+    var popoverPanel = document.createElement("div");
+    popoverPanel.style.display = "inline-block";
+    popoverPanel.style.margin = "0px";
+    popoverPanel.style.padding = "0px";
+
+    var carret = document.createElement("div");
+    carret.style.margin = "0px";
+    carret.style.display = "inline-block";
+    carret.style.position = "fixed";
+    carret.style.height = "0px";
+    carret.style.width = "0px";
+    carret.style.boxShadow = "0px 0px 5px " + popoverBorder;
+    carret.style.borderTop = triangleSize + "px solid transparent";
+    carret.style.borderBottom = triangleSize + "px solid transparent";
+    carret.style.borderRight = triangleSize + "px solid " + popoverBorder;
+    popoverPanel.appendChild(carret);
+
+    //Create Popover Element
+    var popover = document.createElement("div");
+    popover.style.display = "inline-block";
+    popover.style.backgroundColor = "#ffffff";
+    popover.style.color = "#000000";
+    popover.style.padding = ".5rem";
+    popover.style.boxShadow = "0px 0px 5px " + popoverBorder;
+    // popover.style.border = "1px solid " + popoverBorder;
+    popover.style.borderRadius = ".25rem";
+    popover.style.zIndex = "1";
+
+    //Create Header Element
+    var header = document.createElement("div");
+    header.style.padding = ".25rem";
+    header.style.borderRadius = ".25rem";
+    header.style.textAlign = "center";
+    header.style.cursor = "pointer";
+    header.style.marginBottom = ".25rem";
+    header.style.backgroundColor = "#BABBFD";
+    header.innerText = value;
+    //Create Options Panel Element
+    var options = new OptionPanel();
+    options.create(
+      defaults,
+      rowIndex,
+      meatball,
+      thead.innerText,
+      table,
+      externalColumn,
+      internalColumn,
+      cellText
+    );
+
+    //Add Header Element
+    popover.appendChild(header);
+    //Add Options Panel
+    popover.appendChild(options.options);
+
+    //Add Click Event to display Options Panel
+    header.addEventListener("click", function () {
+      var style = options.style.display;
+      var change = false;
+      change = style === "block";
+      change
+        ? (options.style.display = "none")
+        : (options.style.display = "block");
+    });
+
+    popoverPanel.appendChild(popover);
+
+    //Used addEventListener versus onmouseenter = function due to concerns of
+    //overriding other scripts
+    //Add Mouse Enter Event to display
+    this.element.addEventListener("mouseenter", function () {
+      document.body.appendChild(popoverPanel);
+      popoverPanel.style.position = "fixed";
+      popoverPanel.style.left =
+        this.getBoundingClientRect().right + triangleSize + "px";
+      popoverPanel.style.top =
+        this.getBoundingClientRect().top - triangleSize + "px";
+      carret.style.left =
+        popoverPanel.getBoundingClientRect().left - triangleSize + "px";
+      carret.style.top = this.getBoundingClientRect().top + "px";
+    });
+
+    this.element.addEventListener("mouseleave", function (e) {
+      if (popoverPanel.contains(e.relatedTarget)) return;
+      if (popoverPanel) {
+        if (popoverPanel.parentNode) {
+          popoverPanel.parentNode.removeChild(popoverPanel);
+        }
+      }
+    });
+
+    //Add Mouse leave Event to hide
+    popoverPanel.addEventListener("mouseleave", function () {
+      if (popoverPanel) {
+        if (popoverPanel.parentNode) {
+          popoverPanel.parentNode.removeChild(popoverPanel);
+        }
+      }
+    });
+    parent.innerText = "";
+    parent.appendChild(this.element);
+  };
+
+  Meatball.prototype.setColor = function (value) {
+    this.element.style.backgroundColor = colors.get(value);
+  };
+
   //Easier way of handling the different colors and defaults
   function Colors() {
     this.blue = "#0075ff";
     this.green = "#27e833";
     this.red = "#d71010";
     this.yellow = "#f6de1c";
-    this.transparent = "transparent";
     this.defaults = [
-      {
-        value: "Up",
-        color: this.green,
-      },
+      { value: "Up", color: this.green },
       { value: "Down", color: this.red },
       { value: "Degraded", color: this.yellow },
-      { value: "NA", color: this.transparent },
+      { value: "NA", color: this.blue }, //prop called inherit pierre
       { value: "100-90", color: this.green },
       { value: "89-80", color: this.yellow },
       { value: "79-10", color: this.red },
@@ -524,11 +515,6 @@
   };
 
   Notification.prototype.show = function () {
-    if (this.notification) {
-      if (this.notification.parentNode) {
-        this.notification.parentNode.removeChild(this.notification);
-      }
-    }
     var note = this.notification;
     document.body.appendChild(note);
     var timer = setTimeout(
