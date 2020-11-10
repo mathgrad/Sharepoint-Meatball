@@ -26,6 +26,7 @@
 
     //Step 1. Get all the tables -- create array
     var tables = [].slice.call(document.getElementsByTagName("table"));
+
     if (errorChecking(tables)) {
       console.log("No Tables Found");
       return;
@@ -55,7 +56,7 @@
         },
         success: function (data) {
           if (data && data.d) {
-            var popoverData = data.data.d.results.reduce(
+            var popoverData = data.d.results.reduce(
               function (acc, cv, ci, data) {
                 var add = true;
                 if (cv.Choices) {
@@ -208,7 +209,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        meatball.setColor(data[internalColumn]);
+        meatball.setColor(ele);
         notification.setMessage("Update Success");
         notification.show();
         return false;
