@@ -38,19 +38,20 @@
         root +
         "/_api/web/lists('" +
         currentListId +
-        `')/fields?$filter=TypeDisplayName eq 'Choice'`;
-      var configureAxios = {
+        "')/fields?$filter=TypeDisplayName eq 'Choice'";
+
+      $.ajax({
+        url: url,
+        type: "GET",
         headers: {
           Accept: "application/json; odata=verbose",
-          "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+          "Content-Type": "application/json;odata=verbose",
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         },
         credentials: true,
-      };
-      axios
-        .get(url, configureAxios)
-        .then(function (res) {
-          if (res.data && res.data.d) {
-            var popoverData = res.data.d.results.reduce(
+        success: function (res) {
+          if (res.d && res.d) {
+            var popoverData = res.d.results.reduce(
               function (acc, cv, ci, data) {
                 var add = true;
                 if (cv.Choices) {
@@ -78,10 +79,11 @@
             });
           }
           return false;
-        })
-        .catch(function (e) {
+        },
+        error: function (e) {
           console.log("Error: Get list choices request Failed", e);
-        });
+        },
+      });
     });
   }
 
@@ -189,27 +191,28 @@
       ")?$select=" +
       internalColumn;
 
-    var configureAxios = {
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
       headers: {
         Accept: "application/json;odata=verbose",
         "Content-Type": "application/json;odata=verbose",
         "If-Match": "*",
         "X-HTTP-Method": "MERGE",
-        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       credentials: true,
-    };
-    axios
-      .post(url, data, configureAxios)
-      .then(function (res) {
+      success: function (res) {
         meatball.setColor(data[internalColumn]);
         notification.setMessage("Update Success");
         notification.show();
-      })
-      .catch(function (e) {
+      },
+      error: function (e) {
         notification.setMessage("Update Failed");
         notification.show();
-      });
+      },
+    });
   }
 
   function OptionPanel() {
