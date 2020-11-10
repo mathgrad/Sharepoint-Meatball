@@ -15,7 +15,7 @@
   /* get all the choices and send to main func*/
   function getListItems() {
     try {
-      if (meatball_override) {
+      if (window.meatball_override) {
         meatball_override.forEach(function (item) {
           colors.set(item.value, item.color);
         });
@@ -294,12 +294,9 @@
   };
 
   OptionPanel.prototype.draw = function (text) {
-    console.log(this.options.childNodes);
     for (var i = 0; i < this.options.childNodes.length; i++) {
       var radio = this.options.childNodes[i].childNodes[0];
       var div = this.options.childNodes[i].childNodes[1];
-      console.log(radio);
-      console.log(div);
       radio.checked = false;
       radio.style.cursor = "pointer";
       this.options.childNodes[i].style.backgroundColor = "inherit";
