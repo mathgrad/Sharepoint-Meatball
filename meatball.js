@@ -596,12 +596,10 @@
 
   //Checks to see if s1 substring of length (s0.length) contains s0
   function containsSubString(s0, s1) {
-    return (
-      s1
-        .slice(0, s0.length)
-        .toLowerCase()
-        .indexOf(s0.toLowerCase()) > -1
-    );
+    if (s0.length === s1.length) {
+      return s1.containsString(s0);
+    }
+    return s1.slice(0, s0.length).toLowerCase().indexOf(s0.toLowerCase()) > -1;
   }
 
   /*Checks to see if s0 contains to s1*/
