@@ -294,21 +294,24 @@
   };
 
   OptionPanel.prototype.draw = function (text) {
-    this.options.childNodes.forEach(function (item, i) {
-      var radio = item.childNodes[0];
-      var div = item.childNodes[1];
+    console.log(this.options.childNodes);
+    for (var i = 0; i < this.options.childNodes.length; i++) {
+      var radio = this.options.childNodes[i].childNodes[0];
+      var div = this.options.childNodes[i].childNodes[1];
+      console.log(radio);
+      console.log(div);
       radio.checked = false;
       radio.style.cursor = "pointer";
-      item.style.backgroundColor = "inherit";
-      item.style.cursor = "pointer";
+      this.options.childNodes[i].style.backgroundColor = "inherit";
+      this.options.childNodes[i].style.cursor = "pointer";
 
       if (containsSubString(text, div.innerText)) {
         radio.checked = true;
         radio.style.cursor = "auto";
-        item.style.backgroundColor = "#BABBFD";
-        item.style.cursor = "auto";
+        this.options.childNodes[i].style.backgroundColor = "#BABBFD";
+        this.options.childNodes[i].style.cursor = "auto";
       }
-    });
+    }
   };
 
   function Meatball(size) {
