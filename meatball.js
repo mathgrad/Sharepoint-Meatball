@@ -1,31 +1,34 @@
 (function () {
-  var colors = new Colors();
+  //Size sets the Meatball size in pixels
   var size = 15;
+  var colors = new Colors();
   var notification = new Notification("");
 
   window.addEventListener("load", function () {
-    getListItems();
+    start();
   });
 
   //On change, adds functionality
   window.addEventListener("hashchange", function () {
-    getListItems();
+    start();
   });
 
-  /* get all the choices and send to main func*/
-  function getListItems() {
+  //Initial point of the application
+  function start() {
+    //Checks for JQuery
     if (!window.jQuery) {
       notification.setMessage("No JQuery Detected");
       notification.show();
       return;
     }
+    //Checks for overrides
     if (window.meatball_override) {
       meatball_override.forEach(function (item) {
         colors.set(item.value, item.color);
       });
     }
 
-    //Step 1. Get all the tables -- create array
+    //Get all the tables -- create array
     var tables = [].slice.call(document.getElementsByTagName("table"));
 
     if (errorChecking(tables)) {
@@ -57,6 +60,7 @@
         },
         success: function (data) {
           if (data && data.d) {
+            //Returns all columns with choices
             var popoverData = data.d.results.reduce(
               function (acc, cv, ci, data) {
                 var add = true;
@@ -93,47 +97,33 @@
     });
   }
 
-  //Entry Point and General Function
+  //Finds cells with known default values and replaces them with meatballs
   function findTargets($table, values, externalColumn, internalColumn, colors) {
     if (!$table || $table.childNodes.length === 0) {
       return;
     }
 
-    //deafult keywords that have values.
-    var defaults = [
-      { color: "green", text: "up" },
-      { color: "red", text: "down" },
-      { color: "yellow", text: "degraded" },
-      { color: "green", text: "100-90" },
-      { color: "yellow", text: "89-80" },
-      { color: "red", text: "79-10" },
-      { color: "steelblue", text: "<10" },
-    ];
-
-    //Step 3. Iterate over each cell and compare the inner text to the list of known defaults.
+    //Iterate over each cell and compare the inner text to the list of known defaults.
     var $rows = [].slice.call($table.getElementsByTagName("tr"));
-    var thead = [].slice.call($table.getElementsByTagName("th"));
-    var displayValue = "";
-    var displayColor = "";
+    var $thead = [].slice.call($table.getElementsByTagName("th"));
+    var displayValue,
+      text = "";
+    var add = false;
 
     $rows.map(function ($row, ri) {
       displayValue = "";
+
       var $cells = [].slice.call($row.getElementsByTagName("td"));
 
       if ($cells.length > 0) {
         //this checks if the cell contains the text which is in user choices, select that cell to add the modal
         $cells.map(function ($cell, ci) {
-          //new logic
-          var text = $cell.innerText;
-          var defaultText = defaults.map(function (a) {
-            return a.text;
-          });
-          var pos = defaultText.indexOf(text.toLowerCase());
-
           //Comparing the thead with the external
-          var add = false;
-          if (thead[ci]) {
-            [].slice.call(thead[ci].children).forEach(function (item, ti) {
+          add = false;
+          text = "";
+
+          if ($thead[ci]) {
+            [].slice.call($thead[ci].children).forEach(function (item, ti) {
               if (add) {
                 return;
               }
@@ -153,13 +143,14 @@
             displayValue = $row.childNodes[1].innerText + ": " + externalColumn;
 
             if (displayValue) {
+              text = $cell.innerText;
               new Meatball(size).init(
                 values,
                 externalColumn,
                 internalColumn,
                 $cell,
                 $row.getAttribute("iid").split(",")[1],
-                thead[ci],
+                $thead[ci],
                 $table.getAttribute("id").substring(1, 37),
                 text,
                 displayValue
@@ -171,6 +162,7 @@
     });
   }
 
+  //Update target's value to user's selected value
   function updateTarget(
     ele,
     rowIndex,
@@ -224,94 +216,9 @@
     });
   }
 
-  function OptionPanel() {
-    this.options = document.createElement("div");
-    this.options.style.padding = ".25rem";
-    this.options.style.borderRadius = ".25rem";
-  }
-
-  OptionPanel.prototype.create = function (
-    defaults,
-    rowIndex,
-    meatball,
-    thead,
-    table,
-    externalColumn,
-    internalColumn,
-    cellText
-  ) {
-    var optionsPanel = this;
-    //Create and Add Option Elements
-    defaults.forEach(function (ele, index) {
-      var optionPanel = document.createElement("div");
-      optionPanel.style.padding = ".25rem";
-      optionPanel.style.marginBottom = ".25rem";
-      optionPanel.style.textAlign = "left";
-      optionPanel.style.borderRadius = ".25rem";
-
-      var option = document.createElement("div");
-      option.innerText = ele;
-      option.style.marginLeft = ".25rem";
-      option.style.display = "inline";
-      var radio = document.createElement("input");
-      radio.type = "radio";
-      radio.style.margin = "0px";
-      radio.style.display = "inline";
-
-      if (containsSubString(ele, cellText)) {
-        radio.checked = true;
-        optionPanel.style.backgroundColor = "#BABBFD";
-      } else {
-        radio.style.cursor = "pointer";
-        optionPanel.style.cursor = "pointer";
-      }
-      optionPanel.addEventListener("click", function () {
-        if (!radio.checked) {
-          notification.startLoading();
-          optionsPanel.draw(ele);
-          updateTarget(
-            ele,
-            rowIndex,
-            meatball,
-            thead,
-            table,
-            externalColumn,
-            internalColumn
-          );
-        }
-      });
-      optionPanel.addEventListener("mouseenter", function () {
-        optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
-      });
-      optionPanel.addEventListener("mouseleave", function () {
-        optionPanel.style.boxShadow = "0px 0px 0px";
-      });
-
-      //Add Click Event to update list
-      optionPanel.appendChild(radio);
-      optionPanel.appendChild(option);
-      optionsPanel.options.appendChild(optionPanel);
-    });
-  };
-
-  OptionPanel.prototype.draw = function (text) {
-    for (var i = 0; i < this.options.childNodes.length; i++) {
-      var radio = this.options.childNodes[i].childNodes[0];
-      var div = this.options.childNodes[i].childNodes[1];
-      radio.checked = false;
-      radio.style.cursor = "pointer";
-      this.options.childNodes[i].style.backgroundColor = "inherit";
-      this.options.childNodes[i].style.cursor = "pointer";
-
-      if (containsSubString(text, div.innerText)) {
-        radio.checked = true;
-        radio.style.cursor = "auto";
-        this.options.childNodes[i].style.backgroundColor = "#BABBFD";
-        this.options.childNodes[i].style.cursor = "auto";
-      }
-    }
-  };
-
+  //Main object
+  //Replaces default text from Color object with circles with color from Color object
+  //Attaches popover to the color circle along with updateTarget function
   function Meatball(size) {
     this.size = size + "px";
     this.element = document.createElement("div");
@@ -444,6 +351,96 @@
     this.element.style.backgroundColor = colors.get(value);
   };
 
+  function OptionPanel() {
+    this.options = document.createElement("div");
+    this.options.style.padding = ".25rem";
+    this.options.style.borderRadius = ".25rem";
+  }
+
+  //Starting function call, and creates all values
+  OptionPanel.prototype.create = function (
+    defaults,
+    rowIndex,
+    meatball,
+    thead,
+    table,
+    externalColumn,
+    internalColumn,
+    cellText
+  ) {
+    var optionsPanel = this;
+    //Create and Add Option Elements
+    defaults.forEach(function (ele, index) {
+      var optionPanel = document.createElement("div");
+      optionPanel.style.padding = ".25rem";
+      optionPanel.style.marginBottom = ".25rem";
+      optionPanel.style.textAlign = "left";
+      optionPanel.style.borderRadius = ".25rem";
+
+      var option = document.createElement("div");
+      option.innerText = ele;
+      option.style.marginLeft = ".25rem";
+      option.style.display = "inline";
+      var radio = document.createElement("input");
+      radio.type = "radio";
+      radio.style.margin = "0px";
+      radio.style.display = "inline";
+
+      if (containsSubString(ele, cellText)) {
+        radio.checked = true;
+        optionPanel.style.backgroundColor = "#BABBFD";
+      } else {
+        radio.style.cursor = "pointer";
+        optionPanel.style.cursor = "pointer";
+      }
+      optionPanel.addEventListener("click", function () {
+        if (!radio.checked) {
+          notification.startLoading();
+          optionsPanel.draw(ele);
+          updateTarget(
+            ele,
+            rowIndex,
+            meatball,
+            thead,
+            table,
+            externalColumn,
+            internalColumn
+          );
+        }
+      });
+      optionPanel.addEventListener("mouseenter", function () {
+        optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
+      });
+      optionPanel.addEventListener("mouseleave", function () {
+        optionPanel.style.boxShadow = "0px 0px 0px";
+      });
+
+      //Add Click Event to update list
+      optionPanel.appendChild(radio);
+      optionPanel.appendChild(option);
+      optionsPanel.options.appendChild(optionPanel);
+    });
+  };
+
+  //Draws the panel to update it after successful completiong of UpdateTarget function
+  OptionPanel.prototype.draw = function (text) {
+    for (var i = 0; i < this.options.childNodes.length; i++) {
+      var radio = this.options.childNodes[i].childNodes[0];
+      var div = this.options.childNodes[i].childNodes[1];
+      radio.checked = false;
+      radio.style.cursor = "pointer";
+      this.options.childNodes[i].style.backgroundColor = "inherit";
+      this.options.childNodes[i].style.cursor = "pointer";
+
+      if (containsSubString(text, div.innerText)) {
+        radio.checked = true;
+        radio.style.cursor = "auto";
+        this.options.childNodes[i].style.backgroundColor = "#BABBFD";
+        this.options.childNodes[i].style.cursor = "auto";
+      }
+    }
+  };
+
   //Easier way of handling the different colors and defaults
   function Colors() {
     this.blue = "#0075ff";
@@ -454,7 +451,7 @@
       { value: "Up", color: this.green },
       { value: "Down", color: this.red },
       { value: "Degraded", color: this.yellow },
-      { value: "NA", color: this.blue }, //prop called inherit pierre
+      { value: "NA", color: "inherit" },
       { value: "100-90", color: this.green },
       { value: "89-80", color: this.yellow },
       { value: "79-10", color: this.red },
@@ -462,6 +459,7 @@
     ];
   }
 
+  //Gets colors.  If it cannot find a color, it defaults to black
   Colors.prototype.get = function (value) {
     var test = this.defaults.filter(function (item) {
       if (containsSubString(item.value, value)) {
@@ -476,6 +474,8 @@
     }
   };
 
+  //Either replaces the default value or creates a new values
+  //If a specific color value is called, it will use one of the default colors
   Colors.prototype.set = function (value, color) {
     if (this.replaceValue(value, color)) {
       return;
@@ -493,6 +493,7 @@
     }
   };
 
+  //Private function for the object
   Colors.prototype.replaceValue = function (value, color) {
     var found = false;
     this.defaults.map(function (item, index) {
@@ -504,7 +505,10 @@
     return found;
   };
 
-  //In house build of a notification feature
+  //Displays information to users
+  //Set the message (setMessage) first, then show (show) message for five seconds (default value)
+  //Also handles loading through use of startLoading and endLoading
+  //Debug allows developers to handle edit the notification object and with debugging in environments where development tools have been disabled
   function Notification(message) {
     this.notification = document.createElement("div");
     this.notification.style.textAlign = "center";
@@ -590,16 +594,17 @@
     return false;
   }
 
-  function containsSubString(knownValue, givenValue) {
+  //Checks to see if s1 substring of length (s0.length) contains s0
+  function containsSubString(s0, s1) {
     return (
-      givenValue
-        .slice(0, knownValue.length)
+      s1
+        .slice(0, s0.length)
         .toLowerCase()
-        .indexOf(knownValue.toLowerCase()) > -1
+        .indexOf(s0.toLowerCase()) > -1
     );
   }
 
-  /*Checks to see if s0 is contains to s1*/
+  /*Checks to see if s0 contains to s1*/
   function containsString(s0, s1) {
     return s0.toLowerCase().indexOf(s1.toLowerCase()) > -1;
   }
