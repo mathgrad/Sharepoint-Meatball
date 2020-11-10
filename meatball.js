@@ -43,13 +43,7 @@
         "/_api/web/lists('" +
         currentListId +
         "')/fields?$filter=TypeDisplayName eq 'Choice'";
-      var configureAxios = {
-        headers: {
-          Accept: "application/json; odata=verbose",
-          "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
-        },
-        credentials: true,
-      };
+
       $.ajax({
         url: url,
         type: "GET",
