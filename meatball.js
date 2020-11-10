@@ -14,10 +14,14 @@
 
   /* get all the choices and send to main func*/
   function getListItems() {
-    if (meatball_override) {
-      meatball_override.forEach(function (item) {
-        colors.set(item.value, item.color);
-      });
+    try {
+      if (meatball_override) {
+        meatball_override.forEach(function (item) {
+          colors.set(item.value, item.color);
+        });
+      }
+    } catch (error) {
+      console.log(error);
     }
 
     //Step 1. Get all the tables -- create array
@@ -287,8 +291,8 @@
 
   OptionPanel.prototype.draw = function (text) {
     this.options.childNodes.forEach(function (item, i) {
-      let radio = item.childNodes[0];
-      let div = item.childNodes[1];
+      var radio = item.childNodes[0];
+      var div = item.childNodes[1];
       radio.checked = false;
       radio.style.cursor = "pointer";
       item.style.backgroundColor = "inherit";
