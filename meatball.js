@@ -14,14 +14,15 @@
 
   /* get all the choices and send to main func*/
   function getListItems() {
-    try {
-      if (window.meatball_override) {
-        meatball_override.forEach(function (item) {
-          colors.set(item.value, item.color);
-        });
-      }
-    } catch (error) {
-      console.log(error);
+    if (!window.jQuery) {
+      notification.setMessage("No JQuery Detected");
+      notification.show();
+      return;
+    }
+    if (window.meatball_override) {
+      meatball_override.forEach(function (item) {
+        colors.set(item.value, item.color);
+      });
     }
 
     //Step 1. Get all the tables -- create array
