@@ -16,8 +16,7 @@
   function start() {
     //Checks for JQuery
     if (!window.jQuery) {
-      notification.setMessage("No JQuery Detected");
-      notification.show();
+      alert("Please contact help desk.  Script not properly loaded.");
       return;
     }
     //Checks for overrides
@@ -186,7 +185,7 @@
       rowIndex +
       ")?$select=" +
       internalColumn;
-
+    meatball.remove();
     $.ajax({
       url: url,
       type: "POST",
@@ -204,14 +203,14 @@
         var notification = new Notification(
           externalColumn + " has been updated"
         );
-        notification.setMessage().success().listeners().show().animate();
+        notification.success().listeners().show();
         return false;
       },
       error: function (error) {
         var notification = new Notification(
           externalColumn + " failed to update"
         );
-        notification.setMessage().failed().listeners().show().animate();
+        notification.failed().listeners().show();
       },
     });
   }
@@ -244,10 +243,10 @@
     var popoverBorder = "#c4c3d0";
     var triangleSize = 10;
 
-    var popoverPanel = document.createElement("div");
-    popoverPanel.style.display = "inline-block";
-    popoverPanel.style.margin = "0px";
-    popoverPanel.style.padding = "0px";
+    this.popoverPanel = document.createElement("div");
+    this.popoverPanel.style.display = "inline-block";
+    this.popoverPanel.style.margin = "0px";
+    this.popoverPanel.style.padding = "0px";
 
     var carret = document.createElement("div");
     carret.style.margin = "0px";
@@ -259,7 +258,7 @@
     carret.style.borderTop = triangleSize + "px solid transparent";
     carret.style.borderBottom = triangleSize + "px solid transparent";
     carret.style.borderRight = triangleSize + "px solid " + popoverBorder;
-    popoverPanel.appendChild(carret);
+    this.popoverPanel.appendChild(carret);
 
     //Create Popover Element
     var popover = document.createElement("div");
@@ -309,8 +308,8 @@
         : (options.style.display = "block");
     });
 
-    popoverPanel.appendChild(popover);
-
+    this.popoverPanel.appendChild(popover);
+    var popoverPanel = this.popoverPanel;
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
@@ -336,7 +335,7 @@
     });
 
     //Add Mouse leave Event to hide
-    popoverPanel.addEventListener("mouseleave", function () {
+    this.popoverPanel.addEventListener("mouseleave", function () {
       if (popoverPanel) {
         if (popoverPanel.parentNode) {
           popoverPanel.parentNode.removeChild(popoverPanel);
@@ -349,6 +348,14 @@
 
   Meatball.prototype.setColor = function (value) {
     this.element.style.backgroundColor = colors.get(value);
+  };
+
+  Meatball.prototype.remove = function () {
+    if (this.popoverPanel) {
+      if (this.popoverPanel.parentNode) {
+        this.popoverPanel.parentNode.removeChild(this.popoverPanel);
+      }
+    }
   };
 
   function OptionPanel() {
@@ -387,25 +394,27 @@
       radio.style.display = "inline";
       radio.type = "radio";
       radio.value = ele;
-      radio.onclick = function () {
-        updateTarget(
-          this.value,
-          rowIndex,
-          meatball,
-          thead,
-          table,
-          externalColumn,
-          internalColumn
-        );
-      };
 
       if (containsSubString(ele, cellText)) {
         radio.checked = true;
-        optionPanel.style.backgroundColor = "#BABBFD";
-      } else {
-        radio.style.cursor = "pointer";
-        optionPanel.style.cursor = "pointer";
       }
+      radio.style.cursor = "pointer";
+      optionPanel.style.cursor = "pointer";
+
+      optionPanel.addEventListener("click", function () {
+        if (!radio.checked) {
+          radio.checked = true;
+          updateTarget(
+            ele,
+            rowIndex,
+            meatball,
+            thead,
+            table,
+            externalColumn,
+            internalColumn
+          );
+        }
+      });
 
       optionPanel.addEventListener("mouseenter", function () {
         optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
@@ -441,14 +450,17 @@
 
   //Gets colors.  If it cannot find a color, it defaults to black
   Colors.prototype.get = function (value) {
-    var test = this.defaults.filter(function (item) {
+    if (!value) {
+      return "#000000";
+    }
+    var results = this.defaults.filter(function (item) {
       if (containsSubString(item.value, value)) {
         return item;
       }
     });
 
-    if (test[0]) {
-      return test[0].color;
+    if (results[0]) {
+      return results[0].color;
     } else {
       return "#000000";
     }
@@ -518,15 +530,11 @@
     this.notification.style.height = "50px";
     this.notification.style.padding = "0.5rem";
     this.notification.style.position = "fixed";
-    this.notification.style.right = "-260px";
+    this.notification.style.right = "10px";
     this.notification.style.top = "50px";
-    this.notification.style.transition = "right 4s ease-in";
     this.notification.style.width = "250px";
     this.notification.style.zIndex = "1";
     this.message = message;
-  }
-
-  Notification.prototype.setMessage = function () {
     this.text = document.createElement("div");
     this.text.style.display = "flex";
     this.text.style.flexDirection = "column";
@@ -553,7 +561,7 @@
     this.text.appendChild(this.subtitle);
     this.text.appendChild(this.close);
     return this;
-  };
+  }
 
   Notification.prototype.listeners = function () {
     var self = this;
@@ -589,10 +597,6 @@
     $el.parentNode.removeChild($el);
     clearTimeout(this.timer);
     return this;
-  };
-
-  Notification.prototype.animate = function () {
-    this.notification.style.right = "10px";
   };
 
   Notification.prototype.startLoading = function () {
