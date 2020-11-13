@@ -383,27 +383,50 @@
       optionPanel.style.marginBottom = ".25rem";
       optionPanel.style.textAlign = "left";
       optionPanel.style.borderRadius = ".25rem";
+      optionPanel.style.cursor = "pointer";
 
       var option = document.createElement("div");
       option.innerText = ele;
       option.style.marginLeft = ".25rem";
       option.style.display = "inline";
+
       var radio = document.createElement("input");
-      radio.name = "options";
+      radio.name = "option";
       radio.style.margin = "0px";
       radio.style.display = "inline";
+      radio.style.cursor = "pointer";
       radio.type = "radio";
-      radio.value = ele;
 
       if (containsSubString(ele, cellText)) {
         radio.checked = true;
       }
-      radio.style.cursor = "pointer";
-      optionPanel.style.cursor = "pointer";
 
+      optionPanel.addEventListener("mouseenter", function () {
+        optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
+      });
+      optionPanel.addEventListener("mouseleave", function () {
+        optionPanel.style.boxShadow = "0px 0px 0px";
+      });
+
+      radio.onclick = function () {
+        if (!radio.checked) {
+          updateTarget(
+            ele,
+            rowIndex,
+            meatball,
+            thead,
+            table,
+            externalColumn,
+            internalColumn
+          );
+        }
+      };
+
+      //Add Click Event to update list
+      optionPanel.appendChild(radio);
+      optionPanel.appendChild(option);
       optionPanel.addEventListener("click", function () {
         if (!radio.checked) {
-          radio.checked = true;
           updateTarget(
             ele,
             rowIndex,
@@ -415,17 +438,6 @@
           );
         }
       });
-
-      optionPanel.addEventListener("mouseenter", function () {
-        optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
-      });
-      optionPanel.addEventListener("mouseleave", function () {
-        optionPanel.style.boxShadow = "0px 0px 0px";
-      });
-
-      //Add Click Event to update list
-      optionPanel.appendChild(radio);
-      optionPanel.appendChild(option);
       optionsPanel.options.appendChild(optionPanel);
     });
   };
