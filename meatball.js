@@ -2,7 +2,6 @@
   //Size sets the Meatball size in pixels
   var size = 15;
   var colors = new Colors();
-  var notification = new Notification("");
 
   window.addEventListener("load", function () {
     start();
@@ -179,7 +178,6 @@
       __metadata: { type: listName },
     };
     data[internalColumn] = ele;
-
     var url =
       root +
       "/_api/web/lists('" +
@@ -203,15 +201,17 @@
       },
       success: function (data) {
         meatball.setColor(ele);
-        notification.setMessage("Update Success");
-        notification.show();
+        var notification = new Notification(
+          externalColumn + " has been updated"
+        );
+        notification.setMessage().success().listeners().show().animate();
         return false;
       },
       error: function (error) {
-        alert(
-          "Error: Update Request Failed. Please Contact the 1MEF IMO",
-          console.log(JSON.stringify(error))
+        var notification = new Notification(
+          externalColumn + " failed to update"
         );
+        notification.setMessage().failed().listeners().show().animate();
       },
     });
   }
@@ -382,9 +382,22 @@
       option.style.marginLeft = ".25rem";
       option.style.display = "inline";
       var radio = document.createElement("input");
-      radio.type = "radio";
+      radio.name = "options";
       radio.style.margin = "0px";
       radio.style.display = "inline";
+      radio.type = "radio";
+      radio.value = ele;
+      radio.onclick = function () {
+        updateTarget(
+          this.value,
+          rowIndex,
+          meatball,
+          thead,
+          table,
+          externalColumn,
+          internalColumn
+        );
+      };
 
       if (containsSubString(ele, cellText)) {
         radio.checked = true;
@@ -393,21 +406,7 @@
         radio.style.cursor = "pointer";
         optionPanel.style.cursor = "pointer";
       }
-      optionPanel.addEventListener("click", function () {
-        if (!radio.checked) {
-          notification.startLoading();
-          optionsPanel.draw(ele);
-          updateTarget(
-            ele,
-            rowIndex,
-            meatball,
-            thead,
-            table,
-            externalColumn,
-            internalColumn
-          );
-        }
-      });
+
       optionPanel.addEventListener("mouseenter", function () {
         optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
       });
@@ -420,25 +419,6 @@
       optionPanel.appendChild(option);
       optionsPanel.options.appendChild(optionPanel);
     });
-  };
-
-  //Draws the panel to update it after successful completiong of UpdateTarget function
-  OptionPanel.prototype.draw = function (text) {
-    for (var i = 0; i < this.options.childNodes.length; i++) {
-      var radio = this.options.childNodes[i].childNodes[0];
-      var div = this.options.childNodes[i].childNodes[1];
-      radio.checked = false;
-      radio.style.cursor = "pointer";
-      this.options.childNodes[i].style.backgroundColor = "inherit";
-      this.options.childNodes[i].style.cursor = "pointer";
-
-      if (containsSubString(text, div.innerText)) {
-        radio.checked = true;
-        radio.style.cursor = "auto";
-        this.options.childNodes[i].style.backgroundColor = "#BABBFD";
-        this.options.childNodes[i].style.cursor = "auto";
-      }
-    }
   };
 
   //Easier way of handling the different colors and defaults
@@ -505,45 +485,114 @@
     return found;
   };
 
+  function StatusSVG(props) {
+    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    this.svg.style.padding = "0px 10px";
+    this.svg.setAttribute("role", "img");
+    this.svg.setAttribute("viewBox", "0 0 512 512");
+    this.svg.setAttribute("width", "30px");
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("fill", props.color);
+    var iconPath =
+      props.type === "success"
+        ? "M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z"
+        : "M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm101.8-262.2L295.6 256l62.2 62.2c4.7 4.7 4.7 12.3 0 17l-22.6 22.6c-4.7 4.7-12.3 4.7-17 0L256 295.6l-62.2 62.2c-4.7 4.7-12.3 4.7-17 0l-22.6-22.6c-4.7-4.7-4.7-12.3 0-17l62.2-62.2-62.2-62.2c-4.7-4.7-4.7-12.3 0-17l22.6-22.6c4.7-4.7 12.3-4.7 17 0l62.2 62.2 62.2-62.2c4.7-4.7 12.3-4.7 17 0l22.6 22.6c4.7 4.7 4.7 12.3 0 17z";
+
+    path.setAttribute("d", iconPath);
+    this.svg.appendChild(path);
+  }
+
   //Displays information to users
   //Set the message (setMessage) first, then show (show) message for five seconds (default value)
   //Also handles loading through use of startLoading and endLoading
   //Debug allows developers to handle edit the notification object and with debugging in environments where development tools have been disabled
   function Notification(message) {
     this.notification = document.createElement("div");
-    this.notification.style.textAlign = "center";
-    this.notification.style.fontSize = "16pt";
-    this.notification.style.width = "250px";
-    this.notification.style.height = "50px";
     this.notification.style.backgroundColor = "white";
+    this.notification.style.borderRadius = "0";
+    this.notification.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
     this.notification.style.color = "black";
-    this.notification.style.border = "1px solid black";
+    this.notification.style.display = "flex";
+    this.notification.style.flexDirection = "row";
+    this.notification.style["-ms-flex"] = "1 0 1";
+    this.notification.style.height = "50px";
+    this.notification.style.padding = "0.5rem";
     this.notification.style.position = "fixed";
-    this.notification.style.right = "10px";
+    this.notification.style.right = "-260px";
     this.notification.style.top = "50px";
+    this.notification.style.transition = "right 4s ease-in";
+    this.notification.style.width = "250px";
     this.notification.style.zIndex = "1";
-    this.notification.style.borderRadius = ".25rem";
-    this.notification.innerText = message;
+    this.message = message;
   }
 
-  Notification.prototype.setMessage = function (message) {
-    this.notification.innerText = message;
+  Notification.prototype.setMessage = function () {
+    this.text = document.createElement("div");
+    this.text.style.display = "flex";
+    this.text.style.flexDirection = "column";
+    this.text.style.justifyContent = "center";
+    this.text.style.position = "relative";
+    this.title = document.createElement("div");
+    this.title.style.fontSize = "12pt";
+    this.subtitle = document.createElement("div");
+    this.subtitle.innerText = this.message;
+    this.subtitle.style.fontSize = "9pt";
+    this.close = document.createElement("div");
+    this.close.innerText = "x";
+    this.close.style.cursor = "pointer";
+    this.close.style.display = "flex";
+    this.close.style.flexDirection = "column";
+    this.close.style.fontSize = "14px";
+    this.close.style.height = "14px";
+    this.close.style.justifyContent = "center";
+    this.close.style.position = "absolute";
+    this.close.style.right = "0px";
+    this.close.style.top = "0px";
+    this.close.style.width = "14px";
+    this.text.appendChild(this.title);
+    this.text.appendChild(this.subtitle);
+    this.text.appendChild(this.close);
+    return this;
+  };
+
+  Notification.prototype.listeners = function () {
+    var self = this;
+    this.close.onclick = function () {
+      self.remove(self.notification);
+    };
+    return this;
+  };
+
+  Notification.prototype.success = function () {
+    var icon = new StatusSVG({ color: "green", type: "success" });
+    this.svg = icon.svg;
+    this.title.innerText = "Successfully Saved";
+    return this;
+  };
+
+  Notification.prototype.failed = function () {
+    var icon = new StatusSVG({ color: "red", type: "failure" });
+    this.svg = icon.svg;
+    this.title.innerText = "Failed to Save";
+    return this;
   };
 
   Notification.prototype.show = function () {
-    var note = this.notification;
-    document.body.appendChild(note);
-    var timer = setTimeout(
-      function (note) {
-        if (note) {
-          if (note.parentNode) {
-            note.parentNode.removeChild(note);
-          }
-        }
-      },
-      5000,
-      note
-    );
+    this.notification.appendChild(this.svg);
+    this.notification.appendChild(this.text);
+    document.body.appendChild(this.notification);
+    this.timer = setTimeout(this.remove, 3000, this.notification);
+    return this;
+  };
+
+  Notification.prototype.remove = function ($el) {
+    $el.parentNode.removeChild($el);
+    clearTimeout(this.timer);
+    return this;
+  };
+
+  Notification.prototype.animate = function () {
+    this.notification.style.right = "10px";
   };
 
   Notification.prototype.startLoading = function () {
