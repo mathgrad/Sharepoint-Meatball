@@ -38,7 +38,7 @@
       return table.getAttribute("class") === "ms-listviewtable";
     });
     //Grabbing the list url + Iterate through the set of tables
-    tables.forEach(function (table, index) {
+    tables.forEach(function (table, ti) {
       var currentListId = table.getAttribute("id").substring(1, 37);
       var root = ctx.HttpRoot;
       var url =
@@ -46,7 +46,7 @@
         "/_api/web/lists('" +
         currentListId +
         "')/fields?$filter=TypeDisplayName eq 'Choice'";
-
+      var listTitle = table.summary;
       $.ajax({
         url: url,
         type: "GET",
@@ -82,7 +82,8 @@
                 table,
                 item,
                 popoverData.externalColumn[i],
-                popoverData.internalColumn[i]
+                popoverData.internalColumn[i],
+                listTitle
               );
             });
           }
@@ -96,11 +97,16 @@
   }
 
   //Finds cells with known default values and replaces them with meatballs
-  function findTargets($table, values, externalColumn, internalColumn, colors) {
+  function findTargets(
+    $table,
+    values,
+    externalColumn,
+    internalColumn,
+    listTitle
+  ) {
     if (!$table || $table.childNodes.length === 0) {
       return;
     }
-
     //Iterate over each cell and compare the inner text to the list of known defaults.
     var $rows = [].slice.call($table.getElementsByTagName("tr"));
     var $thead = [].slice.call($table.getElementsByTagName("th"));
@@ -151,7 +157,8 @@
                 $thead[ci],
                 $table.getAttribute("id").substring(1, 37),
                 text,
-                displayValue
+                displayValue,
+                listTitle
               );
             }
           }
@@ -168,7 +175,8 @@
     header,
     table,
     externalColumn,
-    internalColumn
+    internalColumn,
+    listTitle
   ) {
     var root = ctx.HttpRoot;
     var currentListName = ctx.ListTitle;
@@ -201,14 +209,14 @@
       success: function (data) {
         meatball.setColor(ele);
         var notification = new Notification(
-          externalColumn + " has been updated"
+          listTitle + " - " + externalColumn + " has been updated"
         );
         notification.success().listeners().show();
         return false;
       },
       error: function (error) {
         var notification = new Notification(
-          externalColumn + " failed to update"
+          listTitle + " - " + externalColumn + " failed to update"
         );
         notification.failed().listeners().show();
       },
@@ -235,38 +243,45 @@
     thead,
     table,
     cellText,
-    value
+    value,
+    listTitle
   ) {
     var meatball = this;
     this.element.style.backgroundColor = colors.get(cellText);
 
-    var popoverBorder = "#c4c3d0";
+    var backgroundColor = "rgb(240, 240,240)";
     var triangleSize = 10;
 
     this.popoverPanel = document.createElement("div");
-    this.popoverPanel.style.display = "inline-block";
-    this.popoverPanel.style.margin = "0px";
-    this.popoverPanel.style.padding = "0px";
+    this.popoverPanel.style.backgroundColor = "transparent";
+    this.popoverPanel.style.padding = "10px";
+    this.popoverBody = document.createElement("div");
+    this.popoverBody.style.display = "inline-block";
+    this.popoverBody.style.margin = "0px";
+    this.popoverBody.style.padding = "0px";
+    this.popoverBody.style.backgroundColor = backgroundColor;
+    this.popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
 
     var carret = document.createElement("div");
     carret.style.margin = "0px";
     carret.style.display = "inline-block";
-    carret.style.position = "fixed";
+    carret.style.position = "absolute";
     carret.style.height = "0px";
     carret.style.width = "0px";
-    carret.style.boxShadow = "0px 0px 5px " + popoverBorder;
+    carret.style.left = "2px";
+    carret.style.top = "29px";
+    // carret.style.boxShadow = "0px 0px 5px " + popoverBorder;
     carret.style.borderTop = triangleSize + "px solid transparent";
     carret.style.borderBottom = triangleSize + "px solid transparent";
-    carret.style.borderRight = triangleSize + "px solid " + popoverBorder;
-    this.popoverPanel.appendChild(carret);
+    carret.style.borderRight = triangleSize + "px solid " + backgroundColor;
 
     //Create Popover Element
     var popover = document.createElement("div");
     popover.style.display = "inline-block";
-    popover.style.backgroundColor = "#ffffff";
+    popover.style.backgroundColor = backgroundColor;
     popover.style.color = "#000000";
     popover.style.padding = ".5rem";
-    popover.style.boxShadow = "0px 0px 5px " + popoverBorder;
+    popover.style.boxShadow = "0px 0px 5px " + backgroundColor;
     // popover.style.border = "1px solid " + popoverBorder;
     popover.style.borderRadius = ".25rem";
     popover.style.zIndex = "1";
@@ -290,7 +305,8 @@
       table,
       externalColumn,
       internalColumn,
-      cellText
+      cellText,
+      listTitle
     );
 
     //Add Header Element
@@ -308,7 +324,10 @@
         : (options.style.display = "block");
     });
 
-    this.popoverPanel.appendChild(popover);
+    this.popoverBody.appendChild(carret);
+    this.popoverBody.appendChild(popover);
+    this.popoverPanel.appendChild(this.popoverBody);
+
     var popoverPanel = this.popoverPanel;
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
@@ -317,25 +336,19 @@
       document.body.appendChild(popoverPanel);
       popoverPanel.style.position = "fixed";
       popoverPanel.style.left =
-        this.getBoundingClientRect().right + triangleSize + "px";
+        this.getBoundingClientRect().right - 12 + triangleSize + "px";
       popoverPanel.style.top =
-        this.getBoundingClientRect().top - triangleSize + "px";
-      carret.style.left =
-        popoverPanel.getBoundingClientRect().left - triangleSize + "px";
-      carret.style.top = this.getBoundingClientRect().top + "px";
+        this.getBoundingClientRect().top - 40 + triangleSize + "px";
     });
 
     this.element.addEventListener("mouseleave", function (e) {
-      if (popoverPanel.contains(e.relatedTarget)) return;
-      if (popoverPanel) {
-        if (popoverPanel.parentNode) {
-          popoverPanel.parentNode.removeChild(popoverPanel);
-        }
+      if (!e.toElement.parentNode.contains(popoverPanel)) {
+        popoverPanel.parentNode.removeChild(popoverPanel);
       }
     });
 
     //Add Mouse leave Event to hide
-    this.popoverPanel.addEventListener("mouseleave", function () {
+    this.popoverPanel.addEventListener("mouseleave", function (e) {
       if (popoverPanel) {
         if (popoverPanel.parentNode) {
           popoverPanel.parentNode.removeChild(popoverPanel);
@@ -373,7 +386,8 @@
     table,
     externalColumn,
     internalColumn,
-    cellText
+    cellText,
+    listTitle
   ) {
     var optionsPanel = this;
     //Create and Add Option Elements
@@ -409,17 +423,16 @@
       });
 
       radio.onclick = function () {
-        if (!radio.checked) {
-          updateTarget(
-            ele,
-            rowIndex,
-            meatball,
-            thead,
-            table,
-            externalColumn,
-            internalColumn
-          );
-        }
+        updateTarget(
+          ele,
+          rowIndex,
+          meatball,
+          thead,
+          table,
+          externalColumn,
+          internalColumn,
+          listTitle
+        );
       };
 
       //Add Click Event to update list
@@ -434,7 +447,8 @@
             thead,
             table,
             externalColumn,
-            internalColumn
+            internalColumn,
+            listTitle
           );
         }
       });
