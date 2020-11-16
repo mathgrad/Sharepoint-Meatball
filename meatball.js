@@ -19,6 +19,7 @@
       alert("Please contact help desk.  Script not properly loaded.");
       return;
     }
+
     //Checks for overrides
     if (window.meatball_override) {
       meatball_override.forEach(function (item) {
@@ -194,7 +195,6 @@
       ")?$select=" +
       internalColumn;
     meatball.remove();
-    var notification = new Notification("").loading().listeners().show();
     $.ajax({
       url: url,
       type: "POST",
@@ -414,6 +414,7 @@
 
       if (containsSubString(ele, cellText)) {
         radio.checked = true;
+        optionPanel.style.backgroundColor = "#BABBFD";
       }
 
       optionPanel.addEventListener("mouseenter", function () {
@@ -423,24 +424,17 @@
         optionPanel.style.boxShadow = "0px 0px 0px";
       });
 
-      radio.onclick = function () {
-        updateTarget(
-          ele,
-          rowIndex,
-          meatball,
-          thead,
-          table,
-          externalColumn,
-          internalColumn,
-          listTitle
-        );
-      };
+      optionsPanel.options.addEventListener("mousedown", function () {
+        [].slice.call(optionsPanel.options.children).forEach(function (item) {
+          item.style.backgroundColor = "inherit";
+        });
+      });
 
-      //Add Click Event to update list
-      optionPanel.appendChild(radio);
-      optionPanel.appendChild(option);
-      optionPanel.addEventListener("click", function () {
+      optionPanel.addEventListener("mouseup", function () {
         if (!radio.checked) {
+          radio.checked = true;
+          optionPanel.style.backgroundColor = "#BABBFD";
+          optionPanel.style.boxShadow = "0px 0px 0px";
           updateTarget(
             ele,
             rowIndex,
@@ -451,8 +445,15 @@
             internalColumn,
             listTitle
           );
+        } else {
+          optionPanel.style.backgroundColor = "#BABBFD";
         }
       });
+
+      //Add Click Event to update list
+      optionPanel.appendChild(radio);
+      optionPanel.appendChild(option);
+      optionPanel.addEventListener("change", function () {});
       optionsPanel.options.appendChild(optionPanel);
     });
   };
@@ -528,8 +529,9 @@
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.svg.style.padding = "0px 10px";
     this.svg.setAttribute("role", "img");
-    this.svg.setAttribute("viewBox", "0 0 512 512");
+    this.svg.setAttribute("viewBox", "0 0 128 128");
     this.svg.setAttribute("width", "30px");
+    this.svg.setAttribute("height", "30px");
 
     var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
@@ -541,12 +543,12 @@
 
     var stops = [
       {
-        colors: "#ffffff",
+        color: "#ffffff",
         offset: "0%",
         opacity: "0",
       },
       {
-        colors: "#000000",
+        color: "#000000",
         offset: "100%",
         opacity: "1",
       },
@@ -591,6 +593,7 @@
     this.svg.setAttribute("role", "img");
     this.svg.setAttribute("viewBox", "0 0 512 512");
     this.svg.setAttribute("width", "30px");
+
     var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("fill", props.color);
     var iconPath =
