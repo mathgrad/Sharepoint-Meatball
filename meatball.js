@@ -194,6 +194,7 @@
       ")?$select=" +
       internalColumn;
     meatball.remove();
+    var notification = new Notification("").loading().listeners().show();
     $.ajax({
       url: url,
       type: "POST",
@@ -523,6 +524,67 @@
     return found;
   };
 
+  function LoadingSVG(props) {
+    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    this.svg.style.padding = "0px 10px";
+    this.svg.setAttribute("role", "img");
+    this.svg.setAttribute("viewBox", "0 0 512 512");
+    this.svg.setAttribute("width", "30px");
+
+    var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+    var linearGradient = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "linearGradient"
+    );
+    linearGradient.setAttribute("id", "colorFill");
+
+    var stops = [
+      {
+        colors: "#ffffff",
+        offset: "0%",
+        opacity: "0",
+      },
+      {
+        colors: "#000000",
+        offset: "100%",
+        opacity: "1",
+      },
+    ];
+
+    stops.forEach(function (item) {
+      var stop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+      stop.setAttribute("offset", item.offset);
+      stop.setAttribute("stop-color", item.color);
+      stop.setAttribute("fill-opacity", item.opacity);
+      linearGradient.appendChild(stop);
+    });
+    g.appendChild(linearGradient);
+
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("fill", "url(#colorFill)");
+    path.setAttribute("fill-rule", "evenodd");
+    path.setAttribute(
+      "d",
+      "M63.85 0A63.85 63.85 0 1 1 0 63.85 63.85 63.85 0 0 1 63.85 0zm.65 19.5a44 44 0 1 1-44 44 44 44 0 0 1 44-44z"
+    );
+    g.appendChild(path);
+
+    var animateTransform = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "animateTransform"
+    );
+    animateTransform.setAttribute("attributeName", "transform");
+    animateTransform.setAttribute("type", "rotate");
+    animateTransform.setAttribute("from", "0 64 64");
+    animateTransform.setAttribute("to", "360 64 64");
+    animateTransform.setAttribute("dur", "1080ms");
+    animateTransform.setAttribute("repeatCount", "indefinite");
+    g.appendChild(animateTransform);
+
+    this.svg.appendChild(g);
+  }
+
   function StatusSVG(props) {
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.svg.style.padding = "0px 10px";
@@ -594,6 +656,12 @@
     this.close.onclick = function () {
       self.remove(self.notification);
     };
+    return this;
+  };
+
+  Notification.prototype.loading = function () {
+    var icon = new LoadingSVG();
+    this.svg = icon.svg;
     return this;
   };
 
