@@ -195,6 +195,7 @@
       ")?$select=" +
       internalColumn;
     meatball.remove();
+    var notification = new Notification("").loading().show();
     $.ajax({
       url: url,
       type: "POST",
@@ -212,14 +213,14 @@
         var notification = new Notification(
           listTitle + " - " + externalColumn + " has been updated"
         );
-        notification.success().listeners().show();
+        notification.addText().success().listeners().show();
         return false;
       },
       error: function (error) {
         var notification = new Notification(
           listTitle + " - " + externalColumn + " failed to update"
         );
-        notification.failed().listeners().show();
+        notification.addText().failed().listeners().show();
       },
     });
   }
@@ -631,6 +632,10 @@
     this.text.style.flexDirection = "column";
     this.text.style.justifyContent = "center";
     this.text.style.position = "relative";
+    return this;
+  }
+
+  Notification.prototype.addText = function () {
     this.title = document.createElement("div");
     this.title.style.fontSize = "12pt";
     this.subtitle = document.createElement("div");
@@ -652,7 +657,7 @@
     this.text.appendChild(this.subtitle);
     this.text.appendChild(this.close);
     return this;
-  }
+  };
 
   Notification.prototype.listeners = function () {
     var self = this;
