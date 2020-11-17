@@ -213,14 +213,14 @@
         var notification = new Notification(
           listTitle + " - " + externalColumn + " has been updated"
         );
-        notification.addText().success().listeners().show();
+        notification.addTitle().success().listeners().show();
         return false;
       },
       error: function (error) {
         var notification = new Notification(
           listTitle + " - " + externalColumn + " failed to update"
         );
-        notification.addText().failed().listeners().show();
+        notification.addTitle().failed().listeners().show();
       },
     });
   }
@@ -528,11 +528,11 @@
 
   function LoadingSVG(props) {
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.svg.style.padding = "0px 10px";
+    this.svg.style.padding = "10px 10px";
     this.svg.setAttribute("role", "img");
-    this.svg.setAttribute("viewBox", "0 0 128 128");
-    this.svg.setAttribute("width", "30px");
-    this.svg.setAttribute("height", "30px");
+    this.svg.setAttribute("viewBox", "0 0 512 512");
+    this.svg.setAttribute("width", "120px");
+    this.svg.setAttribute("height", "120px");
 
     var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
@@ -569,7 +569,7 @@
     path.setAttribute("fill-rule", "evenodd");
     path.setAttribute(
       "d",
-      "M63.85 0A63.85 63.85 0 1 1 0 63.85 63.85 63.85 0 0 1 63.85 0zm.65 19.5a44 44 0 1 1-44 44 44 44 0 0 1 44-44z"
+      "M 63.85,0 A 63.85,63.85 0 1 1 0,63.85 63.85,63.85 0 0 1 63.85,0 Z m 0.65,19.5 a 44,44 0 1 1 -44,44 44,44 0 0 1 44,-44 z"
     );
     g.appendChild(path);
 
@@ -635,7 +635,7 @@
     return this;
   }
 
-  Notification.prototype.addText = function () {
+  Notification.prototype.addTitle = function () {
     this.title = document.createElement("div");
     this.title.style.fontSize = "12pt";
     this.subtitle = document.createElement("div");
@@ -729,7 +729,10 @@
   };
 
   Notification.prototype.debug = function () {
+    this.notification.appendChild(this.svg);
+    this.notification.appendChild(this.text);
     document.body.appendChild(this.notification);
+    return this;
   };
 
   //True, error.  False, no error.
