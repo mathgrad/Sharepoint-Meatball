@@ -20,6 +20,7 @@
       alert("Please contact help desk.  Script not properly loaded.");
       return;
     }
+
     //Checks for overrides
     if (window.meatball_override) {
       meatball_override.forEach(function (item) {
@@ -195,6 +196,7 @@
       ")?$select=" +
       internalColumn;
     meatball.remove();
+    var notification = new Notification("").loading().show();
     $.ajax({
       url: url,
       type: "POST",
@@ -431,8 +433,17 @@
         optionPanel.style.boxShadow = "0px 0px 0px";
       });
 
-      function update(radio) {
+      optionsPanel.options.addEventListener("mousedown", function () {
+        [].slice.call(optionsPanel.options.children).forEach(function (item) {
+          item.style.backgroundColor = "inherit";
+        });
+      });
+
+      optionPanel.addEventListener("mouseup", function () {
         if (!radio.checked) {
+          radio.checked = true;
+          optionPanel.style.backgroundColor = "#BABBFD";
+          optionPanel.style.boxShadow = "0px 0px 0px";
           updateTarget(
             ele,
             rowIndex,
@@ -443,21 +454,14 @@
             internalColumn,
             listTitle
           );
+        } else {
+          optionPanel.style.backgroundColor = "#BABBFD";
         }
       }
-
-      radio.addEventListener("click", function () {
-        update(this);
-      });
 
       //Add Click Event to update list
       optionPanel.appendChild(radio);
       optionPanel.appendChild(option);
-
-      optionPanel.addEventListener("click", function () {
-        update(radio);
-      });
-
       optionsPanel.options.appendChild(optionPanel);
     });
   };
@@ -529,12 +533,75 @@
     return found;
   };
 
+  function LoadingSVG(props) {
+    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    this.svg.style.padding = "10px 10px";
+    this.svg.setAttribute("role", "img");
+    this.svg.setAttribute("viewBox", "0 0 512 512");
+    this.svg.setAttribute("width", "120px");
+    this.svg.setAttribute("height", "120px");
+
+    var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+    var linearGradient = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "linearGradient"
+    );
+    linearGradient.setAttribute("id", "colorFill");
+
+    var stops = [
+      {
+        color: "#ffffff",
+        offset: "0%",
+        opacity: "0",
+      },
+      {
+        color: "#000000",
+        offset: "100%",
+        opacity: "1",
+      },
+    ];
+
+    stops.forEach(function (item) {
+      var stop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+      stop.setAttribute("offset", item.offset);
+      stop.setAttribute("stop-color", item.color);
+      stop.setAttribute("fill-opacity", item.opacity);
+      linearGradient.appendChild(stop);
+    });
+    g.appendChild(linearGradient);
+
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("fill", "url(#colorFill)");
+    path.setAttribute("fill-rule", "evenodd");
+    path.setAttribute(
+      "d",
+      "M 63.85,0 A 63.85,63.85 0 1 1 0,63.85 63.85,63.85 0 0 1 63.85,0 Z m 0.65,19.5 a 44,44 0 1 1 -44,44 44,44 0 0 1 44,-44 z"
+    );
+    g.appendChild(path);
+
+    var animateTransform = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "animateTransform"
+    );
+    animateTransform.setAttribute("attributeName", "transform");
+    animateTransform.setAttribute("type", "rotate");
+    animateTransform.setAttribute("from", "0 64 64");
+    animateTransform.setAttribute("to", "360 64 64");
+    animateTransform.setAttribute("dur", "1080ms");
+    animateTransform.setAttribute("repeatCount", "indefinite");
+    g.appendChild(animateTransform);
+
+    this.svg.appendChild(g);
+  }
+
   function StatusSVG(props) {
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.svg.style.padding = "0px 10px";
     this.svg.setAttribute("role", "img");
     this.svg.setAttribute("viewBox", "0 0 512 512");
     this.svg.setAttribute("width", "30px");
+
     var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("fill", props.color);
     var iconPath =
@@ -592,6 +659,10 @@
     this.text.style.flexDirection = "column";
     this.text.style.justifyContent = "center";
     this.text.style.position = "relative";
+    return this;
+  }
+
+  Notification.prototype.addTitle = function () {
     this.title = document.createElement("div");
     this.title.style.fontSize = "12pt";
     this.subtitle = document.createElement("div");
@@ -613,13 +684,19 @@
     this.text.appendChild(this.subtitle);
     this.text.appendChild(this.close);
     return this;
-  }
+  };
 
   Toast.prototype.setListeners = function () {
     var self = this.toast;
     this.close.onclick = function () {
       self.remove(self);
     };
+    return this;
+  };
+
+  Toast.prototype.loading = function () {
+    var icon = new LoadingSVG();
+    this.svg = icon.svg;
     return this;
   };
 
