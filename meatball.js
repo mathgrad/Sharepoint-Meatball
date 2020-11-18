@@ -452,7 +452,11 @@
 
       panel.options.addEventListener("mousedown", function () {
         [].slice.call(panel.options.children).forEach(function (item) {
-          item.style.backgroundColor = "inherit";
+          if (item.parentElement.querySelector(":hover") === item) {
+            item.style.backgroundColor = "#BABBFD";
+          } else {
+            item.style.backgroundColor = "";
+          }
         });
       });
 
@@ -471,8 +475,6 @@
             internalColumn,
             listTitle
           );
-        } else {
-          option.style.backgroundColor = "#BABBFD";
         }
       });
 
