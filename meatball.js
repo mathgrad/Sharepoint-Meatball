@@ -2,6 +2,7 @@
   //Size sets the Meatball size in pixels
   var size = 15;
   var colors = new Colors();
+  var kitchen = new Pantry();
 
   window.addEventListener("load", function () {
     start();
@@ -195,7 +196,8 @@
       ")?$select=" +
       internalColumn;
     meatball.remove();
-    var notification = new Notification("").loading().show();
+    var toast = new Toast().loading().show();
+    kitchen.show(toast);
     $.ajax({
       url: url,
       type: "POST",
@@ -210,17 +212,27 @@
       },
       success: function (data) {
         meatball.setColor(ele);
-        var notification = new Notification(
-          listTitle + " - " + externalColumn + " has been updated"
-        );
-        notification.addTitle().success().listeners().show();
+        //push the next toast into the array + pass the methods with it
+        toast.remove();
+        toast = new Toast()
+          .setMessage(
+            listTitle + " - " + externalColumn + " updated successfully"
+          )
+          .setSuccess()
+          .setListeners()
+          .show();
+        kitchen.show(toast);
+
         return false;
       },
       error: function (error) {
-        var notification = new Notification(
-          listTitle + " - " + externalColumn + " failed to update"
-        );
-        notification.addTitle().failed().listeners().show();
+        toast.remove();
+        toast = new Toast()
+          .setMessage(listTitle + " - " + externalColumn + " failed to update")
+          .setFailed()
+          .setListeners()
+          .show();
+        kitchen.show(toast);
       },
     });
   }
@@ -391,20 +403,20 @@
     cellText,
     listTitle
   ) {
-    var optionsPanel = this;
+    var panel = this;
     //Create and Add Option Elements
     defaults.forEach(function (ele, index) {
-      var optionPanel = document.createElement("div");
-      optionPanel.style.padding = ".25rem";
-      optionPanel.style.marginBottom = ".25rem";
-      optionPanel.style.textAlign = "left";
-      optionPanel.style.borderRadius = ".25rem";
-      optionPanel.style.cursor = "pointer";
-
       var option = document.createElement("div");
-      option.innerText = ele;
-      option.style.marginLeft = ".25rem";
-      option.style.display = "inline";
+      option.style.padding = ".25rem";
+      option.style.marginBottom = ".25rem";
+      option.style.textAlign = "left";
+      option.style.borderRadius = ".25rem";
+      option.style.cursor = "pointer";
+
+      var description = document.createElement("div");
+      description.innerText = ele;
+      description.style.marginLeft = ".25rem";
+      description.style.display = "inline";
 
       var radio = document.createElement("input");
       radio.name = "option";
@@ -415,27 +427,27 @@
 
       if (containsSubString(ele, cellText)) {
         radio.checked = true;
-        optionPanel.style.backgroundColor = "#BABBFD";
+        option.style.backgroundColor = "#BABBFD";
       }
 
-      optionPanel.addEventListener("mouseenter", function () {
-        optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
+      option.addEventListener("mouseenter", function () {
+        option.style.boxShadow = "0px 0px 10px #BABBFD";
       });
-      optionPanel.addEventListener("mouseleave", function () {
-        optionPanel.style.boxShadow = "0px 0px 0px";
+      option.addEventListener("mouseleave", function () {
+        option.style.boxShadow = "0px 0px 0px";
       });
 
-      optionsPanel.options.addEventListener("mousedown", function () {
-        [].slice.call(optionsPanel.options.children).forEach(function (item) {
+      panel.options.addEventListener("mousedown", function () {
+        [].slice.call(panel.options.children).forEach(function (item) {
           item.style.backgroundColor = "inherit";
         });
       });
 
-      optionPanel.addEventListener("mouseup", function () {
+      option.addEventListener("mouseup", function () {
         if (!radio.checked) {
           radio.checked = true;
-          optionPanel.style.backgroundColor = "#BABBFD";
-          optionPanel.style.boxShadow = "0px 0px 0px";
+          option.style.backgroundColor = "#BABBFD";
+          option.style.boxShadow = "0px 0px 0px";
           updateTarget(
             ele,
             rowIndex,
@@ -447,15 +459,14 @@
             listTitle
           );
         } else {
-          optionPanel.style.backgroundColor = "#BABBFD";
+          option.style.backgroundColor = "#BABBFD";
         }
       });
 
       //Add Click Event to update list
-      optionPanel.appendChild(radio);
-      optionPanel.appendChild(option);
-      optionPanel.addEventListener("change", function () {});
-      optionsPanel.options.appendChild(optionPanel);
+      option.appendChild(radio);
+      option.appendChild(description);
+      panel.options.appendChild(option);
     });
   };
 
@@ -609,24 +620,43 @@
   //Displays information to users
   //Set the message (setMessage) first, then show (show) message for five seconds (default value)
   //Also handles loading through use of startLoading and endLoading
-  //Debug allows developers to handle edit the notification object and with debugging in environments where development tools have been disabled
-  function Notification(message) {
-    this.notification = document.createElement("div");
-    this.notification.style.backgroundColor = "white";
-    this.notification.style.borderRadius = "0";
-    this.notification.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
-    this.notification.style.color = "black";
-    this.notification.style.display = "flex";
-    this.notification.style.flexDirection = "row";
-    this.notification.style["-ms-flex"] = "1 0 1";
-    this.notification.style.height = "50px";
-    this.notification.style.padding = "0.5rem";
-    this.notification.style.position = "fixed";
-    this.notification.style.right = "10px";
-    this.notification.style.top = "50px";
-    this.notification.style.width = "250px";
-    this.notification.style.zIndex = "1";
-    this.message = message;
+  //Debug allows developers to handle edit the toast object and with debugging in environments where development tools have been disabled
+
+  function Pantry() {
+    this.container = document.createElement("div");
+    this.container.id = "breadbox";
+    this.container.style.width = "250px";
+    this.container.style.right = "10px";
+    this.container.style.display = "flex";
+    this.container.style.flexDirection = "column";
+    this.container.style.float = "right";
+    this.container.style.zIndex = "1";
+    this.container.style.right = "40px";
+    this.container.style.top = "75px";
+    this.container.style.position = "fixed";
+    document.body.appendChild(this.container);
+  }
+
+  Pantry.prototype.show = function (toast) {
+    this.container.appendChild(toast.toast);
+    this.timer = setTimeout(this.remove, 3000, this.toast);
+    return this;
+  };
+
+  function Toast() {
+    this.toast = document.createElement("div");
+    this.toast.id = Math.floor(Math.random() * 1000);
+    this.toast.style.backgroundColor = "white";
+    this.toast.style.borderRadius = "0";
+    this.toast.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
+    this.toast.style.color = "black";
+    this.toast.style.display = "flex";
+    this.toast.style.marginTop = "5px";
+    this.toast.style["-ms-flex"] = "1 0 1";
+    this.toast.style.height = "50px";
+    this.toast.style.padding = "0.5rem";
+    this.toast.style.width = "250px";
+    this.toast.style.zIndex = "1";
     this.text = document.createElement("div");
     this.text.style.display = "flex";
     this.text.style.flexDirection = "column";
@@ -635,7 +665,8 @@
     return this;
   }
 
-  Notification.prototype.addTitle = function () {
+  Toast.prototype.setMessage = function (message) {
+    this.message = message;
     this.title = document.createElement("div");
     this.title.style.fontSize = "12pt";
     this.subtitle = document.createElement("div");
@@ -659,80 +690,59 @@
     return this;
   };
 
-  Notification.prototype.listeners = function () {
-    var self = this;
+  Toast.prototype.setListeners = function () {
+    var self = this.toast;
     this.close.onclick = function () {
-      self.remove(self.notification);
+      self.remove(self);
     };
     return this;
   };
 
-  Notification.prototype.loading = function () {
+  Toast.prototype.loading = function () {
     var icon = new LoadingSVG();
     this.svg = icon.svg;
     return this;
   };
 
-  Notification.prototype.success = function () {
+  Toast.prototype.setSuccess = function () {
     var icon = new StatusSVG({ color: "green", type: "success" });
     this.svg = icon.svg;
     this.title.innerText = "Successfully Saved";
     return this;
   };
 
-  Notification.prototype.failed = function () {
+  Toast.prototype.setFailed = function () {
     var icon = new StatusSVG({ color: "red", type: "failure" });
     this.svg = icon.svg;
     this.title.innerText = "Failed to Save";
     return this;
   };
 
-  Notification.prototype.show = function () {
-    this.notification.appendChild(this.svg);
-    this.notification.appendChild(this.text);
-    document.body.appendChild(this.notification);
-    this.timer = setTimeout(this.remove, 3000, this.notification);
+  Toast.prototype.show = function () {
+    // if (this.toast.childNodes.length > 0) {
+    //   console.log("Start", this.toast.childNodes);
+    //   console.log("Start remove svg");
+    //   this.toast.removeChild(this.svg);
+    //   console.log("End remove svg");
+    //   console.log("End");
+    // }
+    this.toast.appendChild(this.svg);
+    this.toast.appendChild(this.text);
     return this;
   };
 
-  Notification.prototype.remove = function ($el) {
-    $el.parentNode.removeChild($el);
-    clearTimeout(this.timer);
-    return this;
-  };
-
-  Notification.prototype.startLoading = function () {
-    this.notification.innerText = "Loading";
-    document.body.appendChild(this.notification);
-  };
-
-  Notification.prototype.endLoading = function () {
-    if (this.notification) {
-      if (this.notification.parentNode) {
-        this.notification.parentNode.removeChild(this.notification);
+  Toast.prototype.remove = function () {
+    if (this.toast) {
+      if (this.toast.parentNode) {
+        this.toast.parentNode.removeChild(this.toast);
+        clearTimeout(this.timer);
       }
     }
-    this.notification.innerText = "Done";
-    var note = this.notification;
-    document.body.appendChild(note);
-    var timer = setTimeout(
-      function (note) {
-        if (note) {
-          if (note.parentNode) {
-            note.parentNode.removeChild(note);
-          }
-        }
-      },
-      1000,
-      note
-    );
+    return this;
   };
 
-  Notification.prototype.debug = function () {
-    this.notification.appendChild(this.svg);
-    this.notification.appendChild(this.text);
-    document.body.appendChild(this.notification);
-    return this;
+  Pantry.prototype.debug = function () {
+    document.body.appendChild(this.toast);
   };
 
   //True, error.  False, no error.
