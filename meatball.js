@@ -450,10 +450,9 @@
         option.style.boxShadow = "0px 0px 0px";
       });
 
-      $(panel.options).on("mousedown", function () {
+      panel.options.addEventListener("mousedown", function () {
         [].slice.call(panel.options.children).forEach(function (item) {
           if (item.parentElement.querySelector(":hover") === item) {
-            console.log("hit");
             item.style.backgroundColor = "#BABBFD";
           } else {
             item.style.backgroundColor = "";
