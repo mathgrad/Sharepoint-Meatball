@@ -348,11 +348,24 @@
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
       document.body.appendChild(popoverPanel);
+      function animatePopover() {
+        var opacity = 0;
+        var displayInterval = setInterval(animate, 3);
+        function animate() {
+          if (opacity > 100) {
+            clearInterval(displayInterval);
+          } else {
+            opacity = opacity + 5;
+            popoverPanel.style.opacity = opacity + "%";
+          }
+        }
+      }
       popoverPanel.style.position = "fixed";
       popoverPanel.style.left =
         this.getBoundingClientRect().right - 12 + triangleSize + "px";
       popoverPanel.style.top =
         this.getBoundingClientRect().top - 40 + triangleSize + "px";
+      animatePopover();
     });
 
     this.element.addEventListener("mouseleave", function (e) {
@@ -638,8 +651,17 @@
   }
 
   Pantry.prototype.show = function (toast) {
+    var note = toast.toast;
     this.container.appendChild(toast.toast);
-    this.timer = setTimeout(this.remove, 3000, this.toast);
+    var timer = setTimeout(
+      function (note) {
+        if (note && note.parentNode) {
+          note.parentNode.removeChild(note);
+        }
+      },
+      3500,
+      note
+    );
     return this;
   };
 
@@ -719,13 +741,6 @@
   };
 
   Toast.prototype.show = function () {
-    // if (this.toast.childNodes.length > 0) {
-    //   console.log("Start", this.toast.childNodes);
-    //   console.log("Start remove svg");
-    //   this.toast.removeChild(this.svg);
-    //   console.log("End remove svg");
-    //   console.log("End");
-    // }
     this.toast.appendChild(this.svg);
     this.toast.appendChild(this.text);
     return this;
