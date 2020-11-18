@@ -196,7 +196,8 @@
       ")?$select=" +
       internalColumn;
     meatball.remove();
-    var notification = new Notification("").loading().show();
+    var toast = new Toast().loading().show();
+    kitchen.show(toast);
     $.ajax({
       url: url,
       type: "POST",
@@ -212,23 +213,26 @@
       success: function (data) {
         meatball.setColor(ele);
         //push the next toast into the array + pass the methods with it
-        kitchen.show(
-          new Toast(
+        toast.remove();
+        toast = new Toast()
+          .setMessage(
             listTitle + " - " + externalColumn + " updated successfully"
           )
-            .setSuccess()
-            .setListeners()
-            .show()
-        );
+          .setSuccess()
+          .setListeners()
+          .show();
+        kitchen.show(toast);
+
         return false;
       },
       error: function (error) {
-        kitchen.show(
-          new Toast(listTitle + " - " + externalColumn + " failed to update")
-            .setFailed()
-            .setListeners()
-            .show()
-        );
+        toast.remove();
+        toast = new Toast()
+          .setMessage(listTitle + " - " + externalColumn + " failed to update")
+          .setFailed()
+          .setListeners()
+          .show();
+        kitchen.show(toast);
       },
     });
   }
@@ -399,20 +403,20 @@
     cellText,
     listTitle
   ) {
-    var optionsPanel = this;
+    var panel = this;
     //Create and Add Option Elements
     defaults.forEach(function (ele, index) {
-      var optionPanel = document.createElement("div");
-      optionPanel.style.padding = ".25rem";
-      optionPanel.style.marginBottom = ".25rem";
-      optionPanel.style.textAlign = "left";
-      optionPanel.style.borderRadius = ".25rem";
-      optionPanel.style.cursor = "pointer";
-
       var option = document.createElement("div");
-      option.innerText = ele;
-      option.style.marginLeft = ".25rem";
-      option.style.display = "inline";
+      option.style.padding = ".25rem";
+      option.style.marginBottom = ".25rem";
+      option.style.textAlign = "left";
+      option.style.borderRadius = ".25rem";
+      option.style.cursor = "pointer";
+
+      var description = document.createElement("div");
+      description.innerText = ele;
+      description.style.marginLeft = ".25rem";
+      description.style.display = "inline";
 
       var radio = document.createElement("input");
       radio.name = "option";
@@ -423,27 +427,27 @@
 
       if (containsSubString(ele, cellText)) {
         radio.checked = true;
-        optionPanel.style.backgroundColor = "#BABBFD";
+        option.style.backgroundColor = "#BABBFD";
       }
 
-      optionPanel.addEventListener("mouseenter", function () {
-        optionPanel.style.boxShadow = "0px 0px 10px #BABBFD";
+      option.addEventListener("mouseenter", function () {
+        option.style.boxShadow = "0px 0px 10px #BABBFD";
       });
-      optionPanel.addEventListener("mouseleave", function () {
-        optionPanel.style.boxShadow = "0px 0px 0px";
+      option.addEventListener("mouseleave", function () {
+        option.style.boxShadow = "0px 0px 0px";
       });
 
-      optionsPanel.options.addEventListener("mousedown", function () {
-        [].slice.call(optionsPanel.options.children).forEach(function (item) {
+      panel.options.addEventListener("mousedown", function () {
+        [].slice.call(panel.options.children).forEach(function (item) {
           item.style.backgroundColor = "inherit";
         });
       });
 
-      optionPanel.addEventListener("mouseup", function () {
+      option.addEventListener("mouseup", function () {
         if (!radio.checked) {
           radio.checked = true;
-          optionPanel.style.backgroundColor = "#BABBFD";
-          optionPanel.style.boxShadow = "0px 0px 0px";
+          option.style.backgroundColor = "#BABBFD";
+          option.style.boxShadow = "0px 0px 0px";
           updateTarget(
             ele,
             rowIndex,
@@ -455,14 +459,14 @@
             listTitle
           );
         } else {
-          optionPanel.style.backgroundColor = "#BABBFD";
+          option.style.backgroundColor = "#BABBFD";
         }
-      }
+      });
 
       //Add Click Event to update list
-      optionPanel.appendChild(radio);
-      optionPanel.appendChild(option);
-      optionsPanel.options.appendChild(optionPanel);
+      option.appendChild(radio);
+      option.appendChild(description);
+      panel.options.appendChild(option);
     });
   };
 
@@ -639,7 +643,7 @@
     return this;
   };
 
-  function Toast(message) {
+  function Toast() {
     this.toast = document.createElement("div");
     this.toast.id = Math.floor(Math.random() * 1000);
     this.toast.style.backgroundColor = "white";
@@ -653,7 +657,6 @@
     this.toast.style.padding = "0.5rem";
     this.toast.style.width = "250px";
     this.toast.style.zIndex = "1";
-    this.message = message;
     this.text = document.createElement("div");
     this.text.style.display = "flex";
     this.text.style.flexDirection = "column";
@@ -662,7 +665,8 @@
     return this;
   }
 
-  Notification.prototype.addTitle = function () {
+  Toast.prototype.setMessage = function (message) {
+    this.message = message;
     this.title = document.createElement("div");
     this.title.style.fontSize = "12pt";
     this.subtitle = document.createElement("div");
@@ -715,6 +719,13 @@
   };
 
   Toast.prototype.show = function () {
+    // if (this.toast.childNodes.length > 0) {
+    //   console.log("Start", this.toast.childNodes);
+    //   console.log("Start remove svg");
+    //   this.toast.removeChild(this.svg);
+    //   console.log("End remove svg");
+    //   console.log("End");
+    // }
     this.toast.appendChild(this.svg);
     this.toast.appendChild(this.text);
     return this;
