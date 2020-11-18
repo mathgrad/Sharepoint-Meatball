@@ -2,6 +2,7 @@
   //Size sets the Meatball size in pixels
   var size = 15;
   var colors = new Colors();
+  var kitchen = new Pantry();
 
   window.addEventListener("load", function () {
     start();
@@ -208,17 +209,24 @@
       },
       success: function (data) {
         meatball.setColor(ele);
-        var notification = new Notification(
-          listTitle + " - " + externalColumn + " has been updated"
+        //push the next toast into the array + pass the methods with it
+        kitchen.show(
+          new Toast(
+            listTitle + " - " + externalColumn + " updated successfully"
+          )
+            .setSuccess()
+            .setListeners()
+            .show()
         );
-        notification.success().listeners().show();
         return false;
       },
       error: function (error) {
-        var notification = new Notification(
-          listTitle + " - " + externalColumn + " failed to update"
+        kitchen.show(
+          new Toast(listTitle + " - " + externalColumn + " failed to update")
+            .setFailed()
+            .setListeners()
+            .show()
         );
-        notification.failed().listeners().show();
       },
     });
   }
@@ -413,6 +421,7 @@
 
       if (containsSubString(ele, cellText)) {
         radio.checked = true;
+        optionPanel.style.backgroundColor = "#BABBFD";
       }
 
       optionPanel.addEventListener("mouseenter", function () {
@@ -422,23 +431,7 @@
         optionPanel.style.boxShadow = "0px 0px 0px";
       });
 
-      radio.onclick = function () {
-        updateTarget(
-          ele,
-          rowIndex,
-          meatball,
-          thead,
-          table,
-          externalColumn,
-          internalColumn,
-          listTitle
-        );
-      };
-
-      //Add Click Event to update list
-      optionPanel.appendChild(radio);
-      optionPanel.appendChild(option);
-      optionPanel.addEventListener("click", function () {
+      function update(radio) {
         if (!radio.checked) {
           updateTarget(
             ele,
@@ -451,7 +444,20 @@
             listTitle
           );
         }
+      }
+
+      radio.addEventListener("click", function () {
+        update(this);
       });
+
+      //Add Click Event to update list
+      optionPanel.appendChild(radio);
+      optionPanel.appendChild(option);
+
+      optionPanel.addEventListener("click", function () {
+        update(radio);
+      });
+
       optionsPanel.options.appendChild(optionPanel);
     });
   };
@@ -543,23 +549,43 @@
   //Displays information to users
   //Set the message (setMessage) first, then show (show) message for five seconds (default value)
   //Also handles loading through use of startLoading and endLoading
-  //Debug allows developers to handle edit the notification object and with debugging in environments where development tools have been disabled
-  function Notification(message) {
-    this.notification = document.createElement("div");
-    this.notification.style.backgroundColor = "white";
-    this.notification.style.borderRadius = "0";
-    this.notification.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
-    this.notification.style.color = "black";
-    this.notification.style.display = "flex";
-    this.notification.style.flexDirection = "row";
-    this.notification.style["-ms-flex"] = "1 0 1";
-    this.notification.style.height = "50px";
-    this.notification.style.padding = "0.5rem";
-    this.notification.style.position = "fixed";
-    this.notification.style.right = "10px";
-    this.notification.style.top = "50px";
-    this.notification.style.width = "250px";
-    this.notification.style.zIndex = "1";
+  //Debug allows developers to handle edit the toast object and with debugging in environments where development tools have been disabled
+
+  function Pantry() {
+    this.container = document.createElement("div");
+    this.container.id = "breadbox";
+    this.container.style.width = "250px";
+    this.container.style.right = "10px";
+    this.container.style.display = "flex";
+    this.container.style.flexDirection = "column";
+    this.container.style.float = "right";
+    this.container.style.zIndex = "1";
+    this.container.style.right = "40px";
+    this.container.style.top = "75px";
+    this.container.style.position = "fixed";
+    document.body.appendChild(this.container);
+  }
+
+  Pantry.prototype.show = function (toast) {
+    this.container.appendChild(toast.toast);
+    this.timer = setTimeout(this.remove, 3000, this.toast);
+    return this;
+  };
+
+  function Toast(message) {
+    this.toast = document.createElement("div");
+    this.toast.id = Math.floor(Math.random() * 1000);
+    this.toast.style.backgroundColor = "white";
+    this.toast.style.borderRadius = "0";
+    this.toast.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
+    this.toast.style.color = "black";
+    this.toast.style.display = "flex";
+    this.toast.style.marginTop = "5px";
+    this.toast.style["-ms-flex"] = "1 0 1";
+    this.toast.style.height = "50px";
+    this.toast.style.padding = "0.5rem";
+    this.toast.style.width = "250px";
+    this.toast.style.zIndex = "1";
     this.message = message;
     this.text = document.createElement("div");
     this.text.style.display = "flex";
@@ -589,71 +615,46 @@
     return this;
   }
 
-  Notification.prototype.listeners = function () {
-    var self = this;
+  Toast.prototype.setListeners = function () {
+    var self = this.toast;
     this.close.onclick = function () {
-      self.remove(self.notification);
+      self.remove(self);
     };
     return this;
   };
 
-  Notification.prototype.success = function () {
+  Toast.prototype.setSuccess = function () {
     var icon = new StatusSVG({ color: "green", type: "success" });
     this.svg = icon.svg;
     this.title.innerText = "Successfully Saved";
     return this;
   };
 
-  Notification.prototype.failed = function () {
+  Toast.prototype.setFailed = function () {
     var icon = new StatusSVG({ color: "red", type: "failure" });
     this.svg = icon.svg;
     this.title.innerText = "Failed to Save";
     return this;
   };
 
-  Notification.prototype.show = function () {
-    this.notification.appendChild(this.svg);
-    this.notification.appendChild(this.text);
-    document.body.appendChild(this.notification);
-    this.timer = setTimeout(this.remove, 3000, this.notification);
+  Toast.prototype.show = function () {
+    this.toast.appendChild(this.svg);
+    this.toast.appendChild(this.text);
     return this;
   };
 
-  Notification.prototype.remove = function ($el) {
-    $el.parentNode.removeChild($el);
-    clearTimeout(this.timer);
-    return this;
-  };
-
-  Notification.prototype.startLoading = function () {
-    this.notification.innerText = "Loading";
-    document.body.appendChild(this.notification);
-  };
-
-  Notification.prototype.endLoading = function () {
-    if (this.notification) {
-      if (this.notification.parentNode) {
-        this.notification.parentNode.removeChild(this.notification);
+  Toast.prototype.remove = function () {
+    if (this.toast) {
+      if (this.toast.parentNode) {
+        this.toast.parentNode.removeChild(this.toast);
+        clearTimeout(this.timer);
       }
     }
-    this.notification.innerText = "Done";
-    var note = this.notification;
-    document.body.appendChild(note);
-    var timer = setTimeout(
-      function (note) {
-        if (note) {
-          if (note.parentNode) {
-            note.parentNode.removeChild(note);
-          }
-        }
-      },
-      1000,
-      note
-    );
+    return this;
   };
 
-  Notification.prototype.debug = function () {
-    document.body.appendChild(this.notification);
+  Pantry.prototype.debug = function () {
+    document.body.appendChild(this.toast);
   };
 
   //True, error.  False, no error.
