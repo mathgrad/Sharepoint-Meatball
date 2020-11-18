@@ -653,6 +653,22 @@
   Pantry.prototype.show = function (toast) {
     var note = toast.toast;
     this.container.appendChild(toast.toast);
+
+    function animateToast() {
+      var opacity = 0;
+      var displayInterval = setInterval(animate, 5);
+      function animate() {
+        if (opacity > 100) {
+          clearInterval(displayInterval);
+        } else {
+          opacity = opacity + 5;
+          toast.toast.style.opacity = opacity + "%";
+        }
+      }
+    }
+
+    animateToast();
+
     var timer = setTimeout(
       function (note) {
         if (note && note.parentNode) {
@@ -663,6 +679,10 @@
       note
     );
     return this;
+  };
+
+  Pantry.prototype.debug = function () {
+    document.body.appendChild(this.toast);
   };
 
   function Toast() {
@@ -754,10 +774,6 @@
       }
     }
     return this;
-  };
-
-  Pantry.prototype.debug = function () {
-    document.body.appendChild(this.toast);
   };
 
   //True, error.  False, no error.
