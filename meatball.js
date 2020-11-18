@@ -196,7 +196,7 @@
       ")?$select=" +
       internalColumn;
     meatball.remove();
-    var toast = new Toast().loading().show();
+    var toast = new Toast().startLoading().show();
     kitchen.show(toast);
     $.ajax({
       url: url,
@@ -213,21 +213,20 @@
       success: function (data) {
         meatball.setColor(ele);
         //push the next toast into the array + pass the methods with it
-        toast.remove();
-        toast = new Toast()
+        toast
+          .endLoading()
           .setMessage(
             listTitle + " - " + externalColumn + " updated successfully"
           )
           .setSuccess()
           .setListeners()
           .show();
-        kitchen.show(toast);
 
         return false;
       },
       error: function (error) {
-        toast.remove();
-        toast = new Toast()
+        toast
+          .endLoading()
           .setMessage(listTitle + " - " + externalColumn + " failed to update")
           .setFailed()
           .setListeners()
@@ -452,11 +451,7 @@
 
       panel.options.addEventListener("mousedown", function () {
         [].slice.call(panel.options.children).forEach(function (item) {
-          if (item.parentElement.querySelector(":hover") === item) {
-            item.style.backgroundColor = "#BABBFD";
-          } else {
-            item.style.backgroundColor = "";
-          }
+          item.style.backgroundColor = "inherit";
         });
       });
 
@@ -475,6 +470,8 @@
             internalColumn,
             listTitle
           );
+        } else {
+          option.style.backgroundColor = "#BABBFD";
         }
       });
 
@@ -655,22 +652,6 @@
   Pantry.prototype.show = function (toast) {
     var note = toast.toast;
     this.container.appendChild(toast.toast);
-
-    function animateToast() {
-      var opacity = 0;
-      var displayInterval = setInterval(animate, 5);
-      function animate() {
-        if (opacity > 100) {
-          clearInterval(displayInterval);
-        } else {
-          opacity = opacity + 5;
-          toast.toast.style.opacity = opacity + "%";
-        }
-      }
-    }
-
-    animateToast();
-
     var timer = setTimeout(
       function (note) {
         if (note && note.parentNode) {
@@ -736,15 +717,20 @@
 
   Toast.prototype.setListeners = function () {
     var self = this.toast;
-    this.close.onclick = function () {
+    this.close.addEventListener("click", function () {
       self.remove(self);
-    };
+    });
     return this;
   };
 
-  Toast.prototype.loading = function () {
+  Toast.prototype.startLoading = function () {
     var icon = new LoadingSVG();
     this.svg = icon.svg;
+    return this;
+  };
+
+  Toast.prototype.endLoading = function () {
+    this.svg.remove(this.svg);
     return this;
   };
 
@@ -756,6 +742,7 @@
   };
 
   Toast.prototype.setFailed = function () {
+    this.toast.removeChild(this.svg);
     var icon = new StatusSVG({ color: "red", type: "failure" });
     this.svg = icon.svg;
     this.title.innerText = "Failed to Save";
