@@ -720,7 +720,7 @@
   Toast.prototype.setListeners = function () {
     var self = this.toast;
     this.close.addEventListener("click", function () {
-      self.remove(self);
+      self.parentNode.removeChild(self);
     });
     return this;
   };
@@ -732,7 +732,7 @@
   };
 
   Toast.prototype.endLoading = function () {
-    this.svg.remove(this.svg);
+    this.svg.parentNode.removeChild(this.svg);
     return this;
   };
 
