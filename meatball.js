@@ -283,7 +283,6 @@
     carret.style.width = "0px";
     carret.style.left = "2px";
     carret.style.top = "29px";
-    // carret.style.boxShadow = "0px 0px 5px " + popoverBorder;
     carret.style.borderTop = triangleSize + "px solid transparent";
     carret.style.borderBottom = triangleSize + "px solid transparent";
     carret.style.borderRight = triangleSize + "px solid " + backgroundColor;
@@ -295,7 +294,6 @@
     popover.style.color = "#000000";
     popover.style.padding = ".5rem";
     popover.style.boxShadow = "0px 0px 5px " + backgroundColor;
-    // popover.style.border = "1px solid " + popoverBorder;
     popover.style.borderRadius = ".25rem";
     popover.style.zIndex = "1";
 
@@ -555,7 +553,6 @@
 
   function LoadingSVG(props) {
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.svg.style.padding = "10px 10px";
     this.svg.setAttribute("role", "img");
     this.svg.setAttribute("viewBox", "0 0 512 512");
     this.svg.setAttribute("width", "120px");
@@ -617,9 +614,9 @@
 
   function StatusSVG(props) {
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.svg.style.padding = "0px 10px";
     this.svg.setAttribute("role", "img");
     this.svg.setAttribute("viewBox", "0 0 512 512");
+    this.svg.setAttribute("height", "30px");
     this.svg.setAttribute("width", "30px");
 
     var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -650,6 +647,7 @@
     this.container.style.right = "40px";
     this.container.style.top = "75px";
     this.container.style.position = "fixed";
+    this.container.style.backgroundColor = "transparent";
     document.body.appendChild(this.container);
   }
 
@@ -662,7 +660,7 @@
           note.parentNode.removeChild(note);
         }
       },
-      3500,
+      3000,
       note
     );
     return this;
@@ -684,13 +682,14 @@
     this.toast.style["-ms-flex"] = "1 0 1";
     this.toast.style.height = "50px";
     this.toast.style.padding = "0.5rem";
-    this.toast.style.width = "250px";
+    this.toast.style.width = "275px";
     this.toast.style.zIndex = "1";
     this.text = document.createElement("div");
     this.text.style.display = "flex";
     this.text.style.flexDirection = "column";
     this.text.style.justifyContent = "center";
     this.text.style.position = "relative";
+    this.text.style.paddingLeft = "10px";
     return this;
   }
 
@@ -746,7 +745,6 @@
   };
 
   Toast.prototype.setFailed = function () {
-    this.toast.removeChild(this.svg);
     var icon = new StatusSVG({ color: "red", type: "failure" });
     this.svg = icon.svg;
     this.title.innerText = "Failed to Save";
