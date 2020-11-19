@@ -474,6 +474,8 @@
             internalColumn,
             listTitle
           );
+        } else {
+          option.style.backgroundColor = "#BABBFD";
         }
       });
 
