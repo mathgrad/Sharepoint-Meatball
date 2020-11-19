@@ -291,7 +291,8 @@
 
     this.popoverPanel = document.createElement("div");
     this.popoverPanel.style.backgroundColor = "transparent";
-    this.popoverPanel.style.padding = "20px";
+    this.popoverPanel.style.padding = "10px";
+    this.popoverPanel.style.paddingLeft = "15px";
     this.popoverBody = document.createElement("div");
     this.popoverBody.style.display = "inline-block";
     this.popoverBody.style.margin = "0px";
@@ -301,11 +302,10 @@
 
     var carret = document.createElement("div");
     carret.style.margin = "0px";
-    carret.style.display = "inline-block";
     carret.style.position = "absolute";
     carret.style.height = "0px";
     carret.style.width = "0px";
-    carret.style.left = "2px";
+    carret.style.left = "7px";
     carret.style.top = "29px";
     carret.style.borderTop = triangleSize + "px solid transparent";
     carret.style.borderBottom = triangleSize + "px solid transparent";
@@ -315,7 +315,6 @@
     var popover = document.createElement("div");
     popover.style.display = "inline-block";
     popover.style.backgroundColor = backgroundColor;
-    popover.style.marginLeft = "-8px";
     popover.style.color = "#000000";
     popover.style.padding = ".5rem";
     popover.style.boxShadow = "0px 0px 5px " + backgroundColor;
@@ -328,7 +327,7 @@
     header.style.borderRadius = ".25rem";
     header.style.textAlign = "center";
     header.style.marginBottom = ".25rem";
-    header.style.backgroundColor = "#BABBFD";
+    header.style.fontWeight = "500";
     header.innerText = value;
     //Create Options Panel Object
     var options = new OptionPanel();
@@ -349,16 +348,6 @@
     //Add Options Panel
     popover.appendChild(options.options);
 
-    //Add Click Event to display Options Panel
-    header.addEventListener("click", function () {
-      var style = options.style.display;
-      var change = false;
-      change = style === "block";
-      change
-        ? (options.style.display = "none")
-        : (options.style.display = "block");
-    });
-
     this.popoverBody.appendChild(carret);
     this.popoverBody.appendChild(popover);
     this.popoverPanel.appendChild(this.popoverBody);
@@ -372,7 +361,7 @@
         document.body.appendChild(popoverPanel);
         popoverPanel.style.position = "fixed";
         popoverPanel.style.left =
-          this.getBoundingClientRect().right - 12 + triangleSize + "px";
+          this.getBoundingClientRect().right - 17 + triangleSize + "px";
         popoverPanel.style.top =
           this.getBoundingClientRect().top - 40 + triangleSize + "px";
       }
