@@ -291,7 +291,7 @@
 
     this.popoverPanel = document.createElement("div");
     this.popoverPanel.style.backgroundColor = "transparent";
-    this.popoverPanel.style.padding = "10px";
+    this.popoverPanel.style.padding = "20px";
     this.popoverBody = document.createElement("div");
     this.popoverBody.style.display = "inline-block";
     this.popoverBody.style.margin = "0px";
@@ -315,6 +315,7 @@
     var popover = document.createElement("div");
     popover.style.display = "inline-block";
     popover.style.backgroundColor = backgroundColor;
+    popover.style.marginLeft = "-8px";
     popover.style.color = "#000000";
     popover.style.padding = ".5rem";
     popover.style.boxShadow = "0px 0px 5px " + backgroundColor;
