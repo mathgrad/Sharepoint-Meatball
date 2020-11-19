@@ -1,24 +1,24 @@
 (function () {
   //Size sets the Meatball size in pixels
   var size = 15;
+  //Creates the Color object which manages meatball colors
   var colors = new Colors();
+  //Creates the Pantry object which manages toast notifications
   var kitchen = new Pantry();
-
   //Used by developers in Production to find bugs
   var debug = false;
 
+  //On initial load
   window.addEventListener("load", function () {
     start();
   });
 
-  //On change, adds functionality
+  //On change
   window.addEventListener("hashchange", function () {
     start();
   });
 
-  //Initial point of the application
   function start() {
-    //Checks for JQuery
     if (!window.jQuery) {
       alert("Please contact help desk.  Script not properly loaded.");
       return;
@@ -147,9 +147,9 @@
       var $cells = [].slice.call($row.getElementsByTagName("td"));
 
       if ($cells.length > 0) {
-        //this checks if the cell contains the text which is in user choices, select that cell to add the modal
+        //this checks if the cell contains the text which is in user choices, selects that cell to add the meatball and popover
         $cells.map(function ($cell, ci) {
-          //Comparing the thead with the external
+          //Comparing the thead (internal name) with the external name
           add = false;
           text = "";
 
@@ -220,7 +220,8 @@
       rowIndex +
       ")?$select=" +
       internalColumn;
-    meatball.remove();
+    //Closes the popover
+    meatball.removePopover();
     var toast = new Toast().startLoading().show();
     kitchen.show(toast);
     $.ajax({
@@ -237,7 +238,6 @@
       },
       success: function (data) {
         meatball.setColor(ele);
-        //push the next toast into the array + pass the methods with it
         toast
           .endLoading()
           .setMessage(
@@ -331,7 +331,7 @@
     header.style.marginBottom = ".25rem";
     header.style.backgroundColor = "#BABBFD";
     header.innerText = value;
-    //Create Options Panel Element
+    //Create Options Panel Object
     var options = new OptionPanel();
     options.create(
       defaults,
@@ -412,7 +412,7 @@
     this.element.style.backgroundColor = colors.get(value);
   };
 
-  Meatball.prototype.remove = function () {
+  Meatball.prototype.removePopover = function () {
     if (this.popoverPanel) {
       if (this.popoverPanel.parentNode) {
         this.popoverPanel.parentNode.removeChild(this.popoverPanel);
@@ -420,13 +420,13 @@
     }
   };
 
+  //Shows list of predetermine choices for the user
   function OptionPanel() {
     this.options = document.createElement("div");
     this.options.style.padding = ".25rem";
     this.options.style.borderRadius = ".25rem";
   }
 
-  //Starting function call, and creates all values
   OptionPanel.prototype.create = function (
     defaults,
     rowIndex,
@@ -439,7 +439,7 @@
     listTitle
   ) {
     var panel = this;
-    //Create and Add Option Elements
+
     defaults.forEach(function (ele, index) {
       var option = document.createElement("div");
       option.style.padding = ".25rem";
@@ -509,7 +509,7 @@
     });
   };
 
-  //Easier way of handling the different colors and defaults
+  //A hashmap between values and colors
   function Colors() {
     this.blue = "#0075ff";
     this.green = "#27e833";
@@ -546,7 +546,8 @@
   };
 
   //Either replaces the default value or creates a new values
-  //If a specific color value is called, it will use one of the default colors
+  //If a known color value is called, it will use one of the default colors
+  //For example, if user supplies blue, then #0075ff is added
   Colors.prototype.set = function (value, color) {
     if (this.replaceValue(value, color)) {
       return;
@@ -564,7 +565,7 @@
     }
   };
 
-  //Private function for the object
+  //Private function for the Color object
   Colors.prototype.replaceValue = function (value, color) {
     var found = false;
     this.defaults.map(function (item, index) {
@@ -576,6 +577,139 @@
     return found;
   };
 
+  //Controller for the Toast Object
+  function Pantry() {
+    this.container = document.createElement("div");
+    this.container.id = "breadbox";
+    this.container.style.width = "250px";
+    this.container.style.right = "10px";
+    this.container.style.display = "flex";
+    this.container.style.flexDirection = "column";
+    this.container.style.float = "right";
+    this.container.style.zIndex = "1";
+    this.container.style.right = "40px";
+    this.container.style.top = "75px";
+    this.container.style.position = "fixed";
+    this.container.style.backgroundColor = "transparent";
+    document.body.appendChild(this.container);
+  }
+
+  Pantry.prototype.show = function (notification) {
+    var note = notification;
+    this.container.appendChild(notification.toast);
+    var timer = setTimeout(
+      function (note) {
+        note.removeToast();
+      },
+      3000,
+      note
+    );
+    return this;
+  };
+
+  Pantry.prototype.debug = function (toast) {
+    this.container.appendChild(toast.toast);
+  };
+
+  //Notification object with ability to display messages, and images
+  function Toast() {
+    this.toast = document.createElement("div");
+    this.toast.id = Math.floor(Math.random() * 1000);
+    this.toast.style.backgroundColor = "white";
+    this.toast.style.borderRadius = "0";
+    this.toast.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
+    this.toast.style.color = "black";
+    this.toast.style.display = "flex";
+    this.toast.style.marginTop = "5px";
+    this.toast.style["-ms-flex"] = "1 0 1";
+    this.toast.style.height = "50px";
+    this.toast.style.padding = "0.5rem";
+    this.toast.style.width = "275px";
+    this.toast.style.zIndex = "1";
+    this.text = document.createElement("div");
+    this.text.style.display = "flex";
+    this.text.style.flexDirection = "column";
+    this.text.style.justifyContent = "center";
+    this.text.style.position = "relative";
+    this.text.style.paddingLeft = "10px";
+    return this;
+  }
+
+  Toast.prototype.setMessage = function (message) {
+    this.message = message;
+    this.title = document.createElement("div");
+    this.title.style.fontSize = "12pt";
+    this.subtitle = document.createElement("div");
+    this.subtitle.innerText = this.message;
+    this.subtitle.style.fontSize = "9pt";
+    this.close = document.createElement("div");
+    this.close.innerText = "x";
+    this.close.style.cursor = "pointer";
+    this.close.style.display = "flex";
+    this.close.style.flexDirection = "column";
+    this.close.style.fontSize = "14px";
+    this.close.style.height = "14px";
+    this.close.style.justifyContent = "center";
+    this.close.style.position = "absolute";
+    this.close.style.right = "0px";
+    this.close.style.top = "0px";
+    this.close.style.width = "14px";
+    this.text.appendChild(this.title);
+    this.text.appendChild(this.subtitle);
+    this.text.appendChild(this.close);
+    return this;
+  };
+
+  Toast.prototype.setListeners = function () {
+    var self = this.toast;
+    this.close.addEventListener("click", function () {
+      self.removeToast();
+    });
+    return this;
+  };
+
+  Toast.prototype.startLoading = function () {
+    var icon = new LoadingSVG();
+    this.svg = icon.svg;
+    return this;
+  };
+
+  Toast.prototype.endLoading = function () {
+    this.svg.parentNode.removeChild(this.svg);
+    return this;
+  };
+
+  Toast.prototype.setSuccess = function () {
+    var icon = new StatusSVG({ color: "green", type: "success" });
+    this.svg = icon.svg;
+    this.title.innerText = "Successfully Saved";
+    return this;
+  };
+
+  Toast.prototype.setFailed = function () {
+    var icon = new StatusSVG({ color: "red", type: "failure" });
+    this.svg = icon.svg;
+    this.title.innerText = "Failed to Save";
+    return this;
+  };
+
+  Toast.prototype.show = function () {
+    this.toast.appendChild(this.svg);
+    this.toast.appendChild(this.text);
+    return this;
+  };
+
+  Toast.prototype.removeToast = function () {
+    if (this.toast) {
+      if (this.toast.parentNode) {
+        this.toast.parentNode.removeChild(this.toast);
+        clearTimeout(this.timer);
+      }
+    }
+    return this;
+  };
+
+  //Creates Loading SVG for toast
   function LoadingSVG(props) {
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.svg.setAttribute("role", "img");
@@ -637,6 +771,7 @@
     this.svg.appendChild(g);
   }
 
+  //Creates a status svg depending on values: success => a green check circle; failure => a red x circle;
   function StatusSVG(props) {
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.svg.setAttribute("role", "img");
@@ -654,143 +789,6 @@
     path.setAttribute("d", iconPath);
     this.svg.appendChild(path);
   }
-
-  //Displays information to users
-  //Set the message (setMessage) first, then show (show) message for five seconds (default value)
-  //Also handles loading through use of startLoading and endLoading
-  //Debug allows developers to handle edit the toast object and with debugging in environments where development tools have been disabled
-
-  function Pantry() {
-    this.container = document.createElement("div");
-    this.container.id = "breadbox";
-    this.container.style.width = "250px";
-    this.container.style.right = "10px";
-    this.container.style.display = "flex";
-    this.container.style.flexDirection = "column";
-    this.container.style.float = "right";
-    this.container.style.zIndex = "1";
-    this.container.style.right = "40px";
-    this.container.style.top = "75px";
-    this.container.style.position = "fixed";
-    this.container.style.backgroundColor = "transparent";
-    document.body.appendChild(this.container);
-  }
-
-  Pantry.prototype.show = function (toast) {
-    var note = toast.toast;
-    this.container.appendChild(toast.toast);
-    var timer = setTimeout(
-      function (note) {
-        if (note && note.parentNode) {
-          note.parentNode.removeChild(note);
-        }
-      },
-      3000,
-      note
-    );
-    return this;
-  };
-
-  Pantry.prototype.debug = function (toast) {
-    this.container.appendChild(toast.toast);
-  };
-
-  function Toast() {
-    this.toast = document.createElement("div");
-    this.toast.id = Math.floor(Math.random() * 1000);
-    this.toast.style.backgroundColor = "white";
-    this.toast.style.borderRadius = "0";
-    this.toast.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
-    this.toast.style.color = "black";
-    this.toast.style.display = "flex";
-    this.toast.style.marginTop = "5px";
-    this.toast.style["-ms-flex"] = "1 0 1";
-    this.toast.style.height = "50px";
-    this.toast.style.padding = "0.5rem";
-    this.toast.style.width = "275px";
-    this.toast.style.zIndex = "1";
-    this.text = document.createElement("div");
-    this.text.style.display = "flex";
-    this.text.style.flexDirection = "column";
-    this.text.style.justifyContent = "center";
-    this.text.style.position = "relative";
-    this.text.style.paddingLeft = "10px";
-    return this;
-  }
-
-  Toast.prototype.setMessage = function (message) {
-    this.message = message;
-    this.title = document.createElement("div");
-    this.title.style.fontSize = "12pt";
-    this.subtitle = document.createElement("div");
-    this.subtitle.innerText = this.message;
-    this.subtitle.style.fontSize = "9pt";
-    this.close = document.createElement("div");
-    this.close.innerText = "x";
-    this.close.style.cursor = "pointer";
-    this.close.style.display = "flex";
-    this.close.style.flexDirection = "column";
-    this.close.style.fontSize = "14px";
-    this.close.style.height = "14px";
-    this.close.style.justifyContent = "center";
-    this.close.style.position = "absolute";
-    this.close.style.right = "0px";
-    this.close.style.top = "0px";
-    this.close.style.width = "14px";
-    this.text.appendChild(this.title);
-    this.text.appendChild(this.subtitle);
-    this.text.appendChild(this.close);
-    return this;
-  };
-
-  Toast.prototype.setListeners = function () {
-    var self = this.toast;
-    this.close.addEventListener("click", function () {
-      self.parentNode.removeChild(self);
-    });
-    return this;
-  };
-
-  Toast.prototype.startLoading = function () {
-    var icon = new LoadingSVG();
-    this.svg = icon.svg;
-    return this;
-  };
-
-  Toast.prototype.endLoading = function () {
-    this.svg.parentNode.removeChild(this.svg);
-    return this;
-  };
-
-  Toast.prototype.setSuccess = function () {
-    var icon = new StatusSVG({ color: "green", type: "success" });
-    this.svg = icon.svg;
-    this.title.innerText = "Successfully Saved";
-    return this;
-  };
-
-  Toast.prototype.setFailed = function () {
-    var icon = new StatusSVG({ color: "red", type: "failure" });
-    this.svg = icon.svg;
-    this.title.innerText = "Failed to Save";
-    return this;
-  };
-
-  Toast.prototype.show = function () {
-    this.toast.appendChild(this.svg);
-    this.toast.appendChild(this.text);
-    return this;
-  };
-
-  Toast.prototype.remove = function () {
-    if (this.toast) {
-      if (this.toast.parentNode) {
-        this.toast.parentNode.removeChild(this.toast);
-        clearTimeout(this.timer);
-      }
-    }
-    return this;
-  };
 
   //True, error.  False, no error.
   function errorChecking(obj) {
