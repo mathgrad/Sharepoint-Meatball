@@ -568,16 +568,13 @@
   //Controller for the Toast Object
   function Pantry() {
     this.container = document.createElement("div");
-    this.container.id = "breadbox";
-    this.container.style.width = "250px";
-    this.container.style.right = "25px";
+    this.container.style.position = "fixed";
+    this.container.style.width = "auto";
+    this.container.style.right = "15px";
+    this.container.style.top = "75px";
     this.container.style.display = "flex";
     this.container.style.flexDirection = "column";
-    this.container.style.float = "right";
     this.container.style.zIndex = "1";
-    this.container.style.right = "40px";
-    this.container.style.top = "75px";
-    this.container.style.position = "fixed";
     this.container.style.backgroundColor = "transparent";
     document.body.appendChild(this.container);
   }
@@ -682,8 +679,12 @@
   };
 
   Toast.prototype.show = function () {
-    this.toast.appendChild(this.svg);
-    this.toast.appendChild(this.text);
+    if (this.svg) {
+      this.toast.appendChild(this.svg);
+    }
+    if (this.text) {
+      this.toast.appendChild(this.text);
+    }
     return this;
   };
 
