@@ -4,6 +4,9 @@
   var colors = new Colors();
   var kitchen = new Pantry();
 
+  //Used by developers in Production to find bugs
+  var debug = false;
+
   window.addEventListener("load", function () {
     start();
   });
@@ -21,6 +24,16 @@
       return;
     }
 
+    window.addEventListener("error", function (msg, url, line) {
+      if (debug) {
+        var errorToast = new Toast()
+          .setMessage("No Tables Found")
+          .setListeners()
+          .show();
+        kitchen.debug(errorToast);
+      }
+    });
+
     //Checks for overrides
     if (window.meatball_override) {
       meatball_override.forEach(function (item) {
@@ -32,7 +45,13 @@
     var tables = [].slice.call(document.getElementsByTagName("table"));
 
     if (errorChecking(tables)) {
-      console.log("No Tables Found");
+      if (debug) {
+        var errorToast = new Toast()
+          .setMessage("No Tables Found")
+          .setListeners()
+          .show();
+        kitchen.debug(errorToast);
+      }
       return;
     }
     //Include only the actual lists
@@ -92,7 +111,13 @@
           return false;
         },
         error: function (error) {
-          console.log("Error: Get list choices request Failed.");
+          if (debug) {
+            var errorToast = new Toast()
+              .setMessage("Error: Get list choices request Failed.")
+              .setListeners()
+              .show();
+            kitchen.debug(errorToast);
+          }
         },
       });
     });
@@ -666,8 +691,8 @@
     return this;
   };
 
-  Pantry.prototype.debug = function () {
-    document.body.appendChild(this.toast);
+  Pantry.prototype.debug = function (toast) {
+    this.container.appendChild(toast.toast);
   };
 
   function Toast() {
