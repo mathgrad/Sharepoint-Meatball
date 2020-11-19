@@ -1,6 +1,6 @@
 (function () {
   //Size sets the Meatball size in pixels
-  var size = 15;
+  var size = 20;
   //Creates the Color object which manages meatball colors
   var colors = new Colors();
   //Creates the Pantry object which manages toast notifications
@@ -267,6 +267,8 @@
     this.element.style.width = this.size;
     this.element.style.height = this.size;
     this.element.style.borderRadius = this.size;
+    this.element.style.margin = "auto";
+    this.element.style.padding = "0px";
   }
 
   Meatball.prototype.init = function (
@@ -324,7 +326,6 @@
     header.style.padding = ".25rem";
     header.style.borderRadius = ".25rem";
     header.style.textAlign = "center";
-    header.style.cursor = "pointer";
     header.style.marginBottom = ".25rem";
     header.style.backgroundColor = "#BABBFD";
     header.innerText = value;
@@ -366,25 +367,14 @@
     //overriding other scripts
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
-      document.body.appendChild(popoverPanel);
-      function animatePopover() {
-        var opacity = 0;
-        var displayInterval = setInterval(animate, 3);
-        function animate() {
-          if (opacity > 100) {
-            clearInterval(displayInterval);
-          } else {
-            opacity = opacity + 5;
-            popoverPanel.style.opacity = opacity + "%";
-          }
-        }
+      if (!popoverPanel.parentNode) {
+        document.body.appendChild(popoverPanel);
+        popoverPanel.style.position = "fixed";
+        popoverPanel.style.left =
+          this.getBoundingClientRect().right - 12 + triangleSize + "px";
+        popoverPanel.style.top =
+          this.getBoundingClientRect().top - 40 + triangleSize + "px";
       }
-      popoverPanel.style.position = "fixed";
-      popoverPanel.style.left =
-        this.getBoundingClientRect().right - 12 + triangleSize + "px";
-      popoverPanel.style.top =
-        this.getBoundingClientRect().top - 40 + triangleSize + "px";
-      animatePopover();
     });
 
     this.element.addEventListener("mouseleave", function (e) {
@@ -518,8 +508,9 @@
       { value: "Degraded", color: this.yellow },
       { value: "NA", color: "inherit" },
       { value: "100-90", color: this.green },
-      { value: "89-80", color: this.yellow },
+      { value: "89-79", color: this.yellow },
       { value: "79-10", color: this.red },
+      { value: "<79", color: this.red },
       { value: "<10", color: this.blue },
     ];
   }
@@ -579,7 +570,7 @@
     this.container = document.createElement("div");
     this.container.id = "breadbox";
     this.container.style.width = "250px";
-    this.container.style.right = "10px";
+    this.container.style.right = "25px";
     this.container.style.display = "flex";
     this.container.style.flexDirection = "column";
     this.container.style.float = "right";
