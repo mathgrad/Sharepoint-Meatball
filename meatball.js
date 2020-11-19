@@ -26,10 +26,7 @@
 
     window.addEventListener("error", function (msg, url, line) {
       if (debug) {
-        var errorToast = new Toast()
-          .setMessage("No Tables Found")
-          .setListeners()
-          .show();
+        var errorToast = new Toast().setMessage(msg).setListeners().show();
         kitchen.debug(errorToast);
       }
     });
