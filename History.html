@@ -10,11 +10,18 @@
       }
     </style>
     <script type="text/javascript">
+      var regex = /[^\d\w\s\.\?\!\@]/g;
       (function () {
         window.addEventListener("load", function () {
           test();
         });
-        var testList = ["hi mark", "hi mark", "hi mark", "hi mark", "hi mark"];
+        var testList = [
+          "hi mark!",
+          "hi mark?",
+          "hi mark.",
+          "hi mark",
+          "hi mark",
+        ];
         var history = new History();
         var add = true;
 
@@ -60,7 +67,7 @@
           this.option.style.padding = ".25rem";
 
           this.display = document.createElement("div");
-          this.display.style.display = "inline-block";
+          this.display.style.display = "block";
           this.display.style.width = "300px";
           this.display.style.padding = ".25rem";
           this.display.style.marginRight = "auto";
@@ -69,6 +76,10 @@
 
           this.text = document.createElement("div");
           this.text.contentEditable = false;
+          this.text.style.width = "275px";
+          this.text.style.padding = ".25rem";
+          this.text.style.margin = "0px";
+          this.text.style.marginRight = "15px";
           this.display.appendChild(this.text);
 
           this.submit = document.createElement("div");
@@ -77,13 +88,19 @@
           this.submit.style.width = "75px";
           this.submit.style.border = "1px solid black";
           this.submit.style.cursor = "pointer";
+          this.submit.style.margin = "auto";
+          this.submit.style.marginRight = "15px";
+          this.submit.style.marginTop = "5px";
+          this.submit.style.padding = ".25rem";
           this.submit.addEventListener("click", function () {
             change.setEditable(!change.getEditable());
           });
 
           this.buttonGroup = document.createElement("div");
-          this.buttonGroup.style.width = "300px";
+          this.buttonGroup.style.width = "285px";
           this.buttonGroup.style.textAlign = "right";
+          this.buttonGroup.style.margin = "0px";
+          this.buttonGroup.style.padding = "0px";
 
           this.edit = new createSVG({
             color: "green",
@@ -118,16 +135,18 @@
         }
 
         Change.prototype.setDisplay = function (text) {
-          this.display.innerText = text;
+          this.text.innerText = text.replace(regex, "", text);
           return this;
         };
 
         Change.prototype.setEditable = function (value) {
           if (value) {
-            this.display.style.border = "1px solid black";
+            this.text.style.border = "1px solid black";
             this.display.appendChild(this.submit);
           } else {
-            this.display.style.border = "0px";
+            var text = this.text.innerText;
+            this.text.innerText = text.replace(regex, "", text);
+            this.text.style.border = "0px";
             this.display.removeChild(this.submit);
           }
           this.text.contentEditable = value;
@@ -135,7 +154,7 @@
         };
 
         Change.prototype.getEditable = function () {
-          return this.display.contentEditable === "true";
+          return this.text.contentEditable === "true";
         };
 
         function History() {
