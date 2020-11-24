@@ -8,9 +8,159 @@
   //Used by developers in Production to find bugs
   var debug = false;
 
+  function FindHistory(rowId, tableGUID) {
+    //the row information needs to get passed here
+    var parentSite = ctx.PortalUrl; //"https://eis.usmc.mil/sites/imef/"
+    var listName = "History " + ctx.SiteTitle; //"Sandbox"
+    var siteUrl = ctx.HttpRoot; //"https://eis.usmc.mil/sites/imef/sb"
+    var message = "hello sharepoint"; //this represents the message that the user wants to POST // this should be getting passed to the GET -- may need to assign to the variable onced it's passed into
+
+    //for testing use this sandbox when ready for prod SWITCH the siteUrl with parentSite
+    var url = siteUrl + "/_api/web/lists/getbytitle('" + listName + "')";
+
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("FindHistory:", data);
+        //call for ShowHistory
+        //needs to expand the modified by object to ensure that the person's name is viwable
+        MakeHistory(data.d.Id, message);
+        return false;
+      },
+      error: function (error) {
+        console.log("hit1:", error);
+        MakeList(listName, message, parentSite);
+      },
+    });
+  }
+
+  function MakeList(listName, message, parentSite) {
+    var data = {
+      __metadata: { type: "SP.List" },
+      AllowContentTypes: true,
+      BaseTemplate: 100,
+      ContentTypesEnabled: true,
+      Title: listName,
+    };
+    // var url = parentSite + "_api/web/lists"; //uncomment for prod
+    var url = "https://eis.usmc.mil/sites/imef/sb/_api/web/lists"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("History list created - successfully");
+        //here could use JSOM to post the data
+        //for now use a rest call below
+        CreateColumn(data.d.Id, message);
+        return false;
+      },
+      error: function (error) {
+        console.log("History list creation failed:", error);
+      },
+    });
+  }
+
+  function CreateColumn(listId, message) {
+    var data = {
+      __metadata: { type: "SP.Field" },
+      Title: "Message",
+      FieldTypeKind: 2,
+      Required: "false",
+      EnforceUniqueValues: "false",
+      StaticName: "Message",
+    };
+    // var url = parentSite + "_api/web/lists('"+  listId + "')"; //uncomment for prod
+    var url =
+      "https://eis.usmc.mil/sites/imef/sb/_api/web/lists('" +
+      listId +
+      "')/Fields"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("History col created - successfully");
+        //here could use JSOM to post the data
+        //for now use a rest call below
+        MakeHistory(listId, message);
+        return false;
+      },
+      error: function (error) {
+        console.log("History col creation failed:", error);
+      },
+    });
+  }
+
+  function MakeHistory(listId, message) {
+    //we would need the info that the table has
+    //has to be able to get the person data in order to post the entry to the popover see People Manager
+    var data = {
+      __metadata: { type: "SP.ListItem" },
+      Message: message,
+    };
+    // var url = parentSite + "_api/web/lists('"+  guid + "')"; //uncomment for prod
+    var url =
+      "https://eis.usmc.mil/sites/imef/sb/_api/web/lists('" +
+      listId +
+      "')/items "; //this is dev env
+
+    var clientContext = new SP.ClientContext("https://eis.usmc.mil/sites/imef/")
+      .get_web()
+      .get_lists()
+      .getById(listId)
+      .get_fields();
+    console.log(clientContext);
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("History entry created - successfully");
+        return false;
+      },
+      error: function (error) {
+        console.log("History list creation failed:", error);
+      },
+    });
+  }
+  // function RetrieveHistory()
+
+  //Delete entry
+  //update entry
+
   //On initial load
   window.addEventListener("load", function () {
     start();
+    FindHistory();
   });
 
   //On change
@@ -137,7 +287,6 @@
     var displayValue,
       text = "";
     var add = false;
-
     $rows.map(function ($row, ri) {
       displayValue = "";
 
@@ -292,7 +441,6 @@
     this.popoverPanel = document.createElement("div");
     this.popoverPanel.style.backgroundColor = "transparent";
     this.popoverPanel.style.padding = "10px";
-    this.popoverPanel.style.paddingLeft = "15px";
     this.popoverBody = document.createElement("div");
     this.popoverBody.style.display = "inline-block";
     this.popoverBody.style.margin = "0px";
@@ -302,10 +450,11 @@
 
     var carret = document.createElement("div");
     carret.style.margin = "0px";
+    carret.style.display = "inline-block";
     carret.style.position = "absolute";
     carret.style.height = "0px";
     carret.style.width = "0px";
-    carret.style.left = "7px";
+    carret.style.left = "2px";
     carret.style.top = "29px";
     carret.style.borderTop = triangleSize + "px solid transparent";
     carret.style.borderBottom = triangleSize + "px solid transparent";
@@ -327,7 +476,7 @@
     header.style.borderRadius = ".25rem";
     header.style.textAlign = "center";
     header.style.marginBottom = ".25rem";
-    header.style.fontWeight = "500";
+    header.style.backgroundColor = "#BABBFD";
     header.innerText = value;
     //Create Options Panel Object
     var options = new OptionPanel();
@@ -348,6 +497,16 @@
     //Add Options Panel
     popover.appendChild(options.options);
 
+    //Add Click Event to display Options Panel
+    header.addEventListener("click", function () {
+      var style = options.style.display;
+      var change = false;
+      change = style === "block";
+      change
+        ? (options.style.display = "none")
+        : (options.style.display = "block");
+    });
+
     this.popoverBody.appendChild(carret);
     this.popoverBody.appendChild(popover);
     this.popoverPanel.appendChild(this.popoverBody);
@@ -361,7 +520,7 @@
         document.body.appendChild(popoverPanel);
         popoverPanel.style.position = "fixed";
         popoverPanel.style.left =
-          this.getBoundingClientRect().right - 17 + triangleSize + "px";
+          this.getBoundingClientRect().right - 12 + triangleSize + "px";
         popoverPanel.style.top =
           this.getBoundingClientRect().top - 40 + triangleSize + "px";
       }
@@ -558,13 +717,13 @@
   //Controller for the Toast Object
   function Pantry() {
     this.container = document.createElement("div");
-    this.container.style.position = "fixed";
-    this.container.style.width = "auto";
-    this.container.style.right = "15px";
-    this.container.style.top = "75px";
+    this.container.style.width = "250px";
+    this.container.style.right = "40px";
     this.container.style.display = "flex";
     this.container.style.flexDirection = "column";
     this.container.style.zIndex = "1";
+    this.container.style.top = "75px";
+    this.container.style.position = "fixed";
     this.container.style.backgroundColor = "transparent";
     document.body.appendChild(this.container);
   }
@@ -669,12 +828,8 @@
   };
 
   Toast.prototype.show = function () {
-    if (this.svg) {
-      this.toast.appendChild(this.svg);
-    }
-    if (this.text) {
-      this.toast.appendChild(this.text);
-    }
+    this.toast.appendChild(this.svg);
+    this.toast.appendChild(this.text);
     return this;
   };
 
