@@ -5,11 +5,14 @@
       body {
         background-color: black;
         color: white;
-        font-size: 16pt;
+        font-size: 12pt;
         text-shadow: 1px 1px 1px black;
       }
     </style>
     <script type="text/javascript">
+      //
+      var addShadow = "0px 0px 10px #BABBFD";
+      var removeShadow = "0px 0px 0px";
       var regex = /[^\d\w\s\.\?\!\@]/g;
       (function () {
         window.addEventListener("load", function () {
@@ -22,6 +25,7 @@
           "hi mark",
           "hi mark",
         ];
+        var authorList = ["Joshua", "Joshua", "Joshua", "Joshua", "Joshua"];
         var history = new History();
         var add = true;
 
@@ -38,8 +42,14 @@
           entryPoint.addEventListener("click", function () {
             if (add) {
               add = !add;
-              testList.forEach(function (item) {
-                history.push(new Change().setDisplay(item));
+              testList.forEach(function (item, i) {
+                history.push(
+                  new Change().setDisplay(
+                    authorList[i],
+                    new Date().getTime(),
+                    item
+                  )
+                );
               });
             }
             document.body.appendChild(history.historyPanel);
@@ -78,13 +88,37 @@
           this.display.style.marginLeft = "auto";
           this.display.style.padding = ".25rem";
 
+          this.author = document.createElement("div");
+          this.author.contentEditable = false;
+          this.author.style.width = "50px";
+          this.author.style.padding = ".25rem";
+          this.author.style.margin = "0px";
+          this.author.style.display = "inline-block";
+          this.display.appendChild(this.author);
+
           this.text = document.createElement("div");
           this.text.contentEditable = false;
-          this.text.style.width = "275px";
+          this.text.style.width = "160px";
           this.text.style.padding = ".25rem";
           this.text.style.margin = "0px";
-          this.text.style.marginRight = "15px";
+          this.text.style.display = "inline-block";
           this.display.appendChild(this.text);
+
+          this.time = document.createElement("div");
+          this.time.contentEditable = false;
+          this.time.style.width = "50px";
+          this.time.style.padding = ".25rem";
+          this.time.style.margin = "0px";
+          this.time.style.display = "inline-block";
+          this.time.style.wordWrap = "break-word";
+          this.display.appendChild(this.time);
+
+          this.display.addEventListener("mouseenter", function () {
+            this.style.boxShadow = addShadow;
+          });
+          this.display.addEventListener("mouseleave", function () {
+            this.style.boxShadow = removeShadow;
+          });
 
           this.isNew = false;
 
@@ -148,11 +182,14 @@
 
           this.option.appendChild(this.buttonGroup);
           this.option.appendChild(this.display);
+
           return this;
         }
 
-        Change.prototype.setDisplay = function (text) {
+        Change.prototype.setDisplay = function (author, date, text) {
+          this.author.innerText = author + ":";
           this.text.innerText = text.replace(regex, "", text);
+          this.time.innerText = ":" + date;
           return this;
         };
 
@@ -194,7 +231,7 @@
           this.historyPanel.style.borderRadius = ".25rem";
           this.historyPanel.style.width = "350px";
           this.historyPanel.style.height = "425px";
-          this.historyPanel.style.backgroundColor = "#dddddd";
+          this.historyPanel.style.backgroundColor = "#eeeeee";
           this.historyPanel.style.textAlign = "center";
 
           this.title = document.createElement("div");
@@ -224,6 +261,7 @@
 
           this.svg.addEventListener("click", function () {
             if (people.container.addNew) {
+              people.container.scroll(0, 0);
               people.container.addNew = false;
               people.newItem();
             }
@@ -258,8 +296,14 @@
           this.historyPanel.appendChild(this.addMore);
 
           this.addMore.addEventListener("click", function () {
-            testList.forEach(function (item) {
-              history.push(new Change().setDisplay(item));
+            testList.forEach(function (item, i) {
+              history.push(
+                new Change().setDisplay(
+                  authorList[i],
+                  new Date().getTime(),
+                  item
+                )
+              );
             });
           });
           this.historyPanel.addEventListener("mouseleave", function () {
@@ -274,7 +318,9 @@
         }
 
         History.prototype.newItem = function () {
-          var item = new Change().setDisplay("").setEditable(true);
+          var item = new Change()
+            .setDisplay("Joshua", new Date().getTime(), "")
+            .setEditable(true);
           item.isNew = true;
           this.container.insertBefore(item.option, this.container.firstChild);
           return this;
