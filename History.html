@@ -134,11 +134,10 @@
           this.delete.addEventListener("click", function () {
             if (change.option) {
               if (change.option.parentNode) {
-                change.option.parentNode.removeChild(change.option);
-
                 if (!change.option.parentNode.addNew) {
                   change.option.parentNode.addNew = true;
                 }
+                change.option.parentNode.removeChild(change.option);
               }
             }
           });
