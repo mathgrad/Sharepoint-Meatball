@@ -8,12 +8,68 @@
   //Used by developers in Production to find bugs
   var debug = false;
 
-  function FindHistory(rowId, tableGUID) {
+  //Show the history and on fail display "No Messages" in the history view
+  //needs message, colName, rowId, tableGUID
+  function RetrieveHistory() {
     //the row information needs to get passed here
     var parentSite = ctx.PortalUrl; //"https://eis.usmc.mil/sites/imef/"
     var listName = "History " + ctx.SiteTitle; //"Sandbox"
     var siteUrl = ctx.HttpRoot; //"https://eis.usmc.mil/sites/imef/sb"
     var message = "hello sharepoint"; //this represents the message that the user wants to POST // this should be getting passed to the GET -- may need to assign to the variable onced it's passed into
+
+    //////////Test Vars//////////
+    //this needs to be passed as the func params
+    var colName = "TestName";
+    var rowId = 45;
+    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca";
+    /////////////////////////////
+
+    //for testing use this sandbox when ready for prod SWITCH the siteUrl with parentSite
+    var url =
+      siteUrl +
+      "/_api/web/lists/getbytitle('" +
+      listName +
+      "')/items?$filter=Title eq '" +
+      tableGUID +
+      " - " +
+      rowId +
+      " - " +
+      colName +
+      "'&$orderby=Created desc";
+
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("Messages:", data);
+        return false;
+      },
+      error: function (error) {
+        console.log("No History:", error);
+      },
+    });
+  }
+
+  //needs message, colName, rowId, tableGUID
+  function PostHistory() {
+    //the row information needs to get passed here
+    var parentSite = ctx.PortalUrl; //"https://eis.usmc.mil/sites/imef/"
+    var listName = "History " + ctx.SiteTitle; //"Sandbox"
+    var siteUrl = ctx.HttpRoot; //"https://eis.usmc.mil/sites/imef/sb"
+    var message = "hello sharepoint"; //this represents the message that the user wants to POST // this should be getting passed to the GET -- may need to assign to the variable onced it's passed into
+
+    //////////Test Vars//////////
+    //this needs to be passed as the func params
+    var colName = "TestName";
+    var rowId = 45;
+    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca";
+    /////////////////////////////
 
     //for testing use this sandbox when ready for prod SWITCH the siteUrl with parentSite
     var url = siteUrl + "/_api/web/lists/getbytitle('" + listName + "')";
@@ -29,19 +85,49 @@
       },
       success: function (data) {
         console.log("FindHistory:", data);
-        //call for ShowHistory
+        //get the user informaton before the concat
         //needs to expand the modified by object to ensure that the person's name is viwable
-        MakeHistory(data.d.Id, message);
+        GetCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
         return false;
       },
       error: function (error) {
-        console.log("hit1:", error);
-        MakeList(listName, message, parentSite);
+        console.log("Error in the PostHistory:", error);
+        MakeList(listName, message, parentSite, colName, rowId, tableGUID);
       },
     });
   }
 
-  function MakeList(listName, message, parentSite) {
+  function GetCurrentUser(listId, message, colName, rowId, tableGUID) {
+    var url =
+      ctx.HttpRoot + "/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("CurrentUser:", data);
+        MakeHistory(
+          listId,
+          message,
+          colName,
+          rowId,
+          tableGUID,
+          data.d.DisplayName
+        ); // need to pass the values for the colStatus and rowId
+        return false;
+      },
+      error: function (error) {
+        console.log("Error in the getting the current:", error);
+      },
+    });
+  }
+
+  function MakeList(listName, message, parentSite, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.List" },
       AllowContentTypes: true,
@@ -64,9 +150,7 @@
       },
       success: function (data) {
         console.log("History list created - successfully");
-        //here could use JSOM to post the data
-        //for now use a rest call below
-        CreateColumn(data.d.Id, message);
+        CreateColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
         return false;
       },
       error: function (error) {
@@ -75,7 +159,7 @@
     });
   }
 
-  function CreateColumn(listId, message) {
+  function CreateColumn(listId, message, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.Field" },
       Title: "Message",
@@ -84,7 +168,7 @@
       EnforceUniqueValues: "false",
       StaticName: "Message",
     };
-    // var url = parentSite + "_api/web/lists('"+  listId + "')"; //uncomment for prod
+
     var url =
       "https://eis.usmc.mil/sites/imef/sb/_api/web/lists('" +
       listId +
@@ -102,9 +186,7 @@
       },
       success: function (data) {
         console.log("History col created - successfully");
-        //here could use JSOM to post the data
-        //for now use a rest call below
-        MakeHistory(listId, message);
+        GetCurrentUser(listId, message, colName, rowId, tableGUID);
         return false;
       },
       error: function (error) {
@@ -113,25 +195,27 @@
     });
   }
 
-  function MakeHistory(listId, message) {
+  function MakeHistory(
+    listId,
+    message,
+    colName,
+    rowId,
+    tableGUID,
+    currentUser
+  ) {
     //we would need the info that the table has
     //has to be able to get the person data in order to post the entry to the popover see People Manager
     var data = {
       __metadata: { type: "SP.ListItem" },
-      Message: message,
+      Message: currentUser + ": " + message,
+      Title: tableGUID + " - " + rowId + " - " + colName, //name of the status column that is passed
     };
-    // var url = parentSite + "_api/web/lists('"+  guid + "')"; //uncomment for prod
+    // var url = parentSite + "_api/web/lists('"+  listId + "')"; //uncomment for prod
+
     var url =
       "https://eis.usmc.mil/sites/imef/sb/_api/web/lists('" +
       listId +
       "')/items "; //this is dev env
-
-    var clientContext = new SP.ClientContext("https://eis.usmc.mil/sites/imef/")
-      .get_web()
-      .get_lists()
-      .getById(listId)
-      .get_fields();
-    console.log(clientContext);
 
     $.ajax({
       url: url,
@@ -152,7 +236,6 @@
       },
     });
   }
-  // function RetrieveHistory()
 
   //Delete entry
   //update entry
@@ -160,7 +243,8 @@
   //On initial load
   window.addEventListener("load", function () {
     start();
-    FindHistory();
+    //RetrieveHistory();
+    PostHistory();
   });
 
   //On change
