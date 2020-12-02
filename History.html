@@ -47,10 +47,14 @@
 
           entryPoint.addEventListener("mouseleave", function (e) {
             if (e) {
-              if (!e.toElement.parentNode.contains(history.historyPanel)) {
-                history.historyPanel.parentNode.removeChild(
-                  history.historyPanel
-                );
+              if (e.toElement) {
+                if (e.toElement.parentNode) {
+                  if (!e.toElement.parentNode.contains(history.historyPanel)) {
+                    history.historyPanel.parentNode.removeChild(
+                      history.historyPanel
+                    );
+                  }
+                }
               }
             }
           });
@@ -82,6 +86,8 @@
           this.text.style.marginRight = "15px";
           this.display.appendChild(this.text);
 
+          this.isNew = false;
+
           this.submit = document.createElement("div");
           this.submit.innerText = "Submit";
           this.submit.style.backgroundColor = "#aaaaaa";
@@ -110,7 +116,12 @@
           this.edit.style.cursor = "pointer";
           this.edit.style.marginRight = "15px";
           this.edit.addEventListener("click", function () {
-            change.setEditable(!change.getEditable());
+            change.isNew = false;
+
+            if (change.option.parentNode.isEdit) {
+              change.option.parentNode.isEdit = false;
+              change.setEditable(!change.getEditable());
+            }
           });
           this.buttonGroup.appendChild(this.edit);
 
@@ -124,6 +135,10 @@
             if (change.option) {
               if (change.option.parentNode) {
                 change.option.parentNode.removeChild(change.option);
+
+                if (!change.option.parentNode.addNew) {
+                  change.option.parentNode.addNew = true;
+                }
               }
             }
           });
@@ -146,12 +161,21 @@
           } else {
             var text = this.text.innerText;
             text = text.replace(regex, "", text);
-            if (text === 0) {
+            if (text.trim().length === 0) {
               return;
             }
             this.text.innerText = text;
             this.text.style.border = "0px";
             this.display.removeChild(this.submit);
+
+            if (!this.option.parentNode.addNew && this.isNew) {
+              this.option.parentNode.addNew = true;
+              this.isNew = false;
+            }
+
+            if (!this.option.parentNode.isEdit) {
+              this.option.parentNode.isEdit = true;
+            }
           }
           this.text.contentEditable = value;
           return this;
@@ -197,7 +221,10 @@
           this.svg.style.width = "25%";
 
           this.svg.addEventListener("click", function () {
-            people.newItem();
+            if (people.container.addNew) {
+              people.container.addNew = false;
+              people.newItem();
+            }
           });
 
           this.title.appendChild(this.svg);
@@ -211,6 +238,8 @@
           this.container.style.paddingRight = "2rem";
           this.container.style.overflowX = "hidden";
           this.container.style.overflowY = "auto";
+          this.container.addNew = true;
+          this.container.isEdit = true;
           this.historyPanel.appendChild(this.container);
 
           this.addMore = document.createElement("div");
@@ -244,6 +273,7 @@
 
         History.prototype.newItem = function () {
           var item = new Change().setDisplay("").setEditable(true);
+          item.isNew = true;
           this.container.insertBefore(item.option, this.container.firstChild);
           return this;
         };
@@ -308,11 +338,18 @@
               break;
 
             case "failure":
-              iconPath = "";
+              iconPath =
+                "M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm101.8-262.2L295.6 256l62.2 62.2c4.7 4.7 4.7 12.3 0 17l-22.6 22.6c-4.7 4.7-12.3 4.7-17 0L256 295.6l-62.2 62.2c-4.7 4.7-12.3 4.7-17 0l-22.6-22.6c-4.7-4.7-4.7-12.3 0-17l62.2-62.2-62.2-62.2c-4.7-4.7-4.7-12.3 0-17l22.6-22.6c4.7-4.7 12.3-4.7 17 0l62.2 62.2 62.2-62.2c4.7-4.7 12.3-4.7 17 0l22.6 22.6c4.7 4.7 4.7 12.3 0 17z";
+              break;
+
+            case "loading":
+              iconPath =
+                "M 63.85,0 A 63.85,63.85 0 1 1 0,63.85 63.85,63.85 0 0 1 63.85,0 Z m 0.65,19.5 a 44,44 0 1 1 -44,44 44,44 0 0 1 44,-44 z";
               break;
 
             case "success":
-              iconPath = "";
+              iconPath =
+                "M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z";
               break;
 
             default:
