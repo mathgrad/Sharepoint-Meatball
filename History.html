@@ -137,6 +137,9 @@
                 if (!change.option.parentNode.addNew) {
                   change.option.parentNode.addNew = true;
                 }
+                if (!change.option.parentNode.isEdit) {
+                  change.option.parentNode.isEdit = true;
+                }
                 change.option.parentNode.removeChild(change.option);
               }
             }
@@ -160,10 +163,10 @@
           } else {
             var text = this.text.innerText;
             text = text.replace(regex, "", text);
+            this.text.innerText = text;
             if (text.trim().length === 0) {
               return;
             }
-            this.text.innerText = text;
             this.text.style.border = "0px";
             this.display.removeChild(this.submit);
 
