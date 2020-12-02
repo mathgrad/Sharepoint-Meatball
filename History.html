@@ -45,15 +45,15 @@
             document.body.appendChild(history.historyPanel);
           });
 
-          // entryPoint.addEventListener("mouseleave", function (e) {
-          //   if (e) {
-          //     if (!e.toElement.parentNode.contains(history.historyPanel)) {
-          //       history.historyPanel.parentNode.removeChild(
-          //         history.historyPanel
-          //       );
-          //     }
-          //   }
-          // });
+          entryPoint.addEventListener("mouseleave", function (e) {
+            if (e) {
+              if (!e.toElement.parentNode.contains(history.historyPanel)) {
+                history.historyPanel.parentNode.removeChild(
+                  history.historyPanel
+                );
+              }
+            }
+          });
         }
 
         function Change() {
@@ -145,7 +145,11 @@
             this.display.appendChild(this.submit);
           } else {
             var text = this.text.innerText;
-            this.text.innerText = text.replace(regex, "", text);
+            text = text.replace(regex, "", text);
+            if (text === 0) {
+              return;
+            }
+            this.text.innerText = text;
             this.text.style.border = "0px";
             this.display.removeChild(this.submit);
           }
@@ -227,14 +231,14 @@
               history.push(new Change().setDisplay(item));
             });
           });
-          // this.historyPanel.addEventListener("mouseleave", function () {
-          //   var panel = this;
-          //   if (panel) {
-          //     if (panel.parentNode) {
-          //       panel.parentNode.removeChild(panel);
-          //     }
-          //   }
-          // });
+          this.historyPanel.addEventListener("mouseleave", function () {
+            var panel = this;
+            if (panel) {
+              if (panel.parentNode) {
+                panel.parentNode.removeChild(panel);
+              }
+            }
+          });
           return this;
         }
 
@@ -251,7 +255,7 @@
 
         History.prototype.deleteItem = function () {};
 
-        History.prototype.check = function () {};
+        History.prototype.checkNewItem = function () {};
 
         function createSVG(props) {
           this.svg = document.createElementNS(
