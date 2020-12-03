@@ -3,6 +3,7 @@
   var size = 20;
   //Creates the Color object which manages meatball colors
   var colors = new Colors();
+  var backgroundColor = "#F0F0F0";
   //Creates the Pantry object which manages toast notifications
   var kitchen = new Pantry();
   //
@@ -289,7 +290,6 @@
     var meatball = this;
     this.element.style.backgroundColor = colors.get(cellText);
 
-    var backgroundColor = "rgb(240, 240,240)";
     var triangleSize = 10;
 
     this.popoverPanel = document.createElement("div");
@@ -647,8 +647,8 @@
   };
 
   Toast.prototype.startLoading = function () {
-    var icon = new createSVG({color: "", type: "loading"}).setLoadAnimation();
-    this.svg = icon.svg;
+    var icon = new SVGGenerator({ color: "", type: "loading" }).setLoadAnimation();
+    this.svg = icon.wrapper;
     return this;
   };
 
@@ -658,15 +658,15 @@
   };
 
   Toast.prototype.setSuccess = function () {
-    var icon = new createSVG({ color: "green", type: "success" });
-    this.svg = icon.svg;
+    var icon = new SVGGenerator({ color: "green", type: "success" });
+    this.svg = icon.wrapper;
     this.title.innerText = "Successfully Saved";
     return this;
   };
 
   Toast.prototype.setFailed = function () {
-    var icon = new createSVG({ color: "red", type: "failure" });
-    this.svg = icon.svg;
+    var icon = new SVGGenerator({ color: "red", type: "failure" });
+    this.svg = icon.wrapper;
     this.title.innerText = "Failed to Save";
     return this;
   };
@@ -691,8 +691,14 @@
     return this;
   };
 
-  function createSVG(props) {
-    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  function SVGGenerator(props) {
+    this.svg = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "svg"
+    );
+    this.wrapper = document.createElement("div");
+    this.wrapper.style.display = "inline-block";
+
     this.svg.setAttribute("role", "img");
     this.svg.setAttribute("viewBox", "0 0 512 512");
     this.svg.setAttribute("alignment-baseline", "baseline");
@@ -702,22 +708,33 @@
       case "small":
         this.svg.setAttribute("width", ".5em");
         this.svg.setAttribute("height", ".5em");
+        this.wrapper.style.width = ".5em";
+        this.wrapper.style.height = ".5em";
         break;
       case "normal":
         this.svg.setAttribute("width", "1em");
         this.svg.setAttribute("height", "1em");
+        this.wrapper.style.width = "1em";
+        this.wrapper.style.height = "1em";
         break;
       case "large":
         this.svg.setAttribute("width", "2em");
         this.svg.setAttribute("height", "2em");
+        this.wrapper.style.width = "2em";
+        this.wrapper.style.height = "2em";
         break;
       default:
         this.svg.setAttribute("width", "1em");
         this.svg.setAttribute("height", "1em");
+        this.wrapper.style.width = "1em";
+        this.wrapper.style.height = "1em";
         break;
     }
 
-    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    var path = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "path"
+    );
 
     if (props.type !== "loading") {
       path.setAttribute("fill", props.color);
@@ -727,31 +744,37 @@
       case "add":
         iconPath =
           "M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z";
+        this.wrapper.title = "Add";
         break;
 
       case "delete":
         iconPath =
           "M268 416h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12zM432 80h-82.41l-34-56.7A48 48 0 0 0 274.41 0H173.59a48 48 0 0 0-41.16 23.3L98.41 80H16A16 16 0 0 0 0 96v16a16 16 0 0 0 16 16h16v336a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128h16a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16zM171.84 50.91A6 6 0 0 1 177 48h94a6 6 0 0 1 5.15 2.91L293.61 80H154.39zM368 464H80V128h288zm-212-48h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12z";
+        this.wrapper.title = "Delete";
         break;
 
       case "edit":
         iconPath =
           "M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z";
+        this.wrapper.title = "Edit";
         break;
 
       case "failure":
         iconPath =
           "M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm101.8-262.2L295.6 256l62.2 62.2c4.7 4.7 4.7 12.3 0 17l-22.6 22.6c-4.7 4.7-12.3 4.7-17 0L256 295.6l-62.2 62.2c-4.7 4.7-12.3 4.7-17 0l-22.6-22.6c-4.7-4.7-4.7-12.3 0-17l62.2-62.2-62.2-62.2c-4.7-4.7-4.7-12.3 0-17l22.6-22.6c4.7-4.7 12.3-4.7 17 0l62.2 62.2 62.2-62.2c4.7-4.7 12.3-4.7 17 0l22.6 22.6c4.7 4.7 4.7 12.3 0 17z";
+        this.wrapper.title = "Failure";
         break;
 
       case "loading":
         iconPath =
           "M 63.85,0 A 63.85,63.85 0 1 1 0,63.85 63.85,63.85 0 0 1 63.85,0 Z m 0.65,19.5 a 44,44 0 1 1 -44,44 44,44 0 0 1 44,-44 z";
+        this.wrapper.title = "Loading";
         break;
 
       case "success":
         iconPath =
           "M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z";
+        this.wrapper.title = "Success";
         break;
 
       default:
@@ -761,9 +784,10 @@
     path.setAttribute("d", iconPath);
     this.g.appendChild(path);
     this.svg.appendChild(this.g);
+    this.wrapper.appendChild(this.svg);
   }
 
-  createSVG.prototype.setLoadAnimation = function () {
+  SVGGenerator.prototype.setLoadAnimation = function () {
     var linearGradient = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "linearGradient"
@@ -837,5 +861,9 @@
   /*Uses containsString to check to see if the two strings are equal*/
   function compareString(s0, s1) {
     return containsString(s0, s1) && containsString(s1, s0);
+  }
+
+  function generateId() {
+    return Math.floor(Math.random() * 1000);
   }
 })();
