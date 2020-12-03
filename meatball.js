@@ -6,7 +6,7 @@
   //Creates the Pantry object which manages toast notifications
   var kitchen = new Pantry();
   //
-  var boxshadow = "0px 0px 10px #BABBFD";
+  var addShadow = "0px 0px 10px #BABBFD";
   var removeShadow = "0px 0px 0px";
   //Used by developers in Production to find bugs
   var debug = false;
@@ -446,10 +446,10 @@
       }
 
       option.addEventListener("mouseenter", function () {
-        option.style.boxShadow = "0px 0px 10px #BABBFD";
+        option.style.boxShadow = addShadow;
       });
       option.addEventListener("mouseleave", function () {
-        option.style.boxShadow = "0px 0px 0px";
+        option.style.boxShadow = removeShadow;
       });
 
       panel.options.addEventListener("mousedown", function () {

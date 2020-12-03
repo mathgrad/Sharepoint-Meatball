@@ -88,30 +88,33 @@
           this.display.style.marginLeft = "auto";
           this.display.style.padding = ".25rem";
 
-          this.author = document.createElement("div");
-          this.author.contentEditable = false;
-          this.author.style.width = "50px";
-          this.author.style.padding = ".25rem";
-          this.author.style.margin = "0px";
-          this.author.style.display = "inline-block";
-          this.display.appendChild(this.author);
-
           this.text = document.createElement("div");
           this.text.contentEditable = false;
-          this.text.style.width = "160px";
+          this.text.style.width = "110px";
           this.text.style.padding = ".25rem";
           this.text.style.margin = "0px";
           this.text.style.display = "inline-block";
+          this.text.style.verticalAlign = "middle";
           this.display.appendChild(this.text);
 
           this.time = document.createElement("div");
           this.time.contentEditable = false;
-          this.time.style.width = "50px";
+          this.time.style.width = "75px";
           this.time.style.padding = ".25rem";
           this.time.style.margin = "0px";
           this.time.style.display = "inline-block";
           this.time.style.wordWrap = "break-word";
+          this.time.style.verticalAlign = "middle";
           this.display.appendChild(this.time);
+
+          this.author = document.createElement("div");
+          this.author.contentEditable = false;
+          this.author.style.width = "75px";
+          this.author.style.padding = ".25rem";
+          this.author.style.margin = "0px";
+          this.author.style.display = "inline-block";
+          this.author.style.verticalAlign = "middle";
+          this.display.appendChild(this.author);
 
           this.display.addEventListener("mouseenter", function () {
             this.style.boxShadow = addShadow;
@@ -187,9 +190,9 @@
         }
 
         Change.prototype.setDisplay = function (author, date, text) {
-          this.author.innerText = author;
+          this.author.innerText = "by " + author;
           this.text.innerText = text.replace(regex, "", text);
-          this.time.innerText = date;
+          this.time.innerText = "on " + date;
           return this;
         };
 
