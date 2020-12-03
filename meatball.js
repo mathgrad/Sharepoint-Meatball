@@ -9,6 +9,7 @@
   //
   var addShadow = "0px 0px 10px #BABBFD";
   var removeShadow = "0px 0px 0px";
+  var regex = /[^\d\w\s\.\?\!\@]/g;
   //Used by developers in Production to find bugs
   var debug = false;
 
