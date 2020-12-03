@@ -13,321 +13,6 @@
   //Used by developers in Production to find bugs
   var debug = false;
 
-  //Show the history and on fail display "No Messages" in the history view
-  //needs message, colName, rowId, tableGUID
-  function RetrieveHistory() {
-    //the row information needs to get passed here
-
-    var listName = "History " + ctx.SiteTitle; //"Sandbox"
-    var message = "hello sharepoint"; //this represents the message that the user wants to POST // this should be getting passed to the GET -- may need to assign to the variable onced it's passed into
-
-    //////////Test Vars//////////
-    //this needs to be passed as the func params
-    var colName = "TestName"; //internalName for the status column
-    var rowId = 45; //iid
-    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca"; //list guid
-    /////////////////////////////
-
-    var url =
-      ctx.HttpRoot +
-      "/_api/web/lists/getbytitle('" +
-      listName +
-      "')/items?$filter=Title eq '" +
-      tableGUID +
-      " - " +
-      rowId +
-      " - " +
-      colName +
-      "'&$orderby=Created desc";
-    $.ajax({
-      url: url,
-      type: "GET",
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        console.log("Messages:", data);
-        return false;
-      },
-      error: function (error) {
-        console.log("No History:", error);
-      },
-    });
-  }
-  //needs message, colName, rowId, tableGUID
-  function PostHistory() {
-    //the row information needs to get passed here
-    var listName = "History " + ctx.SiteTitle; //"Sandbox"
-    var message = "hello sharepoint"; //this represents the message that the user wants to POST
-    //////////Test Vars//////////
-    //this needs to be passed as the func params
-    var colName = "TestName";
-    var rowId = 45;
-    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca";
-    /////////////////////////////
-
-    var url = ctx.HttpRoot + "/_api/web/lists/getbytitle('" + listName + "')";
-
-    $.ajax({
-      url: url,
-      type: "GET",
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        console.log("FindHistory:", data);
-        //get the user informaton before the concat
-        //needs to expand the modified by object to ensure that the person's name is viwable
-        GetCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
-        return false;
-      },
-      error: function (error) {
-        console.log("Error in the PostHistory:", error);
-        MakeList(listName, message, colName, rowId, tableGUID);
-      },
-    });
-  }
-
-  function GetCurrentUser(listId, message, colName, rowId, tableGUID) {
-    console.log(listId);
-    var url =
-      ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
-    $.ajax({
-      url: url,
-      type: "GET",
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        console.log("CurrentUser:", data);
-        MakeHistory(
-          listId,
-          message,
-          colName,
-          rowId,
-          tableGUID,
-          data.d.DisplayName
-        ); // need to pass the values for the colStatus and rowId
-        return false;
-      },
-      error: function (error) {
-        console.log("Error in the getting the current:", error);
-      },
-    });
-  }
-
-  function MakeList(listName, message, colName, rowId, tableGUID) {
-    var data = {
-      __metadata: { type: "SP.List" },
-      AllowContentTypes: true,
-      BaseTemplate: 100,
-      ContentTypesEnabled: true,
-      Title: listName,
-    };
-
-    var url = ctx.HttpRoot + "/_api/web/lists"; //this is dev env
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        console.log("History list created - successfully");
-        CreateMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
-        return false;
-      },
-      error: function (error) {
-        console.log("History list creation failed:", error);
-      },
-    });
-  }
-
-  function CreateMessageColumn(listId, message, colName, rowId, tableGUID) {
-    var data = {
-      __metadata: { type: "SP.Field" },
-      Title: "Message",
-      FieldTypeKind: 2,
-      Required: "false",
-      EnforceUniqueValues: "false",
-      StaticName: "Message",
-    };
-
-    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        console.log("Message col created - successfully");
-        CreateUserNameColumn(listId, message, colName, rowId, tableGUID);
-        return false;
-      },
-      error: function (error) {
-        console.log("Message col creation failed:", error);
-      },
-    });
-  }
-
-  function CreateUserNameColumn(listId, message, colName, rowId, tableGUID) {
-    var data = {
-      __metadata: { type: "SP.Field" },
-      Title: "UserName",
-      FieldTypeKind: 2,
-      Required: "false",
-      EnforceUniqueValues: "false",
-      StaticName: "UserName",
-    };
-
-    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        console.log("UserName col created - successfully");
-        GetCurrentUser(listId, message, colName, rowId, tableGUID);
-        return false;
-      },
-      error: function (error) {
-        console.log("UserName col creation failed:", error);
-      },
-    });
-  }
-
-  function MakeHistory(
-    listId,
-    message,
-    colName,
-    rowId,
-    tableGUID,
-    currentUser
-  ) {
-    //we would need the info that the table has
-    //has to be able to get the person data in order to post the entry to the popover see People Manager
-    var data = {
-      __metadata: { type: "SP.ListItem" },
-      Message: message,
-      Title: tableGUID + " - " + rowId + " - " + colName, //name of the status column that is passed
-      UserName: currentUser,
-    };
-
-    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items "; //this is dev env
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        console.log("History entry created - successfully");
-        return false;
-      },
-      error: function (error) {
-        console.log("History list creation failed:", error);
-      },
-    });
-  }
-
-  //the id (row#) will be apart of that item... would will need to be passed
-  function DeleteHistory() {
-    //////////Test Vars//////////
-    var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
-    var id = 1; //the id on the list item to be deleted not the iid (rowId) of the meatball
-    /////////////////////////////
-
-    var url =
-      ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
-
-    $.ajax({
-      url: url,
-      type: "DELETE",
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-        "IF-MATCH": "*",
-      },
-      success: function (data) {
-        console.log("History entry deleted - successfully");
-        return false;
-      },
-      error: function (error) {
-        console.log("History entry deletion failed:", error);
-      },
-    });
-  }
-  //the id (row#) will be apart of that item... would will need to be passed + the message
-  function UpdateHistory() {
-    //////////Test Vars//////////
-    var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
-    var id = 2; //the id on the list item to be deleted not the iid (rowId) of the meatball
-    var message = "hi pierre";
-    /////////////////////////////
-
-    var data = {
-      __metadata: { type: "SP.ListItem" },
-      Message: message,
-    };
-
-    var url =
-      ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-        "IF-MATCH": "*",
-      },
-      success: function (data) {
-        console.log("History entry updated - successfully");
-        return false;
-      },
-      error: function (error) {
-        console.log("History entry update failed:", error);
-      },
-    });
-  }
-
   //On initial load
   window.addEventListener("load", function () {
     start();
@@ -1477,5 +1162,320 @@
 
   function generateId() {
     return Math.floor(Math.random() * 1000);
+  }
+
+  //Show the history and on fail display "No Messages" in the history view
+  //needs message, colName, rowId, tableGUID
+  function RetrieveHistory() {
+    //the row information needs to get passed here
+
+    var listName = "History " + ctx.SiteTitle; //"Sandbox"
+    var message = "hello sharepoint"; //this represents the message that the user wants to POST // this should be getting passed to the GET -- may need to assign to the variable onced it's passed into
+
+    //////////Test Vars//////////
+    //this needs to be passed as the func params
+    var colName = "TestName"; //internalName for the status column
+    var rowId = 45; //iid
+    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca"; //list guid
+    /////////////////////////////
+
+    var url =
+      ctx.HttpRoot +
+      "/_api/web/lists/getbytitle('" +
+      listName +
+      "')/items?$filter=Title eq '" +
+      tableGUID +
+      " - " +
+      rowId +
+      " - " +
+      colName +
+      "'&$orderby=Created desc";
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("Messages:", data);
+        return false;
+      },
+      error: function (error) {
+        console.log("No History:", error);
+      },
+    });
+  }
+  //needs message, colName, rowId, tableGUID
+  function PostHistory() {
+    //the row information needs to get passed here
+    var listName = "History " + ctx.SiteTitle; //"Sandbox"
+    var message = "hello sharepoint"; //this represents the message that the user wants to POST
+    //////////Test Vars//////////
+    //this needs to be passed as the func params
+    var colName = "TestName";
+    var rowId = 45;
+    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca";
+    /////////////////////////////
+
+    var url = ctx.HttpRoot + "/_api/web/lists/getbytitle('" + listName + "')";
+
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("FindHistory:", data);
+        //get the user informaton before the concat
+        //needs to expand the modified by object to ensure that the person's name is viwable
+        GetCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
+        return false;
+      },
+      error: function (error) {
+        console.log("Error in the PostHistory:", error);
+        MakeList(listName, message, colName, rowId, tableGUID);
+      },
+    });
+  }
+
+  function GetCurrentUser(listId, message, colName, rowId, tableGUID) {
+    console.log(listId);
+    var url =
+      ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("CurrentUser:", data);
+        MakeHistory(
+          listId,
+          message,
+          colName,
+          rowId,
+          tableGUID,
+          data.d.DisplayName
+        ); // need to pass the values for the colStatus and rowId
+        return false;
+      },
+      error: function (error) {
+        console.log("Error in the getting the current:", error);
+      },
+    });
+  }
+
+  function MakeList(listName, message, colName, rowId, tableGUID) {
+    var data = {
+      __metadata: { type: "SP.List" },
+      AllowContentTypes: true,
+      BaseTemplate: 100,
+      ContentTypesEnabled: true,
+      Title: listName,
+    };
+
+    var url = ctx.HttpRoot + "/_api/web/lists"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("History list created - successfully");
+        CreateMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
+        return false;
+      },
+      error: function (error) {
+        console.log("History list creation failed:", error);
+      },
+    });
+  }
+
+  function CreateMessageColumn(listId, message, colName, rowId, tableGUID) {
+    var data = {
+      __metadata: { type: "SP.Field" },
+      Title: "Message",
+      FieldTypeKind: 2,
+      Required: "false",
+      EnforceUniqueValues: "false",
+      StaticName: "Message",
+    };
+
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("Message col created - successfully");
+        CreateUserNameColumn(listId, message, colName, rowId, tableGUID);
+        return false;
+      },
+      error: function (error) {
+        console.log("Message col creation failed:", error);
+      },
+    });
+  }
+
+  function CreateUserNameColumn(listId, message, colName, rowId, tableGUID) {
+    var data = {
+      __metadata: { type: "SP.Field" },
+      Title: "UserName",
+      FieldTypeKind: 2,
+      Required: "false",
+      EnforceUniqueValues: "false",
+      StaticName: "UserName",
+    };
+
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("UserName col created - successfully");
+        GetCurrentUser(listId, message, colName, rowId, tableGUID);
+        return false;
+      },
+      error: function (error) {
+        console.log("UserName col creation failed:", error);
+      },
+    });
+  }
+
+  function MakeHistory(
+    listId,
+    message,
+    colName,
+    rowId,
+    tableGUID,
+    currentUser
+  ) {
+    //we would need the info that the table has
+    //has to be able to get the person data in order to post the entry to the popover see People Manager
+    var data = {
+      __metadata: { type: "SP.ListItem" },
+      Message: message,
+      Title: tableGUID + " - " + rowId + " - " + colName, //name of the status column that is passed
+      UserName: currentUser,
+    };
+
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items "; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("History entry created - successfully");
+        return false;
+      },
+      error: function (error) {
+        console.log("History list creation failed:", error);
+      },
+    });
+  }
+
+  //the id (row#) will be apart of that item... would will need to be passed
+  function DeleteHistory() {
+    //////////Test Vars//////////
+    var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
+    var id = 1; //the id on the list item to be deleted not the iid (rowId) of the meatball
+    /////////////////////////////
+
+    var url =
+      ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "DELETE",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "IF-MATCH": "*",
+      },
+      success: function (data) {
+        console.log("History entry deleted - successfully");
+        return false;
+      },
+      error: function (error) {
+        console.log("History entry deletion failed:", error);
+      },
+    });
+  }
+  //the id (row#) will be apart of that item... would will need to be passed + the message
+  function UpdateHistory() {
+    //////////Test Vars//////////
+    var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
+    var id = 2; //the id on the list item to be deleted not the iid (rowId) of the meatball
+    var message = "hi pierre";
+    /////////////////////////////
+
+    var data = {
+      __metadata: { type: "SP.ListItem" },
+      Message: message,
+    };
+
+    var url =
+      ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "IF-MATCH": "*",
+      },
+      success: function (data) {
+        console.log("History entry updated - successfully");
+        return false;
+      },
+      error: function (error) {
+        console.log("History entry update failed:", error);
+      },
+    });
   }
 })();
