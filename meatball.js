@@ -3,8 +3,12 @@
   var size = 20;
   //Creates the Color object which manages meatball colors
   var colors = new Colors();
+  var backgroundColor = "#F0F0F0";
   //Creates the Pantry object which manages toast notifications
   var kitchen = new Pantry();
+  //
+  var addShadow = "0px 0px 10px #BABBFD";
+  var removeShadow = "0px 0px 0px";
   //Used by developers in Production to find bugs
   var debug = false;
 
@@ -601,7 +605,6 @@
     var meatball = this;
     this.element.style.backgroundColor = colors.get(cellText);
 
-    var backgroundColor = "rgb(240, 240,240)";
     var triangleSize = 10;
 
     this.popoverPanel = document.createElement("div");
@@ -675,6 +678,26 @@
 
     this.popoverBody.appendChild(carret);
     this.popoverBody.appendChild(popover);
+
+    this.history = document.createElement("button");
+    this.history.innerText = "History";
+    this.history.style.borderRadius = ".25rem";
+    this.history.style.padding = ".25rem";
+    this.history.style.textAlign = "center";
+
+    var historyPanel = new MeatballHistory();
+    var add = true;
+
+    this.history.addEventListener("click", function () {
+      if (add) {
+        add = !add;
+        //Call to grab history items
+      }
+      popoverPanel.appendChild(historyPanel.historyPanel);
+    });
+
+    this.popoverBody.appendChild(this.history);
+
     this.popoverPanel.appendChild(this.popoverBody);
 
     var popoverPanel = this.popoverPanel;
@@ -768,10 +791,10 @@
       }
 
       option.addEventListener("mouseenter", function () {
-        option.style.boxShadow = "0px 0px 10px #BABBFD";
+        option.style.boxShadow = addShadow;
       });
       option.addEventListener("mouseleave", function () {
-        option.style.boxShadow = "0px 0px 0px";
+        option.style.boxShadow = removeShadow;
       });
 
       panel.options.addEventListener("mousedown", function () {
@@ -809,6 +832,279 @@
       option.appendChild(description);
       panel.options.appendChild(option);
     });
+  };
+
+  function MeatballHistory() {
+    var meatballHistory = this;
+    this.historyPanel = document.createElement("div");
+    this.historyPanel.style.padding = ".25rem";
+    this.historyPanel.style.borderRadius = ".25rem";
+    this.historyPanel.style.width = "350px";
+    this.historyPanel.style.height = "425px";
+    this.historyPanel.style.backgroundColor = backgroundColor;
+    this.historyPanel.style.textAlign = "center";
+
+    this.title = document.createElement("div");
+    this.title.style.width = "300px";
+    this.title.style.textAlign = "center";
+    this.title.style.marginRight = "auto";
+    this.title.style.marginLeft = "auto";
+    this.title.style.marginBottom = ".25rem";
+    this.title.style.display = "flex";
+    this.title.style.flexDirection = "row";
+
+    this.text = document.createElement("div");
+    this.text.innerText = "MeatballHistory";
+    this.text.style.display = "flex";
+    this.text.style.width = "75%";
+    this.title.appendChild(this.text);
+
+    this.svg = new SVGGenerator({
+      color: "green",
+      type: "add",
+      size: "normal",
+    }).wrapper;
+    this.svg.style.cursor = "pointer";
+    this.svg.style.display = "flex";
+    this.svg.style.displayFlex = "right";
+
+    this.svg.addEventListener("click", function () {
+      if (meatballHistory.container.addNew) {
+        meatballHistory.container.scroll(0, 0);
+        meatballHistory.container.addNew = false;
+        meatballHistory.newItem();
+      }
+    });
+
+    this.title.appendChild(this.svg);
+
+    this.historyPanel.appendChild(this.title);
+
+    this.container = document.createElement("div");
+    this.container.style.width = "300px";
+    this.container.style.height = "350px";
+    this.container.style.margin = "auto";
+    this.container.style.paddingRight = "2rem";
+    this.container.style.overflowX = "hidden";
+    this.container.style.overflowY = "auto";
+    this.container.addNew = true;
+    this.container.isEdit = true;
+    this.historyPanel.appendChild(this.container);
+
+    this.addMore = document.createElement("div");
+    this.addMore.innerText = "Show More";
+    this.addMore.style.cursor = "pointer";
+    this.addMore.style.marginTop = ".25rem";
+    this.addMore.style.marginLeft = "auto";
+    this.addMore.style.marginRight = "auto";
+    this.addMore.style.padding = ".25rem";
+    this.addMore.style.borderRadius = ".25rem";
+    this.addMore.style.width = "115px";
+    this.addMore.style.backgroundColor = "#999999";
+
+    this.historyPanel.appendChild(this.addMore);
+
+    this.addMore.addEventListener("click", function () {
+      testList.forEach(function (item, i) {
+        history.push(
+          new MeatballMeatballHistoryItem().setDisplay(
+            authorList[i],
+            new Date().getTime(),
+            item
+          )
+        );
+      });
+    });
+    this.historyPanel.addEventListener("mouseleave", function () {
+      var panel = this;
+      if (panel) {
+        if (panel.parentNode) {
+          panel.parentNode.removeChild(panel);
+        }
+      }
+    });
+    return this;
+  }
+
+  MeatballHistory.prototype.newItem = function () {
+    var item = new MeatballMeatballHistoryItem()
+      .setDisplay("Joshua", new Date().getTime(), "")
+      .setEditable(true);
+    item.isNew = true;
+    this.container.insertBefore(item.option, this.container.firstChild);
+    return this;
+  };
+
+  MeatballHistory.prototype.push = function (change) {
+    this.container.appendChild(change.option);
+    return this;
+  };
+
+  function MeatballMeatballHistoryItem() {
+    var meatballMeatballHistoryItem = this;
+    this.option = document.createElement("div");
+    this.option.style.padding = ".25rem";
+    this.option.style.width = "300px";
+    this.option.style.marginRight = "auto";
+    this.option.style.marginLeft = "auto";
+    this.option.style.marginBottom = ".25rem";
+    this.option.style.padding = ".25rem";
+
+    this.display = document.createElement("div");
+    this.display.style.display = "block";
+    this.display.style.width = "300px";
+    this.display.style.padding = ".25rem";
+    this.display.style.marginRight = "auto";
+    this.display.style.marginLeft = "auto";
+    this.display.style.padding = ".25rem";
+
+    this.text = document.createElement("div");
+    this.text.contentEditable = false;
+    this.text.style.width = "110px";
+    this.text.style.padding = ".25rem";
+    this.text.style.margin = "0px";
+    this.text.style.display = "inline-block";
+    this.text.style.verticalAlign = "middle";
+    this.display.appendChild(this.text);
+
+    this.time = document.createElement("div");
+    this.time.contentEditable = false;
+    this.time.style.width = "75px";
+    this.time.style.padding = ".25rem";
+    this.time.style.margin = "0px";
+    this.time.style.display = "inline-block";
+    this.time.style.wordWrap = "break-word";
+    this.time.style.verticalAlign = "middle";
+    this.display.appendChild(this.time);
+
+    this.author = document.createElement("div");
+    this.author.contentEditable = false;
+    this.author.style.width = "75px";
+    this.author.style.padding = ".25rem";
+    this.author.style.margin = "0px";
+    this.author.style.display = "inline-block";
+    this.author.style.verticalAlign = "middle";
+    this.display.appendChild(this.author);
+
+    this.display.addEventListener("mouseenter", function () {
+      this.style.boxShadow = addShadow;
+    });
+    this.display.addEventListener("mouseleave", function () {
+      this.style.boxShadow = removeShadow;
+    });
+
+    this.isNew = false;
+
+    this.submit = document.createElement("div");
+    this.submit.innerText = "Submit";
+    this.submit.style.backgroundColor = "#aaaaaa";
+    this.submit.style.width = "75px";
+    this.submit.style.border = "1px solid black";
+    this.submit.style.cursor = "pointer";
+    this.submit.style.margin = "auto";
+    this.submit.style.marginRight = "15px";
+    this.submit.style.marginTop = "5px";
+    this.submit.style.padding = ".25rem";
+    this.submit.addEventListener("click", function () {
+      meatballMeatballHistoryItem.setEditable(
+        !meatballMeatballHistoryItem.getEditable()
+      );
+    });
+
+    this.buttonGroup = document.createElement("div");
+    this.buttonGroup.style.width = "285px";
+    this.buttonGroup.style.textAlign = "right";
+    this.buttonGroup.style.margin = "0px";
+    this.buttonGroup.style.padding = "0px";
+
+    this.edit = new SVGGenerator({
+      color: "green",
+      type: "edit",
+      size: "small",
+    }).wrapper;
+    this.edit.style.cursor = "pointer";
+    this.edit.style.marginRight = "15px";
+    this.edit.addEventListener("click", function () {
+      meatballMeatballHistoryItem.isNew = false;
+
+      if (meatballMeatballHistoryItem.option.parentNode.isEdit) {
+        meatballMeatballHistoryItem.option.parentNode.isEdit = false;
+        meatballMeatballHistoryItem.setEditable(
+          !meatballMeatballHistoryItem.getEditable()
+        );
+      }
+    });
+    this.buttonGroup.appendChild(this.edit);
+
+    this.delete = new SVGGenerator({
+      color: "black",
+      type: "delete",
+      size: "small",
+    }).wrapper;
+    this.delete.style.cursor = "pointer";
+    this.delete.addEventListener("click", function () {
+      if (meatballMeatballHistoryItem.option) {
+        if (meatballMeatballHistoryItem.option.parentNode) {
+          if (!meatballMeatballHistoryItem.option.parentNode.addNew) {
+            meatballMeatballHistoryItem.option.parentNode.addNew = true;
+          }
+          if (!meatballMeatballHistoryItem.option.parentNode.isEdit) {
+            meatballMeatballHistoryItem.option.parentNode.isEdit = true;
+          }
+          meatballMeatballHistoryItem.option.parentNode.removeChild(
+            meatballMeatballHistoryItem.option
+          );
+        }
+      }
+    });
+    this.buttonGroup.appendChild(this.delete);
+
+    this.option.appendChild(this.buttonGroup);
+    this.option.appendChild(this.display);
+
+    return this;
+  }
+
+  MeatballMeatballHistoryItem.prototype.setDisplay = function (
+    author,
+    date,
+    text
+  ) {
+    this.author.innerText = "by " + author;
+    this.text.innerText = text.replace(regex, "", text);
+    this.time.innerText = "on " + date;
+    return this;
+  };
+
+  MeatballMeatballHistoryItem.prototype.setEditable = function (value) {
+    if (value) {
+      this.text.style.border = "1px solid black";
+      this.display.appendChild(this.submit);
+    } else {
+      var text = this.text.innerText;
+      text = text.replace(regex, "", text);
+      this.text.innerText = text;
+      if (text.trim().length === 0) {
+        return;
+      }
+      this.text.style.border = "0px";
+      this.display.removeChild(this.submit);
+
+      if (!this.option.parentNode.addNew && this.isNew) {
+        this.option.parentNode.addNew = true;
+        this.isNew = false;
+      }
+
+      if (!this.option.parentNode.isEdit) {
+        this.option.parentNode.isEdit = true;
+      }
+    }
+    this.text.contentEditable = value;
+    return this;
+  };
+
+  MeatballMeatballHistoryItem.prototype.getEditable = function () {
+    return this.text.contentEditable === "true";
   };
 
   //A hashmap between values and colors
@@ -914,7 +1210,7 @@
   //Notification object with ability to display messages, and images
   function Toast() {
     this.toast = document.createElement("div");
-    this.toast.id = Math.floor(Math.random() * 1000);
+    this.toast.id = generateId();
     this.toast.style.backgroundColor = "white";
     this.toast.style.borderRadius = "0";
     this.toast.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
@@ -969,8 +1265,11 @@
   };
 
   Toast.prototype.startLoading = function () {
-    var icon = new LoadingSVG();
-    this.svg = icon.svg;
+    var icon = new SVGGenerator({
+      color: "",
+      type: "loading",
+    }).setLoadAnimation();
+    this.svg = icon.wrapper;
     return this;
   };
 
@@ -980,15 +1279,15 @@
   };
 
   Toast.prototype.setSuccess = function () {
-    var icon = new StatusSVG({ color: "green", type: "success" });
-    this.svg = icon.svg;
+    var icon = new SVGGenerator({ color: "green", type: "success" });
+    this.svg = icon.wrapper;
     this.title.innerText = "Successfully Saved";
     return this;
   };
 
   Toast.prototype.setFailed = function () {
-    var icon = new StatusSVG({ color: "red", type: "failure" });
-    this.svg = icon.svg;
+    var icon = new SVGGenerator({ color: "red", type: "failure" });
+    this.svg = icon.wrapper;
     this.title.innerText = "Failed to Save";
     return this;
   };
@@ -1009,22 +1308,102 @@
     return this;
   };
 
-  //Creates Loading SVG for toast
-  function LoadingSVG(props) {
+  function SVGGenerator(props) {
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    this.wrapper = document.createElement("div");
+    this.wrapper.style.display = "inline-block";
+
     this.svg.setAttribute("role", "img");
     this.svg.setAttribute("viewBox", "0 0 512 512");
-    this.svg.setAttribute("width", "120px");
-    this.svg.setAttribute("height", "120px");
+    this.svg.setAttribute("alignment-baseline", "baseline");
+    this.g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
-    var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    switch (props.size) {
+      case "small":
+        this.svg.setAttribute("width", ".5em");
+        this.svg.setAttribute("height", ".5em");
+        this.wrapper.style.width = ".5em";
+        this.wrapper.style.height = ".5em";
+        break;
+      case "normal":
+        this.svg.setAttribute("width", "1em");
+        this.svg.setAttribute("height", "1em");
+        this.wrapper.style.width = "1em";
+        this.wrapper.style.height = "1em";
+        break;
+      case "large":
+        this.svg.setAttribute("width", "2em");
+        this.svg.setAttribute("height", "2em");
+        this.wrapper.style.width = "2em";
+        this.wrapper.style.height = "2em";
+        break;
+      default:
+        this.svg.setAttribute("width", "1em");
+        this.svg.setAttribute("height", "1em");
+        this.wrapper.style.width = "1em";
+        this.wrapper.style.height = "1em";
+        break;
+    }
 
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+    if (props.type !== "loading") {
+      path.setAttribute("fill", props.color);
+    }
+    var iconPath;
+    switch (props.type) {
+      case "add":
+        iconPath =
+          "M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z";
+        this.wrapper.title = "Add";
+        break;
+
+      case "delete":
+        iconPath =
+          "M268 416h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12zM432 80h-82.41l-34-56.7A48 48 0 0 0 274.41 0H173.59a48 48 0 0 0-41.16 23.3L98.41 80H16A16 16 0 0 0 0 96v16a16 16 0 0 0 16 16h16v336a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128h16a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16zM171.84 50.91A6 6 0 0 1 177 48h94a6 6 0 0 1 5.15 2.91L293.61 80H154.39zM368 464H80V128h288zm-212-48h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12z";
+        this.wrapper.title = "Delete";
+        break;
+
+      case "edit":
+        iconPath =
+          "M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z";
+        this.wrapper.title = "Edit";
+        break;
+
+      case "failure":
+        iconPath =
+          "M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm101.8-262.2L295.6 256l62.2 62.2c4.7 4.7 4.7 12.3 0 17l-22.6 22.6c-4.7 4.7-12.3 4.7-17 0L256 295.6l-62.2 62.2c-4.7 4.7-12.3 4.7-17 0l-22.6-22.6c-4.7-4.7-4.7-12.3 0-17l62.2-62.2-62.2-62.2c-4.7-4.7-4.7-12.3 0-17l22.6-22.6c4.7-4.7 12.3-4.7 17 0l62.2 62.2 62.2-62.2c4.7-4.7 12.3-4.7 17 0l22.6 22.6c4.7 4.7 4.7 12.3 0 17z";
+        this.wrapper.title = "Failure";
+        break;
+
+      case "loading":
+        iconPath =
+          "M 63.85,0 A 63.85,63.85 0 1 1 0,63.85 63.85,63.85 0 0 1 63.85,0 Z m 0.65,19.5 a 44,44 0 1 1 -44,44 44,44 0 0 1 44,-44 z";
+        this.wrapper.title = "Loading";
+        break;
+
+      case "success":
+        iconPath =
+          "M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z";
+        this.wrapper.title = "Success";
+        break;
+
+      default:
+        iconPath = "";
+        break;
+    }
+    path.setAttribute("d", iconPath);
+    this.g.appendChild(path);
+    this.svg.appendChild(this.g);
+    this.wrapper.appendChild(this.svg);
+  }
+
+  SVGGenerator.prototype.setLoadAnimation = function () {
     var linearGradient = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "linearGradient"
     );
     linearGradient.setAttribute("id", "colorFill");
-
     var stops = [
       {
         color: "#ffffff",
@@ -1045,16 +1424,7 @@
       stop.setAttribute("fill-opacity", item.opacity);
       linearGradient.appendChild(stop);
     });
-    g.appendChild(linearGradient);
-
-    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("fill", "url(#colorFill)");
-    path.setAttribute("fill-rule", "evenodd");
-    path.setAttribute(
-      "d",
-      "M 63.85,0 A 63.85,63.85 0 1 1 0,63.85 63.85,63.85 0 0 1 63.85,0 Z m 0.65,19.5 a 44,44 0 1 1 -44,44 44,44 0 0 1 44,-44 z"
-    );
-    g.appendChild(path);
+    this.g.appendChild(linearGradient);
 
     var animateTransform = document.createElementNS(
       "http://www.w3.org/2000/svg",
@@ -1066,29 +1436,8 @@
     animateTransform.setAttribute("to", "360 64 64");
     animateTransform.setAttribute("dur", "1080ms");
     animateTransform.setAttribute("repeatCount", "indefinite");
-    g.appendChild(animateTransform);
-
-    this.svg.appendChild(g);
-  }
-
-  //Creates a status svg depending on values: success => a green check circle; failure => a red x circle;
-  function StatusSVG(props) {
-    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.svg.setAttribute("role", "img");
-    this.svg.setAttribute("viewBox", "0 0 512 512");
-    this.svg.setAttribute("height", "30px");
-    this.svg.setAttribute("width", "30px");
-
-    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("fill", props.color);
-    var iconPath =
-      props.type === "success"
-        ? "M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z"
-        : "M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm101.8-262.2L295.6 256l62.2 62.2c4.7 4.7 4.7 12.3 0 17l-22.6 22.6c-4.7 4.7-12.3 4.7-17 0L256 295.6l-62.2 62.2c-4.7 4.7-12.3 4.7-17 0l-22.6-22.6c-4.7-4.7-4.7-12.3 0-17l62.2-62.2-62.2-62.2c-4.7-4.7-4.7-12.3 0-17l22.6-22.6c4.7-4.7 12.3-4.7 17 0l62.2 62.2 62.2-62.2c4.7-4.7 12.3-4.7 17 0l22.6 22.6c4.7 4.7 4.7 12.3 0 17z";
-
-    path.setAttribute("d", iconPath);
-    this.svg.appendChild(path);
-  }
+    this.g.appendChild(animateTransform);
+  };
 
   //True, error.  False, no error.
   function errorChecking(obj) {
@@ -1123,5 +1472,9 @@
   /*Uses containsString to check to see if the two strings are equal*/
   function compareString(s0, s1) {
     return containsString(s0, s1) && containsString(s1, s0);
+  }
+
+  function generateId() {
+    return Math.floor(Math.random() * 1000);
   }
 })();
