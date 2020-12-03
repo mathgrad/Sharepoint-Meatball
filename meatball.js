@@ -684,7 +684,10 @@
     this.history.innerText = "History";
     this.history.style.borderRadius = ".25rem";
     this.history.style.padding = ".25rem";
+    this.history.style.marginBottom = ".25rem";
     this.history.style.textAlign = "center";
+    this.history.style.display = "block";
+    this.history.style.cursor = "pointer";
 
     var historyPanel = new MeatballHistory();
     var add = true;
@@ -696,7 +699,6 @@
       }
       popoverPanel.appendChild(historyPanel.historyPanel);
     });
-
     this.popoverBody.appendChild(this.history);
 
     this.popoverPanel.appendChild(this.popoverBody);
