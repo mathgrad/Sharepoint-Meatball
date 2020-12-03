@@ -489,6 +489,273 @@
     });
   };
 
+  function MeatballHistory() {
+    var people = this;
+    this.historyPanel = document.createElement("div");
+    this.historyPanel.style.padding = ".25rem";
+    this.historyPanel.style.borderRadius = ".25rem";
+    this.historyPanel.style.width = "350px";
+    this.historyPanel.style.height = "425px";
+    this.historyPanel.style.backgroundColor = backgroundColor;
+    this.historyPanel.style.textAlign = "center";
+
+    this.title = document.createElement("div");
+    this.title.style.width = "300px";
+    this.title.style.textAlign = "center";
+    this.title.style.marginRight = "auto";
+    this.title.style.marginLeft = "auto";
+    this.title.style.marginBottom = ".25rem";
+    this.title.style.display = "flex";
+    this.title.style.flexDirection = "row";
+
+    this.text = document.createElement("div");
+    this.text.innerText = "MeatballHistory";
+    this.text.style.display = "flex";
+    this.text.style.width = "75%";
+    this.title.appendChild(this.text);
+
+    this.svg = new SVGGenerator({
+      color: "green",
+      type: "add",
+      size: "normal",
+    }).wrapper;
+    this.svg.style.cursor = "pointer";
+    this.svg.style.display = "flex";
+    this.svg.style.displayFlex = "right";
+
+    this.svg.addEventListener("click", function () {
+      if (people.container.addNew) {
+        people.container.scroll(0, 0);
+        people.container.addNew = false;
+        people.newItem();
+      }
+    });
+
+    this.title.appendChild(this.svg);
+
+    this.historyPanel.appendChild(this.title);
+
+    this.container = document.createElement("div");
+    this.container.style.width = "300px";
+    this.container.style.height = "350px";
+    this.container.style.margin = "auto";
+    this.container.style.paddingRight = "2rem";
+    this.container.style.overflowX = "hidden";
+    this.container.style.overflowY = "auto";
+    this.container.addNew = true;
+    this.container.isEdit = true;
+    this.historyPanel.appendChild(this.container);
+
+    this.addMore = document.createElement("div");
+    this.addMore.innerText = "Show More";
+    this.addMore.style.cursor = "pointer";
+    this.addMore.style.marginTop = ".25rem";
+    this.addMore.style.marginLeft = "auto";
+    this.addMore.style.marginRight = "auto";
+    this.addMore.style.padding = ".25rem";
+    this.addMore.style.borderRadius = ".25rem";
+    this.addMore.style.width = "115px";
+    this.addMore.style.backgroundColor = "#999999";
+
+    this.historyPanel.appendChild(this.addMore);
+
+    this.addMore.addEventListener("click", function () {
+      testList.forEach(function (item, i) {
+        history.push(
+          new MeatballMeatballHistoryItem().setDisplay(
+            authorList[i],
+            new Date().getTime(),
+            item
+          )
+        );
+      });
+    });
+    this.historyPanel.addEventListener("mouseleave", function () {
+      var panel = this;
+      if (panel) {
+        if (panel.parentNode) {
+          panel.parentNode.removeChild(panel);
+        }
+      }
+    });
+    return this;
+  }
+
+  MeatballHistory.prototype.newItem = function () {
+    var item = new MeatballMeatballHistoryItem()
+      .setDisplay("Joshua", new Date().getTime(), "")
+      .setEditable(true);
+    item.isNew = true;
+    this.container.insertBefore(item.option, this.container.firstChild);
+    return this;
+  };
+
+  MeatballHistory.prototype.push = function (change) {
+    this.container.appendChild(change.option);
+    return this;
+  };
+
+  function MeatballMeatballHistoryItem() {
+    var change = this;
+    this.option = document.createElement("div");
+    this.option.style.padding = ".25rem";
+    this.option.style.width = "300px";
+    this.option.style.marginRight = "auto";
+    this.option.style.marginLeft = "auto";
+    this.option.style.marginBottom = ".25rem";
+    this.option.style.padding = ".25rem";
+
+    this.display = document.createElement("div");
+    this.display.style.display = "block";
+    this.display.style.width = "300px";
+    this.display.style.padding = ".25rem";
+    this.display.style.marginRight = "auto";
+    this.display.style.marginLeft = "auto";
+    this.display.style.padding = ".25rem";
+
+    this.text = document.createElement("div");
+    this.text.contentEditable = false;
+    this.text.style.width = "110px";
+    this.text.style.padding = ".25rem";
+    this.text.style.margin = "0px";
+    this.text.style.display = "inline-block";
+    this.text.style.verticalAlign = "middle";
+    this.display.appendChild(this.text);
+
+    this.time = document.createElement("div");
+    this.time.contentEditable = false;
+    this.time.style.width = "75px";
+    this.time.style.padding = ".25rem";
+    this.time.style.margin = "0px";
+    this.time.style.display = "inline-block";
+    this.time.style.wordWrap = "break-word";
+    this.time.style.verticalAlign = "middle";
+    this.display.appendChild(this.time);
+
+    this.author = document.createElement("div");
+    this.author.contentEditable = false;
+    this.author.style.width = "75px";
+    this.author.style.padding = ".25rem";
+    this.author.style.margin = "0px";
+    this.author.style.display = "inline-block";
+    this.author.style.verticalAlign = "middle";
+    this.display.appendChild(this.author);
+
+    this.display.addEventListener("mouseenter", function () {
+      this.style.boxShadow = addShadow;
+    });
+    this.display.addEventListener("mouseleave", function () {
+      this.style.boxShadow = removeShadow;
+    });
+
+    this.isNew = false;
+
+    this.submit = document.createElement("div");
+    this.submit.innerText = "Submit";
+    this.submit.style.backgroundColor = "#aaaaaa";
+    this.submit.style.width = "75px";
+    this.submit.style.border = "1px solid black";
+    this.submit.style.cursor = "pointer";
+    this.submit.style.margin = "auto";
+    this.submit.style.marginRight = "15px";
+    this.submit.style.marginTop = "5px";
+    this.submit.style.padding = ".25rem";
+    this.submit.addEventListener("click", function () {
+      change.setEditable(!change.getEditable());
+    });
+
+    this.buttonGroup = document.createElement("div");
+    this.buttonGroup.style.width = "285px";
+    this.buttonGroup.style.textAlign = "right";
+    this.buttonGroup.style.margin = "0px";
+    this.buttonGroup.style.padding = "0px";
+
+    this.edit = new SVGGenerator({
+      color: "green",
+      type: "edit",
+      size: "small",
+    }).wrapper;
+    this.edit.style.cursor = "pointer";
+    this.edit.style.marginRight = "15px";
+    this.edit.addEventListener("click", function () {
+      change.isNew = false;
+
+      if (change.option.parentNode.isEdit) {
+        change.option.parentNode.isEdit = false;
+        change.setEditable(!change.getEditable());
+      }
+    });
+    this.buttonGroup.appendChild(this.edit);
+
+    this.delete = new SVGGenerator({
+      color: "black",
+      type: "delete",
+      size: "small",
+    }).wrapper;
+    this.delete.style.cursor = "pointer";
+    this.delete.addEventListener("click", function () {
+      if (change.option) {
+        if (change.option.parentNode) {
+          if (!change.option.parentNode.addNew) {
+            change.option.parentNode.addNew = true;
+          }
+          if (!change.option.parentNode.isEdit) {
+            change.option.parentNode.isEdit = true;
+          }
+          change.option.parentNode.removeChild(change.option);
+        }
+      }
+    });
+    this.buttonGroup.appendChild(this.delete);
+
+    this.option.appendChild(this.buttonGroup);
+    this.option.appendChild(this.display);
+
+    return this;
+  }
+
+  MeatballMeatballHistoryItem.prototype.setDisplay = function (
+    author,
+    date,
+    text
+  ) {
+    this.author.innerText = "by " + author;
+    this.text.innerText = text.replace(regex, "", text);
+    this.time.innerText = "on " + date;
+    return this;
+  };
+
+  MeatballMeatballHistoryItem.prototype.setEditable = function (value) {
+    if (value) {
+      this.text.style.border = "1px solid black";
+      this.display.appendChild(this.submit);
+    } else {
+      var text = this.text.innerText;
+      text = text.replace(regex, "", text);
+      this.text.innerText = text;
+      if (text.trim().length === 0) {
+        return;
+      }
+      this.text.style.border = "0px";
+      this.display.removeChild(this.submit);
+
+      if (!this.option.parentNode.addNew && this.isNew) {
+        this.option.parentNode.addNew = true;
+        this.isNew = false;
+      }
+
+      if (!this.option.parentNode.isEdit) {
+        this.option.parentNode.isEdit = true;
+      }
+    }
+    this.text.contentEditable = value;
+    return this;
+  };
+
+  MeatballMeatballHistoryItem.prototype.getEditable = function () {
+    return this.text.contentEditable === "true";
+  };
+
   //A hashmap between values and colors
   function Colors() {
     this.blue = "#0075ff";
@@ -647,7 +914,10 @@
   };
 
   Toast.prototype.startLoading = function () {
-    var icon = new SVGGenerator({ color: "", type: "loading" }).setLoadAnimation();
+    var icon = new SVGGenerator({
+      color: "",
+      type: "loading",
+    }).setLoadAnimation();
     this.svg = icon.wrapper;
     return this;
   };
@@ -692,10 +962,7 @@
   };
 
   function SVGGenerator(props) {
-    this.svg = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "svg"
-    );
+    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.wrapper = document.createElement("div");
     this.wrapper.style.display = "inline-block";
 
@@ -731,10 +998,7 @@
         break;
     }
 
-    var path = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "path"
-    );
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
     if (props.type !== "loading") {
       path.setAttribute("fill", props.color);
