@@ -27,7 +27,7 @@
           "hi mark",
         ];
         var authorList = ["Joshua", "Joshua", "Joshua", "Joshua", "Joshua"];
-        var history = new History();
+        var history = new MeatballHistory();
         var add = true;
 
         function test() {
@@ -45,7 +45,7 @@
               add = !add;
               testList.forEach(function (item, i) {
                 history.push(
-                  new Change().setDisplay(
+                  new MeatballMeatballHistoryItem().setDisplay(
                     authorList[i],
                     new Date().getTime(),
                     item
@@ -71,7 +71,7 @@
           });
         }
 
-        function Change() {
+        function MeatballMeatballHistoryItem() {
           var change = this;
           this.option = document.createElement("div");
           this.option.style.padding = ".25rem";
@@ -190,14 +190,14 @@
           return this;
         }
 
-        Change.prototype.setDisplay = function (author, date, text) {
+        MeatballMeatballHistoryItem.prototype.setDisplay = function (author, date, text) {
           this.author.innerText = "by " + author;
           this.text.innerText = text.replace(regex, "", text);
           this.time.innerText = "on " + date;
           return this;
         };
 
-        Change.prototype.setEditable = function (value) {
+        MeatballMeatballHistoryItem.prototype.setEditable = function (value) {
           if (value) {
             this.text.style.border = "1px solid black";
             this.display.appendChild(this.submit);
@@ -224,11 +224,11 @@
           return this;
         };
 
-        Change.prototype.getEditable = function () {
+        MeatballMeatballHistoryItem.prototype.getEditable = function () {
           return this.text.contentEditable === "true";
         };
 
-        function History() {
+        function MeatballHistory() {
           var people = this;
           this.historyPanel = document.createElement("div");
           this.historyPanel.style.padding = ".25rem";
@@ -248,7 +248,7 @@
           this.title.style.flexDirection = "row";
 
           this.text = document.createElement("div");
-          this.text.innerText = "History";
+          this.text.innerText = "MeatballHistory";
           this.text.style.display = "flex";
           this.text.style.width = "75%";
           this.title.appendChild(this.text);
@@ -301,7 +301,7 @@
           this.addMore.addEventListener("click", function () {
             testList.forEach(function (item, i) {
               history.push(
-                new Change().setDisplay(
+                new MeatballMeatballHistoryItem().setDisplay(
                   authorList[i],
                   new Date().getTime(),
                   item
@@ -320,8 +320,8 @@
           return this;
         }
 
-        History.prototype.newItem = function () {
-          var item = new Change()
+        MeatballHistory.prototype.newItem = function () {
+          var item = new MeatballMeatballHistoryItem()
             .setDisplay("Joshua", new Date().getTime(), "")
             .setEditable(true);
           item.isNew = true;
@@ -329,14 +329,14 @@
           return this;
         };
 
-        History.prototype.push = function (change) {
+        MeatballHistory.prototype.push = function (change) {
           this.container.appendChild(change.option);
           return this;
         };
 
-        History.prototype.deleteItem = function () {};
+        MeatballHistory.prototype.deleteItem = function () {};
 
-        History.prototype.checkNewItem = function () {};
+        MeatballHistory.prototype.checkNewItem = function () {};
 
         function SVGGenerator(props) {
           this.svg = document.createElementNS(

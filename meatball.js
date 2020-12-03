@@ -592,7 +592,7 @@
   //Notification object with ability to display messages, and images
   function Toast() {
     this.toast = document.createElement("div");
-    this.toast.id = Math.floor(Math.random() * 1000);
+    this.toast.id = generateId();
     this.toast.style.backgroundColor = "white";
     this.toast.style.borderRadius = "0";
     this.toast.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
