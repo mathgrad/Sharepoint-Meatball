@@ -12,21 +12,19 @@
   //needs message, colName, rowId, tableGUID
   function RetrieveHistory() {
     //the row information needs to get passed here
-    var parentSite = ctx.PortalUrl; //"https://eis.usmc.mil/sites/imef/"
+
     var listName = "History " + ctx.SiteTitle; //"Sandbox"
-    var siteUrl = ctx.HttpRoot; //"https://eis.usmc.mil/sites/imef/sb"
     var message = "hello sharepoint"; //this represents the message that the user wants to POST // this should be getting passed to the GET -- may need to assign to the variable onced it's passed into
 
     //////////Test Vars//////////
     //this needs to be passed as the func params
-    var colName = "TestName";
-    var rowId = 45;
-    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca";
+    var colName = "TestName"; //internalName for the status column
+    var rowId = 45; //iid
+    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca"; //list guid
     /////////////////////////////
 
-    //for testing use this sandbox when ready for prod SWITCH the siteUrl with parentSite
     var url =
-      siteUrl +
+      ctx.HttpRoot +
       "/_api/web/lists/getbytitle('" +
       listName +
       "')/items?$filter=Title eq '" +
@@ -36,7 +34,6 @@
       " - " +
       colName +
       "'&$orderby=Created desc";
-
     $.ajax({
       url: url,
       type: "GET",
@@ -55,15 +52,11 @@
       },
     });
   }
-
   //needs message, colName, rowId, tableGUID
   function PostHistory() {
     //the row information needs to get passed here
-    var parentSite = ctx.PortalUrl; //"https://eis.usmc.mil/sites/imef/"
     var listName = "History " + ctx.SiteTitle; //"Sandbox"
-    var siteUrl = ctx.HttpRoot; //"https://eis.usmc.mil/sites/imef/sb"
-    var message = "hello sharepoint"; //this represents the message that the user wants to POST // this should be getting passed to the GET -- may need to assign to the variable onced it's passed into
-
+    var message = "hello sharepoint"; //this represents the message that the user wants to POST
     //////////Test Vars//////////
     //this needs to be passed as the func params
     var colName = "TestName";
@@ -71,8 +64,7 @@
     var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca";
     /////////////////////////////
 
-    //for testing use this sandbox when ready for prod SWITCH the siteUrl with parentSite
-    var url = siteUrl + "/_api/web/lists/getbytitle('" + listName + "')";
+    var url = ctx.HttpRoot + "/_api/web/lists/getbytitle('" + listName + "')";
 
     $.ajax({
       url: url,
@@ -92,14 +84,15 @@
       },
       error: function (error) {
         console.log("Error in the PostHistory:", error);
-        MakeList(listName, message, parentSite, colName, rowId, tableGUID);
+        MakeList(listName, message, colName, rowId, tableGUID);
       },
     });
   }
 
   function GetCurrentUser(listId, message, colName, rowId, tableGUID) {
+    console.log(listId);
     var url =
-      ctx.HttpRoot + "/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
+      ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
     $.ajax({
       url: url,
       type: "GET",
@@ -127,7 +120,7 @@
     });
   }
 
-  function MakeList(listName, message, parentSite, colName, rowId, tableGUID) {
+  function MakeList(listName, message, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.List" },
       AllowContentTypes: true,
@@ -135,8 +128,8 @@
       ContentTypesEnabled: true,
       Title: listName,
     };
-    // var url = parentSite + "_api/web/lists"; //uncomment for prod
-    var url = "https://eis.usmc.mil/sites/imef/sb/_api/web/lists"; //this is dev env
+
+    var url = ctx.HttpRoot + "/_api/web/lists"; //this is dev env
 
     $.ajax({
       url: url,
@@ -150,7 +143,7 @@
       },
       success: function (data) {
         console.log("History list created - successfully");
-        CreateColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
+        CreateMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
         return false;
       },
       error: function (error) {
@@ -159,7 +152,7 @@
     });
   }
 
-  function CreateColumn(listId, message, colName, rowId, tableGUID) {
+  function CreateMessageColumn(listId, message, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.Field" },
       Title: "Message",
@@ -169,10 +162,7 @@
       StaticName: "Message",
     };
 
-    var url =
-      "https://eis.usmc.mil/sites/imef/sb/_api/web/lists('" +
-      listId +
-      "')/Fields"; //this is dev env
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
 
     $.ajax({
       url: url,
@@ -185,12 +175,45 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("History col created - successfully");
+        console.log("Message col created - successfully");
+        CreateUserNameColumn(listId, message, colName, rowId, tableGUID);
+        return false;
+      },
+      error: function (error) {
+        console.log("Message col creation failed:", error);
+      },
+    });
+  }
+
+  function CreateUserNameColumn(listId, message, colName, rowId, tableGUID) {
+    var data = {
+      __metadata: { type: "SP.Field" },
+      Title: "UserName",
+      FieldTypeKind: 2,
+      Required: "false",
+      EnforceUniqueValues: "false",
+      StaticName: "UserName",
+    };
+
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("UserName col created - successfully");
         GetCurrentUser(listId, message, colName, rowId, tableGUID);
         return false;
       },
       error: function (error) {
-        console.log("History col creation failed:", error);
+        console.log("UserName col creation failed:", error);
       },
     });
   }
@@ -207,15 +230,12 @@
     //has to be able to get the person data in order to post the entry to the popover see People Manager
     var data = {
       __metadata: { type: "SP.ListItem" },
-      Message: currentUser + ": " + message,
+      Message: message,
       Title: tableGUID + " - " + rowId + " - " + colName, //name of the status column that is passed
+      UserName: currentUser,
     };
-    // var url = parentSite + "_api/web/lists('"+  listId + "')"; //uncomment for prod
 
-    var url =
-      "https://eis.usmc.mil/sites/imef/sb/_api/web/lists('" +
-      listId +
-      "')/items "; //this is dev env
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items "; //this is dev env
 
     $.ajax({
       url: url,
@@ -237,14 +257,79 @@
     });
   }
 
-  //Delete entry
-  //update entry
+  //the id (row#) will be apart of that item... would will need to be passed
+  function DeleteHistory() {
+    //////////Test Vars//////////
+    var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
+    var id = 1; //the id on the list item to be deleted not the iid (rowId) of the meatball
+    /////////////////////////////
+
+    var url =
+      ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "DELETE",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "IF-MATCH": "*",
+      },
+      success: function (data) {
+        console.log("History entry deleted - successfully");
+        return false;
+      },
+      error: function (error) {
+        console.log("History entry deletion failed:", error);
+      },
+    });
+  }
+
+  //the id (row#) will be apart of that item... would will need to be passed + the message
+  function UpdateHistory() {
+    //////////Test Vars//////////
+    var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
+    var id = 2; //the id on the list item to be deleted not the iid (rowId) of the meatball
+    var message = "hi pierre";
+    /////////////////////////////
+
+    var data = {
+      __metadata: { type: "SP.ListItem" },
+      Message: message,
+    };
+
+    var url =
+      ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "IF-MATCH": "*",
+        "X-HTTP-Method": "MERGE",
+      },
+      success: function (data) {
+        console.log("History entry updated - successfully");
+        return false;
+      },
+      error: function (error) {
+        console.log("History entry update failed:", error);
+      },
+    });
+  }
 
   //On initial load
   window.addEventListener("load", function () {
     start();
-    //RetrieveHistory();
     PostHistory();
+    UpdateHistory();
   });
 
   //On change
