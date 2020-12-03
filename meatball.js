@@ -353,6 +353,26 @@
 
     this.popoverBody.appendChild(carret);
     this.popoverBody.appendChild(popover);
+
+    this.history = document.createElement("button");
+    this.history.innerText = "History";
+    this.history.style.borderRadius = ".25rem";
+    this.history.style.padding = ".25rem";
+    this.history.style.textAlign = "center";
+
+    var historyPanel = new MeatballHistory();
+    var add = true;
+
+    this.history.addEventListener("click", function () {
+      if (add) {
+        add = !add;
+        //Call to grab history items
+      }
+      popoverPanel.appendChild(historyPanel.historyPanel);
+    });
+
+    this.popoverBody.appendChild(this.history);
+
     this.popoverPanel.appendChild(this.popoverBody);
 
     var popoverPanel = this.popoverPanel;
@@ -490,7 +510,7 @@
   };
 
   function MeatballHistory() {
-    var people = this;
+    var meatballHistory = this;
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
     this.historyPanel.style.borderRadius = ".25rem";
@@ -524,10 +544,10 @@
     this.svg.style.displayFlex = "right";
 
     this.svg.addEventListener("click", function () {
-      if (people.container.addNew) {
-        people.container.scroll(0, 0);
-        people.container.addNew = false;
-        people.newItem();
+      if (meatballHistory.container.addNew) {
+        meatballHistory.container.scroll(0, 0);
+        meatballHistory.container.addNew = false;
+        meatballHistory.newItem();
       }
     });
 
@@ -596,7 +616,7 @@
   };
 
   function MeatballMeatballHistoryItem() {
-    var change = this;
+    var meatballMeatballHistoryItem = this;
     this.option = document.createElement("div");
     this.option.style.padding = ".25rem";
     this.option.style.width = "300px";
@@ -661,7 +681,9 @@
     this.submit.style.marginTop = "5px";
     this.submit.style.padding = ".25rem";
     this.submit.addEventListener("click", function () {
-      change.setEditable(!change.getEditable());
+      meatballMeatballHistoryItem.setEditable(
+        !meatballMeatballHistoryItem.getEditable()
+      );
     });
 
     this.buttonGroup = document.createElement("div");
@@ -678,11 +700,13 @@
     this.edit.style.cursor = "pointer";
     this.edit.style.marginRight = "15px";
     this.edit.addEventListener("click", function () {
-      change.isNew = false;
+      meatballMeatballHistoryItem.isNew = false;
 
-      if (change.option.parentNode.isEdit) {
-        change.option.parentNode.isEdit = false;
-        change.setEditable(!change.getEditable());
+      if (meatballMeatballHistoryItem.option.parentNode.isEdit) {
+        meatballMeatballHistoryItem.option.parentNode.isEdit = false;
+        meatballMeatballHistoryItem.setEditable(
+          !meatballMeatballHistoryItem.getEditable()
+        );
       }
     });
     this.buttonGroup.appendChild(this.edit);
@@ -694,15 +718,17 @@
     }).wrapper;
     this.delete.style.cursor = "pointer";
     this.delete.addEventListener("click", function () {
-      if (change.option) {
-        if (change.option.parentNode) {
-          if (!change.option.parentNode.addNew) {
-            change.option.parentNode.addNew = true;
+      if (meatballMeatballHistoryItem.option) {
+        if (meatballMeatballHistoryItem.option.parentNode) {
+          if (!meatballMeatballHistoryItem.option.parentNode.addNew) {
+            meatballMeatballHistoryItem.option.parentNode.addNew = true;
           }
-          if (!change.option.parentNode.isEdit) {
-            change.option.parentNode.isEdit = true;
+          if (!meatballMeatballHistoryItem.option.parentNode.isEdit) {
+            meatballMeatballHistoryItem.option.parentNode.isEdit = true;
           }
-          change.option.parentNode.removeChild(change.option);
+          meatballMeatballHistoryItem.option.parentNode.removeChild(
+            meatballMeatballHistoryItem.option
+          );
         }
       }
     });
