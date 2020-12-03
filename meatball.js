@@ -12,9 +12,325 @@
   //Used by developers in Production to find bugs
   var debug = false;
 
+  //Show the history and on fail display "No Messages" in the history view
+  //needs message, colName, rowId, tableGUID
+  function RetrieveHistory() {
+    //the row information needs to get passed here
+
+    var listName = "History " + ctx.SiteTitle; //"Sandbox"
+    var message = "hello sharepoint"; //this represents the message that the user wants to POST // this should be getting passed to the GET -- may need to assign to the variable onced it's passed into
+
+    //////////Test Vars//////////
+    //this needs to be passed as the func params
+    var colName = "TestName"; //internalName for the status column
+    var rowId = 45; //iid
+    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca"; //list guid
+    /////////////////////////////
+
+    var url =
+      ctx.HttpRoot +
+      "/_api/web/lists/getbytitle('" +
+      listName +
+      "')/items?$filter=Title eq '" +
+      tableGUID +
+      " - " +
+      rowId +
+      " - " +
+      colName +
+      "'&$orderby=Created desc";
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("Messages:", data);
+        return false;
+      },
+      error: function (error) {
+        console.log("No History:", error);
+      },
+    });
+  }
+  //needs message, colName, rowId, tableGUID
+  function PostHistory() {
+    //the row information needs to get passed here
+    var listName = "History " + ctx.SiteTitle; //"Sandbox"
+    var message = "hello sharepoint"; //this represents the message that the user wants to POST
+    //////////Test Vars//////////
+    //this needs to be passed as the func params
+    var colName = "TestName";
+    var rowId = 45;
+    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca";
+    /////////////////////////////
+
+    var url = ctx.HttpRoot + "/_api/web/lists/getbytitle('" + listName + "')";
+
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("FindHistory:", data);
+        //get the user informaton before the concat
+        //needs to expand the modified by object to ensure that the person's name is viwable
+        GetCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
+        return false;
+      },
+      error: function (error) {
+        console.log("Error in the PostHistory:", error);
+        MakeList(listName, message, colName, rowId, tableGUID);
+      },
+    });
+  }
+
+  function GetCurrentUser(listId, message, colName, rowId, tableGUID) {
+    console.log(listId);
+    var url =
+      ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("CurrentUser:", data);
+        MakeHistory(
+          listId,
+          message,
+          colName,
+          rowId,
+          tableGUID,
+          data.d.DisplayName
+        ); // need to pass the values for the colStatus and rowId
+        return false;
+      },
+      error: function (error) {
+        console.log("Error in the getting the current:", error);
+      },
+    });
+  }
+
+  function MakeList(listName, message, colName, rowId, tableGUID) {
+    var data = {
+      __metadata: { type: "SP.List" },
+      AllowContentTypes: true,
+      BaseTemplate: 100,
+      ContentTypesEnabled: true,
+      Title: listName,
+    };
+
+    var url = ctx.HttpRoot + "/_api/web/lists"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("History list created - successfully");
+        CreateMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
+        return false;
+      },
+      error: function (error) {
+        console.log("History list creation failed:", error);
+      },
+    });
+  }
+
+  function CreateMessageColumn(listId, message, colName, rowId, tableGUID) {
+    var data = {
+      __metadata: { type: "SP.Field" },
+      Title: "Message",
+      FieldTypeKind: 2,
+      Required: "false",
+      EnforceUniqueValues: "false",
+      StaticName: "Message",
+    };
+
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("Message col created - successfully");
+        CreateUserNameColumn(listId, message, colName, rowId, tableGUID);
+        return false;
+      },
+      error: function (error) {
+        console.log("Message col creation failed:", error);
+      },
+    });
+  }
+
+  function CreateUserNameColumn(listId, message, colName, rowId, tableGUID) {
+    var data = {
+      __metadata: { type: "SP.Field" },
+      Title: "UserName",
+      FieldTypeKind: 2,
+      Required: "false",
+      EnforceUniqueValues: "false",
+      StaticName: "UserName",
+    };
+
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("UserName col created - successfully");
+        GetCurrentUser(listId, message, colName, rowId, tableGUID);
+        return false;
+      },
+      error: function (error) {
+        console.log("UserName col creation failed:", error);
+      },
+    });
+  }
+
+  function MakeHistory(
+    listId,
+    message,
+    colName,
+    rowId,
+    tableGUID,
+    currentUser
+  ) {
+    //we would need the info that the table has
+    //has to be able to get the person data in order to post the entry to the popover see People Manager
+    var data = {
+      __metadata: { type: "SP.ListItem" },
+      Message: message,
+      Title: tableGUID + " - " + rowId + " - " + colName, //name of the status column that is passed
+      UserName: currentUser,
+    };
+
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items "; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("History entry created - successfully");
+        return false;
+      },
+      error: function (error) {
+        console.log("History list creation failed:", error);
+      },
+    });
+  }
+
+  //the id (row#) will be apart of that item... would will need to be passed
+  function DeleteHistory() {
+    //////////Test Vars//////////
+    var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
+    var id = 1; //the id on the list item to be deleted not the iid (rowId) of the meatball
+    /////////////////////////////
+
+    var url =
+      ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "DELETE",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "IF-MATCH": "*",
+      },
+      success: function (data) {
+        console.log("History entry deleted - successfully");
+        return false;
+      },
+      error: function (error) {
+        console.log("History entry deletion failed:", error);
+      },
+    });
+  }
+  //the id (row#) will be apart of that item... would will need to be passed + the message
+  function UpdateHistory() {
+    //////////Test Vars//////////
+    var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
+    var id = 2; //the id on the list item to be deleted not the iid (rowId) of the meatball
+    var message = "hi pierre";
+    /////////////////////////////
+
+    var data = {
+      __metadata: { type: "SP.ListItem" },
+      Message: message,
+    };
+
+    var url =
+      ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "IF-MATCH": "*",
+      },
+      success: function (data) {
+        console.log("History entry updated - successfully");
+        return false;
+      },
+      error: function (error) {
+        console.log("History entry update failed:", error);
+      },
+    });
+  }
+
   //On initial load
   window.addEventListener("load", function () {
     start();
+    PostHistory();
   });
 
   //On change
@@ -141,7 +457,6 @@
     var displayValue,
       text = "";
     var add = false;
-
     $rows.map(function ($row, ri) {
       displayValue = "";
 
@@ -295,7 +610,6 @@
     this.popoverPanel = document.createElement("div");
     this.popoverPanel.style.backgroundColor = "transparent";
     this.popoverPanel.style.padding = "10px";
-    this.popoverPanel.style.paddingLeft = "15px";
     this.popoverBody = document.createElement("div");
     this.popoverBody.style.display = "inline-block";
     this.popoverBody.style.margin = "0px";
@@ -305,10 +619,11 @@
 
     var carret = document.createElement("div");
     carret.style.margin = "0px";
+    carret.style.display = "inline-block";
     carret.style.position = "absolute";
     carret.style.height = "0px";
     carret.style.width = "0px";
-    carret.style.left = "7px";
+    carret.style.left = "2px";
     carret.style.top = "29px";
     carret.style.borderTop = triangleSize + "px solid transparent";
     carret.style.borderBottom = triangleSize + "px solid transparent";
@@ -330,7 +645,7 @@
     header.style.borderRadius = ".25rem";
     header.style.textAlign = "center";
     header.style.marginBottom = ".25rem";
-    header.style.fontWeight = "500";
+    header.style.backgroundColor = "#BABBFD";
     header.innerText = value;
     //Create Options Panel Object
     var options = new OptionPanel();
@@ -350,6 +665,16 @@
     popover.appendChild(header);
     //Add Options Panel
     popover.appendChild(options.options);
+
+    //Add Click Event to display Options Panel
+    header.addEventListener("click", function () {
+      var style = options.style.display;
+      var change = false;
+      change = style === "block";
+      change
+        ? (options.style.display = "none")
+        : (options.style.display = "block");
+    });
 
     this.popoverBody.appendChild(carret);
     this.popoverBody.appendChild(popover);
@@ -384,7 +709,7 @@
         document.body.appendChild(popoverPanel);
         popoverPanel.style.position = "fixed";
         popoverPanel.style.left =
-          this.getBoundingClientRect().right - 17 + triangleSize + "px";
+          this.getBoundingClientRect().right - 12 + triangleSize + "px";
         popoverPanel.style.top =
           this.getBoundingClientRect().top - 40 + triangleSize + "px";
       }
@@ -854,13 +1179,13 @@
   //Controller for the Toast Object
   function Pantry() {
     this.container = document.createElement("div");
-    this.container.style.position = "fixed";
-    this.container.style.width = "auto";
-    this.container.style.right = "15px";
-    this.container.style.top = "75px";
+    this.container.style.width = "250px";
+    this.container.style.right = "40px";
     this.container.style.display = "flex";
     this.container.style.flexDirection = "column";
     this.container.style.zIndex = "1";
+    this.container.style.top = "75px";
+    this.container.style.position = "fixed";
     this.container.style.backgroundColor = "transparent";
     document.body.appendChild(this.container);
   }
@@ -968,12 +1293,8 @@
   };
 
   Toast.prototype.show = function () {
-    if (this.svg) {
-      this.toast.appendChild(this.svg);
-    }
-    if (this.text) {
-      this.toast.appendChild(this.text);
-    }
+    this.toast.appendChild(this.svg);
+    this.toast.appendChild(this.text);
     return this;
   };
 
