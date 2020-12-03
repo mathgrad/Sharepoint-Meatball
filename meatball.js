@@ -286,7 +286,6 @@
       },
     });
   }
-
   //the id (row#) will be apart of that item... would will need to be passed + the message
   function UpdateHistory() {
     //////////Test Vars//////////
@@ -313,7 +312,6 @@
         credentials: true,
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         "IF-MATCH": "*",
-        "X-HTTP-Method": "MERGE",
       },
       success: function (data) {
         console.log("History entry updated - successfully");
@@ -329,7 +327,6 @@
   window.addEventListener("load", function () {
     start();
     PostHistory();
-    UpdateHistory();
   });
 
   //On change
