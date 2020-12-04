@@ -190,7 +190,11 @@
           return this;
         }
 
-        MeatballMeatballHistoryItem.prototype.setDisplay = function (author, date, text) {
+        MeatballMeatballHistoryItem.prototype.setDisplay = function (
+          author,
+          date,
+          text
+        ) {
           this.author.innerText = "by " + author;
           this.text.innerText = text.replace(regex, "", text);
           this.time.innerText = "on " + date;
@@ -332,6 +336,12 @@
         MeatballHistory.prototype.push = function (change) {
           this.container.appendChild(change.option);
           return this;
+        };
+
+        MeatballHistory.prototype.clear = function () {
+          while (this.container.firstChild) {
+            this.container.removeChild(this.container.firstChild);
+          }
         };
 
         MeatballHistory.prototype.deleteItem = function () {};

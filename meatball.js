@@ -726,6 +726,11 @@
 
     //Add Mouse leave Event to hide
     this.popoverPanel.addEventListener("mouseleave", function (e) {
+      if (historyPanel) {
+        if (historyPanel.historyPanel) {
+          popoverPanel.removeChild(historyPanel.historyPanel);
+        }
+      }
       if (popoverPanel) {
         if (popoverPanel.parentNode) {
           popoverPanel.parentNode.removeChild(popoverPanel);
@@ -842,8 +847,8 @@
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
     this.historyPanel.style.borderRadius = ".25rem";
-    this.historyPanel.style.width = "350px";
-    this.historyPanel.style.height = "425px";
+    this.historyPanel.style.width = "inherit";
+    this.historyPanel.style.height = "200px";
     this.historyPanel.style.backgroundColor = backgroundColor;
     this.historyPanel.style.textAlign = "center";
 
@@ -943,11 +948,17 @@
     return this;
   };
 
+  MeatballHistory.prototype.clear = function () {
+    while (this.container.firstChild) {
+      this.container.removeChild(this.container.firstChild);
+    }
+  };
+
   function MeatballMeatballHistoryItem() {
     var meatballMeatballHistoryItem = this;
     this.option = document.createElement("div");
     this.option.style.padding = ".25rem";
-    this.option.style.width = "300px";
+    this.option.style.width = "200px";
     this.option.style.marginRight = "auto";
     this.option.style.marginLeft = "auto";
     this.option.style.marginBottom = ".25rem";
@@ -955,7 +966,7 @@
 
     this.display = document.createElement("div");
     this.display.style.display = "block";
-    this.display.style.width = "300px";
+    this.display.style.width = "200px";
     this.display.style.padding = ".25rem";
     this.display.style.marginRight = "auto";
     this.display.style.marginLeft = "auto";
