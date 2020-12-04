@@ -377,7 +377,7 @@
     this.history.addEventListener("click", function () {
       if (add) {
         add = !add;
-        //Call to grab history items
+        RetrieveHistory(table, rowIndex, internalColumn);
       }
       popoverPanel.appendChild(historyPanel.historyPanel);
     });
@@ -1165,30 +1165,20 @@
   }
 
   //Show the history and on fail display "No Messages" in the history view
-  //needs message, colName, rowId, tableGUID
-  function RetrieveHistory() {
-    //the row information needs to get passed here
 
-    var listName = "History " + ctx.SiteTitle; //"Sandbox"
-    var message = "hello sharepoint"; //this represents the message that the user wants to POST // this should be getting passed to the GET -- may need to assign to the variable onced it's passed into
-
-    //////////Test Vars//////////
-    //this needs to be passed as the func params
-    var colName = "TestName"; //internalName for the status column
-    var rowId = 45; //iid
-    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca"; //list guid
-    /////////////////////////////
-
+  function RetrieveHistory(table, rowIndex, internalColumn) {
+    console.log(table, rowIndex, internalColumn);
+    var sandboxName = "History " + ctx.SiteTitle;
     var url =
       ctx.HttpRoot +
       "/_api/web/lists/getbytitle('" +
-      listName +
+      sandboxName +
       "')/items?$filter=Title eq '" +
-      tableGUID +
+      table +
       " - " +
-      rowId +
+      rowIndex +
       " - " +
-      colName +
+      internalColumn +
       "'&$orderby=Created desc";
     $.ajax({
       url: url,
@@ -1200,7 +1190,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("Messages:", data);
+        console.log("Messages:", data.d.results);
         return false;
       },
       error: function (error) {
@@ -1211,16 +1201,17 @@
   //needs message, colName, rowId, tableGUID
   function PostHistory() {
     //the row information needs to get passed here
-    var listName = "History " + ctx.SiteTitle; //"Sandbox"
-    var message = "hello sharepoint"; //this represents the message that the user wants to POST
+    var sandboxName = "History " + ctx.SiteTitle; //"Sandbox"
+    var message = "hello pierre"; //this represents the message that the user wants to POST
     //////////Test Vars//////////
     //this needs to be passed as the func params
-    var colName = "TestName";
-    var rowId = 45;
-    var tableGUID = "55e24452-ce07-437e-991b-fdb29cb030ca";
+    var colName = "NIPR_x0020_Status_x0020_Values";
+    var rowId = 2;
+    var tableGUID = "3DEA4A61-D6E4-422E-8362-59129AC32B64";
     /////////////////////////////
 
-    var url = ctx.HttpRoot + "/_api/web/lists/getbytitle('" + listName + "')";
+    var url =
+      ctx.HttpRoot + "/_api/web/lists/getbytitle('" + sandboxName + "')";
 
     $.ajax({
       url: url,
@@ -1240,13 +1231,12 @@
       },
       error: function (error) {
         console.log("Error in the PostHistory:", error);
-        MakeList(listName, message, colName, rowId, tableGUID);
+        MakeList(sandboxName, message, colName, rowId, tableGUID);
       },
     });
   }
 
   function GetCurrentUser(listId, message, colName, rowId, tableGUID) {
-    console.log(listId);
     var url =
       ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
     $.ajax({
@@ -1276,13 +1266,13 @@
     });
   }
 
-  function MakeList(listName, message, colName, rowId, tableGUID) {
+  function MakeList(sandboxName, message, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.List" },
       AllowContentTypes: true,
       BaseTemplate: 100,
       ContentTypesEnabled: true,
-      Title: listName,
+      Title: sandboxName,
     };
 
     var url = ctx.HttpRoot + "/_api/web/lists"; //this is dev env
