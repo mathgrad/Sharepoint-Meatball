@@ -413,11 +413,49 @@
     this.element.addEventListener("mouseenter", function () {
       if (!popoverPanel.parentNode) {
         document.body.appendChild(popoverPanel);
+
         popoverPanel.style.position = "fixed";
-        popoverPanel.style.left =
-          this.getBoundingClientRect().right - 12 + triangleSize + "px";
-        popoverPanel.style.top =
-          this.getBoundingClientRect().top - 40 + triangleSize + "px";
+        carret.style.position = "inherit";
+        var windowHeight = window.innerHeight || document.body.clientHeight;
+        var windowWidth = window.innerWidth || document.body.clientWidth;
+
+        if (
+          popoverPanel.offsetHeight + this.getBoundingClientRect().top <
+          windowHeight
+        ) {
+          popoverPanel.style.top =
+            this.getBoundingClientRect().top - 40 + triangleSize + "px";
+        } else {
+          carret.style.position = "fixed";
+          carret.style.top = this.getBoundingClientRect().top + "px";
+
+          var meatballHeight =
+            this.getBoundingClientRect().top - 40 + triangleSize;
+          var meatballDifferenceHeight = Math.abs(
+            meatballHeight - (windowHeight - popoverPanel.offsetHeight)
+          );
+          if (meatballHeight <= windowHeight - popoverPanel.offsetHeight) {
+            popoverPanel.style.top =
+              windowHeight -
+              popoverPanel.offsetHeight -
+              meatballDifferenceHeight +
+              "px";
+          } else {
+            popoverPanel.style.top =
+              windowHeight - popoverPanel.offsetHeight + "px";
+          }
+        }
+
+        if (
+          popoverPanel.offsetWidth + this.getBoundingClientRect().right <
+          windowWidth
+        ) {
+          popoverPanel.style.left =
+            this.getBoundingClientRect().right - 12 + triangleSize + "px";
+        } else {
+          popoverPanel.style.right =
+            this.getBoundingClientRect().left + 12 - triangleSize + "px";
+        }
       }
     });
 
@@ -740,11 +778,11 @@
     this.submit.innerText = "Submit";
     this.submit.style.backgroundColor = "#aaaaaa";
     this.submit.style.width = "75px";
-    this.submit.style.border = "1px solid black";
     this.submit.style.cursor = "pointer";
     this.submit.style.margin = "auto";
     this.submit.style.marginRight = ".25rem";
     this.submit.style.padding = ".25rem";
+    this.submit.style.borderRadius = ".25rem";
     this.submit.addEventListener("click", function () {
       meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
     });
