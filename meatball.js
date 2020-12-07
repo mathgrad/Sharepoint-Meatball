@@ -539,28 +539,39 @@
 
   function MeatballHistory() {
     var meatballHistory = this;
+    var windowHeight = window.innerHeight || document.body.clientHeight;
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
-    this.historyPanel.style.borderRadius = ".25rem";
-    this.historyPanel.style.width = "350px";
-    this.historyPanel.style.height = "425px";
+    this.historyPanel.style.width = "calc(500px - .5rem)";
+    this.historyPanel.style.height = windowHeight + "px";
     this.historyPanel.style.backgroundColor = backgroundColor;
     this.historyPanel.style.textAlign = "center";
+    this.historyPanel.style.position = "fixed";
+    this.historyPanel.style.top = "0px";
+    this.historyPanel.style.right = "0px";
 
     this.title = document.createElement("div");
-    this.title.style.width = "300px";
+    this.title.style.width = "calc(500px - .5rem)";
     this.title.style.textAlign = "center";
     this.title.style.marginRight = "auto";
     this.title.style.marginLeft = "auto";
-    this.title.style.marginBottom = ".25rem";
+    this.title.style.marginBottom = ".5rem";
     this.title.style.display = "flex";
     this.title.style.flexDirection = "row";
 
-    this.text = document.createElement("div");
-    this.text.innerText = "MeatballHistory";
-    this.text.style.display = "flex";
-    this.text.style.width = "75%";
-    this.title.appendChild(this.text);
+    this.comment = document.createElement("div");
+    this.comment.innerText = "History";
+    this.comment.style.flexGrow = "1";
+    this.comment.style.flexShrink = "1";
+    this.comment.style.paddingLeft = ".5rem";
+    this.comment.style.textAlign = "left";
+    this.title.appendChild(this.comment);
+
+    this.svgContainer = document.createElement("div");
+    this.svgContainer.style.flexGrow = "4";
+    this.svgContainer.style.flexShrink = "1";
+    this.svgContainer.style.textAlign = "right";
+    this.svgContainer.style.marginRight = ".75rem";
 
     this.svg = new SVGGenerator({
       color: "green",
@@ -568,8 +579,6 @@
       size: "normal",
     }).wrapper;
     this.svg.style.cursor = "pointer";
-    this.svg.style.display = "flex";
-    this.svg.style.displayFlex = "right";
 
     this.svg.addEventListener("click", function () {
       if (meatballHistory.container.addNew) {
@@ -579,14 +588,18 @@
       }
     });
 
-    this.title.appendChild(this.svg);
+    this.svgContainer.appendChild(this.svg);
+
+    this.title.appendChild(this.svgContainer);
 
     this.historyPanel.appendChild(this.title);
 
     this.container = document.createElement("div");
-    this.container.style.width = "300px";
-    this.container.style.height = "350px";
+    this.container.style.width = "calc(500px - 2.25rem)";
+    this.container.style.height = windowHeight - 100 + "px";
     this.container.style.margin = "auto";
+    this.container.style.paddingTop = ".25rem";
+    this.container.style.paddingLeft = ".25rem";
     this.container.style.paddingRight = "2rem";
     this.container.style.overflowX = "hidden";
     this.container.style.overflowY = "auto";
@@ -606,34 +619,18 @@
     this.addMore.style.backgroundColor = "#999999";
 
     this.historyPanel.appendChild(this.addMore);
-    var add = true;
 
     this.addMore.addEventListener("click", function () {
-      //possilble history.clear is needed  - pierre
-      //it needs the information for the cell, table, row etc
-      if (add) {
-        add = !add;
-        function cb(error, data) {
-          if (error) {
-            console.log(error);
-            return;
-          }
-
-          data.forEach(function (props) {
-            historyPanel.build(
-              new MeatballHistoryItem().setDisplay(
-                props.UserName,
-                props.Created,
-                props.Message
-              )
-            );
-          });
-        }
-        retrieveHistory(table, rowIndex, internalColumn, cb);
-      }
-      popoverPanel.appendChild(historyPanel.historyPanel);
+      testList.forEach(function (item, i) {
+        history.push(
+          new MeatballHistoryItem().setDisplay(
+            authorList[i],
+            new Date().getTime(),
+            item
+          )
+        );
+      });
     });
-
     this.historyPanel.addEventListener("mouseleave", function () {
       var panel = this;
       if (panel) {
