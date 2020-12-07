@@ -873,14 +873,18 @@
     this.comment.style.textAlign = "left";
     this.title.appendChild(this.comment);
 
+    this.svgContainer = document.createElement("div");
+    this.svgContainer.style.flexGrow = "4";
+    this.svgContainer.style.flexShrink = "1";
+    this.svgContainer.style.textAlign = "right";
+    this.svgContainer.style.marginRight = ".75rem";
+
     this.svg = new SVGGenerator({
       color: "green",
       type: "add",
       size: "normal",
     }).wrapper;
     this.svg.style.cursor = "pointer";
-    this.svg.style.display = "flex";
-    this.svg.style.displayFlex = "right";
 
     this.svg.addEventListener("click", function () {
       if (meatballHistory.container.addNew) {
@@ -890,7 +894,9 @@
       }
     });
 
-    this.title.appendChild(this.svg);
+    this.svgContainer.appendChild(this.svg);
+
+    this.title.appendChild(this.svgContainer);
 
     this.historyPanel.appendChild(this.title);
 
