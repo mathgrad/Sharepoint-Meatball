@@ -618,7 +618,7 @@
             console.log(error);
             return;
           }
-          // console.log("data:", data);
+
           data.forEach(function (props) {
             historyPanel.build(
               new MeatballHistoryItem().setDisplay(
