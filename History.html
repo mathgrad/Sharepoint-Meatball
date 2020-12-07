@@ -75,7 +75,7 @@
           var change = this;
           this.option = document.createElement("div");
           this.option.style.padding = ".25rem";
-          this.option.style.width = "300px";
+          this.option.style.width = "500px";
           this.option.style.marginRight = "auto";
           this.option.style.marginLeft = "auto";
           this.option.style.marginBottom = ".25rem";
@@ -83,15 +83,14 @@
 
           this.display = document.createElement("div");
           this.display.style.display = "block";
-          this.display.style.width = "300px";
-          this.display.style.padding = ".25rem";
-          this.display.style.marginRight = "auto";
-          this.display.style.marginLeft = "auto";
-          this.display.style.padding = ".25rem";
+          this.display.style.width = "500px";
+          this.display.style.padding = "0px";
+          this.display.style.marginRight = "0px";
+          this.display.style.marginLeft = "0px";
 
           this.text = document.createElement("div");
           this.text.contentEditable = false;
-          this.text.style.width = "110px";
+          this.text.style.width = "calc(200px - .5rem)";
           this.text.style.padding = ".25rem";
           this.text.style.margin = "0px";
           this.text.style.display = "inline-block";
@@ -100,7 +99,7 @@
 
           this.time = document.createElement("div");
           this.time.contentEditable = false;
-          this.time.style.width = "75px";
+          this.time.style.width = "calc(150px - .5rem)";
           this.time.style.padding = ".25rem";
           this.time.style.margin = "0px";
           this.time.style.display = "inline-block";
@@ -110,7 +109,7 @@
 
           this.author = document.createElement("div");
           this.author.contentEditable = false;
-          this.author.style.width = "75px";
+          this.author.style.width = "calc(150px - .5rem)";
           this.author.style.padding = ".25rem";
           this.author.style.margin = "0px";
           this.author.style.display = "inline-block";
@@ -141,7 +140,7 @@
           });
 
           this.buttonGroup = document.createElement("div");
-          this.buttonGroup.style.width = "285px";
+          this.buttonGroup.style.width = "435px";
           this.buttonGroup.style.textAlign = "right";
           this.buttonGroup.style.margin = "0px";
           this.buttonGroup.style.padding = "0px";
@@ -234,16 +233,19 @@
 
         function MeatballHistory() {
           var people = this;
+          var windowHeight = window.innerHeight || document.body.clientHeight;
           this.historyPanel = document.createElement("div");
           this.historyPanel.style.padding = ".25rem";
-          this.historyPanel.style.borderRadius = ".25rem";
-          this.historyPanel.style.width = "350px";
-          this.historyPanel.style.height = "425px";
+          this.historyPanel.style.width = "500px";
+          this.historyPanel.style.height = windowHeight + "px";
           this.historyPanel.style.backgroundColor = backgroundColor;
           this.historyPanel.style.textAlign = "center";
+          this.historyPanel.style.position = "fixed";
+          this.historyPanel.style.top = "0px";
+          this.historyPanel.style.right = "0px";
 
           this.title = document.createElement("div");
-          this.title.style.width = "300px";
+          this.title.style.width = "500px";
           this.title.style.textAlign = "center";
           this.title.style.marginRight = "auto";
           this.title.style.marginLeft = "auto";
@@ -252,7 +254,7 @@
           this.title.style.flexDirection = "row";
 
           this.text = document.createElement("div");
-          this.text.innerText = "MeatballHistory";
+          this.text.innerText = "History";
           this.text.style.display = "flex";
           this.text.style.width = "75%";
           this.title.appendChild(this.text);
@@ -279,8 +281,8 @@
           this.historyPanel.appendChild(this.title);
 
           this.container = document.createElement("div");
-          this.container.style.width = "300px";
-          this.container.style.height = "350px";
+          this.container.style.width = "500px";
+          this.container.style.height = windowHeight - 100 + "px";
           this.container.style.margin = "auto";
           this.container.style.paddingRight = "2rem";
           this.container.style.overflowX = "hidden";
@@ -313,14 +315,14 @@
               );
             });
           });
-          this.historyPanel.addEventListener("mouseleave", function () {
-            var panel = this;
-            if (panel) {
-              if (panel.parentNode) {
-                panel.parentNode.removeChild(panel);
-              }
-            }
-          });
+          // this.historyPanel.addEventListener("mouseleave", function () {
+          //   var panel = this;
+          //   if (panel) {
+          //     if (panel.parentNode) {
+          //       panel.parentNode.removeChild(panel);
+          //     }
+          //   }
+          // });
           return this;
         }
 
