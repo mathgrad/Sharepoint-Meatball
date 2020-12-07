@@ -72,7 +72,7 @@
         }
 
         function MeatballMeatballHistoryItem() {
-          var change = this;
+          var meatballMeatballHistoryItem = this;
           this.option = document.createElement("div");
           this.option.style.padding = ".25rem";
           this.option.style.width = meatballHistoryItemContainerWidth;
@@ -116,7 +116,9 @@
           this.submit.style.marginRight = ".25rem";
           this.submit.style.padding = ".25rem";
           this.submit.addEventListener("click", function () {
-            change.setEditable(!change.getEditable());
+            meatballMeatballHistoryItem.setEditable(
+              !meatballMeatballHistoryItem.getEditable()
+            );
           });
 
           this.buttonGroup = document.createElement("div");
@@ -147,11 +149,13 @@
           this.edit.style.flexGrow = "4";
           this.edit.style.flexShrink = "1";
           this.edit.addEventListener("click", function () {
-            change.isNew = false;
+            meatballMeatballHistoryItem.isNew = false;
 
-            if (change.option.parentNode.isEdit) {
-              change.option.parentNode.isEdit = false;
-              change.setEditable(!change.getEditable());
+            if (meatballMeatballHistoryItem.option.parentNode.isEdit) {
+              meatballMeatballHistoryItem.option.parentNode.isEdit = false;
+              meatballMeatballHistoryItem.setEditable(
+                !meatballMeatballHistoryItem.getEditable()
+              );
             }
           });
           this.buttonGroup.appendChild(this.edit);
@@ -167,15 +171,17 @@
           this.delete.style.flexGrow = "1";
           this.delete.style.flexShrink = "1";
           this.delete.addEventListener("click", function () {
-            if (change.option) {
-              if (change.option.parentNode) {
-                if (!change.option.parentNode.addNew) {
-                  change.option.parentNode.addNew = true;
+            if (meatballMeatballHistoryItem.option) {
+              if (meatballMeatballHistoryItem.option.parentNode) {
+                if (!meatballMeatballHistoryItem.option.parentNode.addNew) {
+                  meatballMeatballHistoryItem.option.parentNode.addNew = true;
                 }
-                if (!change.option.parentNode.isEdit) {
-                  change.option.parentNode.isEdit = true;
+                if (!meatballMeatballHistoryItem.option.parentNode.isEdit) {
+                  meatballMeatballHistoryItem.option.parentNode.isEdit = true;
                 }
-                change.option.parentNode.removeChild(change.option);
+                meatballMeatballHistoryItem.option.parentNode.removeChild(
+                  meatballMeatballHistoryItem.option
+                );
               }
             }
           });
@@ -240,7 +246,7 @@
         };
 
         function MeatballHistory() {
-          var people = this;
+          var meatballHistory = this;
           var windowHeight = window.innerHeight || document.body.clientHeight;
           this.historyPanel = document.createElement("div");
           this.historyPanel.style.padding = ".25rem";
@@ -277,10 +283,10 @@
           this.svg.style.displayFlex = "right";
 
           this.svg.addEventListener("click", function () {
-            if (people.container.addNew) {
-              people.container.scroll(0, 0);
-              people.container.addNew = false;
-              people.newItem();
+            if (meatballHistory.container.addNew) {
+              meatballHistory.container.scroll(0, 0);
+              meatballHistory.container.addNew = false;
+              meatballHistory.newItem();
             }
           });
 
@@ -325,14 +331,14 @@
               );
             });
           });
-          // this.historyPanel.addEventListener("mouseleave", function () {
-          //   var panel = this;
-          //   if (panel) {
-          //     if (panel.parentNode) {
-          //       panel.parentNode.removeChild(panel);
-          //     }
-          //   }
-          // });
+          this.historyPanel.addEventListener("mouseleave", function () {
+            var panel = this;
+            if (panel) {
+              if (panel.parentNode) {
+                panel.parentNode.removeChild(panel);
+              }
+            }
+          });
           return this;
         }
 
