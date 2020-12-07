@@ -588,10 +588,12 @@
     this.svg.style.cursor = "pointer";
 
     this.svg.addEventListener("click", function () {
-      if (meatballHistory.container.addNew) {
-        meatballHistory.container.scroll(0, 0);
-        meatballHistory.container.addNew = false;
-        meatballHistory.newItem();
+      if (meatballHistory.container) {
+        if (meatballHistory.container.addNew) {
+          meatballHistory.container.scroll(0, 0);
+          meatballHistory.container.addNew = false;
+          meatballHistory.newItem();
+        }
       }
     });
 
@@ -822,16 +824,16 @@
 
   MeatballHistoryItem.prototype.setEditable = function (value) {
     if (value) {
-      this.text.style.border = "1px solid black";
+      this.comment.style.border = "1px solid black";
       this.display.appendChild(this.submit);
     } else {
-      var text = this.text.innerText;
-      text = text.replace(regex, "", text);
-      this.text.innerText = text;
-      if (text.trim().length === 0) {
+      var currentText = this.comment.innerText;
+      currentText = currentText.replace(regex, "", currentText);
+      this.comment.innerText = currentText;
+      if (currentText.trim().length === 0) {
         return;
       }
-      this.text.style.border = "0px";
+      this.comment.style.border = "0px";
       this.display.removeChild(this.submit);
 
       if (!this.option.parentNode.addNew && this.isNew) {
@@ -843,12 +845,12 @@
         this.option.parentNode.isEdit = true;
       }
     }
-    this.text.contentEditable = value;
+    this.comment.contentEditable = value;
     return this;
   };
 
   MeatballHistoryItem.prototype.getEditable = function () {
-    return this.text.contentEditable === "true";
+    return this.comment.contentEditable === "true";
   };
 
   //A hashmap between values and colors
