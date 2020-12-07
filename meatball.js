@@ -773,7 +773,7 @@
             MeatballHistoryItem.option
           );
         }
-      }
+      } 
     });
     this.buttonGroup.appendChild(this.delete);
 
