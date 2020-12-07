@@ -275,9 +275,10 @@
 
           this.comment = document.createElement("div");
           this.comment.innerText = "History";
-          this.comment.style.display = "flex";
-          this.comment.style.width = "75%";
+          this.comment.style.flexGrow = "1";
+          this.comment.style.flexShrink = "1";
           this.comment.style.paddingLeft = ".5rem";
+          this.comment.style.textAlign = "left";
           this.title.appendChild(this.comment);
 
           this.svg = new SVGGenerator({
@@ -286,8 +287,10 @@
             size: "normal",
           }).wrapper;
           this.svg.style.cursor = "pointer";
-          this.svg.style.display = "flex";
-          this.svg.style.displayFlex = "right";
+          this.svg.style.flexGrow = "4";
+          this.svg.style.flexShrink = "1";
+          this.svg.style.textAlign = "right";
+          this.svg.style.marginRight = ".75rem";
 
           this.svg.addEventListener("click", function () {
             if (meatballHistory.container.addNew) {

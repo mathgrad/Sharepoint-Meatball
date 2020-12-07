@@ -867,9 +867,10 @@
 
     this.comment = document.createElement("div");
     this.comment.innerText = "History";
-    this.comment.style.display = "flex";
-    this.comment.style.width = "75%";
+    this.comment.style.flexGrow = "1";
+    this.comment.style.flexShrink = "1";
     this.comment.style.paddingLeft = ".5rem";
+    this.comment.style.textAlign = "left";
     this.title.appendChild(this.comment);
 
     this.svg = new SVGGenerator({
