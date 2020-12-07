@@ -16,7 +16,6 @@
   //On initial load
   window.addEventListener("load", function () {
     start();
-    PostHistory();
   });
 
   //On change
@@ -374,10 +373,28 @@
     var historyPanel = new MeatballHistory();
     var add = true;
 
+    //change this to only append oen entry - pierre
     this.history.addEventListener("click", function () {
       if (add) {
         add = !add;
-        RetrieveHistory(table, rowIndex, internalColumn);
+        function cb(error, data) {
+          if (error) {
+            console.log(error);
+            return;
+          }
+          data.forEach(function (props) {
+            console.log("props from init History:", props);
+            // historyPanel.clear(); --this deleted every entry and left the last one in the view
+            historyPanel.build(
+              new MeatballHistoryItem().setDisplay(
+                props.UserName,
+                props.Created,
+                props.Message
+              )
+            );
+          });
+        }
+        retrieveHistory(table, rowIndex, internalColumn, cb, true);
       }
       popoverPanel.appendChild(historyPanel.historyPanel);
     });
@@ -589,18 +606,34 @@
     this.addMore.style.backgroundColor = "#999999";
 
     this.historyPanel.appendChild(this.addMore);
+    var add = true;
 
     this.addMore.addEventListener("click", function () {
-      testList.forEach(function (item, i) {
-        history.push(
-          new MeatballMeatballHistoryItem().setDisplay(
-            authorList[i],
-            new Date().getTime(),
-            item
-          )
-        );
-      });
+      //possilble history.clear is needed  - pierre
+      //it needs the information for the cell, table, row etc
+      if (add) {
+        add = !add;
+        function cb(error, data) {
+          if (error) {
+            console.log(error);
+            return;
+          }
+          // console.log("data:", data);
+          data.forEach(function (props) {
+            historyPanel.build(
+              new MeatballHistoryItem().setDisplay(
+                props.UserName,
+                props.Created,
+                props.Message
+              )
+            );
+          });
+        }
+        retrieveHistory(table, rowIndex, internalColumn, cb);
+      }
+      popoverPanel.appendChild(historyPanel.historyPanel);
     });
+
     this.historyPanel.addEventListener("mouseleave", function () {
       var panel = this;
       if (panel) {
@@ -613,7 +646,7 @@
   }
 
   MeatballHistory.prototype.newItem = function () {
-    var item = new MeatballMeatballHistoryItem()
+    var item = new MeatballHistoryItem()
       .setDisplay("Joshua", new Date().getTime(), "")
       .setEditable(true);
     item.isNew = true;
@@ -621,13 +654,19 @@
     return this;
   };
 
-  MeatballHistory.prototype.push = function (change) {
-    this.container.appendChild(change.option);
+  MeatballHistory.prototype.build = function (props) {
+    this.container.appendChild(props.option);
     return this;
   };
 
-  function MeatballMeatballHistoryItem() {
-    var meatballMeatballHistoryItem = this;
+  MeatballHistory.prototype.clear = function () {
+    while (this.container.firstChild) {
+      this.container.removeChild(this.container.firstChild);
+    }
+  };
+
+  function MeatballHistoryItem() {
+    var MeatballHistoryItem = this;
     this.option = document.createElement("div");
     this.option.style.padding = ".25rem";
     this.option.style.width = "300px";
@@ -692,9 +731,7 @@
     this.submit.style.marginTop = "5px";
     this.submit.style.padding = ".25rem";
     this.submit.addEventListener("click", function () {
-      meatballMeatballHistoryItem.setEditable(
-        !meatballMeatballHistoryItem.getEditable()
-      );
+      MeatballHistoryItem.setEditable(!MeatballHistoryItem.getEditable());
     });
 
     this.buttonGroup = document.createElement("div");
@@ -711,13 +748,11 @@
     this.edit.style.cursor = "pointer";
     this.edit.style.marginRight = "15px";
     this.edit.addEventListener("click", function () {
-      meatballMeatballHistoryItem.isNew = false;
+      MeatballHistoryItem.isNew = false;
 
-      if (meatballMeatballHistoryItem.option.parentNode.isEdit) {
-        meatballMeatballHistoryItem.option.parentNode.isEdit = false;
-        meatballMeatballHistoryItem.setEditable(
-          !meatballMeatballHistoryItem.getEditable()
-        );
+      if (MeatballHistoryItem.option.parentNode.isEdit) {
+        MeatballHistoryItem.option.parentNode.isEdit = false;
+        MeatballHistoryItem.setEditable(!MeatballHistoryItem.getEditable());
       }
     });
     this.buttonGroup.appendChild(this.edit);
@@ -729,16 +764,16 @@
     }).wrapper;
     this.delete.style.cursor = "pointer";
     this.delete.addEventListener("click", function () {
-      if (meatballMeatballHistoryItem.option) {
-        if (meatballMeatballHistoryItem.option.parentNode) {
-          if (!meatballMeatballHistoryItem.option.parentNode.addNew) {
-            meatballMeatballHistoryItem.option.parentNode.addNew = true;
+      if (MeatballHistoryItem.option) {
+        if (MeatballHistoryItem.option.parentNode) {
+          if (!MeatballHistoryItem.option.parentNode.addNew) {
+            MeatballHistoryItem.option.parentNode.addNew = true;
           }
-          if (!meatballMeatballHistoryItem.option.parentNode.isEdit) {
-            meatballMeatballHistoryItem.option.parentNode.isEdit = true;
+          if (!MeatballHistoryItem.option.parentNode.isEdit) {
+            MeatballHistoryItem.option.parentNode.isEdit = true;
           }
-          meatballMeatballHistoryItem.option.parentNode.removeChild(
-            meatballMeatballHistoryItem.option
+          MeatballHistoryItem.option.parentNode.removeChild(
+            MeatballHistoryItem.option
           );
         }
       }
@@ -751,18 +786,14 @@
     return this;
   }
 
-  MeatballMeatballHistoryItem.prototype.setDisplay = function (
-    author,
-    date,
-    text
-  ) {
+  MeatballHistoryItem.prototype.setDisplay = function (author, date, text) {
     this.author.innerText = "by " + author;
     this.text.innerText = text.replace(regex, "", text);
     this.time.innerText = "on " + date;
     return this;
   };
 
-  MeatballMeatballHistoryItem.prototype.setEditable = function (value) {
+  MeatballHistoryItem.prototype.setEditable = function (value) {
     if (value) {
       this.text.style.border = "1px solid black";
       this.display.appendChild(this.submit);
@@ -789,7 +820,7 @@
     return this;
   };
 
-  MeatballMeatballHistoryItem.prototype.getEditable = function () {
+  MeatballHistoryItem.prototype.getEditable = function () {
     return this.text.contentEditable === "true";
   };
 
@@ -1166,20 +1197,34 @@
 
   //Show the history and on fail display "No Messages" in the history view
 
-  function RetrieveHistory(table, rowIndex, internalColumn) {
-    console.log(table, rowIndex, internalColumn);
+  function retrieveHistory(table, rowIndex, internalColumn, cb, init) {
     var sandboxName = "History " + ctx.SiteTitle;
-    var url =
-      ctx.HttpRoot +
-      "/_api/web/lists/getbytitle('" +
-      sandboxName +
-      "')/items?$filter=Title eq '" +
-      table +
-      " - " +
-      rowIndex +
-      " - " +
-      internalColumn +
-      "'&$orderby=Created desc";
+    if (init) {
+      var url =
+        ctx.HttpRoot +
+        "/_api/web/lists/getbytitle('" +
+        sandboxName +
+        "')/items?$filter=Title eq '" +
+        table +
+        " - " +
+        rowIndex +
+        " - " +
+        internalColumn +
+        "'&$orderby=Created desc&$top=1";
+    } else {
+      var url =
+        ctx.HttpRoot +
+        "/_api/web/lists/getbytitle('" +
+        sandboxName +
+        "')/items?$filter=Title eq '" +
+        table +
+        " - " +
+        rowIndex +
+        " - " +
+        internalColumn +
+        "'&$orderby=Created desc";
+    }
+
     $.ajax({
       url: url,
       type: "GET",
@@ -1189,15 +1234,13 @@
         credentials: true,
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
-      success: function (data) {
-        console.log("Messages:", data.d.results);
-        return false;
+      success: function (res) {
+        cb(null, res.d.results);
       },
-      error: function (error) {
-        console.log("No History:", error);
-      },
+      error: cb,
     });
   }
+
   //needs message, colName, rowId, tableGUID
   function PostHistory() {
     //the row information needs to get passed here
