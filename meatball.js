@@ -921,7 +921,7 @@
     this.addMore.addEventListener("click", function () {
       testList.forEach(function (item, i) {
         history.push(
-          new MeatballMeatballHistoryItem().setDisplay(
+          new MeatballHistoryItem().setDisplay(
             authorList[i],
             new Date().getTime(),
             item
@@ -941,7 +941,7 @@
   }
 
   MeatballHistory.prototype.newItem = function () {
-    var item = new MeatballMeatballHistoryItem()
+    var item = new MeatballHistoryItem()
       .setDisplay("Joshua", new Date().getTime(), "")
       .setEditable(true);
     item.isNew = true;
@@ -960,7 +960,7 @@
     }
   };
 
-  function MeatballMeatballHistoryItem() {
+  function MeatballHistoryItem() {
     var meatballMeatballHistoryItem = this;
     this.option = document.createElement("div");
     this.option.style.padding = ".25rem";
@@ -1092,7 +1092,7 @@
     return this;
   }
 
-  MeatballMeatballHistoryItem.prototype.setDisplay = function (
+  MeatballHistoryItem.prototype.setDisplay = function (
     author,
     date,
     text
@@ -1103,7 +1103,7 @@
     return this;
   };
 
-  MeatballMeatballHistoryItem.prototype.setEditable = function (value) {
+  MeatballHistoryItem.prototype.setEditable = function (value) {
     if (value) {
       this.text.style.border = "1px solid black";
       this.display.appendChild(this.submit);
@@ -1130,7 +1130,7 @@
     return this;
   };
 
-  MeatballMeatballHistoryItem.prototype.getEditable = function () {
+  MeatballHistoryItem.prototype.getEditable = function () {
     return this.text.contentEditable === "true";
   };
 

@@ -45,7 +45,7 @@
               add = !add;
               testList.forEach(function (item, i) {
                 history.push(
-                  new MeatballMeatballHistoryItem().setDisplay(
+                  new MeatballHistoryItem().setDisplay(
                     authorList[i],
                     new Date().getTime(),
                     item
@@ -61,9 +61,15 @@
               if (e.toElement) {
                 if (e.toElement.parentNode) {
                   if (!e.toElement.parentNode.contains(history.historyPanel)) {
-                    history.historyPanel.parentNode.removeChild(
-                      history.historyPanel
-                    );
+                    if (history) {
+                      if (history.historyPanel) {
+                        if (history.historyPanel.parentNode) {
+                          history.historyPanel.parentNode.removeChild(
+                            history.historyPanel
+                          );
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -71,7 +77,7 @@
           });
         }
 
-        function MeatballMeatballHistoryItem() {
+        function MeatballHistoryItem() {
           var meatballMeatballHistoryItem = this;
           this.option = document.createElement("div");
           this.option.style.padding = ".25rem";
@@ -203,7 +209,7 @@
           return this;
         }
 
-        MeatballMeatballHistoryItem.prototype.setDisplay = function (
+        MeatballHistoryItem.prototype.setDisplay = function (
           author,
           date,
           text
@@ -214,7 +220,7 @@
           return this;
         };
 
-        MeatballMeatballHistoryItem.prototype.setEditable = function (value) {
+        MeatballHistoryItem.prototype.setEditable = function (value) {
           if (value) {
             this.comment.style.border = "1px solid black";
             this.display.appendChild(this.submit);
@@ -241,7 +247,7 @@
           return this;
         };
 
-        MeatballMeatballHistoryItem.prototype.getEditable = function () {
+        MeatballHistoryItem.prototype.getEditable = function () {
           return this.comment.contentEditable === "true";
         };
 
@@ -271,6 +277,7 @@
           this.comment.innerText = "History";
           this.comment.style.display = "flex";
           this.comment.style.width = "75%";
+          this.comment.style.paddingLeft = ".5rem";
           this.title.appendChild(this.comment);
 
           this.svg = new SVGGenerator({
@@ -323,7 +330,7 @@
           this.addMore.addEventListener("click", function () {
             testList.forEach(function (item, i) {
               history.push(
-                new MeatballMeatballHistoryItem().setDisplay(
+                new MeatballHistoryItem().setDisplay(
                   authorList[i],
                   new Date().getTime(),
                   item
@@ -343,7 +350,7 @@
         }
 
         MeatballHistory.prototype.newItem = function () {
-          var item = new MeatballMeatballHistoryItem()
+          var item = new MeatballHistoryItem()
             .setDisplay("Joshua", new Date().getTime(), "")
             .setEditable(true);
           item.isNew = true;
