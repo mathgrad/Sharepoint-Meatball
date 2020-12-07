@@ -1,6 +1,7 @@
 (function () {
   //Size sets the Meatball size in pixels
   var size = 20;
+  var meatballHistoryItemContainerWidth = "calc(500px - 2.25rem)";
   //Creates the Color object which manages meatball colors
   var colors = new Colors();
   var backgroundColor = "#F0F0F0";
@@ -368,12 +369,14 @@
     this.history.innerText = "History";
     this.history.style.borderRadius = ".25rem";
     this.history.style.padding = ".25rem";
+    this.history.style.marginBottom = ".25rem";
     this.history.style.textAlign = "center";
+    this.history.style.display = "block";
+    this.history.style.cursor = "pointer";
 
     var historyPanel = new MeatballHistory();
     var add = true;
 
-    //change this to only append oen entry - pierre
     this.history.addEventListener("click", function () {
       if (add) {
         add = !add;
@@ -396,9 +399,8 @@
         }
         retrieveHistory(table, rowIndex, internalColumn, cb, true);
       }
-      popoverPanel.appendChild(historyPanel.historyPanel);
+      document.body.appendChild(historyPanel.historyPanel);
     });
-
     this.popoverBody.appendChild(this.history);
 
     this.popoverPanel.appendChild(this.popoverBody);
@@ -426,6 +428,11 @@
 
     //Add Mouse leave Event to hide
     this.popoverPanel.addEventListener("mouseleave", function (e) {
+      // if (historyPanel) {
+      //   if (historyPanel.historyPanel) {
+      //     popoverPanel.removeChild(historyPanel.historyPanel);
+      //   }
+      // }
       if (popoverPanel) {
         if (popoverPanel.parentNode) {
           popoverPanel.parentNode.removeChild(popoverPanel);
@@ -621,16 +628,31 @@
     this.historyPanel.appendChild(this.addMore);
 
     this.addMore.addEventListener("click", function () {
-      testList.forEach(function (item, i) {
-        history.push(
-          new MeatballHistoryItem().setDisplay(
-            authorList[i],
-            new Date().getTime(),
-            item
-          )
-        );
-      });
+      //possilble history.clear is needed  - pierre
+      //it needs the information for the cell, table, row etc
+      if (add) {
+        add = !add;
+        function cb(error, data) {
+          if (error) {
+            console.log(error);
+            return;
+          }
+
+          data.forEach(function (props) {
+            historyPanel.build(
+              new MeatballHistoryItem().setDisplay(
+                props.UserName,
+                props.Created,
+                props.Message
+              )
+            );
+          });
+        }
+        retrieveHistory(table, rowIndex, internalColumn, cb);
+      }
+      popoverPanel.appendChild(historyPanel.historyPanel);
     });
+
     this.historyPanel.addEventListener("mouseleave", function () {
       var panel = this;
       if (panel) {
@@ -651,8 +673,8 @@
     return this;
   };
 
-  MeatballHistory.prototype.build = function (props) {
-    this.container.appendChild(props.option);
+  MeatballHistory.prototype.build = function (change) {
+    this.container.appendChild(change.option);
     return this;
   };
 
@@ -663,55 +685,35 @@
   };
 
   function MeatballHistoryItem() {
-    var MeatballHistoryItem = this;
+    var meatballHistoryItem = this;
     this.option = document.createElement("div");
     this.option.style.padding = ".25rem";
-    this.option.style.width = "300px";
-    this.option.style.marginRight = "auto";
-    this.option.style.marginLeft = "auto";
+    this.option.style.width = meatballHistoryItemContainerWidth;
+    this.option.style.margin = "0px;";
     this.option.style.marginBottom = ".25rem";
     this.option.style.padding = ".25rem";
 
     this.display = document.createElement("div");
     this.display.style.display = "block";
-    this.display.style.width = "300px";
-    this.display.style.padding = ".25rem";
-    this.display.style.marginRight = "auto";
-    this.display.style.marginLeft = "auto";
-    this.display.style.padding = ".25rem";
-
-    this.text = document.createElement("div");
-    this.text.contentEditable = false;
-    this.text.style.width = "110px";
-    this.text.style.padding = ".25rem";
-    this.text.style.margin = "0px";
-    this.text.style.display = "inline-block";
-    this.text.style.verticalAlign = "middle";
-    this.display.appendChild(this.text);
-
-    this.time = document.createElement("div");
-    this.time.contentEditable = false;
-    this.time.style.width = "75px";
-    this.time.style.padding = ".25rem";
-    this.time.style.margin = "0px";
-    this.time.style.display = "inline-block";
-    this.time.style.wordWrap = "break-word";
-    this.time.style.verticalAlign = "middle";
-    this.display.appendChild(this.time);
+    this.display.style.width = meatballHistoryItemContainerWidth;
+    this.display.style.padding = "0px";
+    this.display.style.marginRight = "0px";
+    this.display.style.marginLeft = "0px";
 
     this.author = document.createElement("div");
     this.author.contentEditable = false;
-    this.author.style.width = "75px";
+    this.author.style.width = "calc(150px - .5rem)";
     this.author.style.padding = ".25rem";
     this.author.style.margin = "0px";
-    this.author.style.display = "inline-block";
     this.author.style.verticalAlign = "middle";
+    this.author.style.textAlign = "left";
+    this.author.style.fontSize = "12pt";
     this.display.appendChild(this.author);
 
-    this.display.addEventListener("mouseenter", function () {
+    this.option.addEventListener("mouseenter", function () {
       this.style.boxShadow = addShadow;
     });
-    this.display.addEventListener("mouseleave", function () {
+    this.option.addEventListener("mouseleave", function () {
       this.style.boxShadow = removeShadow;
     });
 
@@ -724,18 +726,30 @@
     this.submit.style.border = "1px solid black";
     this.submit.style.cursor = "pointer";
     this.submit.style.margin = "auto";
-    this.submit.style.marginRight = "15px";
-    this.submit.style.marginTop = "5px";
+    this.submit.style.marginRight = ".25rem";
     this.submit.style.padding = ".25rem";
     this.submit.addEventListener("click", function () {
-      MeatballHistoryItem.setEditable(!MeatballHistoryItem.getEditable());
+      meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
     });
 
     this.buttonGroup = document.createElement("div");
-    this.buttonGroup.style.width = "285px";
+    this.buttonGroup.style.width = meatballHistoryItemContainerWidth;
     this.buttonGroup.style.textAlign = "right";
     this.buttonGroup.style.margin = "0px";
     this.buttonGroup.style.padding = "0px";
+    this.buttonGroup.style.display = "flex";
+    this.buttonGroup.style.alignContent = "flex-start";
+    this.buttonGroup.style.justifyContent = "space-around";
+
+    this.date = document.createElement("div");
+    this.date.contentEditable = false;
+    this.date.style.width = "calc(500px - 2.75rem)";
+    this.date.style.padding = ".25rem";
+    this.date.style.margin = "0px";
+    this.date.style.textAlign = "left";
+    this.date.style.fontSize = "12pt";
+    this.date.style.display = "inline-block";
+    this.buttonGroup.appendChild(this.date);
 
     this.edit = new SVGGenerator({
       color: "green",
@@ -743,13 +757,14 @@
       size: "small",
     }).wrapper;
     this.edit.style.cursor = "pointer";
-    this.edit.style.marginRight = "15px";
+    this.edit.style.flexGrow = "4";
+    this.edit.style.flexShrink = "1";
     this.edit.addEventListener("click", function () {
-      MeatballHistoryItem.isNew = false;
+      meatballHistoryItem.isNew = false;
 
-      if (MeatballHistoryItem.option.parentNode.isEdit) {
-        MeatballHistoryItem.option.parentNode.isEdit = false;
-        MeatballHistoryItem.setEditable(!MeatballHistoryItem.getEditable());
+      if (meatballHistoryItem.option.parentNode.isEdit) {
+        meatballHistoryItem.option.parentNode.isEdit = false;
+        meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
       }
     });
     this.buttonGroup.appendChild(this.edit);
@@ -760,33 +775,47 @@
       size: "small",
     }).wrapper;
     this.delete.style.cursor = "pointer";
+    this.delete.style.marginLeft = "15px";
+    this.delete.style.textAlign = "left";
+    this.delete.style.flexGrow = "1";
+    this.delete.style.flexShrink = "1";
     this.delete.addEventListener("click", function () {
-      if (MeatballHistoryItem.option) {
-        if (MeatballHistoryItem.option.parentNode) {
-          if (!MeatballHistoryItem.option.parentNode.addNew) {
-            MeatballHistoryItem.option.parentNode.addNew = true;
+      if (meatballHistoryItem.option) {
+        if (meatballHistoryItem.option.parentNode) {
+          if (!meatballHistoryItem.option.parentNode.addNew) {
+            meatballHistoryItem.option.parentNode.addNew = true;
           }
-          if (!MeatballHistoryItem.option.parentNode.isEdit) {
-            MeatballHistoryItem.option.parentNode.isEdit = true;
+          if (!meatballHistoryItem.option.parentNode.isEdit) {
+            meatballHistoryItem.option.parentNode.isEdit = true;
           }
-          MeatballHistoryItem.option.parentNode.removeChild(
-            MeatballHistoryItem.option
+          meatballHistoryItem.option.parentNode.removeChild(
+            meatballHistoryItem.option
           );
         }
-      } 
+      }
     });
     this.buttonGroup.appendChild(this.delete);
 
     this.option.appendChild(this.buttonGroup);
+
+    this.comment = document.createElement("div");
+    this.comment.contentEditable = false;
+    this.comment.style.width = "calc(500px - 3rem)";
+    this.comment.style.padding = ".25rem";
+    this.comment.style.margin = "0px";
+    this.comment.style.display = "inline-block";
+    this.comment.style.verticalAlign = "middle";
+
+    this.option.appendChild(this.comment);
     this.option.appendChild(this.display);
 
     return this;
   }
 
-  MeatballHistoryItem.prototype.setDisplay = function (author, date, text) {
+  MeatballHistoryItem.prototype.setDisplay = function (author, date, comment) {
     this.author.innerText = "by " + author;
-    this.text.innerText = text.replace(regex, "", text);
-    this.time.innerText = "on " + date;
+    this.comment.innerText = comment.replace(regex, "", comment);
+    this.date.innerText = "on " + date;
     return this;
   };
 
@@ -1237,9 +1266,8 @@
       error: cb,
     });
   }
-
   //needs message, colName, rowId, tableGUID
-  function PostHistory() {
+  function postHistory() {
     //the row information needs to get passed here
     var sandboxName = "History " + ctx.SiteTitle; //"Sandbox"
     var message = "hello pierre"; //this represents the message that the user wants to POST
@@ -1266,17 +1294,17 @@
         console.log("FindHistory:", data);
         //get the user informaton before the concat
         //needs to expand the modified by object to ensure that the person's name is viwable
-        GetCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
+        getCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
         return false;
       },
       error: function (error) {
         console.log("Error in the PostHistory:", error);
-        MakeList(sandboxName, message, colName, rowId, tableGUID);
+        makeList(sandboxName, message, colName, rowId, tableGUID);
       },
     });
   }
 
-  function GetCurrentUser(listId, message, colName, rowId, tableGUID) {
+  function getCurrentUser(listId, message, colName, rowId, tableGUID) {
     var url =
       ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
     $.ajax({
@@ -1290,7 +1318,7 @@
       },
       success: function (data) {
         console.log("CurrentUser:", data);
-        MakeHistory(
+        makeHistory(
           listId,
           message,
           colName,
@@ -1306,7 +1334,7 @@
     });
   }
 
-  function MakeList(sandboxName, message, colName, rowId, tableGUID) {
+  function makeList(sandboxName, message, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.List" },
       AllowContentTypes: true,
@@ -1329,7 +1357,7 @@
       },
       success: function (data) {
         console.log("History list created - successfully");
-        CreateMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
+        createMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
         return false;
       },
       error: function (error) {
@@ -1338,7 +1366,7 @@
     });
   }
 
-  function CreateMessageColumn(listId, message, colName, rowId, tableGUID) {
+  function createMessageColumn(listId, message, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.Field" },
       Title: "Message",
@@ -1362,7 +1390,7 @@
       },
       success: function (data) {
         console.log("Message col created - successfully");
-        CreateUserNameColumn(listId, message, colName, rowId, tableGUID);
+        createUserNameColumn(listId, message, colName, rowId, tableGUID);
         return false;
       },
       error: function (error) {
@@ -1371,7 +1399,7 @@
     });
   }
 
-  function CreateUserNameColumn(listId, message, colName, rowId, tableGUID) {
+  function createUserNameColumn(listId, message, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.Field" },
       Title: "UserName",
@@ -1395,7 +1423,7 @@
       },
       success: function (data) {
         console.log("UserName col created - successfully");
-        GetCurrentUser(listId, message, colName, rowId, tableGUID);
+        getCurrentUser(listId, message, colName, rowId, tableGUID);
         return false;
       },
       error: function (error) {
@@ -1404,7 +1432,7 @@
     });
   }
 
-  function MakeHistory(
+  function makeHistory(
     listId,
     message,
     colName,
@@ -1444,7 +1472,7 @@
   }
 
   //the id (row#) will be apart of that item... would will need to be passed
-  function DeleteHistory() {
+  function deleteHistory() {
     //////////Test Vars//////////
     var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
     var id = 1; //the id on the list item to be deleted not the iid (rowId) of the meatball
@@ -1473,7 +1501,7 @@
     });
   }
   //the id (row#) will be apart of that item... would will need to be passed + the message
-  function UpdateHistory() {
+  function updateHistory() {
     //////////Test Vars//////////
     var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
     var id = 2; //the id on the list item to be deleted not the iid (rowId) of the meatball
