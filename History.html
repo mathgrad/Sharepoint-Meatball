@@ -95,12 +95,12 @@
 
           this.author = document.createElement("div");
           this.author.contentEditable = false;
-          this.author.style.width = "calc(150px - .5rem)";
+          this.author.style.width = meatballHistoryItemContainerWidth;
           this.author.style.padding = ".25rem";
           this.author.style.margin = "0px";
           this.author.style.verticalAlign = "middle";
           this.author.style.textAlign = "left";
-          this.author.style.fontSize = "12pt";
+          this.author.style.fontSize = "10pt";
           this.display.appendChild(this.author);
 
           this.option.addEventListener("mouseenter", function () {
@@ -142,7 +142,7 @@
           this.date.style.padding = ".25rem";
           this.date.style.margin = "0px";
           this.date.style.textAlign = "left";
-          this.date.style.fontSize = "12pt";
+          this.date.style.fontSize = "10pt";
           this.date.style.display = "inline-block";
           this.buttonGroup.appendChild(this.date);
 
@@ -202,6 +202,7 @@
           this.comment.style.margin = "0px";
           this.comment.style.display = "inline-block";
           this.comment.style.verticalAlign = "middle";
+          this.comment.style.fontSize = "14pt";
 
           this.option.appendChild(this.comment);
           this.option.appendChild(this.display);

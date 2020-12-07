@@ -590,10 +590,12 @@
     this.svg.style.cursor = "pointer";
 
     this.svg.addEventListener("click", function () {
-      if (meatballHistory.container.addNew) {
-        meatballHistory.container.scroll(0, 0);
-        meatballHistory.container.addNew = false;
-        meatballHistory.newItem();
+      if (meatballHistory.container) {
+        if (meatballHistory.container.addNew) {
+          meatballHistory.container.scroll(0, 0);
+          meatballHistory.container.addNew = false;
+          meatballHistory.newItem();
+        }
       }
     });
 
@@ -670,11 +672,21 @@
   }
 
   MeatballHistory.prototype.newItem = function () {
-    var item = new MeatballHistoryItem()
-      .setDisplay("Joshua", new Date().getTime(), "")
-      .setEditable(true);
-    item.isNew = true;
-    this.container.insertBefore(item.option, this.container.firstChild);
+    function success(props, name) {
+      var today = new Date();
+      var displayDate =
+        today.getFullYear() +
+        " - " +
+        (today.getMonth() + 1) +
+        " - " +
+        today.getDate();
+      var item = new MeatballHistoryItem()
+        .setDisplay(name, displayDate, "")
+        .setEditable(true);
+      item.isNew = true;
+      props.container.insertBefore(item.option, props.container.firstChild);
+    }
+    getUserName(success, this);
     return this;
   };
 
@@ -707,12 +719,12 @@
 
     this.author = document.createElement("div");
     this.author.contentEditable = false;
-    this.author.style.width = "calc(150px - .5rem)";
+    this.author.style.width = meatballHistoryItemContainerWidth;
     this.author.style.padding = ".25rem";
     this.author.style.margin = "0px";
     this.author.style.verticalAlign = "middle";
     this.author.style.textAlign = "left";
-    this.author.style.fontSize = "12pt";
+    this.author.style.fontSize = "10pt";
     this.display.appendChild(this.author);
 
     this.option.addEventListener("mouseenter", function () {
@@ -752,7 +764,7 @@
     this.date.style.padding = ".25rem";
     this.date.style.margin = "0px";
     this.date.style.textAlign = "left";
-    this.date.style.fontSize = "12pt";
+    this.date.style.fontSize = "10pt";
     this.date.style.display = "inline-block";
     this.buttonGroup.appendChild(this.date);
 
@@ -810,6 +822,7 @@
     this.comment.style.margin = "0px";
     this.comment.style.display = "inline-block";
     this.comment.style.verticalAlign = "middle";
+    this.comment.style.fontSize = "14pt";
 
     this.option.appendChild(this.comment);
     this.option.appendChild(this.display);
@@ -831,16 +844,16 @@
 
   MeatballHistoryItem.prototype.setEditable = function (value) {
     if (value) {
-      this.text.style.border = "1px solid black";
+      this.comment.style.border = "1px solid black";
       this.display.appendChild(this.submit);
     } else {
-      var text = this.text.innerText;
-      text = text.replace(regex, "", text);
-      this.text.innerText = text;
-      if (text.trim().length === 0) {
+      var currentText = this.comment.innerText;
+      currentText = currentText.replace(regex, "", currentText);
+      this.comment.innerText = currentText;
+      if (currentText.trim().length === 0) {
         return;
       }
-      this.text.style.border = "0px";
+      this.comment.style.border = "0px";
       this.display.removeChild(this.submit);
 
       if (!this.option.parentNode.addNew && this.isNew) {
@@ -852,12 +865,12 @@
         this.option.parentNode.isEdit = true;
       }
     }
-    this.text.contentEditable = value;
+    this.comment.contentEditable = value;
     return this;
   };
 
   MeatballHistoryItem.prototype.getEditable = function () {
-    return this.text.contentEditable === "true";
+    return this.comment.contentEditable === "true";
   };
 
   //A hashmap between values and colors
@@ -1306,6 +1319,29 @@
       error: function (error) {
         console.log("Error in the PostHistory:", error);
         makeList(sandboxName, message, colName, rowId, tableGUID);
+      },
+    });
+  }
+
+  function getUserName(success, meatballHistory) {
+    var url =
+      ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        var name = data.d.DisplayName;
+        success(meatballHistory, name);
+        return false;
+      },
+      error: function (error) {
+        console.log("Error in the getting the current:", error);
       },
     });
   }
