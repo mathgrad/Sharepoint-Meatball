@@ -1193,6 +1193,7 @@
     animateTransform.setAttribute("dur", "1080ms");
     animateTransform.setAttribute("repeatCount", "indefinite");
     this.g.appendChild(animateTransform);
+    return this;
   };
 
   //True, error.  False, no error.
