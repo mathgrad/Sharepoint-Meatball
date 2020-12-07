@@ -667,11 +667,21 @@
   }
 
   MeatballHistory.prototype.newItem = function () {
-    var item = new MeatballHistoryItem()
-      .setDisplay("Joshua", new Date().getTime(), "")
-      .setEditable(true);
-    item.isNew = true;
-    this.container.insertBefore(item.option, this.container.firstChild);
+    function success(props, name) {
+      var today = new Date();
+      var displayDate =
+        today.getFullYear() +
+        " - " +
+        (today.getMonth() + 1) +
+        " - " +
+        today.getDate();
+      var item = new MeatballHistoryItem()
+        .setDisplay(name, displayDate, "")
+        .setEditable(true);
+      item.isNew = true;
+      props.container.insertBefore(item.option, props.container.firstChild);
+    }
+    getUserName(success, this);
     return this;
   };
 
@@ -1303,6 +1313,29 @@
       error: function (error) {
         console.log("Error in the PostHistory:", error);
         makeList(sandboxName, message, colName, rowId, tableGUID);
+      },
+    });
+  }
+
+  function getUserName(success, meatballHistory) {
+    var url =
+      ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        var name = data.d.DisplayName;
+        success(meatballHistory, name);
+        return false;
+      },
+      error: function (error) {
+        console.log("Error in the getting the current:", error);
       },
     });
   }
