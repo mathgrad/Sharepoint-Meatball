@@ -654,7 +654,7 @@
   };
 
   function MeatballHistoryItem() {
-    var meatballMeatballHistoryItem = this;
+    var meatballHistoryItem = this;
     this.option = document.createElement("div");
     this.option.style.padding = ".25rem";
     this.option.style.width = meatballHistoryItemContainerWidth;
@@ -698,8 +698,8 @@
     this.submit.style.marginRight = ".25rem";
     this.submit.style.padding = ".25rem";
     this.submit.addEventListener("click", function () {
-      meatballMeatballHistoryItem.setEditable(
-        !meatballMeatballHistoryItem.getEditable()
+      meatballHistoryItem.setEditable(
+        !meatballHistoryItem.getEditable()
       );
     });
 
@@ -731,12 +731,12 @@
     this.edit.style.flexGrow = "4";
     this.edit.style.flexShrink = "1";
     this.edit.addEventListener("click", function () {
-      meatballMeatballHistoryItem.isNew = false;
+      meatballHistoryItem.isNew = false;
 
-      if (meatballMeatballHistoryItem.option.parentNode.isEdit) {
-        meatballMeatballHistoryItem.option.parentNode.isEdit = false;
-        meatballMeatballHistoryItem.setEditable(
-          !meatballMeatballHistoryItem.getEditable()
+      if (meatballHistoryItem.option.parentNode.isEdit) {
+        meatballHistoryItem.option.parentNode.isEdit = false;
+        meatballHistoryItem.setEditable(
+          !meatballHistoryItem.getEditable()
         );
       }
     });
@@ -753,16 +753,16 @@
     this.delete.style.flexGrow = "1";
     this.delete.style.flexShrink = "1";
     this.delete.addEventListener("click", function () {
-      if (meatballMeatballHistoryItem.option) {
-        if (meatballMeatballHistoryItem.option.parentNode) {
-          if (!meatballMeatballHistoryItem.option.parentNode.addNew) {
-            meatballMeatballHistoryItem.option.parentNode.addNew = true;
+      if (meatballHistoryItem.option) {
+        if (meatballHistoryItem.option.parentNode) {
+          if (!meatballHistoryItem.option.parentNode.addNew) {
+            meatballHistoryItem.option.parentNode.addNew = true;
           }
-          if (!meatballMeatballHistoryItem.option.parentNode.isEdit) {
-            meatballMeatballHistoryItem.option.parentNode.isEdit = true;
+          if (!meatballHistoryItem.option.parentNode.isEdit) {
+            meatballHistoryItem.option.parentNode.isEdit = true;
           }
-          meatballMeatballHistoryItem.option.parentNode.removeChild(
-            meatballMeatballHistoryItem.option
+          meatballHistoryItem.option.parentNode.removeChild(
+            meatballHistoryItem.option
           );
         }
       }
