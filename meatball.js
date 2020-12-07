@@ -17,7 +17,6 @@
   //On initial load
   window.addEventListener("load", function () {
     start();
-    PostHistory();
   });
 
   //On change
@@ -381,9 +380,26 @@
     this.history.addEventListener("click", function () {
       if (add) {
         add = !add;
-        RetrieveHistory(table, rowIndex, internalColumn);
+        function cb(error, data) {
+          if (error) {
+            console.log(error);
+            return;
+          }
+          data.forEach(function (props) {
+            console.log("props from init History:", props);
+            // historyPanel.clear(); --this deleted every entry and left the last one in the view
+            historyPanel.build(
+              new MeatballHistoryItem().setDisplay(
+                props.UserName,
+                props.Created,
+                props.Message
+              )
+            );
+          });
+        }
+        retrieveHistory(table, rowIndex, internalColumn, cb, true);
       }
-      popoverPanel.appendChild(historyPanel.historyPanel);
+      document.body.appendChild(historyPanel.historyPanel);
     });
     this.popoverBody.appendChild(this.history);
 
@@ -412,11 +428,11 @@
 
     //Add Mouse leave Event to hide
     this.popoverPanel.addEventListener("mouseleave", function (e) {
-      if (historyPanel) {
-        if (historyPanel.historyPanel) {
-          popoverPanel.removeChild(historyPanel.historyPanel);
-        }
-      }
+      // if (historyPanel) {
+      //   if (historyPanel.historyPanel) {
+      //     popoverPanel.removeChild(historyPanel.historyPanel);
+      //   }
+      // }
       if (popoverPanel) {
         if (popoverPanel.parentNode) {
           popoverPanel.parentNode.removeChild(popoverPanel);
@@ -612,16 +628,31 @@
     this.historyPanel.appendChild(this.addMore);
 
     this.addMore.addEventListener("click", function () {
-      testList.forEach(function (item, i) {
-        history.push(
-          new MeatballHistoryItem().setDisplay(
-            authorList[i],
-            new Date().getTime(),
-            item
-          )
-        );
-      });
+      //possilble history.clear is needed  - pierre
+      //it needs the information for the cell, table, row etc
+      if (add) {
+        add = !add;
+        function cb(error, data) {
+          if (error) {
+            console.log(error);
+            return;
+          }
+
+          data.forEach(function (props) {
+            historyPanel.build(
+              new MeatballHistoryItem().setDisplay(
+                props.UserName,
+                props.Created,
+                props.Message
+              )
+            );
+          });
+        }
+        retrieveHistory(table, rowIndex, internalColumn, cb);
+      }
+      popoverPanel.appendChild(historyPanel.historyPanel);
     });
+
     this.historyPanel.addEventListener("mouseleave", function () {
       var panel = this;
       if (panel) {
@@ -642,7 +673,7 @@
     return this;
   };
 
-  MeatballHistory.prototype.push = function (change) {
+  MeatballHistory.prototype.build = function (change) {
     this.container.appendChild(change.option);
     return this;
   };
@@ -654,7 +685,7 @@
   };
 
   function MeatballHistoryItem() {
-    var meatballMeatballHistoryItem = this;
+    var meatballHistoryItem = this;
     this.option = document.createElement("div");
     this.option.style.padding = ".25rem";
     this.option.style.width = meatballHistoryItemContainerWidth;
@@ -698,9 +729,7 @@
     this.submit.style.marginRight = ".25rem";
     this.submit.style.padding = ".25rem";
     this.submit.addEventListener("click", function () {
-      meatballMeatballHistoryItem.setEditable(
-        !meatballMeatballHistoryItem.getEditable()
-      );
+      meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
     });
 
     this.buttonGroup = document.createElement("div");
@@ -731,13 +760,11 @@
     this.edit.style.flexGrow = "4";
     this.edit.style.flexShrink = "1";
     this.edit.addEventListener("click", function () {
-      meatballMeatballHistoryItem.isNew = false;
+      meatballHistoryItem.isNew = false;
 
-      if (meatballMeatballHistoryItem.option.parentNode.isEdit) {
-        meatballMeatballHistoryItem.option.parentNode.isEdit = false;
-        meatballMeatballHistoryItem.setEditable(
-          !meatballMeatballHistoryItem.getEditable()
-        );
+      if (meatballHistoryItem.option.parentNode.isEdit) {
+        meatballHistoryItem.option.parentNode.isEdit = false;
+        meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
       }
     });
     this.buttonGroup.appendChild(this.edit);
@@ -753,16 +780,16 @@
     this.delete.style.flexGrow = "1";
     this.delete.style.flexShrink = "1";
     this.delete.addEventListener("click", function () {
-      if (meatballMeatballHistoryItem.option) {
-        if (meatballMeatballHistoryItem.option.parentNode) {
-          if (!meatballMeatballHistoryItem.option.parentNode.addNew) {
-            meatballMeatballHistoryItem.option.parentNode.addNew = true;
+      if (meatballHistoryItem.option) {
+        if (meatballHistoryItem.option.parentNode) {
+          if (!meatballHistoryItem.option.parentNode.addNew) {
+            meatballHistoryItem.option.parentNode.addNew = true;
           }
-          if (!meatballMeatballHistoryItem.option.parentNode.isEdit) {
-            meatballMeatballHistoryItem.option.parentNode.isEdit = true;
+          if (!meatballHistoryItem.option.parentNode.isEdit) {
+            meatballHistoryItem.option.parentNode.isEdit = true;
           }
-          meatballMeatballHistoryItem.option.parentNode.removeChild(
-            meatballMeatballHistoryItem.option
+          meatballHistoryItem.option.parentNode.removeChild(
+            meatballHistoryItem.option
           );
         }
       }
@@ -785,10 +812,10 @@
     return this;
   }
 
-  MeatballHistoryItem.prototype.setDisplay = function (author, date, text) {
+  MeatballHistoryItem.prototype.setDisplay = function (author, date, comment) {
     this.author.innerText = "by " + author;
-    this.text.innerText = text.replace(regex, "", text);
-    this.time.innerText = "on " + date;
+    this.comment.innerText = comment.replace(regex, "", comment);
+    this.date.innerText = "on " + date;
     return this;
   };
 
@@ -1196,20 +1223,34 @@
 
   //Show the history and on fail display "No Messages" in the history view
 
-  function RetrieveHistory(table, rowIndex, internalColumn) {
-    console.log(table, rowIndex, internalColumn);
+  function retrieveHistory(table, rowIndex, internalColumn, cb, init) {
     var sandboxName = "History " + ctx.SiteTitle;
-    var url =
-      ctx.HttpRoot +
-      "/_api/web/lists/getbytitle('" +
-      sandboxName +
-      "')/items?$filter=Title eq '" +
-      table +
-      " - " +
-      rowIndex +
-      " - " +
-      internalColumn +
-      "'&$orderby=Created desc";
+    if (init) {
+      var url =
+        ctx.HttpRoot +
+        "/_api/web/lists/getbytitle('" +
+        sandboxName +
+        "')/items?$filter=Title eq '" +
+        table +
+        " - " +
+        rowIndex +
+        " - " +
+        internalColumn +
+        "'&$orderby=Created desc&$top=1";
+    } else {
+      var url =
+        ctx.HttpRoot +
+        "/_api/web/lists/getbytitle('" +
+        sandboxName +
+        "')/items?$filter=Title eq '" +
+        table +
+        " - " +
+        rowIndex +
+        " - " +
+        internalColumn +
+        "'&$orderby=Created desc";
+    }
+
     $.ajax({
       url: url,
       type: "GET",
@@ -1219,17 +1260,14 @@
         credentials: true,
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
-      success: function (data) {
-        console.log("Messages:", data.d.results);
-        return false;
+      success: function (res) {
+        cb(null, res.d.results);
       },
-      error: function (error) {
-        console.log("No History:", error);
-      },
+      error: cb,
     });
   }
   //needs message, colName, rowId, tableGUID
-  function PostHistory() {
+  function postHistory() {
     //the row information needs to get passed here
     var sandboxName = "History " + ctx.SiteTitle; //"Sandbox"
     var message = "hello pierre"; //this represents the message that the user wants to POST
@@ -1256,17 +1294,17 @@
         console.log("FindHistory:", data);
         //get the user informaton before the concat
         //needs to expand the modified by object to ensure that the person's name is viwable
-        GetCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
+        getCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
         return false;
       },
       error: function (error) {
         console.log("Error in the PostHistory:", error);
-        MakeList(sandboxName, message, colName, rowId, tableGUID);
+        makeList(sandboxName, message, colName, rowId, tableGUID);
       },
     });
   }
 
-  function GetCurrentUser(listId, message, colName, rowId, tableGUID) {
+  function getCurrentUser(listId, message, colName, rowId, tableGUID) {
     var url =
       ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
     $.ajax({
@@ -1280,7 +1318,7 @@
       },
       success: function (data) {
         console.log("CurrentUser:", data);
-        MakeHistory(
+        makeHistory(
           listId,
           message,
           colName,
@@ -1296,7 +1334,7 @@
     });
   }
 
-  function MakeList(sandboxName, message, colName, rowId, tableGUID) {
+  function makeList(sandboxName, message, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.List" },
       AllowContentTypes: true,
@@ -1319,7 +1357,7 @@
       },
       success: function (data) {
         console.log("History list created - successfully");
-        CreateMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
+        createMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
         return false;
       },
       error: function (error) {
@@ -1328,7 +1366,7 @@
     });
   }
 
-  function CreateMessageColumn(listId, message, colName, rowId, tableGUID) {
+  function createMessageColumn(listId, message, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.Field" },
       Title: "Message",
@@ -1352,7 +1390,7 @@
       },
       success: function (data) {
         console.log("Message col created - successfully");
-        CreateUserNameColumn(listId, message, colName, rowId, tableGUID);
+        createUserNameColumn(listId, message, colName, rowId, tableGUID);
         return false;
       },
       error: function (error) {
@@ -1361,7 +1399,7 @@
     });
   }
 
-  function CreateUserNameColumn(listId, message, colName, rowId, tableGUID) {
+  function createUserNameColumn(listId, message, colName, rowId, tableGUID) {
     var data = {
       __metadata: { type: "SP.Field" },
       Title: "UserName",
@@ -1385,7 +1423,7 @@
       },
       success: function (data) {
         console.log("UserName col created - successfully");
-        GetCurrentUser(listId, message, colName, rowId, tableGUID);
+        getCurrentUser(listId, message, colName, rowId, tableGUID);
         return false;
       },
       error: function (error) {
@@ -1394,7 +1432,7 @@
     });
   }
 
-  function MakeHistory(
+  function makeHistory(
     listId,
     message,
     colName,
@@ -1434,7 +1472,7 @@
   }
 
   //the id (row#) will be apart of that item... would will need to be passed
-  function DeleteHistory() {
+  function deleteHistory() {
     //////////Test Vars//////////
     var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
     var id = 1; //the id on the list item to be deleted not the iid (rowId) of the meatball
@@ -1463,7 +1501,7 @@
     });
   }
   //the id (row#) will be apart of that item... would will need to be passed + the message
-  function UpdateHistory() {
+  function updateHistory() {
     //////////Test Vars//////////
     var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
     var id = 2; //the id on the list item to be deleted not the iid (rowId) of the meatball
