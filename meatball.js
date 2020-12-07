@@ -374,7 +374,8 @@
     this.history.style.display = "block";
     this.history.style.cursor = "pointer";
 
-    var historyPanel = new MeatballHistory();
+    var meatballHistoryDisplay = new MeatballHistory();
+
     var add = true;
 
     this.history.addEventListener("click", function () {
@@ -385,10 +386,10 @@
             console.log(error);
             return;
           }
+          meatballHistoryDisplay.query = data[0].Title;
           data.forEach(function (props) {
-            console.log("props from init History:", props);
             // historyPanel.clear(); --this deleted every entry and left the last one in the view
-            historyPanel.build(
+            meatballHistoryDisplay.build(
               new MeatballHistoryItem().setDisplay(
                 props.UserName,
                 props.Created,
@@ -399,7 +400,7 @@
         }
         retrieveHistory(table, rowIndex, internalColumn, cb, true);
       }
-      document.body.appendChild(historyPanel.historyPanel);
+      document.body.appendChild(meatballHistoryDisplay.historyPanel);
     });
     this.popoverBody.appendChild(this.history);
 
@@ -547,6 +548,7 @@
   function MeatballHistory() {
     var meatballHistory = this;
     var windowHeight = window.innerHeight || document.body.clientHeight;
+    this.query = "";
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
     this.historyPanel.style.width = "calc(500px - .5rem)";
@@ -628,6 +630,7 @@
     this.addMore.style.backgroundColor = "#999999";
 
     this.historyPanel.appendChild(this.addMore);
+    var add = true;
 
     this.addMore.addEventListener("click", function () {
       //possilble history.clear is needed  - pierre
@@ -639,20 +642,22 @@
             console.log(error);
             return;
           }
-
-          data.forEach(function (props) {
-            historyPanel.build(
-              new MeatballHistoryItem().setDisplay(
-                props.UserName,
-                props.Created,
-                props.Message
-              )
-            );
+          data.forEach(function (props, index) {
+            if (index !== 0) {
+              meatballHistory.build(
+                new MeatballHistoryItem().setDisplay(
+                  props.UserName,
+                  props.Created,
+                  props.Message
+                )
+              );
+            }
           });
+          console.log(meatballHistory);
+          //this.addMore.removeChild(this.addMore);
         }
-        retrieveHistory(table, rowIndex, internalColumn, cb);
+        retrieveHistory(null, null, null, cb, false, meatballHistory.query);
       }
-      popoverPanel.appendChild(historyPanel.historyPanel);
     });
 
     this.historyPanel.addEventListener("mouseleave", function () {
@@ -825,7 +830,12 @@
     return this;
   }
 
-  MeatballHistoryItem.prototype.setDisplay = function (author, date, comment) {
+  MeatballHistoryItem.prototype.setDisplay = function (
+    author,
+    date,
+    comment,
+    query
+  ) {
     this.author.innerText = "by " + author;
     this.comment.innerText = comment.replace(regex, "", comment);
     this.date.innerText = "on " + date;
@@ -1236,7 +1246,7 @@
 
   //Show the history and on fail display "No Messages" in the history view
 
-  function retrieveHistory(table, rowIndex, internalColumn, cb, init) {
+  function retrieveHistory(table, rowIndex, internalColumn, cb, init, query) {
     var sandboxName = "History " + ctx.SiteTitle;
     if (init) {
       var url =
@@ -1256,11 +1266,7 @@
         "/_api/web/lists/getbytitle('" +
         sandboxName +
         "')/items?$filter=Title eq '" +
-        table +
-        " - " +
-        rowIndex +
-        " - " +
-        internalColumn +
+        query +
         "'&$orderby=Created desc";
     }
 
@@ -1343,31 +1349,51 @@
   function getCurrentUser(listId, message, colName, rowId, tableGUID) {
     var url =
       ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
-    $.ajax({
-      url: url,
-      type: "GET",
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        console.log("CurrentUser:", data);
-        makeHistory(
-          listId,
-          message,
-          colName,
-          rowId,
-          tableGUID,
-          data.d.DisplayName
-        ); // need to pass the values for the colStatus and rowId
-        return false;
-      },
-      error: function (error) {
-        console.log("Error in the getting the current:", error);
-      },
-    });
+    if (listId) {
+      $.ajax({
+        url: url,
+        type: "GET",
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          console.log("CurrentUser:", data);
+          makeHistory(
+            listId,
+            message,
+            colName,
+            rowId,
+            tableGUID,
+            data.d.DisplayName
+          ); // need to pass the values for the colStatus and rowId
+          return false;
+        },
+        error: function (error) {
+          console.log("Error in the getting the current:", error);
+        },
+      });
+    } else {
+      $.ajax({
+        url: url,
+        type: "GET",
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          console.log("CurrentUser:", data.d.DisplayName);
+          return false;
+        },
+        error: function (error) {
+          console.log("Error in the getting the current:", error);
+        },
+      });
+    }
   }
 
   function makeList(sandboxName, message, colName, rowId, tableGUID) {
