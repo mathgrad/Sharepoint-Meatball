@@ -869,6 +869,7 @@
     this.comment.innerText = "History";
     this.comment.style.display = "flex";
     this.comment.style.width = "75%";
+    this.comment.style.paddingLeft = ".5rem";
     this.title.appendChild(this.comment);
 
     this.svg = new SVGGenerator({
@@ -1092,11 +1093,7 @@
     return this;
   }
 
-  MeatballHistoryItem.prototype.setDisplay = function (
-    author,
-    date,
-    text
-  ) {
+  MeatballHistoryItem.prototype.setDisplay = function (author, date, text) {
     this.author.innerText = "by " + author;
     this.text.innerText = text.replace(regex, "", text);
     this.time.innerText = "on " + date;
