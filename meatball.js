@@ -422,8 +422,16 @@
         document.body.appendChild(popoverPanel);
 
         popoverPanel.style.position = "fixed";
+        popoverPanel.style.right = "0px";
+        popoverPanel.style.left =
+          this.getBoundingClientRect().right - 12 + triangleSize + "px";
+
         carret.style.position = "absolute";
         carret.style.top = "29px";
+        carret.style.left = "2px";
+        carret.style.right = "0px";
+        carret.style.borderLeft = "0px";
+        carret.style.borderRight = triangleSize + "px solid " + backgroundColor;
 
         var windowHeight = window.innerHeight || document.body.clientHeight;
         var windowWidth = window.innerWidth || document.body.clientWidth;
@@ -453,17 +461,6 @@
             popoverPanel.style.top =
               windowHeight - popoverPanel.offsetHeight + "px";
           }
-        }
-
-        if (
-          popoverPanel.offsetWidth + this.getBoundingClientRect().right <
-          windowWidth
-        ) {
-          popoverPanel.style.left =
-            this.getBoundingClientRect().right - 12 + triangleSize + "px";
-        } else {
-          popoverPanel.style.right =
-            this.getBoundingClientRect().left + 12 - triangleSize + "px";
         }
       }
     });
