@@ -702,10 +702,10 @@
               );
             }
           });
-          //meatballHistory.addMore.removeChild(meatballHistory.addMore);
         }
         retrieveHistory(null, null, null, cb, false, meatballHistory.query);
       }
+      meatballHistory.addMore.remove();
     });
 
     this.historyPanel.addEventListener("mouseleave", function () {
@@ -797,7 +797,6 @@
     this.submit.style.padding = ".25rem";
     this.submit.style.borderRadius = ".25rem";
     this.submit.addEventListener("click", function () {
-      //create a new entry but get the username first
       function success(props, name) {
         if (meatballHistoryItem.isNew) {
           function listEntrySuccess(data) {
@@ -1377,7 +1376,7 @@
   }
 
   //needs message, colName, rowId, tableGUID
-  function postHistory() {
+  function findHistoryChat() {
     //the row information needs to get passed here
     var sandboxName = "History " + ctx.SiteTitle; //"Sandbox"
     var message = "hello pierre"; //this represents the message that the user wants to POST
@@ -1406,7 +1405,7 @@
         return false;
       },
       error: function (error) {
-        console.log("Error in the PostHistory:", error);
+        console.log("Error in the findHistoryChat:", error);
         makeList(sandboxName, message, colName, rowId, tableGUID);
       },
     });
