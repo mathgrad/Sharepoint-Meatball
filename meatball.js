@@ -414,6 +414,7 @@
     this.popoverPanel.appendChild(this.popoverBody);
 
     var popoverPanel = this.popoverPanel;
+    var popoverBody = this.popoverBody;
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
@@ -465,34 +466,25 @@
           }
         }
 
-        console.log(
-          "Popover width ",
-          popoverPanel.getBoundingClientRect().width
-        );
-        console.log(
-          "Meatball right: ",
-          this.getBoundingClientRect().right,
-          "\nMeatball left: ",
-          this.getBoundingClientRect().left,
-          "\nMeatball width: ",
-          this.getBoundingClientRect().width
-        );
-        console.log("Window width: ", windowWidth);
-
         if (
           popoverPanel.getBoundingClientRect().width +
             this.getBoundingClientRect().right >
           windowWidth
         ) {
           popoverPanel.appendChild(carret);
-          carret.style.left = popoverPanel.getBoundingClientRect().width + "px";
-          carret.style.right = "0px";
+          carret.style.left =
+            popoverBody.getBoundingClientRect().width + triangleSize + "px";
           carret.style.borderRight = "0px";
           carret.style.borderLeft =
             triangleSize + "px solid " + backgroundColor;
-          popoverPanel.style.left = "0px";
-          popoverPanel.style.right =
-            windowWidth - popoverPanel.offsetWidth - 10 + "px";
+          popoverPanel.style.left =
+            this.getBoundingClientRect().left -
+            popoverBody.getBoundingClientRect().width -
+            12 -
+            triangleSize +
+            "px";
+          popoverPanel.style.width =
+            popoverBody.getBoundingClientRect().width + triangleSize + "px";
         } else {
           popoverPanel.insertBefore(carret, popoverPanel.firstChild);
         }
@@ -834,7 +826,6 @@
       //create a new entry but get the username first
       function success(props, name) {
         function listEntrySuccess(data) {
-          console.log(data);
           meatballHistoryItem.setEditable(
             !meatballHistoryItem.getEditable(),
             listGUID,
