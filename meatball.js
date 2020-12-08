@@ -786,7 +786,7 @@
     });
 
     this.isNew = false;
-    console.log(this);
+
     this.submit = document.createElement("div");
     this.submit.innerText = "Submit";
     this.submit.style.backgroundColor = "#aaaaaa";
@@ -799,24 +799,29 @@
     this.submit.addEventListener("click", function () {
       //create a new entry but get the username first
       function success(props, name) {
-        function listEntrySuccess(data) {
-          console.log(data);
-          meatballHistoryItem.setEditable(
-            !meatballHistoryItem.getEditable(),
+        if (meatballHistoryItem.isNew) {
+          function listEntrySuccess(data) {
+            console.log(data);
+            meatballHistoryItem.setEditable(
+              !meatballHistoryItem.getEditable(),
+              listGUID,
+              data.ID,
+              true
+            );
+          }
+          makeHistory(
             listGUID,
-            data.ID,
-            true
+            "placeholder",
+            query.split(" - ")[2],
+            query.split(" - ")[1],
+            query.split(" - ")[0],
+            name,
+            listEntrySuccess
           );
+        } else {
+          console.log("hit0", meatballHistoryItem);
+          meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
         }
-        makeHistory(
-          listGUID,
-          "placeholder",
-          query.split(" - ")[2],
-          query.split(" - ")[1],
-          query.split(" - ")[0],
-          name,
-          listEntrySuccess
-        );
       }
       getUserName(success, this);
     });
@@ -947,6 +952,7 @@
       if (newEntry) {
         updateHistory(listGUID, id, currentText);
       } else {
+        console.log("hit1", this, currentText);
         updateHistory(this.listGUID, this.id, currentText);
       }
     }
@@ -1619,6 +1625,7 @@
   }
 
   function updateHistory(listId, id, message) {
+    console.log("hit2", listId, id, message);
     var data = {
       __metadata: { type: "SP.ListItem" },
       Message: message,
