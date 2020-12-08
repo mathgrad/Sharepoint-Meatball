@@ -433,6 +433,8 @@
         carret.style.borderLeft = "0px";
         carret.style.borderRight = triangleSize + "px solid " + backgroundColor;
 
+        carret.parentNode.removeChild(carret);
+
         var windowHeight = window.innerHeight || document.body.clientHeight;
         var windowWidth = window.innerWidth || document.body.clientWidth;
 
@@ -461,6 +463,38 @@
             popoverPanel.style.top =
               windowHeight - popoverPanel.offsetHeight + "px";
           }
+        }
+
+        console.log(
+          "Popover width ",
+          popoverPanel.getBoundingClientRect().width
+        );
+        console.log(
+          "Meatball right: ",
+          this.getBoundingClientRect().right,
+          "\nMeatball left: ",
+          this.getBoundingClientRect().left,
+          "\nMeatball width: ",
+          this.getBoundingClientRect().width
+        );
+        console.log("Window width: ", windowWidth);
+
+        if (
+          popoverPanel.getBoundingClientRect().width +
+            this.getBoundingClientRect().right >
+          windowWidth
+        ) {
+          popoverPanel.appendChild(carret);
+          carret.style.left = popoverPanel.getBoundingClientRect().width + "px";
+          carret.style.right = "0px";
+          carret.style.borderRight = "0px";
+          carret.style.borderLeft =
+            triangleSize + "px solid " + backgroundColor;
+          popoverPanel.style.left = "0px";
+          popoverPanel.style.right =
+            windowWidth - popoverPanel.offsetWidth - 10 + "px";
+        } else {
+          popoverPanel.insertBefore(carret, popoverPanel.firstChild);
         }
       }
     });
