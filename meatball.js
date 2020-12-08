@@ -731,19 +731,13 @@
         (today.getMonth() + 1) +
         " - " +
         today.getDate();
-      var item = new MeatballHistoryItem()
+      var item = new MeatballHistoryItem(
+        meatballObj.listGUID,
+        meatballObj.query
+      )
         .setDisplay(name, displayDate, "")
         .setEditable(true);
       item.isNew = true;
-      makeHistory(
-        meatballObj.listGUID,
-        "blank",
-        meatballObj.query.split(" - ")[2],
-        meatballObj.query.split(" - ")[1],
-        meatballObj.query.split(" - ")[0],
-        name,
-        meatballObj.query
-      );
       props.container.insertBefore(item.option, props.container.firstChild);
     }
     getUserName(success, this);
@@ -761,7 +755,7 @@
     }
   };
 
-  function MeatballHistoryItem() {
+  function MeatballHistoryItem(listGUID, query) {
     var meatballHistoryItem = this;
     this.option = document.createElement("div");
     this.option.style.padding = ".25rem";
@@ -795,7 +789,7 @@
     });
 
     this.isNew = false;
-
+    console.log(this);
     this.submit = document.createElement("div");
     this.submit.innerText = "Submit";
     this.submit.style.backgroundColor = "#aaaaaa";
@@ -806,7 +800,28 @@
     this.submit.style.padding = ".25rem";
     this.submit.style.borderRadius = ".25rem";
     this.submit.addEventListener("click", function () {
-      meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
+      //create a new entry but get the username first
+      function success(props, name) {
+        function listEntrySuccess(data) {
+          console.log(data);
+          meatballHistoryItem.setEditable(
+            !meatballHistoryItem.getEditable(),
+            listGUID,
+            data.ID,
+            true
+          );
+        }
+        makeHistory(
+          listGUID,
+          "placeholder",
+          query.split(" - ")[2],
+          query.split(" - ")[1],
+          query.split(" - ")[0],
+          name,
+          listEntrySuccess
+        );
+      }
+      getUserName(success, this);
     });
 
     this.buttonGroup = document.createElement("div");
@@ -906,7 +921,12 @@
     return this;
   };
 
-  MeatballHistoryItem.prototype.setEditable = function (value) {
+  MeatballHistoryItem.prototype.setEditable = function (
+    value,
+    listGUID,
+    id,
+    newEntry
+  ) {
     if (value) {
       this.comment.style.border = "1px solid black";
       this.display.appendChild(this.submit);
@@ -924,12 +944,14 @@
         this.option.parentNode.addNew = true;
         this.isNew = false;
       }
-
       if (!this.option.parentNode.isEdit) {
         this.option.parentNode.isEdit = true;
       }
-      //rest call for updated message
-      updateHistory(this.listGUID, this.id, currentText);
+      if (newEntry) {
+        updateHistory(listGUID, id, currentText);
+      } else {
+        updateHistory(this.listGUID, this.id, currentText);
+      }
     }
     this.comment.contentEditable = value;
     return this;
@@ -1545,7 +1567,7 @@
     rowId,
     tableGUID,
     currentUser,
-    query
+    listEntrySuccess
   ) {
     var data = {
       __metadata: { type: "SP.ListItem" },
@@ -1567,6 +1589,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
+        listEntrySuccess(data.d);
         return false;
       },
       error: function (error) {
