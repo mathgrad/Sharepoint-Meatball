@@ -386,7 +386,6 @@
             console.log(error);
             return;
           }
-
           meatballHistoryDisplay.listGUID = data[0].__metadata.id
             .split("guid'")[1]
             .split("'")[0];
@@ -643,7 +642,7 @@
         if (meatballHistory.container.addNew) {
           meatballHistory.container.scroll(0, 0);
           meatballHistory.container.addNew = false;
-          meatballHistory.newItem();
+          meatballHistory.newItem(meatballHistory);
         }
       }
     });
@@ -723,7 +722,7 @@
     return this;
   }
 
-  MeatballHistory.prototype.newItem = function () {
+  MeatballHistory.prototype.newItem = function (meatballObj) {
     function success(props, name) {
       var today = new Date();
       var displayDate =
@@ -736,6 +735,15 @@
         .setDisplay(name, displayDate, "")
         .setEditable(true);
       item.isNew = true;
+      makeHistory(
+        meatballObj.listGUID,
+        "blank",
+        meatballObj.query.split(" - ")[2],
+        meatballObj.query.split(" - ")[1],
+        meatballObj.query.split(" - ")[0],
+        name,
+        meatballObj.query
+      );
       props.container.insertBefore(item.option, props.container.firstChild);
     }
     getUserName(success, this);
@@ -1345,6 +1353,7 @@
       error: cb,
     });
   }
+
   //needs message, colName, rowId, tableGUID
   function postHistory() {
     //the row information needs to get passed here
@@ -1356,7 +1365,6 @@
     var rowId = 2;
     var tableGUID = "3DEA4A61-D6E4-422E-8362-59129AC32B64";
     /////////////////////////////
-
     var url =
       ctx.HttpRoot + "/_api/web/lists/getbytitle('" + sandboxName + "')";
 
@@ -1408,50 +1416,31 @@
   function getCurrentUser(listId, message, colName, rowId, tableGUID) {
     var url =
       ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
-    if (listId) {
-      $.ajax({
-        url: url,
-        type: "GET",
-        headers: {
-          Accept: "application/json; odata=verbose",
-          "Content-Type": "application/json;odata=verbose",
-          credentials: true,
-          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-        },
-        success: function (data) {
-          makeHistory(
-            listId,
-            message,
-            colName,
-            rowId,
-            tableGUID,
-            data.d.DisplayName
-          ); // need to pass the values for the colStatus and rowId
-          return false;
-        },
-        error: function (error) {
-          console.log("Error in the getting the current:", error);
-        },
-      });
-    } else {
-      $.ajax({
-        url: url,
-        type: "GET",
-        headers: {
-          Accept: "application/json; odata=verbose",
-          "Content-Type": "application/json;odata=verbose",
-          credentials: true,
-          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-        },
-        success: function (data) {
-          console.log("CurrentUser:", data.d.DisplayName);
-          return false;
-        },
-        error: function (error) {
-          console.log("Error in the getting the current:", error);
-        },
-      });
-    }
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        console.log("CurrentUser:", data);
+        makeHistory(
+          listId,
+          message,
+          colName,
+          rowId,
+          tableGUID,
+          data.d.DisplayName
+        ); // need to pass the values for the colStatus and rowId
+        return false;
+      },
+      error: function (error) {
+        console.log("Error in the getting the current:", error);
+      },
+    });
   }
 
   function makeList(sandboxName, message, colName, rowId, tableGUID) {
@@ -1555,10 +1544,9 @@
     colName,
     rowId,
     tableGUID,
-    currentUser
+    currentUser,
+    query
   ) {
-    //we would need the info that the table has
-    //has to be able to get the person data in order to post the entry to the popover see People Manager
     var data = {
       __metadata: { type: "SP.ListItem" },
       Message: message,
