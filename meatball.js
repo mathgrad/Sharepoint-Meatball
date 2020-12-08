@@ -820,7 +820,6 @@
           meatballHistoryItem.option.parentNode.removeChild(
             meatballHistoryItem.option
           );
-          //delete rest call -- o inser tthe guid of the list
           deleteHistory(meatballHistoryItem.listGUID, meatballHistoryItem.id);
         }
       }
@@ -881,6 +880,8 @@
       if (!this.option.parentNode.isEdit) {
         this.option.parentNode.isEdit = true;
       }
+      //rest call for updated message
+      updateHistory(this.listGUID, this.id, currentText);
     }
     this.comment.contentEditable = value;
     return this;
@@ -1552,7 +1553,6 @@
     });
   }
 
-  //the id (row#) will be apart of that item... would will need to be passed
   function deleteHistory(listId, id) {
     var url =
       ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
@@ -1576,14 +1576,8 @@
       },
     });
   }
-  //the id (row#) will be apart of that item... would will need to be passed + the message
-  function updateHistory() {
-    //////////Test Vars//////////
-    var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
-    var id = 2; //the id on the list item to be deleted not the iid (rowId) of the meatball
-    var message = "hi pierre";
-    /////////////////////////////
 
+  function updateHistory(listId, id, message) {
     var data = {
       __metadata: { type: "SP.ListItem" },
       Message: message,
@@ -1601,6 +1595,7 @@
         "Content-Type": "application/json;odata=verbose",
         credentials: true,
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "X-HTTP-Method": "MERGE",
         "IF-MATCH": "*",
       },
       success: function (data) {
