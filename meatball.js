@@ -386,14 +386,22 @@
             console.log(error);
             return;
           }
+
+          meatballHistoryDisplay.listGUID = data[0].__metadata.id
+            .split("guid'")[1]
+            .split("'")[0];
           meatballHistoryDisplay.query = data[0].Title;
           data.forEach(function (props) {
             // historyPanel.clear(); --this deleted every entry and left the last one in the view
             meatballHistoryDisplay.build(
-              new MeatballHistoryItem().setDisplay(
+              new MeatballHistoryItem(
+                meatballHistoryDisplay.query.split(" -")[0]
+              ).setDisplay(
                 props.UserName,
                 props.Created,
-                props.Message
+                props.Message,
+                props.ID,
+                meatballHistoryDisplay.listGUID
               )
             );
           });
@@ -548,6 +556,7 @@
   function MeatballHistory() {
     var meatballHistory = this;
     var windowHeight = window.innerHeight || document.body.clientHeight;
+    this.listGUID = "";
     this.query = "";
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
@@ -645,16 +654,19 @@
           data.forEach(function (props, index) {
             if (index !== 0) {
               meatballHistory.build(
-                new MeatballHistoryItem().setDisplay(
+                new MeatballHistoryItem(
+                  meatballHistory.query.split(" -")[0]
+                ).setDisplay(
                   props.UserName,
                   props.Created,
-                  props.Message
+                  props.Message,
+                  props.ID,
+                  meatballHistory.listGUID
                 )
               );
             }
           });
-          console.log(meatballHistory);
-          //this.addMore.removeChild(this.addMore);
+          //meatballHistory.addMore.removeChild(meatballHistory.addMore);
         }
         retrieveHistory(null, null, null, cb, false, meatballHistory.query);
       }
@@ -808,6 +820,8 @@
           meatballHistoryItem.option.parentNode.removeChild(
             meatballHistoryItem.option
           );
+          //delete rest call -- o inser tthe guid of the list
+          deleteHistory(meatballHistoryItem.listGUID, meatballHistoryItem.id);
         }
       }
     });
@@ -834,11 +848,14 @@
     author,
     date,
     comment,
-    query
+    id,
+    listGUID
   ) {
     this.author.innerText = "by " + author;
     this.comment.innerText = comment.replace(regex, "", comment);
     this.date.innerText = "on " + date;
+    this.id = id;
+    this.listGUID = listGUID;
     return this;
   };
 
@@ -1203,6 +1220,8 @@
     animateTransform.setAttribute("dur", "1080ms");
     animateTransform.setAttribute("repeatCount", "indefinite");
     this.g.appendChild(animateTransform);
+
+    return this;
   };
 
   //True, error.  False, no error.
@@ -1534,12 +1553,7 @@
   }
 
   //the id (row#) will be apart of that item... would will need to be passed
-  function deleteHistory() {
-    //////////Test Vars//////////
-    var listId = "5fa2c8ab-cdf8-40c6-b425-75bc9e6b95c6";
-    var id = 1; //the id on the list item to be deleted not the iid (rowId) of the meatball
-    /////////////////////////////
-
+  function deleteHistory(listId, id) {
     var url =
       ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
 
