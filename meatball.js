@@ -423,7 +423,9 @@
         document.body.appendChild(popoverPanel);
 
         popoverPanel.style.position = "fixed";
-        carret.style.position = "inherit";
+        carret.style.position = "absolute";
+        carret.style.top = "29px";
+
         var windowHeight = window.innerHeight || document.body.clientHeight;
         var windowWidth = window.innerWidth || document.body.clientWidth;
 
@@ -434,21 +436,21 @@
           popoverPanel.style.top =
             this.getBoundingClientRect().top - 40 + triangleSize + "px";
         } else {
-          carret.style.position = "fixed";
-          carret.style.top = this.getBoundingClientRect().top + "px";
-
           var meatballHeight =
             this.getBoundingClientRect().top - 40 + triangleSize;
           var meatballDifferenceHeight = Math.abs(
             meatballHeight - (windowHeight - popoverPanel.offsetHeight)
           );
+
           if (meatballHeight <= windowHeight - popoverPanel.offsetHeight) {
+            carret.style.top = meatballDifferenceHeight + "px";
             popoverPanel.style.top =
               windowHeight -
               popoverPanel.offsetHeight -
               meatballDifferenceHeight +
               "px";
           } else {
+            carret.style.top = 29 + meatballDifferenceHeight + "px";
             popoverPanel.style.top =
               windowHeight - popoverPanel.offsetHeight + "px";
           }
@@ -1368,7 +1370,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("FindHistory:", data);
         //get the user informaton before the concat
         //needs to expand the modified by object to ensure that the person's name is viwable
         getCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
@@ -1418,7 +1419,6 @@
           "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         },
         success: function (data) {
-          console.log("CurrentUser:", data);
           makeHistory(
             listId,
             message,
@@ -1476,7 +1476,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("History list created - successfully");
         createMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
         return false;
       },
@@ -1509,7 +1508,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("Message col created - successfully");
         createUserNameColumn(listId, message, colName, rowId, tableGUID);
         return false;
       },
@@ -1542,7 +1540,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("UserName col created - successfully");
         getCurrentUser(listId, message, colName, rowId, tableGUID);
         return false;
       },
@@ -1582,7 +1579,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("History entry created - successfully");
         return false;
       },
       error: function (error) {
@@ -1606,7 +1602,6 @@
         "IF-MATCH": "*",
       },
       success: function (data) {
-        console.log("History entry deleted - successfully");
         return false;
       },
       error: function (error) {
@@ -1637,7 +1632,6 @@
         "IF-MATCH": "*",
       },
       success: function (data) {
-        console.log("History entry updated - successfully");
         return false;
       },
       error: function (error) {
