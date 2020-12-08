@@ -420,11 +420,51 @@
     this.element.addEventListener("mouseenter", function () {
       if (!popoverPanel.parentNode) {
         document.body.appendChild(popoverPanel);
+
         popoverPanel.style.position = "fixed";
-        popoverPanel.style.left =
-          this.getBoundingClientRect().right - 12 + triangleSize + "px";
-        popoverPanel.style.top =
-          this.getBoundingClientRect().top - 40 + triangleSize + "px";
+        carret.style.position = "absolute";
+        carret.style.top = "29px";
+
+        var windowHeight = window.innerHeight || document.body.clientHeight;
+        var windowWidth = window.innerWidth || document.body.clientWidth;
+
+        if (
+          popoverPanel.offsetHeight + this.getBoundingClientRect().top <
+          windowHeight
+        ) {
+          popoverPanel.style.top =
+            this.getBoundingClientRect().top - 40 + triangleSize + "px";
+        } else {
+          var meatballHeight =
+            this.getBoundingClientRect().top - 40 + triangleSize;
+          var meatballDifferenceHeight = Math.abs(
+            meatballHeight - (windowHeight - popoverPanel.offsetHeight)
+          );
+
+          if (meatballHeight <= windowHeight - popoverPanel.offsetHeight) {
+            carret.style.top = meatballDifferenceHeight + "px";
+            popoverPanel.style.top =
+              windowHeight -
+              popoverPanel.offsetHeight -
+              meatballDifferenceHeight +
+              "px";
+          } else {
+            carret.style.top = 29 + meatballDifferenceHeight + "px";
+            popoverPanel.style.top =
+              windowHeight - popoverPanel.offsetHeight + "px";
+          }
+        }
+
+        if (
+          popoverPanel.offsetWidth + this.getBoundingClientRect().right <
+          windowWidth
+        ) {
+          popoverPanel.style.left =
+            this.getBoundingClientRect().right - 12 + triangleSize + "px";
+        } else {
+          popoverPanel.style.right =
+            this.getBoundingClientRect().left + 12 - triangleSize + "px";
+        }
       }
     });
 
@@ -760,11 +800,11 @@
     this.submit.innerText = "Submit";
     this.submit.style.backgroundColor = "#aaaaaa";
     this.submit.style.width = "75px";
-    this.submit.style.border = "1px solid black";
     this.submit.style.cursor = "pointer";
     this.submit.style.margin = "auto";
     this.submit.style.marginRight = ".25rem";
     this.submit.style.padding = ".25rem";
+    this.submit.style.borderRadius = ".25rem";
     this.submit.addEventListener("click", function () {
       meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
     });
@@ -1338,7 +1378,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("FindHistory:", data);
         //get the user informaton before the concat
         //needs to expand the modified by object to ensure that the person's name is viwable
         getCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
@@ -1426,7 +1465,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("History list created - successfully");
         createMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
         return false;
       },
@@ -1459,7 +1497,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("Message col created - successfully");
         createUserNameColumn(listId, message, colName, rowId, tableGUID);
         return false;
       },
@@ -1492,7 +1529,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("UserName col created - successfully");
         getCurrentUser(listId, message, colName, rowId, tableGUID);
         return false;
       },
@@ -1531,7 +1567,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("History entry created - successfully");
         return false;
       },
       error: function (error) {
@@ -1555,7 +1590,6 @@
         "IF-MATCH": "*",
       },
       success: function (data) {
-        console.log("History entry deleted - successfully");
         return false;
       },
       error: function (error) {
@@ -1586,7 +1620,6 @@
         "IF-MATCH": "*",
       },
       success: function (data) {
-        console.log("History entry updated - successfully");
         return false;
       },
       error: function (error) {
