@@ -801,7 +801,6 @@
       function success(props, name) {
         if (meatballHistoryItem.isNew) {
           function listEntrySuccess(data) {
-            console.log(data);
             meatballHistoryItem.setEditable(
               !meatballHistoryItem.getEditable(),
               listGUID,
@@ -819,7 +818,6 @@
             listEntrySuccess
           );
         } else {
-          console.log("hit0", meatballHistoryItem);
           meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
         }
       }
@@ -952,7 +950,6 @@
       if (newEntry) {
         updateHistory(listGUID, id, currentText);
       } else {
-        console.log("hit1", this, currentText);
         updateHistory(this.listGUID, this.id, currentText);
       }
     }
@@ -1625,7 +1622,6 @@
   }
 
   function updateHistory(listId, id, message) {
-    console.log("hit2", listId, id, message);
     var data = {
       __metadata: { type: "SP.ListItem" },
       Message: message,
