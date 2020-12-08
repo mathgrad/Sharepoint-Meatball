@@ -467,7 +467,7 @@
         }
 
         if (
-          popoverPanel.getBoundingClientRect().width +
+          popoverBody.getBoundingClientRect().width +
             this.getBoundingClientRect().right >
           windowWidth
         ) {
@@ -480,8 +480,8 @@
           popoverPanel.style.left =
             this.getBoundingClientRect().left -
             popoverBody.getBoundingClientRect().width -
-            12 -
-            triangleSize +
+            triangleSize -
+            12 +
             "px";
           popoverPanel.style.width =
             popoverBody.getBoundingClientRect().width + triangleSize + "px";
