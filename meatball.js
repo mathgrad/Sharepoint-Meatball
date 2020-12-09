@@ -213,6 +213,7 @@
     internalColumn,
     listTitle
   ) {
+    console.log("ele:", ele, "rowIndex:", rowIndex);
     var root = ctx.HttpRoot;
     var currentListName = ctx.ListTitle;
     var listName = "SP.ListItem";
@@ -622,6 +623,15 @@
             internalColumn,
             listTitle
           );
+          console.log(ele, cellText);
+          // new MeatballHistoryItem().newItem(
+          //   null,
+          //   table,
+          //   rowIndex,
+          //   internalColumn,
+          //   ele,
+          //   cellText
+          // );
         } else {
           option.style.backgroundColor = "#BABBFD";
         }
@@ -754,14 +764,7 @@
             }
           });
         }
-        retrieveHistory(
-          this.table,
-          this.rowIndex,
-          this.internalColumn,
-          cb,
-          false,
-          null
-        );
+        retrieveHistory(table, rowIndex, internalColumn, cb, false, null);
       }
       meatballHistory.addMore.remove();
     });
@@ -781,7 +784,8 @@
     meatballObj,
     table,
     rowIndex,
-    internalColumn
+    internalColumn,
+    ele
   ) {
     if (this.currentUser.length === 0) {
       function success(props, name) {
