@@ -1416,7 +1416,6 @@
   //Show the history and on fail display "No Messages" in the history view
 
   function retrieveHistory(table, rowIndex, internalColumn, cb, init, query) {
-    console.log(init);
     var sandboxName = "History " + ctx.SiteTitle;
     if (init) {
       var url =
