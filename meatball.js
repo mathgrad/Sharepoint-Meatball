@@ -637,7 +637,7 @@
   function MeatballHistory(table, rowIndex, internalColumn) {
     var meatballHistory = this;
     var windowHeight = window.innerHeight || document.body.clientHeight;
-    this.listGUID = "";
+    this.listGUID = historyListGUID;
     this.currentUser = "";
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
@@ -894,27 +894,31 @@
     this.submit.style.borderRadius = ".25rem";
     this.submit.addEventListener("click", function () {
       function success(props, name) {
-        if (meatballHistoryItem.isNew) {
-          function listEntrySuccess(data) {
-            meatballHistoryItem.setEditable(
-              !meatballHistoryItem.getEditable(),
-              historyListGUID,
-              data.ID,
-              true
+        function newHistoryChatCb(newListGUID) {
+          if (meatballHistoryItem.isNew) {
+            function listEntrySuccess(data) {
+              meatballHistoryItem.setEditable(
+                !meatballHistoryItem.getEditable(),
+                newListGUID,
+                data.ID,
+                true
+              );
+            }
+            //this will need a cb in order to get the value of list
+            makeHistory(
+              newListGUID,
+              "placeholder",
+              internalColumn,
+              rowindex,
+              table,
+              name,
+              listEntrySuccess
             );
+          } else {
+            meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
           }
-          makeHistory(
-            historyListGUID,
-            "placeholder",
-            internalColumn,
-            rowindex,
-            table,
-            name,
-            listEntrySuccess
-          );
-        } else {
-          meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
         }
+        findHistoryChat(newHistoryChatCb, true);
       }
       getUserName(success, this);
     });
@@ -978,7 +982,10 @@
           meatballHistoryItem.item.parentNode.removeChild(
             meatballHistoryItem.item
           );
-          deleteHistory(historyListGUID, meatballHistoryItem.id);
+          function newHistoryChatCb(listGUID) {
+            deleteHistory(listGUID, meatballHistoryItem.id);
+          }
+          findHistoryChat(newHistoryChatCb, true);
         }
       }
     });
@@ -1502,7 +1509,7 @@
     });
   }
 
-  function findHistoryChat(historyChatCb) {
+  function findHistoryChat(cb, isNew) {
     var sandboxName = "History " + ctx.SiteTitle; //"Sandbox"
     var url =
       ctx.HttpRoot + "/_api/web/lists/getbytitle('" + sandboxName + "')";
@@ -1517,7 +1524,11 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        historyChatCb(data.d.Id);
+        if (isNew) {
+          cb(data.d.Id);
+          return false;
+        }
+        cb(data.d.Id);
         return false;
       },
       error: function (error) {
