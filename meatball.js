@@ -423,6 +423,7 @@
     this.popoverPanel.appendChild(this.popoverBody);
 
     var popoverPanel = this.popoverPanel;
+    var popoverBody = this.popoverBody;
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
@@ -441,6 +442,8 @@
         carret.style.right = "0px";
         carret.style.borderLeft = "0px";
         carret.style.borderRight = triangleSize + "px solid " + backgroundColor;
+
+        carret.parentNode.removeChild(carret);
 
         var windowHeight = window.innerHeight || document.body.clientHeight;
         var windowWidth = window.innerWidth || document.body.clientWidth;
@@ -470,6 +473,29 @@
             popoverPanel.style.top =
               windowHeight - popoverPanel.offsetHeight + "px";
           }
+        }
+
+        if (
+          popoverBody.getBoundingClientRect().width +
+            this.getBoundingClientRect().right >
+          windowWidth
+        ) {
+          popoverPanel.appendChild(carret);
+          carret.style.left =
+            popoverBody.getBoundingClientRect().width + triangleSize + "px";
+          carret.style.borderRight = "0px";
+          carret.style.borderLeft =
+            triangleSize + "px solid " + backgroundColor;
+          popoverPanel.style.left =
+            this.getBoundingClientRect().left -
+            popoverBody.getBoundingClientRect().width -
+            triangleSize -
+            12 +
+            "px";
+          popoverPanel.style.width =
+            popoverBody.getBoundingClientRect().width + triangleSize + "px";
+        } else {
+          popoverPanel.insertBefore(carret, popoverPanel.firstChild);
         }
       }
     });
