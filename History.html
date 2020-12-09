@@ -13,6 +13,7 @@
       var addShadow = "0px 0px 10px #BABBFD";
       var removeShadow = "0px 0px 0px";
       var backgroundColor = "#F0F0F0";
+      var bgCList = "#BABBFD";
       var meatballHistoryItemContainerWidth = "calc(500px - 2.25rem)";
       var regex = /[^\d\w\s\.\?\!\@]/g;
       (function () {
@@ -26,7 +27,7 @@
           "hi mark",
           "hi mark",
         ];
-        var authorList = ["Joshua", "Joshua", "Joshua", "Joshua", "Joshua"];
+        var authorList = ["Joshua", "Pierre", "Joshua", "Pierre", "Pierre"];
         var history = new MeatballHistory();
         var add = true;
 
@@ -76,181 +77,6 @@
             }
           });
         }
-
-        function MeatballHistoryItem() {
-          var meatballMeatballHistoryItem = this;
-          this.option = document.createElement("div");
-          this.option.style.padding = ".25rem";
-          this.option.style.width = meatballHistoryItemContainerWidth;
-          this.option.style.margin = "0px;";
-          this.option.style.marginBottom = ".25rem";
-          this.option.style.padding = ".25rem";
-
-          this.display = document.createElement("div");
-          this.display.style.display = "block";
-          this.display.style.width = meatballHistoryItemContainerWidth;
-          this.display.style.padding = "0px";
-          this.display.style.marginRight = "0px";
-          this.display.style.marginLeft = "0px";
-
-          this.author = document.createElement("div");
-          this.author.contentEditable = false;
-          this.author.style.width = meatballHistoryItemContainerWidth;
-          this.author.style.padding = ".25rem";
-          this.author.style.margin = "0px";
-          this.author.style.verticalAlign = "middle";
-          this.author.style.textAlign = "left";
-          this.author.style.fontSize = "10pt";
-          this.display.appendChild(this.author);
-
-          this.option.addEventListener("mouseenter", function () {
-            this.style.boxShadow = addShadow;
-          });
-          this.option.addEventListener("mouseleave", function () {
-            this.style.boxShadow = removeShadow;
-          });
-
-          this.isNew = false;
-
-          this.submit = document.createElement("div");
-          this.submit.innerText = "Submit";
-          this.submit.style.backgroundColor = "#aaaaaa";
-          this.submit.style.width = "75px";
-          this.submit.style.cursor = "pointer";
-          this.submit.style.margin = "auto";
-          this.submit.style.marginRight = ".25rem";
-          this.submit.style.padding = ".25rem";
-          this.submit.style.borderRadius = ".25rem";
-          this.submit.addEventListener("click", function () {
-            meatballMeatballHistoryItem.setEditable(
-              !meatballMeatballHistoryItem.getEditable()
-            );
-          });
-
-          this.buttonGroup = document.createElement("div");
-          this.buttonGroup.style.width = meatballHistoryItemContainerWidth;
-          this.buttonGroup.style.textAlign = "right";
-          this.buttonGroup.style.margin = "0px";
-          this.buttonGroup.style.padding = "0px";
-          this.buttonGroup.style.display = "flex";
-          this.buttonGroup.style.alignContent = "flex-start";
-          this.buttonGroup.style.justifyContent = "space-around";
-
-          this.date = document.createElement("div");
-          this.date.contentEditable = false;
-          this.date.style.width = "calc(500px - 2.75rem)";
-          this.date.style.padding = ".25rem";
-          this.date.style.margin = "0px";
-          this.date.style.textAlign = "left";
-          this.date.style.fontSize = "10pt";
-          this.date.style.display = "inline-block";
-          this.buttonGroup.appendChild(this.date);
-
-          this.edit = new SVGGenerator({
-            color: "green",
-            type: "edit",
-            size: "small",
-          }).wrapper;
-          this.edit.style.cursor = "pointer";
-          this.edit.style.flexGrow = "4";
-          this.edit.style.flexShrink = "1";
-          this.edit.addEventListener("click", function () {
-            meatballMeatballHistoryItem.isNew = false;
-
-            if (meatballMeatballHistoryItem.option.parentNode.isEdit) {
-              meatballMeatballHistoryItem.option.parentNode.isEdit = false;
-              meatballMeatballHistoryItem.setEditable(
-                !meatballMeatballHistoryItem.getEditable()
-              );
-            }
-          });
-          this.buttonGroup.appendChild(this.edit);
-
-          this.delete = new SVGGenerator({
-            color: "black",
-            type: "delete",
-            size: "small",
-          }).wrapper;
-          this.delete.style.cursor = "pointer";
-          this.delete.style.marginLeft = "15px";
-          this.delete.style.textAlign = "left";
-          this.delete.style.flexGrow = "1";
-          this.delete.style.flexShrink = "1";
-          this.delete.addEventListener("click", function () {
-            if (meatballMeatballHistoryItem.option) {
-              if (meatballMeatballHistoryItem.option.parentNode) {
-                if (!meatballMeatballHistoryItem.option.parentNode.addNew) {
-                  meatballMeatballHistoryItem.option.parentNode.addNew = true;
-                }
-                if (!meatballMeatballHistoryItem.option.parentNode.isEdit) {
-                  meatballMeatballHistoryItem.option.parentNode.isEdit = true;
-                }
-                meatballMeatballHistoryItem.option.parentNode.removeChild(
-                  meatballMeatballHistoryItem.option
-                );
-              }
-            }
-          });
-          this.buttonGroup.appendChild(this.delete);
-
-          this.option.appendChild(this.buttonGroup);
-
-          this.comment = document.createElement("div");
-          this.comment.contentEditable = false;
-          this.comment.style.width = "calc(500px - 3rem)";
-          this.comment.style.padding = ".25rem";
-          this.comment.style.margin = "0px";
-          this.comment.style.display = "inline-block";
-          this.comment.style.verticalAlign = "middle";
-          this.comment.style.fontSize = "14pt";
-
-          this.option.appendChild(this.comment);
-          this.option.appendChild(this.display);
-
-          return this;
-        }
-
-        MeatballHistoryItem.prototype.setDisplay = function (
-          author,
-          date,
-          text
-        ) {
-          this.author.innerText = "Author: " + author;
-          this.comment.innerText = text.replace(regex, "", text);
-          this.date.innerText = "Date: " + date;
-          return this;
-        };
-
-        MeatballHistoryItem.prototype.setEditable = function (value) {
-          if (value) {
-            this.comment.style.border = "1px solid black";
-            this.display.appendChild(this.submit);
-          } else {
-            var text = this.comment.innerText;
-            text = text.replace(regex, "", text);
-            this.comment.innerText = text;
-            if (text.trim().length === 0) {
-              return;
-            }
-            this.comment.style.border = "0px";
-            this.display.removeChild(this.submit);
-
-            if (!this.option.parentNode.addNew && this.isNew) {
-              this.option.parentNode.addNew = true;
-              this.isNew = false;
-            }
-
-            if (!this.option.parentNode.isEdit) {
-              this.option.parentNode.isEdit = true;
-            }
-          }
-          this.comment.contentEditable = value;
-          return this;
-        };
-
-        MeatballHistoryItem.prototype.getEditable = function () {
-          return this.comment.contentEditable === "true";
-        };
 
         function MeatballHistory() {
           var meatballHistory = this;
@@ -362,12 +188,14 @@
             .setDisplay("Joshua", new Date().getTime(), "")
             .setEditable(true);
           item.isNew = true;
-          this.container.insertBefore(item.option, this.container.firstChild);
+          item.setType("Joshua", "user");
+          this.container.insertBefore(item.item, this.container.firstChild);
           return this;
         };
 
         MeatballHistory.prototype.push = function (change) {
-          this.container.appendChild(change.option);
+          change.setType("Joshua", "user");
+          this.container.appendChild(change.item);
           return this;
         };
 
@@ -375,6 +203,203 @@
           while (this.container.firstChild) {
             this.container.removeChild(this.container.firstChild);
           }
+        };
+
+        function MeatballHistoryItem() {
+          var meatballMeatballHistoryItem = this;
+          this.item = document.createElement("div");
+          this.item.style.padding = ".25rem";
+          this.item.style.width = meatballHistoryItemContainerWidth;
+          this.item.style.margin = "0px;";
+          this.item.style.marginBottom = ".25rem";
+          this.item.style.padding = ".25rem";
+          this.item.type = "auto";
+
+          this.display = document.createElement("div");
+          this.display.style.display = "block";
+          this.display.style.width = meatballHistoryItemContainerWidth;
+          this.display.style.padding = "0px";
+          this.display.style.marginRight = "0px";
+          this.display.style.marginLeft = "0px";
+
+          this.author = document.createElement("div");
+          this.author.contentEditable = false;
+          this.author.style.width = meatballHistoryItemContainerWidth;
+          this.author.style.padding = ".25rem";
+          this.author.style.margin = "0px";
+          this.author.style.verticalAlign = "middle";
+          this.author.style.textAlign = "left";
+          this.author.style.fontSize = "10pt";
+          this.display.appendChild(this.author);
+
+          this.item.addEventListener("mouseenter", function () {
+            this.style.boxShadow = addShadow;
+          });
+          this.item.addEventListener("mouseleave", function () {
+            this.style.boxShadow = removeShadow;
+          });
+
+          this.isNew = false;
+
+          this.submit = document.createElement("div");
+          this.submit.innerText = "Submit";
+          this.submit.style.backgroundColor = "#aaaaaa";
+          this.submit.style.width = "75px";
+          this.submit.style.cursor = "pointer";
+          this.submit.style.margin = "auto";
+          this.submit.style.marginRight = ".25rem";
+          this.submit.style.padding = ".25rem";
+          this.submit.style.borderRadius = ".25rem";
+          this.submit.addEventListener("click", function () {
+            meatballMeatballHistoryItem.setEditable(
+              !meatballMeatballHistoryItem.getEditable()
+            );
+          });
+
+          this.buttonGroup = document.createElement("div");
+          this.buttonGroup.style.width = meatballHistoryItemContainerWidth;
+          this.buttonGroup.style.textAlign = "right";
+          this.buttonGroup.style.margin = "0px";
+          this.buttonGroup.style.padding = "0px";
+          this.buttonGroup.style.display = "flex";
+          this.buttonGroup.style.alignContent = "flex-start";
+          this.buttonGroup.style.justifyContent = "space-around";
+
+          this.date = document.createElement("div");
+          this.date.contentEditable = false;
+          this.date.style.width = "calc(500px - 2.75rem)";
+          this.date.style.padding = ".25rem";
+          this.date.style.margin = "0px";
+          this.date.style.textAlign = "left";
+          this.date.style.fontSize = "10pt";
+          this.date.style.display = "inline-block";
+          this.buttonGroup.appendChild(this.date);
+
+          this.edit = new SVGGenerator({
+            color: "green",
+            type: "edit",
+            size: "small",
+          }).wrapper;
+          this.edit.style.cursor = "pointer";
+          this.edit.style.flexGrow = "4";
+          this.edit.style.flexShrink = "1";
+          this.edit.addEventListener("click", function () {
+            meatballMeatballHistoryItem.isNew = false;
+
+            if (meatballMeatballHistoryItem.item.parentNode.isEdit) {
+              meatballMeatballHistoryItem.item.parentNode.isEdit = false;
+              meatballMeatballHistoryItem.setEditable(
+                !meatballMeatballHistoryItem.getEditable()
+              );
+            }
+          });
+          this.buttonGroup.appendChild(this.edit);
+
+          this.delete = new SVGGenerator({
+            color: "black",
+            type: "delete",
+            size: "small",
+          }).wrapper;
+          this.delete.style.cursor = "pointer";
+          this.delete.style.marginLeft = "15px";
+          this.delete.style.textAlign = "left";
+          this.delete.style.flexGrow = "1";
+          this.delete.style.flexShrink = "1";
+          this.delete.addEventListener("click", function () {
+            if (meatballMeatballHistoryItem.item) {
+              if (meatballMeatballHistoryItem.item.parentNode) {
+                if (!meatballMeatballHistoryItem.item.parentNode.addNew) {
+                  meatballMeatballHistoryItem.item.parentNode.addNew = true;
+                }
+                if (!meatballMeatballHistoryItem.item.parentNode.isEdit) {
+                  meatballMeatballHistoryItem.item.parentNode.isEdit = true;
+                }
+                meatballMeatballHistoryItem.item.parentNode.removeChild(
+                  meatballMeatballHistoryItem.item
+                );
+              }
+            }
+          });
+          this.buttonGroup.appendChild(this.delete);
+
+          this.item.appendChild(this.buttonGroup);
+
+          this.comment = document.createElement("div");
+          this.comment.contentEditable = false;
+          this.comment.style.width = "calc(500px - 3rem)";
+          this.comment.style.padding = ".25rem";
+          this.comment.style.margin = "0px";
+          this.comment.style.display = "inline-block";
+          this.comment.style.verticalAlign = "middle";
+          this.comment.style.fontSize = "14pt";
+
+          this.item.appendChild(this.comment);
+          this.item.appendChild(this.display);
+
+          return this;
+        }
+
+        MeatballHistoryItem.prototype.setDisplay = function (
+          author,
+          date,
+          text
+        ) {
+          this.author.innerText = "Author: " + author;
+          this.comment.innerText = text.replace(regex, "", text);
+          this.date.innerText = "Date: " + date;
+          return this;
+        };
+
+        MeatballHistoryItem.prototype.setEditable = function (value) {
+          if (value) {
+            this.comment.style.border = "1px solid black";
+            this.display.appendChild(this.submit);
+          } else {
+            var text = this.comment.innerText;
+            text = text.replace(regex, "", text);
+            this.comment.innerText = text;
+            if (text.trim().length === 0) {
+              return;
+            }
+            this.comment.style.border = "0px";
+            this.display.removeChild(this.submit);
+
+            if (!this.item.parentNode.addNew && this.isNew) {
+              this.item.parentNode.addNew = true;
+              this.isNew = false;
+            }
+
+            if (!this.item.parentNode.isEdit) {
+              this.item.parentNode.isEdit = true;
+            }
+          }
+          this.comment.contentEditable = value;
+          return this;
+        };
+
+        MeatballHistoryItem.prototype.getEditable = function () {
+          return this.comment.contentEditable === "true";
+        };
+
+        MeatballHistoryItem.prototype.setType = function (author, type) {
+          if (type === "auto") {
+            this.item.type = "auto";
+            this.item.style.backgroundColor = "#F0F0F0";
+          } else if (this.author.innerText.indexOf(author) > -1) {
+            this.item.type = "editable";
+            this.item.style.backgroundColor = bgCList;
+          } else {
+            this.item.type = "disabled";
+            this.item.style.backgroundColor = "#F0F0F0";
+          }
+          if (this.item.type !== "editable") {
+            this.delete.parentNode.removeChild(this.delete);
+            this.edit.parentNode.removeChild(this.edit);
+          }
+        };
+
+        MeatballHistoryItem.prototype.getType = function () {
+          return this.item.type;
         };
 
         function SVGGenerator(props) {
