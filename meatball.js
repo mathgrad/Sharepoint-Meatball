@@ -380,7 +380,11 @@
     this.history.style.display = "block";
     this.history.style.cursor = "pointer";
 
-    var meatballHistoryDisplay = new MeatballHistory();
+    var meatballHistoryDisplay = new MeatballHistory(
+      table,
+      rowIndex,
+      internalColumn
+    );
 
     var add = true;
 
@@ -397,10 +401,11 @@
             meatballHistoryDisplay.listGUID = historyListGUID;
             meatballHistoryDisplay.query = data[0].Title;
             data.forEach(function (props) {
+              console.log(props);
               // historyPanel.clear(); --this deleted every entry and left the last one in the view
               meatballHistoryDisplay.build(
                 new MeatballHistoryItem(
-                  meatballHistoryDisplay.query.split(" -")[0]
+                  meatballHistoryDisplay.table
                 ).setDisplay(
                   props.UserName,
                   props.Created,
@@ -624,11 +629,10 @@
     });
   };
 
-  function MeatballHistory() {
+  function MeatballHistory(table, rowIndex, internalColumn) {
     var meatballHistory = this;
     var windowHeight = window.innerHeight || document.body.clientHeight;
     this.listGUID = "";
-    this.query = "";
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
     this.historyPanel.style.width = "calc(500px - .5rem)";
@@ -674,7 +678,12 @@
         if (meatballHistory.container.addNew) {
           meatballHistory.container.scroll(0, 0);
           meatballHistory.container.addNew = false;
-          meatballHistory.newItem(meatballHistory);
+          meatballHistory.newItem(
+            meatballHistory,
+            table,
+            rowIndex,
+            internalColumn
+          );
         }
       }
     });
@@ -725,20 +734,28 @@
           data.forEach(function (props, index) {
             if (index !== 0) {
               meatballHistory.build(
-                new MeatballHistoryItem(
-                  meatballHistory.query.split(" -")[0]
-                ).setDisplay(
+                new MeatballHistoryItem(meatballHistory.table).setDisplay(
                   props.UserName,
                   props.Created,
                   props.Message,
                   props.ID,
-                  historyListGUID
+                  historyListGUID,
+                  table,
+                  rowIndex,
+                  internalColumn
                 )
               );
             }
           });
         }
-        retrieveHistory(null, null, null, cb, false, meatballHistory.query);
+        retrieveHistory(
+          this.table,
+          this.rowIndex,
+          this.internalColumn,
+          cb,
+          false,
+          null
+        );
       }
       meatballHistory.addMore.remove();
     });
@@ -754,7 +771,13 @@
     return this;
   }
 
-  MeatballHistory.prototype.newItem = function (meatballObj) {
+  MeatballHistory.prototype.newItem = function (
+    meatballObj,
+    table,
+    rowIndex,
+    internalColumn
+  ) {
+    console.log(meatballObj, table, rowIndex, internalColumn);
     function success(props, name) {
       var today = new Date();
       var displayDate =
@@ -763,7 +786,12 @@
         (today.getMonth() + 1) +
         " - " +
         today.getDate();
-      var item = new MeatballHistoryItem(historyListGUID, meatballObj.query)
+      var item = new MeatballHistoryItem(
+        historyListGUID,
+        table,
+        rowIndex,
+        internalColumn
+      )
         .setDisplay(name, displayDate, "")
         .setEditable(true);
       item.isNew = true;
@@ -784,7 +812,12 @@
     }
   };
 
-  function MeatballHistoryItem(historyListGUID, query) {
+  function MeatballHistoryItem(
+    historyListGUID,
+    table,
+    rowindex,
+    internalColumn
+  ) {
     var meatballHistoryItem = this;
     this.option = document.createElement("div");
     this.option.style.padding = ".25rem";
@@ -842,9 +875,9 @@
           makeHistory(
             historyListGUID,
             "placeholder",
-            query.split(" - ")[2],
-            query.split(" - ")[1],
-            query.split(" - ")[0],
+            internalColumn,
+            rowindex,
+            table,
             name,
             listEntrySuccess
           );
@@ -942,13 +975,19 @@
     date,
     comment,
     id,
-    listGUID
+    listGUID,
+    table,
+    rowIndex,
+    internalColumn
   ) {
     this.author.innerText = "by " + author;
     this.comment.innerText = comment.replace(regex, "", comment);
     this.date.innerText = "on " + date;
     this.id = id;
     this.listGUID = listGUID;
+    this.table = table;
+    this.rowIndex = rowIndex;
+    this.internalColumn = internalColumn;
     return this;
   };
 
@@ -1387,7 +1426,11 @@
         "/_api/web/lists/getbytitle('" +
         sandboxName +
         "')/items?$filter=Title eq '" +
-        query +
+        table +
+        " - " +
+        rowIndex +
+        " - " +
+        internalColumn +
         "'&$orderby=Created desc";
     }
 
@@ -1507,6 +1550,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
+        console.log("History list creation success:", data);
         createMessageColumn(data.d.Id); //colName and rowId come from the cell
         return false;
       },
