@@ -401,7 +401,6 @@
             meatballHistoryDisplay.listGUID = historyListGUID;
             meatballHistoryDisplay.query = data[0].Title;
             data.forEach(function (props) {
-              console.log(props);
               // historyPanel.clear(); --this deleted every entry and left the last one in the view
               meatballHistoryDisplay.build(
                 new MeatballHistoryItem(
@@ -632,7 +631,7 @@
   function MeatballHistory(table, rowIndex, internalColumn) {
     var meatballHistory = this;
     var windowHeight = window.innerHeight || document.body.clientHeight;
-    this.listGUID = "";
+    this.listGUID = historyListGUID;
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
     this.historyPanel.style.width = "calc(500px - .5rem)";
@@ -777,7 +776,6 @@
     rowIndex,
     internalColumn
   ) {
-    console.log(meatballObj, table, rowIndex, internalColumn);
     function success(props, name) {
       var today = new Date();
       var displayDate =
@@ -863,27 +861,31 @@
     this.submit.style.borderRadius = ".25rem";
     this.submit.addEventListener("click", function () {
       function success(props, name) {
-        if (meatballHistoryItem.isNew) {
-          function listEntrySuccess(data) {
-            meatballHistoryItem.setEditable(
-              !meatballHistoryItem.getEditable(),
-              historyListGUID,
-              data.ID,
-              true
+        function newHistoryChatCb(newListGUID) {
+          if (meatballHistoryItem.isNew) {
+            function listEntrySuccess(data) {
+              meatballHistoryItem.setEditable(
+                !meatballHistoryItem.getEditable(),
+                newListGUID,
+                data.ID,
+                true
+              );
+            }
+            //this will need a cb in order to get the value of list
+            makeHistory(
+              newListGUID,
+              "placeholder",
+              internalColumn,
+              rowindex,
+              table,
+              name,
+              listEntrySuccess
             );
+          } else {
+            meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
           }
-          makeHistory(
-            historyListGUID,
-            "placeholder",
-            internalColumn,
-            rowindex,
-            table,
-            name,
-            listEntrySuccess
-          );
-        } else {
-          meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
         }
+        findHistoryChat(newHistoryChatCb, true);
       }
       getUserName(success, this);
     });
@@ -947,7 +949,10 @@
           meatballHistoryItem.option.parentNode.removeChild(
             meatballHistoryItem.option
           );
-          deleteHistory(historyListGUID, meatballHistoryItem.id);
+          function newHistoryChatCb(listGUID) {
+            deleteHistory(listGUID, meatballHistoryItem.id);
+          }
+          findHistoryChat(newHistoryChatCb, true);
         }
       }
     });
@@ -1450,7 +1455,7 @@
     });
   }
 
-  function findHistoryChat(historyChatCb) {
+  function findHistoryChat(cb, isNew) {
     var sandboxName = "History " + ctx.SiteTitle; //"Sandbox"
     var url =
       ctx.HttpRoot + "/_api/web/lists/getbytitle('" + sandboxName + "')";
@@ -1465,7 +1470,11 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        historyChatCb(data.d.Id);
+        if (isNew) {
+          cb(data.d.Id);
+          return false;
+        }
+        cb(data.d.Id);
         return false;
       },
       error: function (error) {
@@ -1497,36 +1506,6 @@
       },
     });
   }
-
-  // function getCurrentUser(listId) {
-  //   var url =
-  //     ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
-  //   $.ajax({
-  //     url: url,
-  //     type: "GET",
-  //     headers: {
-  //       Accept: "application/json; odata=verbose",
-  //       "Content-Type": "application/json;odata=verbose",
-  //       credentials: true,
-  //       "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-  //     },
-  //     success: function (data) {
-  //       console.log("CurrentUser:", data);
-  //       makeHistory(
-  //         listId,
-  //         message,
-  //         colName,
-  //         rowId,
-  //         tableGUID,
-  //         data.d.DisplayName
-  //       ); // need to pass the values for the colStatus and rowId
-  //       return false;
-  //     },
-  //     error: function (error) {
-  //       console.log("Error in the getting the current:", error);
-  //     },
-  //   });
-  // }
 
   function makeList(sandboxName) {
     var data = {
@@ -1615,8 +1594,39 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
+        createTypeColumn(listId);
+        return false;
+      },
+      error: function (error) {
+        console.log("UserName col creation failed:", error);
+      },
+    });
+  }
+
+  function createTypeColumn(listId) {
+    var data = {
+      __metadata: { type: "SP.Field" },
+      Title: "Type",
+      FieldTypeKind: 2,
+      Required: "false",
+      EnforceUniqueValues: "false",
+      StaticName: "Type",
+    };
+
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
         console.log("list created with required cols");
-        //getCurrentUser(listId);
         return false;
       },
       error: function (error) {
