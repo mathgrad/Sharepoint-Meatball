@@ -776,7 +776,6 @@
     rowIndex,
     internalColumn
   ) {
-    console.log(meatballObj, table, rowIndex, internalColumn);
     function success(props, name) {
       var today = new Date();
       var displayDate =
@@ -950,7 +949,10 @@
           meatballHistoryItem.option.parentNode.removeChild(
             meatballHistoryItem.option
           );
-          deleteHistory(historyListGUID, meatballHistoryItem.id);
+          function newHistoryChatCb(listGUID) {
+            deleteHistory(listGUID, meatballHistoryItem.id);
+          }
+          findHistoryChat(newHistoryChatCb, true);
         }
       }
     });
@@ -1469,11 +1471,9 @@
       },
       success: function (data) {
         if (isNew) {
-          console.log("hit0");
           cb(data.d.Id);
           return false;
         }
-        console.log("hit1");
         cb(data.d.Id);
         return false;
       },
@@ -1644,7 +1644,6 @@
     currentUser,
     listEntrySuccess
   ) {
-    console.log(listId);
     var data = {
       __metadata: { type: "SP.ListItem" },
       Message: message,
