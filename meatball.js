@@ -14,9 +14,15 @@
   //Used by developers in Production to find bugs
   var debug = false;
 
+  var historyListGUID = "";
+
   //On initial load
   window.addEventListener("load", function () {
     start();
+    function historyChatCb(props) {
+      historyListGUID = props;
+    }
+    findHistoryChat(historyChatCb);
   });
 
   //On change
@@ -386,24 +392,27 @@
             console.log(error);
             return;
           }
-          meatballHistoryDisplay.listGUID = data[0].__metadata.id
-            .split("guid'")[1]
-            .split("'")[0];
-          meatballHistoryDisplay.query = data[0].Title;
-          data.forEach(function (props) {
-            // historyPanel.clear(); --this deleted every entry and left the last one in the view
-            meatballHistoryDisplay.build(
-              new MeatballHistoryItem(
-                meatballHistoryDisplay.query.split(" -")[0]
-              ).setDisplay(
-                props.UserName,
-                props.Created,
-                props.Message,
-                props.ID,
-                meatballHistoryDisplay.listGUID
-              )
-            );
-          });
+          //make a conditional for if there are no resuklts then show a message
+          if (data.length !== 0) {
+            meatballHistoryDisplay.listGUID = historyListGUID;
+            meatballHistoryDisplay.query = data[0].Title;
+            data.forEach(function (props) {
+              // historyPanel.clear(); --this deleted every entry and left the last one in the view
+              meatballHistoryDisplay.build(
+                new MeatballHistoryItem(
+                  meatballHistoryDisplay.query.split(" -")[0]
+                ).setDisplay(
+                  props.UserName,
+                  props.Created,
+                  props.Message,
+                  props.ID,
+                  meatballHistoryDisplay.listGUID
+                )
+              );
+            });
+          } else {
+            //set display to say no messages
+          }
         }
         retrieveHistory(table, rowIndex, internalColumn, cb, true);
       }
@@ -723,7 +732,7 @@
                   props.Created,
                   props.Message,
                   props.ID,
-                  meatballHistory.listGUID
+                  historyListGUID
                 )
               );
             }
@@ -754,10 +763,7 @@
         (today.getMonth() + 1) +
         " - " +
         today.getDate();
-      var item = new MeatballHistoryItem(
-        meatballObj.listGUID,
-        meatballObj.query
-      )
+      var item = new MeatballHistoryItem(historyListGUID, meatballObj.query)
         .setDisplay(name, displayDate, "")
         .setEditable(true);
       item.isNew = true;
@@ -778,7 +784,7 @@
     }
   };
 
-  function MeatballHistoryItem(listGUID, query) {
+  function MeatballHistoryItem(historyListGUID, query) {
     var meatballHistoryItem = this;
     this.option = document.createElement("div");
     this.option.style.padding = ".25rem";
@@ -828,13 +834,13 @@
           function listEntrySuccess(data) {
             meatballHistoryItem.setEditable(
               !meatballHistoryItem.getEditable(),
-              listGUID,
+              historyListGUID,
               data.ID,
               true
             );
           }
           makeHistory(
-            listGUID,
+            historyListGUID,
             "placeholder",
             query.split(" - ")[2],
             query.split(" - ")[1],
@@ -908,7 +914,7 @@
           meatballHistoryItem.option.parentNode.removeChild(
             meatballHistoryItem.option
           );
-          deleteHistory(meatballHistoryItem.listGUID, meatballHistoryItem.id);
+          deleteHistory(historyListGUID, meatballHistoryItem.id);
         }
       }
     });
@@ -1401,17 +1407,8 @@
     });
   }
 
-  //needs message, colName, rowId, tableGUID
-  function findHistoryChat() {
-    //the row information needs to get passed here
+  function findHistoryChat(historyChatCb) {
     var sandboxName = "History " + ctx.SiteTitle; //"Sandbox"
-    var message = "hello pierre"; //this represents the message that the user wants to POST
-    //////////Test Vars//////////
-    //this needs to be passed as the func params
-    var colName = "NIPR_x0020_Status_x0020_Values";
-    var rowId = 2;
-    var tableGUID = "3DEA4A61-D6E4-422E-8362-59129AC32B64";
-    /////////////////////////////
     var url =
       ctx.HttpRoot + "/_api/web/lists/getbytitle('" + sandboxName + "')";
 
@@ -1425,14 +1422,12 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        //get the user informaton before the concat
-        //needs to expand the modified by object to ensure that the person's name is viwable
-        getCurrentUser(data.d.Id, message, colName, rowId, tableGUID);
+        historyChatCb(data.d.Id);
         return false;
       },
       error: function (error) {
         console.log("Error in the findHistoryChat:", error);
-        makeList(sandboxName, message, colName, rowId, tableGUID);
+        makeList(sandboxName);
       },
     });
   }
@@ -1450,6 +1445,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
+        console.log("hit0");
         var name = data.d.DisplayName;
         success(meatballHistory, name);
         return false;
@@ -1460,37 +1456,37 @@
     });
   }
 
-  function getCurrentUser(listId, message, colName, rowId, tableGUID) {
-    var url =
-      ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
-    $.ajax({
-      url: url,
-      type: "GET",
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        console.log("CurrentUser:", data);
-        makeHistory(
-          listId,
-          message,
-          colName,
-          rowId,
-          tableGUID,
-          data.d.DisplayName
-        ); // need to pass the values for the colStatus and rowId
-        return false;
-      },
-      error: function (error) {
-        console.log("Error in the getting the current:", error);
-      },
-    });
-  }
+  // function getCurrentUser(listId) {
+  //   var url =
+  //     ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
+  //   $.ajax({
+  //     url: url,
+  //     type: "GET",
+  //     headers: {
+  //       Accept: "application/json; odata=verbose",
+  //       "Content-Type": "application/json;odata=verbose",
+  //       credentials: true,
+  //       "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+  //     },
+  //     success: function (data) {
+  //       console.log("CurrentUser:", data);
+  //       makeHistory(
+  //         listId,
+  //         message,
+  //         colName,
+  //         rowId,
+  //         tableGUID,
+  //         data.d.DisplayName
+  //       ); // need to pass the values for the colStatus and rowId
+  //       return false;
+  //     },
+  //     error: function (error) {
+  //       console.log("Error in the getting the current:", error);
+  //     },
+  //   });
+  // }
 
-  function makeList(sandboxName, message, colName, rowId, tableGUID) {
+  function makeList(sandboxName) {
     var data = {
       __metadata: { type: "SP.List" },
       AllowContentTypes: true,
@@ -1512,7 +1508,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        createMessageColumn(data.d.Id, message, colName, rowId, tableGUID); //colName and rowId come from the cell
+        createMessageColumn(data.d.Id); //colName and rowId come from the cell
         return false;
       },
       error: function (error) {
@@ -1521,7 +1517,7 @@
     });
   }
 
-  function createMessageColumn(listId, message, colName, rowId, tableGUID) {
+  function createMessageColumn(listId) {
     var data = {
       __metadata: { type: "SP.Field" },
       Title: "Message",
@@ -1531,7 +1527,7 @@
       StaticName: "Message",
     };
 
-    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
+    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields";
 
     $.ajax({
       url: url,
@@ -1544,7 +1540,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        createUserNameColumn(listId, message, colName, rowId, tableGUID);
+        createUserNameColumn(listId);
         return false;
       },
       error: function (error) {
@@ -1553,7 +1549,7 @@
     });
   }
 
-  function createUserNameColumn(listId, message, colName, rowId, tableGUID) {
+  function createUserNameColumn(listId) {
     var data = {
       __metadata: { type: "SP.Field" },
       Title: "UserName",
@@ -1576,7 +1572,8 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        getCurrentUser(listId, message, colName, rowId, tableGUID);
+        console.log("list created with required cols");
+        //getCurrentUser(listId);
         return false;
       },
       error: function (error) {
@@ -1618,7 +1615,7 @@
         return false;
       },
       error: function (error) {
-        console.log("History list creation failed:", error);
+        console.log("History entry creation failed:", error);
       },
     });
   }
