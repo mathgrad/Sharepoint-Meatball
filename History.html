@@ -206,7 +206,7 @@
         };
 
         function MeatballHistoryItem() {
-          var meatballMeatballHistoryItem = this;
+          var meatballHistoryItem = this;
           this.item = document.createElement("div");
           this.item.style.padding = ".25rem";
           this.item.style.width = meatballHistoryItemContainerWidth;
@@ -251,9 +251,7 @@
           this.submit.style.padding = ".25rem";
           this.submit.style.borderRadius = ".25rem";
           this.submit.addEventListener("click", function () {
-            meatballMeatballHistoryItem.setEditable(
-              !meatballMeatballHistoryItem.getEditable()
-            );
+            meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
           });
 
           this.buttonGroup = document.createElement("div");
@@ -284,12 +282,12 @@
           this.edit.style.flexGrow = "4";
           this.edit.style.flexShrink = "1";
           this.edit.addEventListener("click", function () {
-            meatballMeatballHistoryItem.isNew = false;
+            meatballHistoryItem.isNew = false;
 
-            if (meatballMeatballHistoryItem.item.parentNode.isEdit) {
-              meatballMeatballHistoryItem.item.parentNode.isEdit = false;
-              meatballMeatballHistoryItem.setEditable(
-                !meatballMeatballHistoryItem.getEditable()
+            if (meatballHistoryItem.item.parentNode.isEdit) {
+              meatballHistoryItem.item.parentNode.isEdit = false;
+              meatballHistoryItem.setEditable(
+                !meatballHistoryItem.getEditable()
               );
             }
           });
@@ -306,16 +304,16 @@
           this.delete.style.flexGrow = "1";
           this.delete.style.flexShrink = "1";
           this.delete.addEventListener("click", function () {
-            if (meatballMeatballHistoryItem.item) {
-              if (meatballMeatballHistoryItem.item.parentNode) {
-                if (!meatballMeatballHistoryItem.item.parentNode.addNew) {
-                  meatballMeatballHistoryItem.item.parentNode.addNew = true;
+            if (meatballHistoryItem.item) {
+              if (meatballHistoryItem.item.parentNode) {
+                if (!meatballHistoryItem.item.parentNode.addNew) {
+                  meatballHistoryItem.item.parentNode.addNew = true;
                 }
-                if (!meatballMeatballHistoryItem.item.parentNode.isEdit) {
-                  meatballMeatballHistoryItem.item.parentNode.isEdit = true;
+                if (!meatballHistoryItem.item.parentNode.isEdit) {
+                  meatballHistoryItem.item.parentNode.isEdit = true;
                 }
-                meatballMeatballHistoryItem.item.parentNode.removeChild(
-                  meatballMeatballHistoryItem.item
+                meatballHistoryItem.item.parentNode.removeChild(
+                  meatballHistoryItem.item
                 );
               }
             }
@@ -384,13 +382,13 @@
         MeatballHistoryItem.prototype.setType = function (author, type) {
           if (type === "auto") {
             this.item.type = "auto";
-            this.item.style.backgroundColor = "#F0F0F0";
+            this.item.style.backgroundColor = "#DFDFDF";
           } else if (this.author.innerText.indexOf(author) > -1) {
             this.item.type = "editable";
-            this.item.style.backgroundColor = bgCList;
+            this.item.style.backgroundColor = "#F0F0F0";
           } else {
             this.item.type = "disabled";
-            this.item.style.backgroundColor = "#F0F0F0";
+            this.item.style.backgroundColor = "#DFDFDF";
           }
           if (this.item.type !== "editable") {
             this.delete.parentNode.removeChild(this.delete);

@@ -389,6 +389,12 @@
 
     var add = true;
 
+    function success(props, name) {
+      props.currentUser = name;
+    }
+
+    getUserName(success, meatballHistoryDisplay);
+
     this.history.addEventListener("click", function () {
       if (add) {
         add = !add;
@@ -642,6 +648,7 @@
     var meatballHistory = this;
     var windowHeight = window.innerHeight || document.body.clientHeight;
     this.listGUID = historyListGUID;
+    this.currentUser = "";
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
     this.historyPanel.style.width = "calc(500px - .5rem)";
@@ -780,7 +787,30 @@
     internalColumn,
     ele
   ) {
-    function success(props, name) {
+    if (this.currentUser.length === 0) {
+      function success(props, name) {
+        var today = new Date();
+        var displayDate =
+          today.getFullYear() +
+          " - " +
+          (today.getMonth() + 1) +
+          " - " +
+          today.getDate();
+        var item = new MeatballHistoryItem(
+          historyListGUID,
+          table,
+          rowIndex,
+          internalColumn
+        )
+          .setDisplay(name, displayDate, "")
+          .setEditable(true);
+        props.currentUser = name;
+        item.isNew = true;
+        item.setType("", "auto");
+        props.container.insertBefore(item.item, props.container.firstChild);
+      }
+      getUserName(success, this);
+    } else {
       var today = new Date();
       var displayDate =
         today.getFullYear() +
@@ -794,17 +824,19 @@
         rowIndex,
         internalColumn
       )
-        .setDisplay(name, displayDate, "")
+        .setDisplay(this.currentUser, displayDate, "")
         .setEditable(true);
       item.isNew = true;
-      props.container.insertBefore(item.option, props.container.firstChild);
+      item.setType(this.currentUser, "user");
+      this.container.insertBefore(item.item, this.container.firstChild);
     }
-    getUserName(success, this);
+
     return this;
   };
 
-  MeatballHistory.prototype.build = function (change) {
-    this.container.appendChild(change.option);
+  MeatballHistory.prototype.build = function (props) {
+    props.setType("", "editable");
+    this.container.appendChild(props.item);
     return this;
   };
 
@@ -821,12 +853,13 @@
     internalColumn
   ) {
     var meatballHistoryItem = this;
-    this.option = document.createElement("div");
-    this.option.style.padding = ".25rem";
-    this.option.style.width = meatballHistoryItemContainerWidth;
-    this.option.style.margin = "0px;";
-    this.option.style.marginBottom = ".25rem";
-    this.option.style.padding = ".25rem";
+    this.item = document.createElement("div");
+    this.item.style.padding = ".25rem";
+    this.item.style.width = meatballHistoryItemContainerWidth;
+    this.item.style.margin = "0px;";
+    this.item.style.marginBottom = ".25rem";
+    this.item.style.padding = ".25rem";
+    this.item.type = "auto";
 
     this.display = document.createElement("div");
     this.display.style.display = "block";
@@ -845,10 +878,10 @@
     this.author.style.fontSize = "10pt";
     this.display.appendChild(this.author);
 
-    this.option.addEventListener("mouseenter", function () {
+    this.item.addEventListener("mouseenter", function () {
       this.style.boxShadow = addShadow;
     });
-    this.option.addEventListener("mouseleave", function () {
+    this.item.addEventListener("mouseleave", function () {
       this.style.boxShadow = removeShadow;
     });
 
@@ -924,8 +957,8 @@
     this.edit.addEventListener("click", function () {
       meatballHistoryItem.isNew = false;
 
-      if (meatballHistoryItem.option.parentNode.isEdit) {
-        meatballHistoryItem.option.parentNode.isEdit = false;
+      if (meatballHistoryItem.item.parentNode.isEdit) {
+        meatballHistoryItem.item.parentNode.isEdit = false;
         meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
       }
     });
@@ -942,16 +975,16 @@
     this.delete.style.flexGrow = "1";
     this.delete.style.flexShrink = "1";
     this.delete.addEventListener("click", function () {
-      if (meatballHistoryItem.option) {
-        if (meatballHistoryItem.option.parentNode) {
-          if (!meatballHistoryItem.option.parentNode.addNew) {
-            meatballHistoryItem.option.parentNode.addNew = true;
+      if (meatballHistoryItem.item) {
+        if (meatballHistoryItem.item.parentNode) {
+          if (!meatballHistoryItem.item.parentNode.addNew) {
+            meatballHistoryItem.item.parentNode.addNew = true;
           }
-          if (!meatballHistoryItem.option.parentNode.isEdit) {
-            meatballHistoryItem.option.parentNode.isEdit = true;
+          if (!meatballHistoryItem.item.parentNode.isEdit) {
+            meatballHistoryItem.item.parentNode.isEdit = true;
           }
-          meatballHistoryItem.option.parentNode.removeChild(
-            meatballHistoryItem.option
+          meatballHistoryItem.item.parentNode.removeChild(
+            meatballHistoryItem.item
           );
           function newHistoryChatCb(listGUID) {
             deleteHistory(listGUID, meatballHistoryItem.id);
@@ -962,7 +995,7 @@
     });
     this.buttonGroup.appendChild(this.delete);
 
-    this.option.appendChild(this.buttonGroup);
+    this.item.appendChild(this.buttonGroup);
 
     this.comment = document.createElement("div");
     this.comment.contentEditable = false;
@@ -973,8 +1006,8 @@
     this.comment.style.verticalAlign = "middle";
     this.comment.style.fontSize = "14pt";
 
-    this.option.appendChild(this.comment);
-    this.option.appendChild(this.display);
+    this.item.appendChild(this.comment);
+    this.item.appendChild(this.display);
 
     return this;
   }
@@ -1019,12 +1052,12 @@
       this.comment.style.border = "0px";
       this.display.removeChild(this.submit);
 
-      if (!this.option.parentNode.addNew && this.isNew) {
-        this.option.parentNode.addNew = true;
+      if (!this.item.parentNode.addNew && this.isNew) {
+        this.item.parentNode.addNew = true;
         this.isNew = false;
       }
-      if (!this.option.parentNode.isEdit) {
-        this.option.parentNode.isEdit = true;
+      if (!this.item.parentNode.isEdit) {
+        this.item.parentNode.isEdit = true;
       }
       if (newEntry) {
         updateHistory(listGUID, id, currentText);
@@ -1038,6 +1071,27 @@
 
   MeatballHistoryItem.prototype.getEditable = function () {
     return this.comment.contentEditable === "true";
+  };
+
+  MeatballHistoryItem.prototype.setType = function (author, type) {
+    if (type === "auto") {
+      this.item.type = "auto";
+      this.item.style.backgroundColor = "#DFDFDF";
+    } else if (this.author.innerText.indexOf(author) > -1) {
+      this.item.type = "editable";
+      this.item.style.backgroundColor = "#F0F0F0";
+    } else {
+      this.item.type = "disabled";
+      this.item.style.backgroundColor = "#DFDFDF";
+    }
+    if (this.item.type !== "editable") {
+      this.delete.parentNode.removeChild(this.delete);
+      this.edit.parentNode.removeChild(this.edit);
+    }
+  };
+
+  MeatballHistoryItem.prototype.getType = function () {
+    return this.item.type;
   };
 
   //A hashmap between values and colors
@@ -1533,7 +1587,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("History list creation success:", data);
         createMessageColumn(data.d.Id); //colName and rowId come from the cell
         return false;
       },
@@ -1598,39 +1651,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        createTypeColumn(listId);
-        return false;
-      },
-      error: function (error) {
-        console.log("UserName col creation failed:", error);
-      },
-    });
-  }
-
-  function createTypeColumn(listId) {
-    var data = {
-      __metadata: { type: "SP.Field" },
-      Title: "Type",
-      FieldTypeKind: 2,
-      Required: "false",
-      EnforceUniqueValues: "false",
-      StaticName: "Type",
-    };
-
-    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        console.log("list created with required cols");
         return false;
       },
       error: function (error) {
