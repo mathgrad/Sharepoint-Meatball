@@ -1445,7 +1445,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        console.log("hit0");
         var name = data.d.DisplayName;
         success(meatballHistory, name);
         return false;
