@@ -26,8 +26,9 @@
           <li>Degraded</li>
           <li>NA</li>
           <li>100-90</li>
-          <li>89-80</li>
+          <li>89-79</li>
           <li>79-10</li>
+          <li><79</li>
           <li><10</li>
         </ul>
         It can be any combination of these values.
