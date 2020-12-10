@@ -14,7 +14,7 @@
       var removeShadow = "0px 0px 0px";
       var backgroundColor = "#F0F0F0";
       var bgCList = "#BABBFD";
-      var meatballHistoryItemContainerWidth = "calc(500px - 2.25rem)";
+      var meatballHistoryItemContainerWidth = "calc(250px - 1.125rem)";
       var regex = /[^\d\w\s\.\?\!\@]/g;
 
       (function () {
@@ -165,7 +165,7 @@
               history.push(
                 new MeatballHistoryItem().setDisplay(
                   authorList[i],
-                  new Date().getTime(),
+                  generateDateTime(),
                   item
                 )
               );
@@ -189,7 +189,7 @@
           this.historyPanel.appendChild(this.container);
 
           this.addPanel = document.createElement("div");
-          this.addPanel.style.width = meatballHistoryItemContainerWidth + "px";
+          this.addPanel.style.width = "calc(500px - 2.25rem)";
           this.addPanel.style.padding = ".25rem";
 
           this.svg = new SVGGenerator({
@@ -218,7 +218,7 @@
           this.newComment.style.resize = "none";
           this.newComment.style.row = "1";
           this.newComment.style.height = "12pt";
-          this.newComment.style.width = "calc(490px - 3rem)";
+          this.newComment.style.width = "calc(475px - 3rem)";
           this.newComment.style.display = "inline-block";
           this.newComment.style.padding = ".25rem";
           this.newComment.style.backgroundColor = "#333333";
@@ -280,13 +280,13 @@
         function MeatballHistoryItem() {
           var meatballHistoryItem = this;
           this.item = document.createElement("div");
+          this.item.type = "auto";
           this.item.style.padding = ".25rem";
           this.item.style.width = meatballHistoryItemContainerWidth;
           this.item.style.margin = "0px;";
           this.item.style.marginBottom = ".25rem";
           this.item.style.padding = ".25rem";
           this.item.style.backgroundColor = "#191919";
-          this.item.type = "auto";
 
           this.display = document.createElement("div");
           this.display.style.display = "block";
@@ -450,14 +450,17 @@
             this.item.type = "auto";
             this.item.style.backgroundColor = "#191919";
             this.item.style.color = "#f7f7f7";
+            this.item.style.float = "left";
           } else if (this.author.innerText.indexOf(author) > -1) {
             this.item.type = "editable";
             this.item.style.backgroundColor = "#DFDFDF";
             this.item.style.color = "#313131";
+            this.item.style.float = "right";
           } else {
             this.item.type = "disabled";
             this.item.style.backgroundColor = "#191919";
             this.item.style.color = "#f7f7f7";
+            this.item.style.float = "left";
           }
           if (this.item.type !== "editable") {
             this.delete.parentNode.removeChild(this.delete);
@@ -617,7 +620,13 @@
             " - " +
             (this.time.getMonth() + 1) +
             " - " +
-            this.time.getDate()
+            this.time.getDate() +
+            " - " +
+            this.time.getHours() +
+            " - " +
+            this.time.getMinutes() +
+            " - " +
+            this.time.getSeconds()
           );
         }
 
