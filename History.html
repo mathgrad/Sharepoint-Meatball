@@ -199,6 +199,7 @@
           }).wrapper;
           this.svg.style.cursor = "pointer";
           this.svg.style.padding = ".25rem";
+          this.svg.style.verticalAlign = "middle";
 
           this.svg.addEventListener("click", function () {
             if (meatballHistory.container.addNew) {
@@ -211,6 +212,8 @@
           this.newComment = document.createElement("textarea");
           this.newComment.contentEditable = true;
           this.newComment.placeholder = "Enter Comment Here";
+          this.newComment.innerText = "";
+
           this.newComment.title = "Enter Comment Here";
           this.newComment.style.resize = "none";
           this.newComment.style.row = "1";
@@ -220,8 +223,8 @@
           this.newComment.style.padding = ".25rem";
           this.newComment.style.backgroundColor = "#333333";
           this.newComment.style.color = "#dddddd";
-          this.newComment.style.boxShadow = "0px";
-          this.newComment.innerText = "";
+          this.newComment.style.borderRadius = ".25rem";
+          this.newComment.style.verticalAlign = "middle";
 
           this.addPanel.appendChild(this.newComment);
           this.addPanel.appendChild(this.svg);
@@ -240,25 +243,25 @@
         }
 
         MeatballHistory.prototype.newItem = function () {
-          var results = this.newComment.innerText.replace(
+          var results = this.newComment.value.replace(
             regex,
             "",
-            this.newComment.innerText
+            this.newComment.value
           );
           if (results.length <= 0) {
-            this.newComment.innerText = results;
+            this.newComment.value = results;
             return;
           }
           var item = new MeatballHistoryItem().setDisplay(
             "Joshua",
             generateDateTime(),
-            this.newComment.innerText
+            this.newComment.value
           );
           item.isNew = true;
           item.setType("Joshua", "user");
           this.container.appendChild(item.item);
           this.container.scrollTop = this.container.scrollHeight;
-          this.newComment.innerText = "";
+          this.newComment.value = "";
           return this;
         };
 
@@ -301,13 +304,6 @@
           this.date.style.textAlign = "left";
           this.date.style.fontSize = "10pt";
           this.display.appendChild(this.date);
-
-          this.item.addEventListener("mouseenter", function () {
-            this.style.boxShadow = addShadow;
-          });
-          this.item.addEventListener("mouseleave", function () {
-            this.style.boxShadow = removeShadow;
-          });
 
           this.isNew = false;
 
