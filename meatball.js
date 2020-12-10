@@ -213,7 +213,6 @@
     internalColumn,
     listTitle
   ) {
-    console.log("ele:", ele, "rowIndex:", rowIndex);
     var root = ctx.HttpRoot;
     var currentListName = ctx.ListTitle;
     var listName = "SP.ListItem";
@@ -300,6 +299,12 @@
 
     var triangleSize = 10;
 
+    var meatballHistoryDisplay = new MeatballHistory(
+      table,
+      rowIndex,
+      internalColumn
+    );
+
     this.popoverPanel = document.createElement("div");
     this.popoverPanel.style.backgroundColor = "transparent";
     this.popoverPanel.style.padding = "10px";
@@ -351,7 +356,8 @@
       externalColumn,
       internalColumn,
       cellText,
-      listTitle
+      listTitle,
+      meatballHistoryDisplay
     );
 
     //Add Header Element
@@ -381,18 +387,11 @@
     this.history.style.display = "block";
     this.history.style.cursor = "pointer";
 
-    var meatballHistoryDisplay = new MeatballHistory(
-      table,
-      rowIndex,
-      internalColumn
-    );
-
     var add = true;
 
     function success(props, name) {
       props.currentUser = name;
     }
-
     getUserName(success, meatballHistoryDisplay);
 
     this.history.addEventListener("click", function () {
@@ -562,7 +561,8 @@
     externalColumn,
     internalColumn,
     cellText,
-    listTitle
+    listTitle,
+    meatObj
   ) {
     var panel = this;
 
@@ -623,15 +623,43 @@
             internalColumn,
             listTitle
           );
-          console.log(ele, cellText);
-          // new MeatballHistoryItem().newItem(
-          //   null,
-          //   table,
-          //   rowIndex,
-          //   internalColumn,
-          //   ele,
-          //   cellText
-          // );
+          var autoComment =
+            "Status change: " +
+            cellText +
+            " to " +
+            ele +
+            " by " +
+            meatObj.currentUser;
+          var today = new Date();
+          var displayDate =
+            today.getFullYear() +
+            " - " +
+            (today.getMonth() + 1) +
+            " - " +
+            today.getDate();
+
+          meatObj.build(
+            new MeatballHistoryItem().setDisplay(
+              "AutoBot",
+              displayDate,
+              autoComment,
+              null,
+              historyListGUID,
+              table,
+              rowIndex,
+              internalColumn
+            )
+          );
+          makeHistory(
+            historyListGUID,
+            autoComment,
+            internalColumn,
+            rowIndex,
+            table,
+            "AutoBot",
+            null,
+            true
+          );
         } else {
           option.style.backgroundColor = "#BABBFD";
         }
@@ -784,8 +812,7 @@
     meatballObj,
     table,
     rowIndex,
-    internalColumn,
-    ele
+    internalColumn
   ) {
     if (this.currentUser.length === 0) {
       function success(props, name) {
@@ -802,7 +829,14 @@
           rowIndex,
           internalColumn
         )
-          .setDisplay(name, displayDate, "")
+          .setDisplay(
+            name,
+            displayDate,
+            autoComment,
+            table,
+            rowIndex,
+            internalColumn
+          )
           .setEditable(true);
         props.currentUser = name;
         item.isNew = true;
@@ -1666,7 +1700,8 @@
     rowId,
     tableGUID,
     currentUser,
-    listEntrySuccess
+    listEntrySuccess,
+    autoBot
   ) {
     var data = {
       __metadata: { type: "SP.ListItem" },
@@ -1688,6 +1723,9 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
+        if (autoBot) {
+          return false;
+        }
         listEntrySuccess(data.d);
         return false;
       },
