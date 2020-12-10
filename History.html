@@ -286,9 +286,9 @@
           return this;
         };
 
-        MeatballHistory.prototype.push = function (change) {
-          change.setType("Joshua", "user");
-          this.container.insertBefore(change.item, this.container.firstChild);
+        MeatballHistory.prototype.push = function (props) {
+          props.setType("Joshua", "user");
+          this.container.insertBefore(props.item, this.container.firstChild);
           return this;
         };
 

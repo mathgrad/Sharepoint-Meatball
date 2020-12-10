@@ -716,13 +716,15 @@
     this.title.style.display = "flex";
     this.title.style.flexDirection = "row";
 
-    this.comment = document.createElement("div");
-    this.comment.innerText = "History";
-    this.comment.style.flexGrow = "1";
-    this.comment.style.flexShrink = "1";
-    this.comment.style.paddingLeft = ".5rem";
-    this.comment.style.textAlign = "left";
-    this.title.appendChild(this.comment);
+    this.titleDescription = document.createElement("div");
+    this.titleDescription.innerText = "History";
+    this.titleDescription.style.flexGrow = "1";
+    this.titleDescription.style.flexShrink = "1";
+    this.titleDescription.style.paddingLeft = ".5rem";
+    this.titleDescription.style.textAlign = "left";
+    this.titleDescription.style.color = "#dfdfdf";
+
+    this.title.appendChild(this.titleDescription);
 
     this.svgContainer = document.createElement("div");
     this.svgContainer.style.flexGrow = "4";
@@ -909,7 +911,9 @@
         props.currentUser = name;
         item.isNew = true;
         item.setType("", "auto");
-        props.container.insertBefore(item.item, props.container.firstChild);
+        props.container.appendChild(item.item);
+        props.container.scrollTop = this.container.scrollHeight;
+        props.newComment.value = "";
       }
       getUserName(success, this);
     } else {
@@ -930,7 +934,9 @@
         .setEditable(true);
       item.isNew = true;
       item.setType(this.currentUser, "user");
-      this.container.insertBefore(item.item, this.container.firstChild);
+      props.container.appendChild(item.item);
+      props.container.scrollTop = this.container.scrollHeight;
+      props.newComment.value = "";
     }
 
     return this;
@@ -938,7 +944,7 @@
 
   MeatballHistory.prototype.build = function (props) {
     props.setType("", "editable");
-    this.container.appendChild(props.item);
+    this.container.insertBefore(props.item, this.container.firstChild);
     return this;
   };
 
