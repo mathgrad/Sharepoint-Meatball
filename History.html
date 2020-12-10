@@ -208,16 +208,20 @@
             }
           });
 
-          this.newComment = document.createElement("input");
+          this.newComment = document.createElement("textarea");
+          this.newComment.contentEditable = true;
+          this.newComment.placeholder = "Enter Comment Here";
+          this.newComment.title = "Enter Comment Here";
+          this.newComment.style.resize = "none";
+          this.newComment.style.row = "1";
+          this.newComment.style.height = "12pt";
           this.newComment.style.width = "calc(490px - 3rem)";
           this.newComment.style.display = "inline-block";
           this.newComment.style.padding = ".25rem";
           this.newComment.style.backgroundColor = "#333333";
           this.newComment.style.color = "#dddddd";
           this.newComment.style.boxShadow = "0px";
-          this.newComment.placeholder = "Enter Comment Here";
           this.newComment.innerText = "";
-          this.newComment.contentEditable = true;
 
           this.addPanel.appendChild(this.newComment);
           this.addPanel.appendChild(this.svg);
