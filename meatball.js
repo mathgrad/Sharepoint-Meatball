@@ -1,7 +1,7 @@
 (function () {
   //Size sets the Meatball size in pixels
   var size = 20;
-  var meatballHistoryItemContainerWidth = "calc(500px - 2.25rem)";
+  var meatballHistoryItemContainerWidth = "calc(250px - 1.125rem)";
   //Creates the Color object which manages meatball colors
   var colors = new Colors();
   var backgroundColor = "#F0F0F0";
@@ -426,7 +426,7 @@
         }
         retrieveHistory(table, rowIndex, internalColumn, cb, true);
       }
-      document.body.appendChild(meatballHistoryDisplay.historyPanel);
+      document.body.appendChild(meatballHistoryDisplay.mainPanel);
     });
     this.popoverBody.appendChild(this.history);
 
@@ -674,15 +674,35 @@
 
   function MeatballHistory(table, rowIndex, internalColumn) {
     var meatballHistory = this;
+    var windowWidth = window.innerWidth || document.body.clientWidth;
     var windowHeight = window.innerHeight || document.body.clientHeight;
+
+    this.mainPanel = document.createElement("div");
+    this.mainPanel.style.width = windowWidth - 1 + "px";
+    this.mainPanel.style.height = windowHeight - 1 + "px";
+    this.mainPanel.style.backgroundColor = "rgb(0, 0, 0)";
+    this.mainPanel.style.backgroundColor = "rgb(0, 0, 0, 0.4)";
+    this.mainPanel.style.position = "absolute";
+    this.mainPanel.style.left = "0px";
+    this.mainPanel.style.top = "0px";
+
+    this.mainPanel.addEventListener("click", function (e) {
+      if (e.target == meatballHistory.mainPanel) {
+        meatballHistory.mainPanel.parentNode.removeChild(
+          meatballHistory.mainPanel
+        );
+      }
+    });
+
     this.listGUID = historyListGUID;
     this.currentUser = "";
+
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
     this.historyPanel.style.width = "calc(500px - .5rem)";
     this.historyPanel.style.height = windowHeight + "px";
-    this.historyPanel.style.backgroundColor = backgroundColor;
-    this.historyPanel.style.textAlign = "center";
+    this.historyPanel.style.backgroundColor = "#202020";
+    this.historyPanel.style.textAlign = "left";
     this.historyPanel.style.position = "fixed";
     this.historyPanel.style.top = "0px";
     this.historyPanel.style.right = "0px";
@@ -710,12 +730,77 @@
     this.svgContainer.style.textAlign = "right";
     this.svgContainer.style.marginRight = ".75rem";
 
+    this.x = document.createElement("div");
+    this.x.innerText = "X";
+    this.x.title = "Close";
+    this.x.style.textSize = "16pt";
+    this.x.style.padding = ".25rem";
+    this.x.style.cursor = "pointer";
+    this.x.style.width = "15px";
+
+    this.x.addEventListener("mouseenter", function () {
+      this.style.color = "#202020";
+      this.style.textShadow = "1px 1px 1px #dfdfdf";
+    });
+
+    this.x.addEventListener("mouseleave", function () {
+      this.style.color = "#dfdfdf";
+      this.style.textShadow = "0px 0px 0px #000";
+    });
+
+    this.x.addEventListener("click", function () {
+      this.style.color = "#dfdfdf";
+      this.style.textShadow = "0px 0px 0px #000";
+      meatballHistory.mainPanel.parentNode.removeChild(
+        meatballHistory.mainPanel
+      );
+    });
+
+    this.title.appendChild(this.svgContainer);
+    this.title.appendChild(this.x);
+
+    this.historyPanel.appendChild(this.title);
+
+    this.addMore = document.createElement("div");
+    this.addMore.innerText = "Show More";
+    this.addMore.style.cursor = "pointer";
+    this.addMore.style.marginTop = ".25rem";
+    this.addMore.style.marginLeft = "auto";
+    this.addMore.style.marginRight = "auto";
+    this.addMore.style.padding = ".25rem";
+    this.addMore.style.borderRadius = ".25rem";
+    this.addMore.style.width = "115px";
+    this.addMore.style.backgroundColor = "#999999";
+    this.addMore.style.textAlign = "center";
+
+    this.historyPanel.appendChild(this.addMore);
+
+    this.container = document.createElement("div");
+    this.container.style.width = "calc(500px - 2.25rem)";
+    this.container.style.height = windowHeight - 150 + "px";
+    this.container.style.margin = "auto";
+    this.container.style.paddingTop = ".25rem";
+    this.container.style.paddingLeft = ".25rem";
+    this.container.style.paddingRight = "2rem";
+    this.container.style.overflowX = "hidden";
+    this.container.style.overflowY = "auto";
+    this.container.addNew = true;
+    this.container.isEdit = true;
+
+    this.historyPanel.appendChild(this.container);
+
+    this.addPanel = document.createElement("div");
+    this.addPanel.style.width = "calc(500px - 2.25rem)";
+    this.addPanel.style.padding = ".25rem";
+
     this.svg = new SVGGenerator({
       color: "green",
       type: "add",
       size: "normal",
     }).wrapper;
     this.svg.style.cursor = "pointer";
+    this.svg.style.padding = ".25rem";
+    this.svg.style.verticalAlign = "middle";
 
     this.svg.addEventListener("click", function () {
       if (meatballHistory.container) {
@@ -732,37 +817,27 @@
       }
     });
 
-    this.svgContainer.appendChild(this.svg);
+    this.newComment = document.createElement("textarea");
+    this.newComment.contentEditable = true;
+    this.newComment.placeholder = "Enter Comment Here";
+    this.newComment.innerText = "";
 
-    this.title.appendChild(this.svgContainer);
+    this.newComment.title = "Enter Comment Here";
+    this.newComment.style.resize = "none";
+    this.newComment.style.row = "1";
+    this.newComment.style.height = "12pt";
+    this.newComment.style.width = "calc(475px - 3rem)";
+    this.newComment.style.display = "inline-block";
+    this.newComment.style.padding = ".25rem";
+    this.newComment.style.backgroundColor = "#333333";
+    this.newComment.style.color = "#dddddd";
+    this.newComment.style.borderRadius = ".25rem";
+    this.newComment.style.verticalAlign = "middle";
 
-    this.historyPanel.appendChild(this.title);
+    this.addPanel.appendChild(this.newComment);
+    this.addPanel.appendChild(this.svg);
 
-    this.container = document.createElement("div");
-    this.container.style.width = "calc(500px - 2.25rem)";
-    this.container.style.height = windowHeight - 100 + "px";
-    this.container.style.margin = "auto";
-    this.container.style.paddingTop = ".25rem";
-    this.container.style.paddingLeft = ".25rem";
-    this.container.style.paddingRight = "2rem";
-    this.container.style.overflowX = "hidden";
-    this.container.style.overflowY = "auto";
-    this.container.addNew = true;
-    this.container.isEdit = true;
-    this.historyPanel.appendChild(this.container);
-
-    this.addMore = document.createElement("div");
-    this.addMore.innerText = "Show More";
-    this.addMore.style.cursor = "pointer";
-    this.addMore.style.marginTop = ".25rem";
-    this.addMore.style.marginLeft = "auto";
-    this.addMore.style.marginRight = "auto";
-    this.addMore.style.padding = ".25rem";
-    this.addMore.style.borderRadius = ".25rem";
-    this.addMore.style.width = "115px";
-    this.addMore.style.backgroundColor = "#999999";
-
-    this.historyPanel.appendChild(this.addMore);
+    this.historyPanel.appendChild(this.addPanel);
     var add = true;
 
     this.addMore.addEventListener("click", function () {
@@ -797,14 +872,7 @@
       meatballHistory.addMore.remove();
     });
 
-    this.historyPanel.addEventListener("mouseleave", function () {
-      var panel = this;
-      if (panel) {
-        if (panel.parentNode) {
-          panel.parentNode.removeChild(panel);
-        }
-      }
-    });
+    this.mainPanel.appendChild(this.historyPanel);
     return this;
   }
 
@@ -888,12 +956,14 @@
   ) {
     var meatballHistoryItem = this;
     this.item = document.createElement("div");
+    this.item.type = "auto";
     this.item.style.padding = ".25rem";
     this.item.style.width = meatballHistoryItemContainerWidth;
     this.item.style.margin = "0px;";
     this.item.style.marginBottom = ".25rem";
     this.item.style.padding = ".25rem";
-    this.item.type = "auto";
+    this.item.style.backgroundColor = "#191919";
+    this.item.style.borderRadius = ".5rem";
 
     this.display = document.createElement("div");
     this.display.style.display = "block";
@@ -902,22 +972,16 @@
     this.display.style.marginRight = "0px";
     this.display.style.marginLeft = "0px";
 
-    this.author = document.createElement("div");
-    this.author.contentEditable = false;
-    this.author.style.width = meatballHistoryItemContainerWidth;
-    this.author.style.padding = ".25rem";
-    this.author.style.margin = "0px";
-    this.author.style.verticalAlign = "middle";
-    this.author.style.textAlign = "left";
-    this.author.style.fontSize = "10pt";
-    this.display.appendChild(this.author);
-
-    this.item.addEventListener("mouseenter", function () {
-      this.style.boxShadow = addShadow;
-    });
-    this.item.addEventListener("mouseleave", function () {
-      this.style.boxShadow = removeShadow;
-    });
+    this.date = document.createElement("div");
+    this.date.contentEditable = false;
+    this.date.style.width = meatballHistoryItemContainerWidth;
+    this.date.style.padding = ".25rem";
+    this.date.style.margin = "0px";
+    this.date.style.verticalAlign = "middle";
+    this.date.style.textAlign = "left";
+    this.date.style.fontSize = "10pt";
+    this.date.style.display = "inline-block";
+    this.display.appendChild(this.date);
 
     this.isNew = false;
 
@@ -970,15 +1034,15 @@
     this.buttonGroup.style.alignContent = "flex-start";
     this.buttonGroup.style.justifyContent = "space-around";
 
-    this.date = document.createElement("div");
-    this.date.contentEditable = false;
-    this.date.style.width = "calc(500px - 2.75rem)";
-    this.date.style.padding = ".25rem";
-    this.date.style.margin = "0px";
-    this.date.style.textAlign = "left";
-    this.date.style.fontSize = "10pt";
-    this.date.style.display = "inline-block";
-    this.buttonGroup.appendChild(this.date);
+    this.author = document.createElement("div");
+    this.author.contentEditable = false;
+    this.author.style.width = "calc(500px - 2.75rem)";
+    this.author.style.padding = ".25rem";
+    this.author.style.margin = "0px";
+    this.author.style.verticalAlign = "middle";
+    this.author.style.textAlign = "left";
+    this.author.style.fontSize = "10pt";
+    this.buttonGroup.appendChild(this.author);
 
     this.edit = new SVGGenerator({
       color: "green",
@@ -1033,7 +1097,6 @@
 
     this.comment = document.createElement("div");
     this.comment.contentEditable = false;
-    this.comment.style.width = "calc(500px - 3rem)";
     this.comment.style.padding = ".25rem";
     this.comment.style.margin = "0px";
     this.comment.style.display = "inline-block";
@@ -1056,9 +1119,9 @@
     rowIndex,
     internalColumn
   ) {
-    this.author.innerText = "by " + author;
+    this.author.innerText = "Author: " + author;
     this.comment.innerText = comment.replace(regex, "", comment);
-    this.date.innerText = "on " + date;
+    this.date.innerText = "Date: " + date;
     this.id = id;
     this.listGUID = listGUID;
     this.table = table;
@@ -1110,13 +1173,19 @@
   MeatballHistoryItem.prototype.setType = function (author, type) {
     if (type === "auto") {
       this.item.type = "auto";
-      this.item.style.backgroundColor = "#DFDFDF";
+      this.item.style.backgroundColor = "#191919";
+      this.item.style.color = "#f7f7f7";
+      this.item.style.float = "left";
     } else if (this.author.innerText.indexOf(author) > -1) {
       this.item.type = "editable";
-      this.item.style.backgroundColor = "#F0F0F0";
+      this.item.style.backgroundColor = "#DFDFDF";
+      this.item.style.color = "#313131";
+      this.item.style.float = "right";
     } else {
       this.item.type = "disabled";
-      this.item.style.backgroundColor = "#DFDFDF";
+      this.item.style.backgroundColor = "#191919";
+      this.item.style.color = "#f7f7f7";
+      this.item.style.float = "left";
     }
     if (this.item.type !== "editable") {
       this.delete.parentNode.removeChild(this.delete);
