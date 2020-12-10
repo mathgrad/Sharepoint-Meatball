@@ -115,39 +115,9 @@
           this.svgContainer.style.textAlign = "right";
           this.svgContainer.style.marginRight = ".75rem";
 
-          this.svg = new SVGGenerator({
-            color: "green",
-            type: "add",
-            size: "normal",
-          }).wrapper;
-          this.svg.style.cursor = "pointer";
-
-          this.svg.addEventListener("click", function () {
-            if (meatballHistory.container.addNew) {
-              meatballHistory.container.scroll(0, 0);
-              meatballHistory.container.addNew = false;
-              meatballHistory.newItem();
-            }
-          });
-
-          this.svgContainer.appendChild(this.svg);
-
           this.title.appendChild(this.svgContainer);
 
           this.historyPanel.appendChild(this.title);
-
-          this.container = document.createElement("div");
-          this.container.style.width = "calc(500px - 2.25rem)";
-          this.container.style.height = windowHeight - 100 + "px";
-          this.container.style.margin = "auto";
-          this.container.style.paddingTop = ".25rem";
-          this.container.style.paddingLeft = ".25rem";
-          this.container.style.paddingRight = "2rem";
-          this.container.style.overflowX = "hidden";
-          this.container.style.overflowY = "auto";
-          this.container.addNew = true;
-          this.container.isEdit = true;
-          this.historyPanel.appendChild(this.container);
 
           this.addMore = document.createElement("div");
           this.addMore.innerText = "Show More";
@@ -172,7 +142,58 @@
                 )
               );
             });
+            meatballHistory.container.scrollTop =
+              meatballHistory.container.scrollHeight;
           });
+
+          this.container = document.createElement("div");
+          this.container.style.width = "calc(500px - 2.25rem)";
+          this.container.style.height = windowHeight - 150 + "px";
+          this.container.style.margin = "auto";
+          this.container.style.paddingTop = ".25rem";
+          this.container.style.paddingLeft = ".25rem";
+          this.container.style.paddingRight = "2rem";
+          this.container.style.overflowX = "hidden";
+          this.container.style.overflowY = "auto";
+          this.container.addNew = true;
+          this.container.isEdit = true;
+
+          this.historyPanel.appendChild(this.container);
+
+          this.addPanel = document.createElement("div");
+          this.addPanel.style.width = meatballHistoryItemContainerWidth + "px";
+          this.addPanel.style.padding = ".25rem";
+
+          this.svg = new SVGGenerator({
+            color: "green",
+            type: "add",
+            size: "normal",
+          }).wrapper;
+          this.svg.style.cursor = "pointer";
+          this.svg.style.padding = ".25rem";
+
+          this.svg.addEventListener("click", function () {
+            if (meatballHistory.container.addNew) {
+              meatballHistory.container.scroll(0, 0);
+              meatballHistory.container.addNew = false;
+              meatballHistory.newItem();
+            }
+          });
+
+          this.newComment = document.createElement("div");
+          this.newComment.style.width =
+            meatballHistoryItemContainerWidth - 50 + "px";
+          this.newComment.style.border = "1px solid black";
+          this.newComment.style.display = "inline-block";
+          this.newComment.innerText = "";
+          this.newComment.contentEditable = true;
+          this.newComment.style.padding = ".25rem";
+
+          this.addPanel.appendChild(this.newComment);
+          this.addPanel.appendChild(this.svg);
+
+          this.historyPanel.appendChild(this.addPanel);
+
           // this.historyPanel.addEventListener("mouseleave", function () {
           //   var panel = this;
           //   if (panel) {
@@ -191,6 +212,7 @@
           item.isNew = true;
           item.setType("Joshua", "user");
           this.container.appendChild(item.item);
+          this.container.scrollTop = this.container.scrollHeight;
           return this;
         };
 
