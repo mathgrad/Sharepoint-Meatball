@@ -55,7 +55,7 @@
                 );
               });
             }
-            document.body.appendChild(history.historyPanel);
+            document.body.appendChild(history.mainPanel);
           });
 
           // entryPoint.addEventListener("mouseleave", function (e) {
@@ -81,7 +81,26 @@
 
         function MeatballHistory() {
           var meatballHistory = this;
+          var windowWidth = window.innerWidth || document.body.clientWidth;
           var windowHeight = window.innerHeight || document.body.clientHeight;
+
+          this.mainPanel = document.createElement("div");
+          this.mainPanel.style.width = windowWidth - 1 + "px";
+          this.mainPanel.style.height = windowHeight - 1 + "px";
+          this.mainPanel.style.backgroundColor = "rgb(0, 0, 0)";
+          this.mainPanel.style.backgroundColor = "rgb(0, 0, 0, 0.4)";
+          this.mainPanel.style.position = "absolute";
+          this.mainPanel.style.left = "0px";
+          this.mainPanel.style.top = "0px";
+
+          this.mainPanel.addEventListener("click", function (e) {
+            if (e.target == meatballHistory.mainPanel) {
+              meatballHistory.mainPanel.parentNode.removeChild(
+                meatballHistory.mainPanel
+              );
+            }
+          });
+
           this.historyPanel = document.createElement("div");
           this.historyPanel.style.padding = ".25rem";
           this.historyPanel.style.width = "calc(500px - .5rem)";
@@ -136,8 +155,8 @@
           this.x.addEventListener("click", function () {
             this.style.color = "#dfdfdf";
             this.style.textShadow = "0px 0px 0px #000";
-            meatballHistory.historyPanel.parentNode.removeChild(
-              meatballHistory.historyPanel
+            meatballHistory.mainPanel.parentNode.removeChild(
+              meatballHistory.mainPanel
             );
           });
 
@@ -230,6 +249,8 @@
           this.addPanel.appendChild(this.svg);
 
           this.historyPanel.appendChild(this.addPanel);
+
+          this.mainPanel.appendChild(this.historyPanel);
 
           // this.historyPanel.addEventListener("mouseleave", function () {
           //   var panel = this;
