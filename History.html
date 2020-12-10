@@ -4,7 +4,7 @@
     <style type="text/css">
       body {
         background-color: black;
-        color: black;
+        color: white;
         font-size: 14pt;
       }
     </style>
@@ -86,8 +86,8 @@
           this.historyPanel.style.padding = ".25rem";
           this.historyPanel.style.width = "calc(500px - .5rem)";
           this.historyPanel.style.height = windowHeight + "px";
-          this.historyPanel.style.backgroundColor = backgroundColor;
-          this.historyPanel.style.textAlign = "center";
+          this.historyPanel.style.backgroundColor = "#202020";
+          this.historyPanel.style.textAlign = "left";
           this.historyPanel.style.position = "fixed";
           this.historyPanel.style.top = "0px";
           this.historyPanel.style.right = "0px";
@@ -115,7 +115,34 @@
           this.svgContainer.style.textAlign = "right";
           this.svgContainer.style.marginRight = ".75rem";
 
+          this.x = document.createElement("div");
+          this.x.innerText = "X";
+          this.x.title = "Close";
+          this.x.style.textSize = "16pt";
+          this.x.style.padding = ".25rem";
+          this.x.style.cursor = "pointer";
+          this.x.style.width = "15px";
+
+          this.x.addEventListener("mouseenter", function () {
+            this.style.color = "#202020";
+            this.style.textShadow = "1px 1px 1px #dfdfdf";
+          });
+
+          this.x.addEventListener("mouseleave", function () {
+            this.style.color = "#dfdfdf";
+            this.style.textShadow = "0px 0px 0px #000";
+          });
+
+          this.x.addEventListener("click", function () {
+            this.style.color = "#dfdfdf";
+            this.style.textShadow = "0px 0px 0px #000";
+            meatballHistory.historyPanel.parentNode.removeChild(
+              meatballHistory.historyPanel
+            );
+          });
+
           this.title.appendChild(this.svgContainer);
+          this.title.appendChild(this.x);
 
           this.historyPanel.appendChild(this.title);
 
@@ -129,6 +156,7 @@
           this.addMore.style.borderRadius = ".25rem";
           this.addMore.style.width = "115px";
           this.addMore.style.backgroundColor = "#999999";
+          this.addMore.style.textAlign = "center";
 
           this.historyPanel.appendChild(this.addMore);
 
@@ -180,14 +208,16 @@
             }
           });
 
-          this.newComment = document.createElement("div");
-          this.newComment.style.width =
-            meatballHistoryItemContainerWidth - 50 + "px";
-          this.newComment.style.border = "1px solid black";
+          this.newComment = document.createElement("input");
+          this.newComment.style.width = "calc(490px - 3rem)";
           this.newComment.style.display = "inline-block";
+          this.newComment.style.padding = ".25rem";
+          this.newComment.style.backgroundColor = "#333333";
+          this.newComment.style.color = "#dddddd";
+          this.newComment.style.boxShadow = "0px";
+          this.newComment.placeholder = "Enter Comment Here";
           this.newComment.innerText = "";
           this.newComment.contentEditable = true;
-          this.newComment.style.padding = ".25rem";
 
           this.addPanel.appendChild(this.newComment);
           this.addPanel.appendChild(this.svg);
@@ -206,13 +236,25 @@
         }
 
         MeatballHistory.prototype.newItem = function () {
-          var item = new MeatballHistoryItem()
-            .setDisplay("Joshua", generateDateTime(), "")
-            .setEditable(true);
+          var results = this.newComment.innerText.replace(
+            regex,
+            "",
+            this.newComment.innerText
+          );
+          if (results.length <= 0) {
+            this.newComment.innerText = results;
+            return;
+          }
+          var item = new MeatballHistoryItem().setDisplay(
+            "Joshua",
+            generateDateTime(),
+            this.newComment.innerText
+          );
           item.isNew = true;
           item.setType("Joshua", "user");
           this.container.appendChild(item.item);
           this.container.scrollTop = this.container.scrollHeight;
+          this.newComment.innerText = "";
           return this;
         };
 
@@ -236,6 +278,7 @@
           this.item.style.margin = "0px;";
           this.item.style.marginBottom = ".25rem";
           this.item.style.padding = ".25rem";
+          this.item.style.backgroundColor = "#191919";
           this.item.type = "auto";
 
           this.display = document.createElement("div");
@@ -245,15 +288,15 @@
           this.display.style.marginRight = "0px";
           this.display.style.marginLeft = "0px";
 
-          this.author = document.createElement("div");
-          this.author.contentEditable = false;
-          this.author.style.width = meatballHistoryItemContainerWidth;
-          this.author.style.padding = ".25rem";
-          this.author.style.margin = "0px";
-          this.author.style.verticalAlign = "middle";
-          this.author.style.textAlign = "left";
-          this.author.style.fontSize = "10pt";
-          this.display.appendChild(this.author);
+          this.date = document.createElement("div");
+          this.date.contentEditable = false;
+          this.date.style.width = meatballHistoryItemContainerWidth;
+          this.date.style.padding = ".25rem";
+          this.date.style.margin = "0px";
+          this.date.style.verticalAlign = "middle";
+          this.date.style.textAlign = "left";
+          this.date.style.fontSize = "10pt";
+          this.display.appendChild(this.date);
 
           this.item.addEventListener("mouseenter", function () {
             this.style.boxShadow = addShadow;
@@ -286,15 +329,15 @@
           this.buttonGroup.style.alignContent = "flex-start";
           this.buttonGroup.style.justifyContent = "space-around";
 
-          this.date = document.createElement("div");
-          this.date.contentEditable = false;
-          this.date.style.width = "calc(500px - 2.75rem)";
-          this.date.style.padding = ".25rem";
-          this.date.style.margin = "0px";
-          this.date.style.textAlign = "left";
-          this.date.style.fontSize = "10pt";
-          this.date.style.display = "inline-block";
-          this.buttonGroup.appendChild(this.date);
+          this.author = document.createElement("div");
+          this.author.contentEditable = false;
+          this.author.style.width = "calc(500px - 2.75rem)";
+          this.author.style.padding = ".25rem";
+          this.author.style.margin = "0px";
+          this.author.style.textAlign = "left";
+          this.author.style.fontSize = "10pt";
+          this.author.style.display = "inline-block";
+          this.buttonGroup.appendChild(this.author);
 
           this.edit = new SVGGenerator({
             color: "green",
@@ -405,13 +448,16 @@
         MeatballHistoryItem.prototype.setType = function (author, type) {
           if (type === "auto") {
             this.item.type = "auto";
-            this.item.style.backgroundColor = "#DFDFDF";
+            this.item.style.backgroundColor = "#191919";
+            this.item.style.color = "#f7f7f7";
           } else if (this.author.innerText.indexOf(author) > -1) {
             this.item.type = "editable";
-            this.item.style.backgroundColor = "#F0F0F0";
+            this.item.style.backgroundColor = "#DFDFDF";
+            this.item.style.color = "#313131";
           } else {
             this.item.type = "disabled";
-            this.item.style.backgroundColor = "#DFDFDF";
+            this.item.style.backgroundColor = "#191919";
+            this.item.style.color = "#f7f7f7";
           }
           if (this.item.type !== "editable") {
             this.delete.parentNode.removeChild(this.delete);
@@ -471,22 +517,13 @@
           if (props.type !== "loading") {
             path.setAttribute("fill", props.color);
           }
+
           var iconPath;
           switch (props.type) {
             case "add":
               iconPath =
                 "M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z";
               this.wrapper.title = "Add";
-              break;
-
-            case "close":
-              var text = document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "text"
-              );
-              text.innerText = "X";
-              this.wrapper.title = "Close";
-              this.svg.appendChild(text);
               break;
 
             case "delete":
