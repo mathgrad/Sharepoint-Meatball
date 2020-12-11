@@ -302,7 +302,8 @@
     var meatballHistoryDisplay = new MeatballHistory(
       table,
       rowIndex,
-      internalColumn
+      internalColumn,
+      value
     );
 
     this.popoverPanel = document.createElement("div");
@@ -667,7 +668,7 @@
     });
   };
 
-  function MeatballHistory(table, rowIndex, internalColumn) {
+  function MeatballHistory(table, rowIndex, internalColumn, title) {
     var meatballHistory = this;
     var windowWidth = window.innerWidth || document.body.clientWidth;
     var windowHeight = window.innerHeight || document.body.clientHeight;
@@ -719,7 +720,7 @@
     this.title.style.flexDirection = "row";
 
     this.titleDescription = document.createElement("div");
-    this.titleDescription.innerText = "History";
+    this.titleDescription.innerText = title + " - History";
     this.titleDescription.style.flexGrow = "1";
     this.titleDescription.style.flexShrink = "1";
     this.titleDescription.style.paddingLeft = ".5rem";
