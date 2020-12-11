@@ -427,6 +427,8 @@
         retrieveHistory(table, rowIndex, internalColumn, cb, true);
       }
       document.body.appendChild(meatballHistoryDisplay.mainPanel);
+      meatballHistoryDisplay.container.scrollTop =
+        meatballHistoryDisplay.container.scrollHeight;
     });
     this.popoverBody.appendChild(this.history);
 
@@ -694,6 +696,13 @@
       }
     });
 
+    window.addEventListener("resize", function () {
+      var windowWidth = window.innerWidth || document.body.clientWidth;
+      var windowHeight = window.innerHeight || document.body.clientHeight;
+      meatballHistory.mainPanel.style.width = windowWidth;
+      meatballHistory.mainPanel.style.height = windowHeight;
+    });
+
     this.listGUID = historyListGUID;
     this.currentUser = "";
 
@@ -794,6 +803,9 @@
     this.addPanel = document.createElement("div");
     this.addPanel.style.width = "calc(500px - 2.25rem)";
     this.addPanel.style.padding = ".25rem";
+    this.addPanel.style.marginTop = ".25rem";
+    this.addPanel.style.marginLeft = "auto";
+    this.addPanel.style.marginRight = "auto";
 
     this.svg = new SVGGenerator({
       color: "green",
@@ -827,7 +839,7 @@
     this.newComment.title = "Enter Comment Here";
     this.newComment.style.resize = "none";
     this.newComment.style.row = "1";
-    this.newComment.style.height = "12pt";
+    this.newComment.style.height = "14pt";
     this.newComment.style.width = "calc(475px - 3rem)";
     this.newComment.style.display = "inline-block";
     this.newComment.style.padding = ".25rem";
@@ -872,6 +884,8 @@
         retrieveHistory(table, rowIndex, internalColumn, cb, false, null);
       }
       meatballHistory.addMore.remove();
+      meatballHistory.container.scrollTop =
+        meatballHistory.container.scrollHeight;
     });
 
     this.mainPanel.appendChild(this.historyPanel);
@@ -898,16 +912,14 @@
           table,
           rowIndex,
           internalColumn
-        )
-          .setDisplay(
-            name,
-            displayDate,
-            autoComment,
-            table,
-            rowIndex,
-            internalColumn
-          )
-          .setEditable(true);
+        ).setDisplay(
+          name,
+          displayDate,
+          autoComment,
+          table,
+          rowIndex,
+          internalColumn
+        );
         props.currentUser = name;
         item.isNew = true;
         item.setType("", "auto");
@@ -929,14 +941,12 @@
         table,
         rowIndex,
         internalColumn
-      )
-        .setDisplay(this.currentUser, displayDate, "")
-        .setEditable(true);
+      ).setDisplay(this.currentUser, displayDate, this.newComment.value);
       item.isNew = true;
       item.setType(this.currentUser, "user");
-      props.container.appendChild(item.item);
-      props.container.scrollTop = this.container.scrollHeight;
-      props.newComment.value = "";
+      this.container.appendChild(item.item);
+      this.container.scrollTop = this.container.scrollHeight;
+      this.newComment.value = "";
     }
 
     return this;
@@ -945,6 +955,7 @@
   MeatballHistory.prototype.build = function (props) {
     props.setType("", "editable");
     this.container.insertBefore(props.item, this.container.firstChild);
+    this.container.scrollTop = this.container.scrollHeight;
     return this;
   };
 
