@@ -1177,7 +1177,7 @@
     rowIndex,
     internalColumn
   ) {
-    this.author.innerText = "Author: " + author;
+    this.author.innerText = author;
     this.comment.innerText = comment.replace(regex, "", comment);
     this.date.innerText = date;
     this.id = id;
