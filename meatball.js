@@ -413,7 +413,7 @@
                   meatballHistoryDisplay.table
                 ).setDisplay(
                   props.UserName,
-                  props.Created,
+                  generateDateTime(props.Created),
                   props.Message,
                   props.ID,
                   meatballHistoryDisplay.listGUID
@@ -632,18 +632,11 @@
             ele +
             " by " +
             meatObj.currentUser;
-          var today = new Date();
-          var displayDate =
-            today.getFullYear() +
-            " - " +
-            (today.getMonth() + 1) +
-            " - " +
-            today.getDate();
 
           meatObj.build(
             new MeatballHistoryItem().setDisplay(
               "AutoBot",
-              displayDate,
+              generateDateTime(),
               autoComment,
               null,
               historyListGUID,
@@ -869,7 +862,7 @@
               meatballHistory.build(
                 new MeatballHistoryItem(meatballHistory.table).setDisplay(
                   props.UserName,
-                  props.Created,
+                  generateDateTime(props.Created),
                   props.Message,
                   props.ID,
                   historyListGUID,
@@ -900,13 +893,6 @@
   ) {
     if (this.currentUser.length === 0) {
       function success(props, name) {
-        var today = new Date();
-        var displayDate =
-          today.getFullYear() +
-          " - " +
-          (today.getMonth() + 1) +
-          " - " +
-          today.getDate();
         var item = new MeatballHistoryItem(
           historyListGUID,
           table,
@@ -914,7 +900,7 @@
           internalColumn
         ).setDisplay(
           name,
-          displayDate,
+          generateDateTime(),
           autoComment,
           table,
           rowIndex,
@@ -922,28 +908,21 @@
         );
         props.currentUser = name;
         item.isNew = true;
-        item.setType("", "auto");
+        item.setType(name);
         props.container.appendChild(item.item);
         props.container.scrollTop = this.container.scrollHeight;
         props.newComment.value = "";
       }
       getUserName(success, this);
     } else {
-      var today = new Date();
-      var displayDate =
-        today.getFullYear() +
-        " - " +
-        (today.getMonth() + 1) +
-        " - " +
-        today.getDate();
       var item = new MeatballHistoryItem(
         historyListGUID,
         table,
         rowIndex,
         internalColumn
-      ).setDisplay(this.currentUser, displayDate, this.newComment.value);
+      ).setDisplay(this.currentUser, generateDateTime(), this.newComment.value);
       item.isNew = true;
-      item.setType(this.currentUser, "user");
+      item.setType(this.currentUser);
       this.container.appendChild(item.item);
       this.container.scrollTop = this.container.scrollHeight;
       this.newComment.value = "";
@@ -953,7 +932,7 @@
   };
 
   MeatballHistory.prototype.build = function (props) {
-    props.setType("", "editable");
+    props.setType(this.currentUser);
     this.container.insertBefore(props.item, this.container.firstChild);
     this.container.scrollTop = this.container.scrollHeight;
     return this;
@@ -1118,7 +1097,7 @@
     this.comment.style.margin = "0px";
     this.comment.style.display = "inline-block";
     this.comment.style.verticalAlign = "middle";
-    this.comment.style.fontSize = "14pt";
+    this.comment.style.fontSize = "12pt";
 
     this.item.appendChild(this.comment);
     this.item.appendChild(this.display);
@@ -1187,13 +1166,8 @@
     return this.comment.contentEditable === "true";
   };
 
-  MeatballHistoryItem.prototype.setType = function (author, type) {
-    if (type === "auto") {
-      this.item.type = "auto";
-      this.item.style.backgroundColor = "#191919";
-      this.item.style.color = "#f7f7f7";
-      this.item.style.float = "left";
-    } else if (this.author.innerText.indexOf(author) > -1) {
+  MeatballHistoryItem.prototype.setType = function (author) {
+    if (this.author.innerText.indexOf(author) > -1) {
       this.item.type = "editable";
       this.item.style.backgroundColor = "#DFDFDF";
       this.item.style.color = "#313131";
@@ -1557,6 +1531,28 @@
 
     return this;
   };
+
+  function generateDateTime(date) {
+    if (!date) {
+      this.time = new Date();
+    } else {
+      this.time = new Date(date);
+    }
+
+    return (
+      this.time.getFullYear() +
+      " - " +
+      (this.time.getMonth() + 1) +
+      " - " +
+      this.time.getDate() +
+      " - " +
+      this.time.getHours() +
+      " - " +
+      this.time.getMinutes() +
+      " - " +
+      this.time.getSeconds()
+    );
+  }
 
   //True, error.  False, no error.
   function errorChecking(obj) {
