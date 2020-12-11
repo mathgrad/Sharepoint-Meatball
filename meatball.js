@@ -911,7 +911,6 @@
         item.setType(name);
         props.container.appendChild(item.item);
         props.container.scrollTop = this.container.scrollHeight;
-        props.newComment.value = "";
       }
       getUserName(success, this);
     } else {
@@ -925,9 +924,20 @@
       item.setType(this.currentUser);
       this.container.appendChild(item.item);
       this.container.scrollTop = this.container.scrollHeight;
-      this.newComment.value = "";
     }
-
+    function listEntrySuccess(data) {
+      item.setEditable(item.getEditable(), historyListGUID, data.ID, false);
+    }
+    makeHistory(
+      historyListGUID,
+      this.newComment.value,
+      internalColumn,
+      rowIndex,
+      table,
+      this.currentUser,
+      listEntrySuccess
+    );
+    this.newComment.value = "";
     return this;
   };
 
