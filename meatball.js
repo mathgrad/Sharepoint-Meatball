@@ -932,7 +932,13 @@
   };
 
   MeatballHistory.prototype.build = function (props) {
-    props.setType(this.currentUser);
+    if (this.currentUser) {
+      props.setType(this.currentUser);
+    } else if (props.name) {
+      props.setType(props.name);
+    } else {
+      props.setType(null);
+    }
     this.container.insertBefore(props.item, this.container.firstChild);
     this.container.scrollTop = this.container.scrollHeight;
     return this;
