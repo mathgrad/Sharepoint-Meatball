@@ -858,20 +858,42 @@
             console.log(error);
             return;
           }
+          var priorDate,
+            currentDate = null;
+          var nowDate = new Date();
           data.forEach(function (props, index) {
             if (index !== 0) {
-              meatballHistory.build(
-                new MeatballHistoryItem(meatballHistory.table).setDisplay(
-                  props.UserName,
-                  generateDateTime(props.Created),
-                  props.Message,
-                  props.ID,
-                  historyListGUID,
-                  table,
-                  rowIndex,
-                  internalColumn
-                )
+              currentDate = new Date(props.Created);
+
+              var mhItem = new MeatballHistoryItem(
+                meatballHistory.table
+              ).setDisplay(
+                props.UserName,
+                generateDateTime(props.Created),
+                props.Message,
+                props.ID,
+                historyListGUID,
+                table,
+                rowIndex,
+                internalColumn
               );
+
+              meatballHistory.build(mhItem);
+
+              if (!priorDate) {
+                priorDate = currentDate;
+              }
+              if (currentDate.getDate() != nowDate.getDate()) {
+                if (priorDate.getDate() != currentDate.getDate()) {
+                  meatballHistory.addDividor(priorDate, mhItem.item);
+                }
+
+                if (index + 1 === data.length) {
+                  meatballHistory.addDividor(priorDate, mhItem.item);
+                }
+              }
+
+              priorDate = currentDate;
             }
           });
         }
@@ -952,6 +974,29 @@
     }
     this.container.insertBefore(props.item, this.container.firstChild);
     this.container.scrollTop = this.container.scrollHeight;
+    return this;
+  };
+
+  MeatballHistory.prototype.addDividor = function (date, child) {
+    var dividorPanel = document.createElement("div");
+    dividorPanel.style.padding = ".25rem";
+    dividorPanel.style.width = "calc(500px - 2.5rem)";
+    dividorPanel.style.margin = "0px";
+    dividorPanel.style.marginBottom = ".25rem";
+    dividorPanel.style.padding = ".25rem";
+    dividorPanel.style.padding = "#191919";
+    dividorPanel.style.color = "#e7e7e7";
+    dividorPanel.style.float = "center";
+    dividorPanel.style.clear = "both";
+
+    var text = document.createElement("div");
+    text.innerText = date.toDateString();
+    text.style.textAlign = "center";
+
+    dividorPanel.appendChild(document.createElement("hr"));
+    dividorPanel.appendChild(text);
+    dividorPanel.appendChild(document.createElement("hr"));
+    this.container.insertBefore(dividorPanel, child);
     return this;
   };
 
@@ -1134,7 +1179,7 @@
   ) {
     this.author.innerText = "Author: " + author;
     this.comment.innerText = comment.replace(regex, "", comment);
-    this.date.innerText = "Date: " + date;
+    this.date.innerText = date;
     this.id = id;
     this.listGUID = listGUID;
     this.table = table;
@@ -1556,19 +1601,21 @@
       this.time = new Date(date);
     }
 
-    return (
-      this.time.getFullYear() +
-      " - " +
-      (this.time.getMonth() + 1) +
-      " - " +
-      this.time.getDate() +
-      " - " +
-      this.time.getHours() +
-      " - " +
-      this.time.getMinutes() +
-      " - " +
-      this.time.getSeconds()
-    );
+    this.returnTime = "";
+
+    if (this.time.getHours().toString().length < 2) {
+      this.returnTime += "0" + this.time.getHours();
+    } else {
+      this.returnTime += this.time.getHours();
+    }
+
+    if (this.time.getMinutes().toString().length < 2) {
+      this.returnTime += "0" + this.time.getMinutes();
+    } else {
+      this.returnTime += this.time.getMinutes();
+    }
+
+    return this.returnTime;
   }
 
   //True, error.  False, no error.
