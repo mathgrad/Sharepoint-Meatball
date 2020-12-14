@@ -396,6 +396,10 @@
     getUserName(success, meatballHistoryDisplay);
 
     this.history.addEventListener("click", function () {
+      if (!meatballHistoryDisplay.parentNode) {
+        add = true;
+      }
+
       if (add) {
         add = !add;
         function cb(error, data) {
@@ -403,12 +407,14 @@
             console.log(error);
             return;
           }
+
           //make a conditional for if there are no resuklts then show a message
           if (data.length !== 0) {
             meatballHistoryDisplay.historyPanel.insertBefore(
               meatballHistoryDisplay.addMore,
               meatballHistoryDisplay.container
             );
+
             meatballHistoryDisplay.listGUID = historyListGUID;
             meatballHistoryDisplay.query = data[0].Title;
             data.forEach(function (props) {
@@ -425,8 +431,6 @@
                 )
               );
             });
-          } else {
-            //set display to say no messages
           }
         }
         retrieveHistory(table, rowIndex, internalColumn, cb, true);
