@@ -25,9 +25,10 @@
     }
     findHistoryChat(historyChatCb);
     function success(props, name) {
+      console.log(name);
       userName = name;
     }
-    getUserName(success, meatballHistoryDisplay);
+    getUserName(success);
   });
 
   //On change
@@ -619,6 +620,7 @@
           radio.checked = true;
           option.style.backgroundColor = "#BABBFD";
           option.style.boxShadow = "0px 0px 0px";
+          console.log("user:", userName);
           updateTarget(
             ele,
             rowIndex,
@@ -630,14 +632,9 @@
             listTitle,
             userName
           );
-
+          console.log("meatObj:", meatObj);
           var autoComment =
-            "Status change: " +
-            cellText +
-            " to " +
-            ele +
-            " by " +
-            meatObj.currentUser;
+            "Status change: " + cellText + " to " + ele + " by " + userName;
 
           meatObj.build(
             new MeatballHistoryItem().setDisplay(
@@ -920,43 +917,22 @@
     rowIndex,
     internalColumn
   ) {
+    this.currentUser = userName;
     if (this.container.innerText === this.containerText) {
       this.container.innerText = "";
     }
-    if (this.currentUser.length === 0) {
-      function success(props, name) {
-        var item = new MeatballHistoryItem(
-          historyListGUID,
-          table,
-          rowIndex,
-          internalColumn
-        ).setDisplay(
-          name,
-          generateDateTime(),
-          autoComment,
-          table,
-          rowIndex,
-          internalColumn
-        );
-        props.currentUser = name;
-        item.isNew = true;
-        item.setType(name);
-        props.container.appendChild(item.item);
-        props.container.scrollTop = this.container.scrollHeight;
-      }
-      getUserName(success, this);
-    } else {
-      var item = new MeatballHistoryItem(
-        historyListGUID,
-        table,
-        rowIndex,
-        internalColumn
-      ).setDisplay(this.currentUser, generateDateTime(), this.newComment.value);
-      item.isNew = true;
-      item.setType(this.currentUser);
-      this.container.appendChild(item.item);
-      this.container.scrollTop = this.container.scrollHeight;
-    }
+
+    var item = new MeatballHistoryItem(
+      historyListGUID,
+      table,
+      rowIndex,
+      internalColumn
+    ).setDisplay(this.currentUser, generateDateTime(), this.newComment.value);
+    item.isNew = true;
+    item.setType(this.currentUser);
+    this.container.appendChild(item.item);
+    this.container.scrollTop = this.container.scrollHeight;
+
     function listEntrySuccess(data) {
       item.setEditable(item.getEditable(), historyListGUID, data.ID, false);
     }
@@ -966,7 +942,7 @@
       internalColumn,
       rowIndex,
       table,
-      this.currentUser,
+      userName,
       listEntrySuccess
     );
     this.newComment.value = "";
