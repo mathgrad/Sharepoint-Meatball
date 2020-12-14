@@ -791,6 +791,9 @@
     this.container.style.paddingRight = "2rem";
     this.container.style.overflowX = "hidden";
     this.container.style.overflowY = "auto";
+    this.container.style.textAlign = "center";
+    this.container.style.color = "#dddddd";
+    this.container.innerText = "No History Available For This Item";
     this.container.addNew = true;
     this.container.isEdit = true;
 
@@ -916,6 +919,9 @@
     rowIndex,
     internalColumn
   ) {
+    if (this.container.innerText.length > 0) {
+      this.container.innerText = "";
+    }
     if (this.currentUser.length === 0) {
       function success(props, name) {
         var item = new MeatballHistoryItem(
@@ -967,6 +973,9 @@
   };
 
   MeatballHistory.prototype.build = function (props) {
+    if (this.container.innerText.length > 0) {
+      this.container.innerText = "";
+    }
     if (this.currentUser) {
       props.setType(this.currentUser);
     } else if (props.name) {
@@ -1039,7 +1048,7 @@
     this.date.style.margin = "0px";
     this.date.style.verticalAlign = "middle";
     this.date.style.textAlign = "left";
-    this.date.style.fontSize = "10pt";
+    this.date.style.fontSize = "8pt";
     this.date.style.display = "inline-block";
     this.display.appendChild(this.date);
 
@@ -1101,7 +1110,7 @@
     this.author.style.margin = "0px";
     this.author.style.verticalAlign = "middle";
     this.author.style.textAlign = "left";
-    this.author.style.fontSize = "10pt";
+    this.author.style.fontSize = "8pt";
     this.buttonGroup.appendChild(this.author);
 
     this.edit = new SVGGenerator({
@@ -1162,6 +1171,7 @@
     this.comment.style.display = "inline-block";
     this.comment.style.verticalAlign = "middle";
     this.comment.style.fontSize = "12pt";
+    this.comment.style.textAlign = "left";
 
     this.item.appendChild(this.comment);
     this.item.appendChild(this.display);
