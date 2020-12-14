@@ -777,6 +777,63 @@
     this.addMore.style.width = "115px";
     this.addMore.style.backgroundColor = "#999999";
     this.addMore.style.textAlign = "center";
+    var add = true;
+
+    this.addMore.addEventListener("click", function () {
+      //possilble history.clear is needed  - pierre
+      //it needs the information for the cell, table, row etc
+      if (add) {
+        add = !add;
+        function cb(error, data) {
+          if (error) {
+            console.log(error);
+            return;
+          }
+          var priorDate,
+            currentDate = null;
+          var nowDate = new Date();
+          data.forEach(function (props, index) {
+            if (index !== 0) {
+              currentDate = new Date(props.Created);
+
+              var mhItem = new MeatballHistoryItem(
+                meatballHistory.table
+              ).setDisplay(
+                props.UserName,
+                generateDateTime(props.Created),
+                props.Message,
+                props.ID,
+                historyListGUID,
+                table,
+                rowIndex,
+                internalColumn
+              );
+
+              meatballHistory.build(mhItem);
+
+              if (!priorDate) {
+                priorDate = currentDate;
+              }
+              if (currentDate.getDate() != nowDate.getDate()) {
+                if (priorDate.getDate() != currentDate.getDate()) {
+                  meatballHistory.addDividor(priorDate, mhItem.item);
+                }
+
+                if (index + 1 === data.length) {
+                  meatballHistory.addDividor(priorDate, mhItem.item);
+                }
+              }
+
+              priorDate = currentDate;
+            }
+          });
+        }
+        retrieveHistory(table, rowIndex, internalColumn, cb, false, null);
+      }
+      meatballHistory.addMore.remove();
+      meatballHistory.container.scrollTop =
+        meatballHistory.container.scrollHeight;
+    });
 
     this.historyPanel.appendChild(this.addMore);
 
@@ -847,66 +904,7 @@
 
     this.addPanel.appendChild(this.newComment);
     this.addPanel.appendChild(this.svg);
-
     this.historyPanel.appendChild(this.addPanel);
-    var add = true;
-
-    this.addMore.addEventListener("click", function () {
-      //possilble history.clear is needed  - pierre
-      //it needs the information for the cell, table, row etc
-      if (add) {
-        add = !add;
-        function cb(error, data) {
-          if (error) {
-            console.log(error);
-            return;
-          }
-          var priorDate,
-            currentDate = null;
-          var nowDate = new Date();
-          data.forEach(function (props, index) {
-            if (index !== 0) {
-              currentDate = new Date(props.Created);
-
-              var mhItem = new MeatballHistoryItem(
-                meatballHistory.table
-              ).setDisplay(
-                props.UserName,
-                generateDateTime(props.Created),
-                props.Message,
-                props.ID,
-                historyListGUID,
-                table,
-                rowIndex,
-                internalColumn
-              );
-
-              meatballHistory.build(mhItem);
-
-              if (!priorDate) {
-                priorDate = currentDate;
-              }
-              if (currentDate.getDate() != nowDate.getDate()) {
-                if (priorDate.getDate() != currentDate.getDate()) {
-                  meatballHistory.addDividor(priorDate, mhItem.item);
-                }
-
-                if (index + 1 === data.length) {
-                  meatballHistory.addDividor(priorDate, mhItem.item);
-                }
-              }
-
-              priorDate = currentDate;
-            }
-          });
-        }
-        retrieveHistory(table, rowIndex, internalColumn, cb, false, null);
-      }
-      meatballHistory.addMore.remove();
-      meatballHistory.container.scrollTop =
-        meatballHistory.container.scrollHeight;
-    });
-
     this.mainPanel.appendChild(this.historyPanel);
     return this;
   }
