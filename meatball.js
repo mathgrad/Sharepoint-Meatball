@@ -787,7 +787,6 @@
             console.log(error);
             return;
           }
-          console.log(data);
           var priorDate,
             currentDate = null;
           var nowDate = new Date();
