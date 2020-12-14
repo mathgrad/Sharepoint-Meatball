@@ -521,11 +521,6 @@
 
     //Add Mouse leave Event to hide
     this.popoverPanel.addEventListener("mouseleave", function (e) {
-      // if (historyPanel) {
-      //   if (historyPanel.historyPanel) {
-      //     popoverPanel.removeChild(historyPanel.historyPanel);
-      //   }
-      // }
       if (popoverPanel) {
         if (popoverPanel.parentNode) {
           popoverPanel.parentNode.removeChild(popoverPanel);
@@ -684,6 +679,7 @@
 
     this.mainPanel.addEventListener("click", function (e) {
       if (e.target == meatballHistory.mainPanel) {
+        meatballHistory.clear();
         meatballHistory.mainPanel.parentNode.removeChild(
           meatballHistory.mainPanel
         );
@@ -756,6 +752,7 @@
     this.x.addEventListener("click", function () {
       this.style.color = "#dfdfdf";
       this.style.textShadow = "0px 0px 0px #000";
+      meatballHistory.clear();
       meatballHistory.mainPanel.parentNode.removeChild(
         meatballHistory.mainPanel
       );
@@ -784,48 +781,46 @@
       //it needs the information for the cell, table, row etc
       if (add) {
         add = !add;
+
         function cb(error, data) {
           if (error) {
             console.log(error);
             return;
           }
+          console.log(data);
           var priorDate,
             currentDate = null;
           var nowDate = new Date();
           data.forEach(function (props, index) {
-            if (index !== 0) {
-              currentDate = new Date(props.Created);
+            currentDate = new Date(props.Created);
 
-              var mhItem = new MeatballHistoryItem(
-                meatballHistory.table
-              ).setDisplay(
-                props.UserName,
-                generateDateTime(props.Created),
-                props.Message,
-                props.ID,
-                historyListGUID,
-                table,
-                rowIndex,
-                internalColumn
-              );
+            var mhItem = new MeatballHistoryItem().setDisplay(
+              props.UserName,
+              generateDateTime(props.Created),
+              props.Message,
+              props.ID,
+              historyListGUID,
+              table,
+              rowIndex,
+              internalColumn
+            );
 
-              meatballHistory.build(mhItem);
+            meatballHistory.build(mhItem);
 
-              if (!priorDate) {
-                priorDate = currentDate;
-              }
-              if (currentDate.getDate() != nowDate.getDate()) {
-                if (priorDate.getDate() != currentDate.getDate()) {
-                  meatballHistory.addDividor(priorDate, mhItem.item);
-                }
-
-                if (index + 1 === data.length) {
-                  meatballHistory.addDividor(priorDate, mhItem.item);
-                }
-              }
-
+            if (!priorDate) {
               priorDate = currentDate;
             }
+            if (currentDate.getDate() != nowDate.getDate()) {
+              if (priorDate.getDate() != currentDate.getDate()) {
+                meatballHistory.addDividor(priorDate, mhItem.item);
+              }
+
+              if (index + 1 === data.length) {
+                meatballHistory.addDividor(priorDate, mhItem.item);
+              }
+            }
+
+            priorDate = currentDate;
           });
         }
         retrieveHistory(table, rowIndex, internalColumn, cb, false, null);
@@ -836,6 +831,8 @@
     });
 
     this.historyPanel.appendChild(this.addMore);
+
+    this.containerText = "No History Available For This Item";
 
     this.container = document.createElement("div");
     this.container.style.width = "calc(500px - 2.25rem)";
@@ -848,7 +845,7 @@
     this.container.style.overflowY = "auto";
     this.container.style.textAlign = "center";
     this.container.style.color = "#dddddd";
-    this.container.innerText = "No History Available For This Item";
+    this.container.innerText = this.containerText;
     this.container.addNew = true;
     this.container.isEdit = true;
 
@@ -915,7 +912,7 @@
     rowIndex,
     internalColumn
   ) {
-    if (this.container.innerText.length > 0) {
+    if (this.container.innerText === this.containerText) {
       this.container.innerText = "";
     }
     if (this.currentUser.length === 0) {
@@ -969,7 +966,7 @@
   };
 
   MeatballHistory.prototype.build = function (props) {
-    if (this.container.innerText.length > 0) {
+    if (this.container.innerText === this.containerText) {
       this.container.innerText = "";
     }
     if (this.currentUser) {
