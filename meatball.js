@@ -10,11 +10,12 @@
 
   var addShadow = "0px 0px 10px #BABBFD";
   var removeShadow = "0px 0px 0px";
-  var regex = /[^\d\w\s\.\?\!\@]/g;
+  var regex = /[^\d\w\s\.\?\!\@\-\:]/g;
   //Used by developers in Production to find bugs
   var debug = false;
 
   var historyListGUID = "";
+  var userName = "";
 
   //On initial load
   window.addEventListener("load", function () {
@@ -23,6 +24,10 @@
       historyListGUID = props;
     }
     findHistoryChat(historyChatCb);
+    function success(props, name) {
+      userName = name;
+    }
+    getUserName(success, meatballHistoryDisplay);
   });
 
   //On change
@@ -390,11 +395,6 @@
 
     var add = true;
 
-    function success(props, name) {
-      props.currentUser = name;
-    }
-    getUserName(success, meatballHistoryDisplay);
-
     this.history.addEventListener("click", function () {
       if (add) {
         add = !add;
@@ -623,7 +623,8 @@
             table,
             externalColumn,
             internalColumn,
-            listTitle
+            listTitle,
+            userName
           );
 
           var autoComment =
@@ -700,7 +701,7 @@
     });
 
     this.listGUID = historyListGUID;
-    this.currentUser = "";
+    this.currentUser = userName;
 
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
