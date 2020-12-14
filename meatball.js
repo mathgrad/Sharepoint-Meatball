@@ -7,7 +7,7 @@
   var backgroundColor = "#F0F0F0";
   //Creates the Pantry object which manages toast notifications
   var kitchen = new Pantry();
-  //
+
   var addShadow = "0px 0px 10px #BABBFD";
   var removeShadow = "0px 0px 0px";
   var regex = /[^\d\w\s\.\?\!\@]/g;
@@ -828,7 +828,7 @@
     this.newComment = document.createElement("textarea");
     this.newComment.contentEditable = true;
     this.newComment.placeholder = "Enter Comment Here";
-    this.newComment.innerText = "";
+    this.newComment.value = "";
 
     this.newComment.title = "Enter Comment Here";
     this.newComment.style.resize = "none";
@@ -1178,7 +1178,7 @@
     internalColumn
   ) {
     this.author.innerText = author;
-    this.comment.innerText = comment.replace(regex, "", comment);
+    this.comment.value = comment.replace(regex, "", comment);
     this.date.innerText = date;
     this.id = id;
     this.listGUID = listGUID;
@@ -1198,9 +1198,9 @@
       this.comment.style.border = "1px solid black";
       this.display.appendChild(this.submit);
     } else {
-      var currentText = this.comment.innerText;
+      var currentText = this.comment.value;
       currentText = currentText.replace(regex, "", currentText);
-      this.comment.innerText = currentText;
+      this.comment.value = currentText;
       if (currentText.trim().length === 0) {
         return;
       }
