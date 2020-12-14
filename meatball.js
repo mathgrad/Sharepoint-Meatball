@@ -1037,7 +1037,7 @@
     this.date.style.margin = "0px";
     this.date.style.verticalAlign = "middle";
     this.date.style.textAlign = "left";
-    this.date.style.fontSize = "10pt";
+    this.date.style.fontSize = "8pt";
     this.date.style.display = "inline-block";
     this.display.appendChild(this.date);
 
@@ -1099,7 +1099,7 @@
     this.author.style.margin = "0px";
     this.author.style.verticalAlign = "middle";
     this.author.style.textAlign = "left";
-    this.author.style.fontSize = "10pt";
+    this.author.style.fontSize = "8pt";
     this.buttonGroup.appendChild(this.author);
 
     this.edit = new SVGGenerator({
@@ -1178,7 +1178,7 @@
     internalColumn
   ) {
     this.author.innerText = author;
-    this.comment.value = comment.replace(regex, "", comment);
+    this.comment.innerText = comment.replace(regex, "", comment);
     this.date.innerText = date;
     this.id = id;
     this.listGUID = listGUID;
@@ -1198,9 +1198,9 @@
       this.comment.style.border = "1px solid black";
       this.display.appendChild(this.submit);
     } else {
-      var currentText = this.comment.value;
+      var currentText = this.comment.innerText;
       currentText = currentText.replace(regex, "", currentText);
-      this.comment.value = currentText;
+      this.comment.innerText = currentText;
       if (currentText.trim().length === 0) {
         return;
       }
