@@ -405,6 +405,10 @@
           }
           //make a conditional for if there are no resuklts then show a message
           if (data.length !== 0) {
+            meatballHistoryDisplay.historyPanel.insertBefore(
+              meatballHistoryDisplay.addMore,
+              meatballHistoryDisplay.container
+            );
             meatballHistoryDisplay.listGUID = historyListGUID;
             meatballHistoryDisplay.query = data[0].Title;
             data.forEach(function (props) {
@@ -828,8 +832,6 @@
       meatballHistory.container.scrollTop =
         meatballHistory.container.scrollHeight;
     });
-
-    this.historyPanel.appendChild(this.addMore);
 
     this.containerText = "No History Available For This Item";
 
