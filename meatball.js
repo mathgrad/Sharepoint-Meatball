@@ -626,6 +626,7 @@
             internalColumn,
             listTitle
           );
+
           var autoComment =
             "Status change: " +
             cellText +
@@ -656,6 +657,7 @@
             null,
             true
           );
+          cellText = ele; //this will change the current value of meatball for the view purposes.
         } else {
           option.style.backgroundColor = "#BABBFD";
         }
@@ -1178,7 +1180,7 @@
     internalColumn
   ) {
     this.author.innerText = author;
-    this.comment.value = comment.replace(regex, "", comment);
+    this.comment.innerText = comment.replace(regex, "", comment);
     this.date.innerText = date;
     this.id = id;
     this.listGUID = listGUID;
@@ -1198,9 +1200,9 @@
       this.comment.style.border = "1px solid black";
       this.display.appendChild(this.submit);
     } else {
-      var currentText = this.comment.value;
+      var currentText = this.comment.innerText;
       currentText = currentText.replace(regex, "", currentText);
-      this.comment.value = currentText;
+      this.comment.innerText = currentText;
       if (currentText.trim().length === 0) {
         return;
       }
