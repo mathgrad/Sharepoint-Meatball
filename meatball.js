@@ -414,7 +414,6 @@
             console.log(error);
             return;
           }
-          //make a conditional for if there are no results then show a message
           if (data.length !== 0) {
             meatballHistoryDisplay.historyPanel.insertBefore(
               meatballHistoryDisplay.addMore,
