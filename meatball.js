@@ -891,7 +891,6 @@
     this.newComment.contentEditable = true;
     this.newComment.placeholder = "Enter Comment Here";
     this.newComment.value = "";
-
     this.newComment.title = "Enter Comment Here";
     this.newComment.style.resize = "none";
     this.newComment.style.row = "1";
@@ -906,8 +905,11 @@
 
     this.addPanel.appendChild(this.newComment);
     this.addPanel.appendChild(this.svg);
+
     this.historyPanel.appendChild(this.addPanel);
+
     this.mainPanel.appendChild(this.historyPanel);
+
     return this;
   }
 
@@ -1053,33 +1055,30 @@
     this.submit.style.padding = ".25rem";
     this.submit.style.borderRadius = ".25rem";
     this.submit.addEventListener("click", function () {
-      function success(props, name) {
-        function newHistoryChatCb(newListGUID) {
-          if (meatballHistoryItem.isNew) {
-            function listEntrySuccess(data) {
-              meatballHistoryItem.setEditable(
-                !meatballHistoryItem.getEditable(),
-                newListGUID,
-                data.ID,
-                false
-              );
-            }
-            makeHistory(
+      function newHistoryChatCb(newListGUID) {
+        if (meatballHistoryItem.isNew) {
+          function listEntrySuccess(data) {
+            meatballHistoryItem.setEditable(
+              !meatballHistoryItem.getEditable(),
               newListGUID,
-              "placeholder",
-              internalColumn,
-              rowindex,
-              table,
-              name,
-              listEntrySuccess
+              data.ID,
+              false
             );
-          } else {
-            meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
           }
+          makeHistory(
+            newListGUID,
+            "placeholder",
+            internalColumn,
+            rowindex,
+            table,
+            userName,
+            listEntrySuccess
+          );
+        } else {
+          meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
         }
-        findHistoryChat(newHistoryChatCb, true);
       }
-      getUserName(success, this);
+      findHistoryChat(newHistoryChatCb, true);
     });
 
     this.buttonGroup = document.createElement("div");
