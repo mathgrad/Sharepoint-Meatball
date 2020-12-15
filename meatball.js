@@ -19,10 +19,6 @@
   //On initial load
   window.addEventListener("load", function () {
     start();
-    function historyChatCb(props) {
-      historyListGUID = props;
-    }
-    findHistoryChat(historyChatCb);
   });
 
   //On change
@@ -48,6 +44,13 @@
       meatball_override.forEach(function (item) {
         colors.set(item.value, item.color);
       });
+    }
+
+    if (historyListGUID.length <= 0) {
+      function historyChatCb(props) {
+        historyListGUID = props;
+      }
+      findHistoryChat(historyChatCb);
     }
 
     //Get all the tables -- create array
