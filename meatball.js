@@ -673,6 +673,7 @@
     this.mainPanel.style.position = "absolute";
     this.mainPanel.style.left = "0px";
     this.mainPanel.style.top = "0px";
+    this.mainPanel.style.zIndex = "999";
 
     this.mainPanel.addEventListener("click", function (e) {
       if (e.target == meatballHistory.mainPanel) {
@@ -824,7 +825,7 @@
         }
         retrieveHistory(table, rowIndex, internalColumn, cb, false, null);
       }
-      meatballHistory.addMore.remove();
+      meatballHistory.addMore.parentNode.removeChild(meatballHistory.addMore);
       meatballHistory.container.scrollTop =
         meatballHistory.container.scrollHeight;
     });
@@ -867,7 +868,8 @@
     this.svg.addEventListener("click", function () {
       if (meatballHistory.container) {
         if (meatballHistory.container.addNew) {
-          meatballHistory.container.scroll(0, 0);
+          meatballHistory.container.scrollTop =
+            meatballHistory.container.scrollHeight;
           meatballHistory.container.addNew = false;
           meatballHistory.newItem(
             meatballHistory,
@@ -1118,6 +1120,7 @@
     }).wrapper;
     this.delete.style.cursor = "pointer";
     this.delete.style.marginLeft = "15px";
+    this.delete.style.marginRight = "15px";
     this.delete.style.textAlign = "left";
     this.delete.style.flexGrow = "1";
     this.delete.style.flexShrink = "1";
@@ -1731,7 +1734,7 @@
 
   function getUserName(success, meatballHistory) {
     var url =
-      ctx.HttpRoot + `/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
+      ctx.HttpRoot + "/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
     $.ajax({
       url: url,
       type: "GET",
