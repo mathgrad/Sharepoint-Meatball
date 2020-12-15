@@ -637,18 +637,6 @@
             " by " +
             meatObj.currentUser;
 
-          meatObj.build(
-            new MeatballHistoryItem().setDisplay(
-              "AutoBot",
-              generateDateTime(),
-              autoComment,
-              null,
-              historyListGUID,
-              table,
-              rowIndex,
-              internalColumn
-            )
-          );
           makeHistory(
             historyListGUID,
             autoComment,
