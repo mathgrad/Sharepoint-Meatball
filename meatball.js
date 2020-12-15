@@ -20,14 +20,6 @@
   //On initial load
   window.addEventListener("load", function () {
     start();
-    function historyChatCb(props) {
-      historyListGUID = props;
-    }
-    findHistoryChat(historyChatCb);
-    function success(props, name) {
-      userName = name;
-    }
-    getUserName(success);
   });
 
   //On change
@@ -53,6 +45,19 @@
       meatball_override.forEach(function (item) {
         colors.set(item.value, item.color);
       });
+    }
+
+    if (historyListGUID.length <= 0) {
+      function historyChatCb(props) {
+        historyListGUID = props;
+      }
+      findHistoryChat(historyChatCb);
+    }
+    if (userName.length <= 0) {
+      function success(props, name) {
+        userName = name;
+      }
+      getUserName(success);
     }
 
     //Get all the tables -- create array
@@ -1055,7 +1060,6 @@
               listEntrySuccess
             );
           } else {
-            console.log("pie1", meatballHistoryItem);
             meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
           }
         }
