@@ -25,7 +25,6 @@
     }
     findHistoryChat(historyChatCb);
     function success(props, name) {
-      console.log(name);
       userName = name;
     }
     getUserName(success);
@@ -311,6 +310,8 @@
       internalColumn,
       value
     );
+    meatballHistoryDisplay.currentUser = userName;
+    meatballHistoryDisplay.listGUID = historyListGUID;
 
     this.popoverPanel = document.createElement("div");
     this.popoverPanel.style.backgroundColor = "transparent";
@@ -408,22 +409,16 @@
             console.log(error);
             return;
           }
-
-          //make a conditional for if there are no resuklts then show a message
+          //make a conditional for if there are no results then show a message
           if (data.length !== 0) {
             meatballHistoryDisplay.historyPanel.insertBefore(
               meatballHistoryDisplay.addMore,
               meatballHistoryDisplay.container
             );
-
-            meatballHistoryDisplay.listGUID = historyListGUID;
             meatballHistoryDisplay.query = data[0].Title;
             data.forEach(function (props) {
-              // historyPanel.clear(); --this deleted every entry and left the last one in the view
               meatballHistoryDisplay.build(
-                new MeatballHistoryItem(
-                  meatballHistoryDisplay.table
-                ).setDisplay(
+                new MeatballHistoryItem().setDisplay(
                   props.UserName,
                   generateDateTime(props.Created),
                   props.Message,
@@ -620,7 +615,6 @@
           radio.checked = true;
           option.style.backgroundColor = "#BABBFD";
           option.style.boxShadow = "0px 0px 0px";
-          console.log("user:", userName);
           updateTarget(
             ele,
             rowIndex,
@@ -632,22 +626,9 @@
             listTitle,
             userName
           );
-          console.log("meatObj:", meatObj);
+
           var autoComment =
             "Status change: " + cellText + " to " + ele + " by " + userName;
-
-          meatObj.build(
-            new MeatballHistoryItem().setDisplay(
-              "AutoBot",
-              generateDateTime(),
-              autoComment,
-              null,
-              historyListGUID,
-              table,
-              rowIndex,
-              internalColumn
-            )
-          );
           makeHistory(
             historyListGUID,
             autoComment,
@@ -798,9 +779,9 @@
           var priorDate,
             currentDate = null;
           var nowDate = new Date();
+          meatballHistory.clear();
           data.forEach(function (props, index) {
             currentDate = new Date(props.Created);
-
             var mhItem = new MeatballHistoryItem().setDisplay(
               props.UserName,
               generateDateTime(props.Created),
@@ -917,48 +898,60 @@
     rowIndex,
     internalColumn
   ) {
-    this.currentUser = userName;
-    if (this.container.innerText === this.containerText) {
-      this.container.innerText = "";
+    var meatObject = this;
+
+    meatObject.currentUser = userName;
+    if (meatObject.container.innerText === meatObject.containerText) {
+      meatObject.container.innerText = "";
     }
 
-    var item = new MeatballHistoryItem(
-      historyListGUID,
-      table,
-      rowIndex,
-      internalColumn
-    ).setDisplay(this.currentUser, generateDateTime(), this.newComment.value);
-    item.isNew = true;
-    item.setType(this.currentUser);
-    this.container.appendChild(item.item);
-    this.container.scrollTop = this.container.scrollHeight;
-
     function listEntrySuccess(data) {
-      item.setEditable(item.getEditable(), historyListGUID, data.ID, false);
+      var item = new MeatballHistoryItem(
+        historyListGUID,
+        table,
+        rowIndex,
+        internalColumn
+      ).setDisplay(
+        meatObject.currentUser,
+        generateDateTime(),
+        data.Message,
+        data.ID,
+        historyListGUID,
+        table,
+        rowIndex,
+        internalColumn
+      );
+      item.isNew = true;
+      item.setType(meatObject.currentUser);
+      meatObject.container.appendChild(item.item);
+      meatObject.container.scrollTop = meatObject.container.scrollHeight;
+
+      item.setEditable(item.getEditable(), historyListGUID, data.ID, true);
+
+      meatObject.newComment.value = "";
     }
     makeHistory(
       historyListGUID,
-      this.newComment.value,
+      meatObject.newComment.value,
       internalColumn,
       rowIndex,
       table,
       userName,
       listEntrySuccess
     );
-    this.newComment.value = "";
-    return this;
+
+    return meatObject;
   };
 
   MeatballHistory.prototype.build = function (props) {
     if (this.container.innerText === this.containerText) {
       this.container.innerText = "";
     }
-    if (this.currentUser) {
-      props.setType(this.currentUser);
-    } else if (props.name) {
-      props.setType(props.name);
+
+    if (props.author.innerText !== "AutoBot") {
+      props.setType(props.author.innerText);
     } else {
-      props.setType(null);
+      props.setType();
     }
     this.container.insertBefore(props.item, this.container.firstChild);
     this.container.scrollTop = this.container.scrollHeight;
@@ -1049,10 +1042,9 @@
                 !meatballHistoryItem.getEditable(),
                 newListGUID,
                 data.ID,
-                true
+                false
               );
             }
-            //this will need a cb in order to get the value of list
             makeHistory(
               newListGUID,
               "placeholder",
@@ -1063,6 +1055,7 @@
               listEntrySuccess
             );
           } else {
+            console.log("pie1", meatballHistoryItem);
             meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
           }
         }
@@ -1174,6 +1167,7 @@
     this.table = table;
     this.rowIndex = rowIndex;
     this.internalColumn = internalColumn;
+
     return this;
   };
 
@@ -1194,7 +1188,9 @@
         return;
       }
       this.comment.style.border = "0px";
-      this.display.removeChild(this.submit);
+      if (this.submit.parentNode) {
+        this.display.removeChild(this.submit);
+      }
 
       if (!this.item.parentNode.addNew && this.isNew) {
         this.item.parentNode.addNew = true;
@@ -1203,6 +1199,7 @@
       if (!this.item.parentNode.isEdit) {
         this.item.parentNode.isEdit = true;
       }
+
       if (newEntry) {
         updateHistory(listGUID, id, currentText);
       } else {
