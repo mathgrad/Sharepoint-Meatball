@@ -15,6 +15,7 @@
   var debug = false;
 
   var historyListGUID = "";
+  var userName = "";
 
   //On initial load
   window.addEventListener("load", function () {
@@ -51,6 +52,12 @@
         historyListGUID = props;
       }
       findHistoryChat(historyChatCb);
+    }
+    if (userName.length <= 0) {
+      function success(props, name) {
+        userName = name;
+      }
+      getUserName(success);
     }
 
     //Get all the tables -- create array
@@ -308,6 +315,8 @@
       internalColumn,
       value
     );
+    meatballHistoryDisplay.currentUser = userName;
+    meatballHistoryDisplay.listGUID = historyListGUID;
 
     this.popoverPanel = document.createElement("div");
     this.popoverPanel.style.backgroundColor = "transparent";
@@ -393,11 +402,6 @@
 
     var add = true;
 
-    function success(props, name) {
-      props.currentUser = name;
-    }
-    getUserName(success, meatballHistoryDisplay);
-
     this.history.addEventListener("click", function () {
       if (!meatballHistoryDisplay.parentNode) {
         add = true;
@@ -410,22 +414,16 @@
             console.log(error);
             return;
           }
-
-          //make a conditional for if there are no resuklts then show a message
+          //make a conditional for if there are no results then show a message
           if (data.length !== 0) {
             meatballHistoryDisplay.historyPanel.insertBefore(
               meatballHistoryDisplay.addMore,
               meatballHistoryDisplay.container
             );
-
-            meatballHistoryDisplay.listGUID = historyListGUID;
             meatballHistoryDisplay.query = data[0].Title;
             data.forEach(function (props) {
-              // historyPanel.clear(); --this deleted every entry and left the last one in the view
               meatballHistoryDisplay.build(
-                new MeatballHistoryItem(
-                  meatballHistoryDisplay.table
-                ).setDisplay(
+                new MeatballHistoryItem().setDisplay(
                   props.UserName,
                   generateDateTime(props.Created),
                   props.Message,
@@ -630,16 +628,12 @@
             table,
             externalColumn,
             internalColumn,
-            listTitle
+            listTitle,
+            userName
           );
-          var autoComment =
-            "Status change: " +
-            cellText +
-            " to " +
-            ele +
-            " by " +
-            meatObj.currentUser;
 
+          var autoComment =
+            "Status change: " + cellText + " to " + ele + " by " + userName;
           makeHistory(
             historyListGUID,
             autoComment,
@@ -650,6 +644,7 @@
             null,
             true
           );
+          cellText = ele; //this will change the current value of meatball for the view purposes.
         } else {
           option.style.backgroundColor = "#BABBFD";
         }
@@ -693,7 +688,7 @@
     });
 
     this.listGUID = historyListGUID;
-    this.currentUser = "";
+    this.currentUser = userName;
 
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
@@ -789,9 +784,9 @@
           var priorDate,
             currentDate = null;
           var nowDate = new Date();
+          meatballHistory.clear();
           data.forEach(function (props, index) {
             currentDate = new Date(props.Created);
-
             var mhItem = new MeatballHistoryItem().setDisplay(
               props.UserName,
               generateDateTime(props.Created),
@@ -908,69 +903,60 @@
     rowIndex,
     internalColumn
   ) {
-    if (this.container.innerText === this.containerText) {
-      this.container.innerText = "";
+    var meatObject = this;
+
+    meatObject.currentUser = userName;
+    if (meatObject.container.innerText === meatObject.containerText) {
+      meatObject.container.innerText = "";
     }
-    if (this.currentUser.length === 0) {
-      function success(props, name) {
-        var item = new MeatballHistoryItem(
-          historyListGUID,
-          table,
-          rowIndex,
-          internalColumn
-        ).setDisplay(
-          name,
-          generateDateTime(),
-          autoComment,
-          table,
-          rowIndex,
-          internalColumn
-        );
-        props.currentUser = name;
-        item.isNew = true;
-        item.setType(name);
-        props.container.appendChild(item.item);
-        props.container.scrollTop = this.container.scrollHeight;
-      }
-      getUserName(success, this);
-    } else {
+
+    function listEntrySuccess(data) {
       var item = new MeatballHistoryItem(
         historyListGUID,
         table,
         rowIndex,
         internalColumn
-      ).setDisplay(this.currentUser, generateDateTime(), this.newComment.value);
+      ).setDisplay(
+        meatObject.currentUser,
+        generateDateTime(),
+        data.Message,
+        data.ID,
+        historyListGUID,
+        table,
+        rowIndex,
+        internalColumn
+      );
       item.isNew = true;
-      item.setType(this.currentUser);
-      this.container.appendChild(item.item);
-      this.container.scrollTop = this.container.scrollHeight;
-    }
-    function listEntrySuccess(data) {
-      item.setEditable(item.getEditable(), historyListGUID, data.ID, false);
+      item.setType(meatObject.currentUser);
+      meatObject.container.appendChild(item.item);
+      meatObject.container.scrollTop = meatObject.container.scrollHeight;
+
+      item.setEditable(item.getEditable(), historyListGUID, data.ID, true);
+
+      meatObject.newComment.value = "";
     }
     makeHistory(
       historyListGUID,
-      this.newComment.value,
+      meatObject.newComment.value,
       internalColumn,
       rowIndex,
       table,
-      this.currentUser,
+      userName,
       listEntrySuccess
     );
-    this.newComment.value = "";
-    return this;
+
+    return meatObject;
   };
 
   MeatballHistory.prototype.build = function (props) {
     if (this.container.innerText === this.containerText) {
       this.container.innerText = "";
     }
-    if (this.currentUser) {
-      props.setType(this.currentUser);
-    } else if (props.name) {
-      props.setType(props.name);
+
+    if (props.author.innerText !== "AutoBot") {
+      props.setType(props.author.innerText);
     } else {
-      props.setType(null);
+      props.setType();
     }
     this.container.insertBefore(props.item, this.container.firstChild);
     this.container.scrollTop = this.container.scrollHeight;
@@ -1061,10 +1047,9 @@
                 !meatballHistoryItem.getEditable(),
                 newListGUID,
                 data.ID,
-                true
+                false
               );
             }
-            //this will need a cb in order to get the value of list
             makeHistory(
               newListGUID,
               "placeholder",
@@ -1186,6 +1171,7 @@
     this.table = table;
     this.rowIndex = rowIndex;
     this.internalColumn = internalColumn;
+
     return this;
   };
 
@@ -1206,7 +1192,9 @@
         return;
       }
       this.comment.style.border = "0px";
-      this.display.removeChild(this.submit);
+      if (this.submit.parentNode) {
+        this.display.removeChild(this.submit);
+      }
 
       if (!this.item.parentNode.addNew && this.isNew) {
         this.item.parentNode.addNew = true;
@@ -1215,6 +1203,7 @@
       if (!this.item.parentNode.isEdit) {
         this.item.parentNode.isEdit = true;
       }
+
       if (newEntry) {
         updateHistory(listGUID, id, currentText);
       } else {
