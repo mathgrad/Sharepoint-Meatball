@@ -1167,15 +1167,16 @@
     rowIndex,
     internalColumn
   ) {
-    this.author.innerText = author;
-    this.comment.innerText = comment.replace(regex, "", comment);
-    this.date.innerText = date;
-    this.id = id;
-    this.listGUID = listGUID;
-    this.table = table;
-    this.rowIndex = rowIndex;
-    this.internalColumn = internalColumn;
-
+    if (comment) {
+      this.author.innerText = author;
+      this.comment.innerText = comment.replace(regex, "", comment);
+      this.date.innerText = date;
+      this.id = id;
+      this.listGUID = listGUID;
+      this.table = table;
+      this.rowIndex = rowIndex;
+      this.internalColumn = internalColumn;
+    }
     return this;
   };
 
