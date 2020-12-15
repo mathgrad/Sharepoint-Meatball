@@ -4,7 +4,7 @@
   var meatballHistoryItemContainerWidth = "calc(250px - 1.125rem)";
   //Creates the Color object which manages meatball colors
   var colors = new Colors();
-  var backgroundColor = "#F0F0F0";
+  var defaultBackgroundColor = "#F0F0F0";
   //Creates the Pantry object which manages toast notifications
   var kitchen = new Pantry();
 
@@ -325,7 +325,7 @@
     this.popoverBody.style.display = "inline-block";
     this.popoverBody.style.margin = "0px";
     this.popoverBody.style.padding = "0px";
-    this.popoverBody.style.backgroundColor = backgroundColor;
+    this.popoverBody.style.backgroundColor = defaultBackgroundColor;
     this.popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
 
     var carret = document.createElement("div");
@@ -338,15 +338,16 @@
     carret.style.top = "29px";
     carret.style.borderTop = triangleSize + "px solid transparent";
     carret.style.borderBottom = triangleSize + "px solid transparent";
-    carret.style.borderRight = triangleSize + "px solid " + backgroundColor;
+    carret.style.borderRight =
+      triangleSize + "px solid " + defaultBackgroundColor;
 
     //Create Popover Element
     var popover = document.createElement("div");
     popover.style.display = "inline-block";
-    popover.style.backgroundColor = backgroundColor;
+    popover.style.backgroundColor = defaultBackgroundColor;
     popover.style.color = "#000000";
     popover.style.padding = ".5rem";
-    popover.style.boxShadow = "0px 0px 5px " + backgroundColor;
+    popover.style.boxShadow = "0px 0px 5px " + defaultBackgroundColor;
     popover.style.borderRadius = ".25rem";
     popover.style.zIndex = "1";
 
@@ -464,7 +465,8 @@
         carret.style.left = "2px";
         carret.style.right = "0px";
         carret.style.borderLeft = "0px";
-        carret.style.borderRight = triangleSize + "px solid " + backgroundColor;
+        carret.style.borderRight =
+          triangleSize + "px solid " + defaultBackgroundColor;
 
         carret.parentNode.removeChild(carret);
 
@@ -508,7 +510,7 @@
             popoverBody.getBoundingClientRect().width + triangleSize + "px";
           carret.style.borderRight = "0px";
           carret.style.borderLeft =
-            triangleSize + "px solid " + backgroundColor;
+            triangleSize + "px solid " + defaultBackgroundColor;
           popoverPanel.style.left =
             this.getBoundingClientRect().left -
             popoverBody.getBoundingClientRect().width -
