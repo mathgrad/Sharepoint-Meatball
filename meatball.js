@@ -400,21 +400,21 @@
     this.history.style.display = "block";
     this.history.style.cursor = "pointer";
 
-    var add = true;
+    var addHistory = true;
 
     this.history.addEventListener("click", function () {
       if (!meatballHistoryDisplay.parentNode) {
-        add = true;
+        addHistory = true;
       }
 
-      if (add) {
-        add = !add;
+      if (addHistory) {
+        addHistory = !addHistory;
         function cb(error, data) {
           if (error) {
             console.log(error);
             return;
           }
-          //make a conditional for if there are no results then show a message
+
           if (data.length !== 0) {
             meatballHistoryDisplay.historyPanel.insertBefore(
               meatballHistoryDisplay.addMore,
@@ -451,6 +451,7 @@
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
       if (!popoverPanel.parentNode) {
+        add = true;
         document.body.appendChild(popoverPanel);
 
         popoverPanel.style.position = "fixed";
@@ -673,6 +674,7 @@
 
     this.mainPanel.addEventListener("click", function (e) {
       if (e.target == meatballHistory.mainPanel) {
+        addMeatballHistory = true;
         meatballHistory.clear();
         meatballHistory.mainPanel.parentNode.removeChild(
           meatballHistory.mainPanel
@@ -746,6 +748,7 @@
     this.x.addEventListener("click", function () {
       this.style.color = "#dfdfdf";
       this.style.textShadow = "0px 0px 0px #000";
+      addMeatballHistory = true;
       meatballHistory.clear();
       meatballHistory.mainPanel.parentNode.removeChild(
         meatballHistory.mainPanel
@@ -768,13 +771,14 @@
     this.addMore.style.width = "115px";
     this.addMore.style.backgroundColor = "#999999";
     this.addMore.style.textAlign = "center";
-    var add = true;
+
+    var addMeatballHistory = true;
 
     this.addMore.addEventListener("click", function () {
       //possilble history.clear is needed  - pierre
       //it needs the information for the cell, table, row etc
-      if (add) {
-        add = !add;
+      if (addMeatballHistory) {
+        addMeatballHistory = !addMeatballHistory;
 
         function cb(error, data) {
           if (error) {
