@@ -1078,7 +1078,7 @@
           meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
         }
       }
-      findHistoryChat(newHistoryChatCb, true);
+      findHistoryChat(newHistoryChatCb);
     });
 
     this.buttonGroup = document.createElement("div");
@@ -1144,7 +1144,7 @@
           function newHistoryChatCb(listGUID) {
             deleteHistory(listGUID, meatballHistoryItem.id);
           }
-          findHistoryChat(newHistoryChatCb, true);
+          findHistoryChat(newHistoryChatCb);
         }
       }
     });
@@ -1708,7 +1708,7 @@
     });
   }
 
-  function findHistoryChat(cb, isNew) {
+  function findHistoryChat(cb) {
     var sandboxName = "History " + ctx.SiteTitle; //"Sandbox"
     var url =
       ctx.HttpRoot + "/_api/web/lists/getbytitle('" + sandboxName + "')";
@@ -1723,10 +1723,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        if (isNew) {
-          cb(data.d.Id);
-          return false;
-        }
         cb(data.d.Id);
         return false;
       },
