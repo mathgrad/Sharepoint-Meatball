@@ -101,7 +101,6 @@
             //Returns all columns with choices
             var popoverData = data.d.results.reduce(
               function (acc, cv, ci, data) {
-                var add = true;
                 if (cv.Choices) {
                   if (acc.value.indexOf(cv.Choices.results) < 0) {
                     acc.value.push(cv.Choices.results);
@@ -223,15 +222,12 @@
     internalColumn,
     listTitle
   ) {
-    var root = ctx.HttpRoot;
-    var currentListName = ctx.ListTitle;
-    var listName = "SP.ListItem";
     var data = {
-      __metadata: { type: listName },
+      __metadata: { type: "SP.ListItem" },
     };
     data[internalColumn] = ele;
     var url =
-      root +
+      ctx.HttpRoot +
       "/_api/web/lists('" +
       table +
       "')/items(" +
@@ -305,10 +301,7 @@
     listTitle
   ) {
     var meatball = this;
-    this.element.style.backgroundColor = colors.get(cellText);
-
     var triangleSize = 10;
-
     var meatballHistoryDisplay = new MeatballHistory(
       table,
       rowIndex,
@@ -318,9 +311,12 @@
     meatballHistoryDisplay.currentUser = userName;
     meatballHistoryDisplay.listGUID = historyListGUID;
 
+    this.element.style.backgroundColor = colors.get(cellText);
+
     this.popoverPanel = document.createElement("div");
     this.popoverPanel.style.backgroundColor = "transparent";
     this.popoverPanel.style.padding = "10px";
+
     this.popoverBody = document.createElement("div");
     this.popoverBody.style.display = "inline-block";
     this.popoverBody.style.margin = "0px";
@@ -328,40 +324,41 @@
     this.popoverBody.style.backgroundColor = defaultBackgroundColor;
     this.popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
 
-    var carret = document.createElement("div");
-    carret.style.margin = "0px";
-    carret.style.display = "inline-block";
-    carret.style.position = "absolute";
-    carret.style.height = "0px";
-    carret.style.width = "0px";
-    carret.style.left = "2px";
-    carret.style.top = "29px";
-    carret.style.borderTop = triangleSize + "px solid transparent";
-    carret.style.borderBottom = triangleSize + "px solid transparent";
-    carret.style.borderRight =
+    this.carret = document.createElement("div");
+    this.carret.style.margin = "0px";
+    this.carret.style.display = "inline-block";
+    this.carret.style.position = "absolute";
+    this.carret.style.height = "0px";
+    this.carret.style.width = "0px";
+    this.carret.style.left = "2px";
+    this.carret.style.top = "29px";
+    this.carret.style.borderTop = triangleSize + "px solid transparent";
+    this.carret.style.borderBottom = triangleSize + "px solid transparent";
+    this.carret.style.borderRight =
       triangleSize + "px solid " + defaultBackgroundColor;
 
     //Create Popover Element
-    var popover = document.createElement("div");
-    popover.style.display = "inline-block";
-    popover.style.backgroundColor = defaultBackgroundColor;
-    popover.style.color = "#000000";
-    popover.style.padding = ".5rem";
-    popover.style.boxShadow = "0px 0px 5px " + defaultBackgroundColor;
-    popover.style.borderRadius = ".25rem";
-    popover.style.zIndex = "1";
+    this.popover = document.createElement("div");
+    this.popover.style.display = "inline-block";
+    this.popover.style.backgroundColor = defaultBackgroundColor;
+    this.popover.style.color = "#000000";
+    this.popover.style.padding = ".5rem";
+    this.popover.style.boxShadow = "0px 0px 5px " + defaultBackgroundColor;
+    this.popover.style.borderRadius = ".25rem";
+    this.popover.style.zIndex = "1";
 
     //Create Header Element
-    var header = document.createElement("div");
-    header.style.padding = ".25rem";
-    header.style.borderRadius = ".25rem";
-    header.style.textAlign = "center";
-    header.style.marginBottom = ".25rem";
-    header.style.backgroundColor = "#BABBFD";
-    header.innerText = value;
+    this.header = document.createElement("div");
+    this.header.style.padding = ".25rem";
+    this.header.style.borderRadius = ".25rem";
+    this.header.style.textAlign = "center";
+    this.header.style.marginBottom = ".25rem";
+    this.header.style.backgroundColor = "#BABBFD";
+    this.header.innerText = value;
+
     //Create Options Panel Object
-    var options = new OptionPanel();
-    options.create(
+    this.options = new OptionPanel();
+    this.options.create(
       defaults,
       rowIndex,
       meatball,
@@ -375,22 +372,22 @@
     );
 
     //Add Header Element
-    popover.appendChild(header);
+    this.popover.appendChild(this.header);
     //Add Options Panel
-    popover.appendChild(options.options);
+    this.popover.appendChild(this.options.options);
 
     //Add Click Event to display Options Panel
-    header.addEventListener("click", function () {
-      var style = options.style.display;
+    this.header.addEventListener("click", function () {
+      var style = meatball.options.style.display;
       var change = false;
       change = style === "block";
       change
-        ? (options.style.display = "none")
-        : (options.style.display = "block");
+        ? (meatball.options.style.display = "none")
+        : (meatball.options.style.display = "block");
     });
 
-    this.popoverBody.appendChild(carret);
-    this.popoverBody.appendChild(popover);
+    this.popoverBody.appendChild(this.carret);
+    this.popoverBody.appendChild(this.popover);
 
     this.history = document.createElement("button");
     this.history.innerText = "History";
@@ -445,97 +442,106 @@
 
     this.popoverPanel.appendChild(this.popoverBody);
 
-    var popoverPanel = this.popoverPanel;
-    var popoverBody = this.popoverBody;
     //Used addEventListener versus onmouseenter = function due to concerns of
     //overriding other scripts
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
-      if (!popoverPanel.parentNode) {
+      if (!meatball.popoverPanel.parentNode) {
         add = true;
-        document.body.appendChild(popoverPanel);
+        document.body.appendChild(meatball.popoverPanel);
 
-        popoverPanel.style.position = "fixed";
-        popoverPanel.style.right = "0px";
-        popoverPanel.style.left =
+        meatball.popoverPanel.style.position = "fixed";
+        meatball.popoverPanel.style.right = "0px";
+        meatball.popoverPanel.style.left =
           this.getBoundingClientRect().right - 12 + triangleSize + "px";
 
-        carret.style.position = "absolute";
-        carret.style.top = "29px";
-        carret.style.left = "2px";
-        carret.style.right = "0px";
-        carret.style.borderLeft = "0px";
-        carret.style.borderRight =
+        meatball.carret.style.position = "absolute";
+        meatball.carret.style.top = "29px";
+        meatball.carret.style.left = "2px";
+        meatball.carret.style.right = "0px";
+        meatball.carret.style.borderLeft = "0px";
+        meatball.carret.style.borderRight =
           triangleSize + "px solid " + defaultBackgroundColor;
-
-        carret.parentNode.removeChild(carret);
-
+        if (meatball.carret.parentNode) {
+          meatball.carret.parentNode.removeChild(meatball.carret);
+        }
         var windowHeight = window.innerHeight || document.body.clientHeight;
         var windowWidth = window.innerWidth || document.body.clientWidth;
 
         if (
-          popoverPanel.offsetHeight + this.getBoundingClientRect().top <
+          meatball.popoverPanel.offsetHeight +
+            this.getBoundingClientRect().top <
           windowHeight
         ) {
-          popoverPanel.style.top =
+          meatball.popoverPanel.style.top =
             this.getBoundingClientRect().top - 40 + triangleSize + "px";
         } else {
           var meatballHeight =
             this.getBoundingClientRect().top - 40 + triangleSize;
           var meatballDifferenceHeight = Math.abs(
-            meatballHeight - (windowHeight - popoverPanel.offsetHeight)
+            meatballHeight - (windowHeight - meatball.popoverPanel.offsetHeight)
           );
 
-          if (meatballHeight <= windowHeight - popoverPanel.offsetHeight) {
-            carret.style.top = meatballDifferenceHeight + "px";
-            popoverPanel.style.top =
+          if (
+            meatballHeight <=
+            windowHeight - meatball.popoverPanel.offsetHeight
+          ) {
+            meatball.carret.style.top = meatballDifferenceHeight + "px";
+            meatball.popoverPanel.style.top =
               windowHeight -
-              popoverPanel.offsetHeight -
+              meatball.popoverPanel.offsetHeight -
               meatballDifferenceHeight +
               "px";
           } else {
-            carret.style.top = 29 + meatballDifferenceHeight + "px";
-            popoverPanel.style.top =
-              windowHeight - popoverPanel.offsetHeight + "px";
+            meatball.carret.style.top = 29 + meatballDifferenceHeight + "px";
+            meatball.popoverPanel.style.top =
+              windowHeight - meatball.popoverPanel.offsetHeight + "px";
           }
         }
 
         if (
-          popoverBody.getBoundingClientRect().width +
+          meatball.popoverBody.getBoundingClientRect().width +
             this.getBoundingClientRect().right >
           windowWidth
         ) {
-          popoverPanel.appendChild(carret);
-          carret.style.left =
-            popoverBody.getBoundingClientRect().width + triangleSize + "px";
-          carret.style.borderRight = "0px";
-          carret.style.borderLeft =
+          meatball.popoverPanel.appendChild(meatball.carret);
+          meatball.carret.style.left =
+            meatball.popoverBody.getBoundingClientRect().width +
+            triangleSize +
+            "px";
+          meatball.carret.style.borderRight = "0px";
+          meatball.carret.style.borderLeft =
             triangleSize + "px solid " + defaultBackgroundColor;
-          popoverPanel.style.left =
+          meatball.popoverPanel.style.left =
             this.getBoundingClientRect().left -
-            popoverBody.getBoundingClientRect().width -
+            meatball.popoverBody.getBoundingClientRect().width -
             triangleSize -
             12 +
             "px";
-          popoverPanel.style.width =
-            popoverBody.getBoundingClientRect().width + triangleSize + "px";
+          meatball.popoverPanel.style.width =
+            meatball.popoverBody.getBoundingClientRect().width +
+            triangleSize +
+            "px";
         } else {
-          popoverPanel.insertBefore(carret, popoverPanel.firstChild);
+          meatball.popoverPanel.insertBefore(
+            meatball.carret,
+            meatball.popoverPanel.firstChild
+          );
         }
       }
     });
 
     this.element.addEventListener("mouseleave", function (e) {
-      if (!e.toElement.parentNode.contains(popoverPanel)) {
-        popoverPanel.parentNode.removeChild(popoverPanel);
+      if (!e.toElement.parentNode.contains(meatball.popoverPanel)) {
+        meatball.popoverPanel.parentNode.removeChild(meatball.popoverPanel);
       }
     });
 
     //Add Mouse leave Event to hide
     this.popoverPanel.addEventListener("mouseleave", function (e) {
-      if (popoverPanel) {
-        if (popoverPanel.parentNode) {
-          popoverPanel.parentNode.removeChild(popoverPanel);
+      if (meatball.popoverPanel) {
+        if (meatball.popoverPanel.parentNode) {
+          meatball.popoverPanel.parentNode.removeChild(meatball.popoverPanel);
         }
       }
     });
@@ -885,7 +891,6 @@
     this.newComment.contentEditable = true;
     this.newComment.placeholder = "Enter Comment Here";
     this.newComment.value = "";
-
     this.newComment.title = "Enter Comment Here";
     this.newComment.style.resize = "none";
     this.newComment.style.row = "1";
@@ -900,8 +905,11 @@
 
     this.addPanel.appendChild(this.newComment);
     this.addPanel.appendChild(this.svg);
+
     this.historyPanel.appendChild(this.addPanel);
+
     this.mainPanel.appendChild(this.historyPanel);
+
     return this;
   }
 
@@ -1047,33 +1055,30 @@
     this.submit.style.padding = ".25rem";
     this.submit.style.borderRadius = ".25rem";
     this.submit.addEventListener("click", function () {
-      function success(props, name) {
-        function newHistoryChatCb(newListGUID) {
-          if (meatballHistoryItem.isNew) {
-            function listEntrySuccess(data) {
-              meatballHistoryItem.setEditable(
-                !meatballHistoryItem.getEditable(),
-                newListGUID,
-                data.ID,
-                false
-              );
-            }
-            makeHistory(
+      function newHistoryChatCb(newListGUID) {
+        if (meatballHistoryItem.isNew) {
+          function listEntrySuccess(data) {
+            meatballHistoryItem.setEditable(
+              !meatballHistoryItem.getEditable(),
               newListGUID,
-              "placeholder",
-              internalColumn,
-              rowindex,
-              table,
-              name,
-              listEntrySuccess
+              data.ID,
+              false
             );
-          } else {
-            meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
           }
+          makeHistory(
+            newListGUID,
+            "placeholder",
+            internalColumn,
+            rowindex,
+            table,
+            userName,
+            listEntrySuccess
+          );
+        } else {
+          meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
         }
-        findHistoryChat(newHistoryChatCb, true);
       }
-      getUserName(success, this);
+      findHistoryChat(newHistoryChatCb);
     });
 
     this.buttonGroup = document.createElement("div");
@@ -1139,7 +1144,7 @@
           function newHistoryChatCb(listGUID) {
             deleteHistory(listGUID, meatballHistoryItem.id);
           }
-          findHistoryChat(newHistoryChatCb, true);
+          findHistoryChat(newHistoryChatCb);
         }
       }
     });
@@ -1703,7 +1708,7 @@
     });
   }
 
-  function findHistoryChat(cb, isNew) {
+  function findHistoryChat(cb) {
     var sandboxName = "History " + ctx.SiteTitle; //"Sandbox"
     var url =
       ctx.HttpRoot + "/_api/web/lists/getbytitle('" + sandboxName + "')";
@@ -1718,10 +1723,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        if (isNew) {
-          cb(data.d.Id);
-          return false;
-        }
         cb(data.d.Id);
         return false;
       },
