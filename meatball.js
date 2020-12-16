@@ -1251,10 +1251,6 @@
     }
   };
 
-  MeatballHistoryItem.prototype.getType = function () {
-    return this.item.type;
-  };
-
   //A hashmap between values and colors
   function Colors() {
     this.blue = "#0075ff";
@@ -1507,16 +1503,6 @@
         this.wrapper.title = "Add";
         break;
 
-      case "close":
-        var text = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "text"
-        );
-        text.innerText = "X";
-        this.wrapper.title = "Close";
-        this.svg.appendChild(text);
-        break;
-
       case "delete":
         iconPath =
           "M268 416h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12zM432 80h-82.41l-34-56.7A48 48 0 0 0 274.41 0H173.59a48 48 0 0 0-41.16 23.3L98.41 80H16A16 16 0 0 0 0 96v16a16 16 0 0 0 16 16h16v336a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128h16a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16zM171.84 50.91A6 6 0 0 1 177 48h94a6 6 0 0 1 5.15 2.91L293.61 80H154.39zM368 464H80V128h288zm-212-48h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12z";
@@ -1667,12 +1653,13 @@
   //Show the history and on fail display "No Messages" in the history view
 
   function retrieveHistory(table, rowIndex, internalColumn, cb, init, query) {
-    var sandboxName = "History " + ctx.SiteTitle;
+    var name = "History " + ctx.SiteTitle;
+    var url = "";
     if (init) {
-      var url =
-        ctx.HttpRoot +
+      url =
+        ctx.PortalUrl +
         "/_api/web/lists/getbytitle('" +
-        sandboxName +
+        name +
         "')/items?$filter=Title eq '" +
         table +
         " - " +
@@ -1681,10 +1668,10 @@
         internalColumn +
         "'&$orderby=Created desc&$top=1";
     } else {
-      var url =
-        ctx.HttpRoot +
+      url =
+        ctx.PortalUrl +
         "/_api/web/lists/getbytitle('" +
-        sandboxName +
+        name +
         "')/items?$filter=Title eq '" +
         table +
         " - " +
@@ -1711,9 +1698,8 @@
   }
 
   function findHistoryChat(cb) {
-    var sandboxName = "History " + ctx.SiteTitle; //"Sandbox"
-    var url =
-      ctx.HttpRoot + "/_api/web/lists/getbytitle('" + sandboxName + "')";
+    var name = "History " + ctx.SiteTitle;
+    var url = ctx.PortalUrl + "_api/web/lists/getbytitle('" + name + "')";
 
     $.ajax({
       url: url,
@@ -1730,7 +1716,7 @@
       },
       error: function (error) {
         console.log("Error in the findHistoryChat:", error);
-        makeList(sandboxName);
+        makeList(name);
       },
     });
   }
@@ -1748,8 +1734,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        var name = data.d.DisplayName;
-        success(meatballHistory, name);
+        success(meatballHistory, data.d.DisplayName);
         return false;
       },
       error: function (error) {
@@ -1758,16 +1743,16 @@
     });
   }
 
-  function makeList(sandboxName) {
+  function makeList(name) {
     var data = {
       __metadata: { type: "SP.List" },
       AllowContentTypes: true,
       BaseTemplate: 100,
       ContentTypesEnabled: true,
-      Title: sandboxName,
+      Title: name,
     };
 
-    var url = ctx.HttpRoot + "/_api/web/lists"; //this is dev env
+    var url = ctx.PortalUrl + "/_api/web/lists";
 
     $.ajax({
       url: url,
@@ -1799,7 +1784,7 @@
       StaticName: "Message",
     };
 
-    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields";
+    var url = ctx.PortalUrl + "_api/web/lists('" + listId + "')/Fields";
 
     $.ajax({
       url: url,
@@ -1831,7 +1816,7 @@
       StaticName: "UserName",
     };
 
-    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/Fields"; //this is dev env
+    var url = ctx.PortalUrl + "_api/web/lists('" + listId + "')/Fields"; //this is dev env
 
     $.ajax({
       url: url,
@@ -1869,7 +1854,7 @@
       UserName: currentUser,
     };
 
-    var url = ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items "; //this is dev env
+    var url = ctx.PortalUrl + "_api/web/lists('" + listId + "')/items "; //this is dev env
 
     $.ajax({
       url: url,
@@ -1896,7 +1881,7 @@
 
   function deleteHistory(listId, id) {
     var url =
-      ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+      ctx.PortalUrl + "_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
 
     $.ajax({
       url: url,
@@ -1924,7 +1909,7 @@
     };
 
     var url =
-      ctx.HttpRoot + "/_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+      ctx.PortalUrl + "_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
 
     $.ajax({
       url: url,
