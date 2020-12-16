@@ -192,6 +192,17 @@
 
             if (displayValue) {
               text = $cell.innerText;
+              var longestString = displayValue;
+              values.forEach(function (item, i) {
+                if (longestString.length < item.length) {
+                  longestString = item;
+                }
+              });
+              this.canvas = document.createElement("canvas");
+              this.context = canvas.getContext("2d");
+              context.font = "100 12pt arial";
+              this.meatballWidth = context.measureText(longestString);
+
               new Meatball(size).init(
                 values,
                 externalColumn,
@@ -202,7 +213,8 @@
                 $table.getAttribute("id").substring(1, 37),
                 text,
                 displayValue,
-                listTitle
+                listTitle,
+                this.meatballWidth.width + "px"
               );
             }
           }
@@ -298,7 +310,8 @@
     table,
     cellText,
     value,
-    listTitle
+    listTitle,
+    panelWidth
   ) {
     var meatball = this;
     var triangleSize = 10;
@@ -321,6 +334,7 @@
     this.popoverBody.style.display = "inline-block";
     this.popoverBody.style.margin = "0px";
     this.popoverBody.style.padding = "0px";
+    this.popoverBody.style.width = panelWidth;
     this.popoverBody.style.backgroundColor = defaultBackgroundColor;
     this.popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
 
@@ -396,7 +410,7 @@
     this.initHistoryContainer.style.marginLeft = ".5rem";
     this.initHistoryContainer.style.marginRight = ".5rem";
     this.initHistoryContainer.style.display = "block";
-    this.initHistoryContainer.style.backgroundColor = "rgb(189,191,170)";
+    this.initHistoryContainer.style.backgroundColor = "#BDBFAA";
     this.initHistoryContainer.style.borderRadius = "0.25rem";
 
     this.initHistoryDate = document.createElement("div");
