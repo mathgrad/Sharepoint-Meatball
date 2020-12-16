@@ -389,18 +389,29 @@
     this.popoverBody.appendChild(this.carret);
     this.popoverBody.appendChild(this.popover);
 
-    this.history = document.createElement("button");
-    this.history.innerText = "History";
-    this.history.style.borderRadius = ".25rem";
-    this.history.style.padding = ".25rem";
-    this.history.style.marginBottom = ".25rem";
-    this.history.style.textAlign = "center";
-    this.history.style.display = "block";
-    this.history.style.cursor = "pointer";
+    this.initHistory = document.createElement("div");
+    this.initHistory.innerText = "Test Message";
+    this.initHistory.style.padding = ".25rem";
+    this.initHistory.style.margin = ".25rem";
+    this.initHistory.style.textAlign = "center";
+    this.initHistory.style.display = "block";
+
+    this.showMore = document.createElement("div");
+    this.showMore.innerText = "Show More";
+    this.showMore.style.borderRadius = ".25rem";
+    this.showMore.style.padding = ".25rem";
+    this.showMore.style.marginBottom = ".5rem";
+    this.showMore.style.marginLeft = ".5rem";
+    this.showMore.style.marginRight = ".5rem";
+    this.showMore.style.textAlign = "center";
+    this.showMore.style.display = "block";
+    this.showMore.style.cursor = "pointer";
+    this.showMore.style.fontWeight = "250";
+    this.showMore.style.backgroundColor = "#1890ff";
 
     var addHistory = true;
 
-    this.history.addEventListener("click", function () {
+    this.showMore.addEventListener("click", function () {
       if (!meatballHistoryDisplay.parentNode) {
         addHistory = true;
       }
@@ -438,7 +449,8 @@
       meatballHistoryDisplay.container.scrollTop =
         meatballHistoryDisplay.container.scrollHeight;
     });
-    this.popoverBody.appendChild(this.history);
+    this.popoverBody.appendChild(this.initHistory);
+    this.popoverBody.appendChild(this.showMore);
 
     this.popoverPanel.appendChild(this.popoverBody);
 
@@ -863,8 +875,8 @@
     this.addPanel.style.marginRight = "auto";
 
     this.svg = new SVGGenerator({
-      color: "green",
-      type: "add",
+      color: "white",
+      type: "submit",
       size: "normal",
     }).wrapper;
     this.svg.style.cursor = "pointer";
@@ -895,12 +907,13 @@
     this.newComment.style.resize = "none";
     this.newComment.style.row = "1";
     this.newComment.style.height = "14pt";
-    this.newComment.style.width = "calc(475px - 3rem)";
+    this.newComment.style.width = "calc(425px - 3rem)";
     this.newComment.style.display = "inline-block";
     this.newComment.style.padding = ".25rem";
     this.newComment.style.backgroundColor = "#333333";
     this.newComment.style.color = "#dddddd";
     this.newComment.style.borderRadius = ".25rem";
+    this.newComment.style.border = "0px";
     this.newComment.style.verticalAlign = "middle";
 
     this.addPanel.appendChild(this.newComment);
@@ -947,7 +960,8 @@
       meatObject.container.appendChild(item.item);
       meatObject.container.scrollTop = meatObject.container.scrollHeight;
 
-      item.setEditable(item.getEditable(), historyListGUID, data.ID, true);
+      item.setEditable(item.getEditable());
+      updateHistory(historyListGUID, data.ID, true);
 
       meatObject.newComment.value = "";
     }
@@ -1519,6 +1533,14 @@
         iconPath =
           "M 63.85,0 A 63.85,63.85 0 1 1 0,63.85 63.85,63.85 0 0 1 63.85,0 Z m 0.65,19.5 a 44,44 0 1 1 -44,44 44,44 0 0 1 44,-44 z";
         this.wrapper.title = "Loading";
+        break;
+
+      case "submit":
+        this.svg.setAttribute("viewBox", "64 64 896 896");
+        this.wrapper.style.backgroundColor = "#3949ab";
+        iconPath =
+          "M931.4 498.9L94.9 79.5c-3.4-1.7-7.3-2.1-11-1.2a15.99 15.99 0 00-11.7 19.3l86.2 352.2c1.3 5.3 5.2 9.6 10.4 11.3l147.7 50.7-147.6 50.7c-5.2 1.8-9.1 6-10.3 11.3L72.2 926.5c-.9 3.7-.5 7.6 1.2 10.9 3.9 7.9 13.5 11.1 21.5 7.2l836.5-417c3.1-1.5 5.6-4.1 7.2-7.1 3.9-8 .7-17.6-7.2-21.6zM170.8 826.3l50.3-205.6 295.2-101.3c2.3-.8 4.2-2.6 5-5 1.4-4.2-.8-8.7-5-10.2L221.1 403 171 198.2l628 314.9-628.2 313.2z";
+        this.wrapper.title = "Submit";
         break;
 
       case "success":
