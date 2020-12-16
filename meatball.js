@@ -390,13 +390,16 @@
     this.popoverBody.appendChild(this.popover);
 
     this.history = document.createElement("button");
-    this.history.innerText = "History";
+    this.history.innerText = "Show More";
     this.history.style.borderRadius = ".25rem";
     this.history.style.padding = ".25rem";
     this.history.style.marginBottom = ".25rem";
     this.history.style.textAlign = "center";
     this.history.style.display = "block";
     this.history.style.cursor = "pointer";
+    this.history.style.width = "calc(150px - 1.5rem)";
+
+    console.log(this.popover.getBoundingClientRect().width);
 
     var addHistory = true;
 
@@ -1075,7 +1078,12 @@
             listEntrySuccess
           );
         } else {
-          meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
+          meatballHistoryItem.setEditable(
+            !meatballHistoryItem.getEditable(),
+            newListGUID,
+            data.ID,
+            false
+          );
         }
       }
       findHistoryChat(newHistoryChatCb);
