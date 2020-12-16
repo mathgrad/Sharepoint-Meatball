@@ -407,7 +407,15 @@
     this.showMore.style.display = "block";
     this.showMore.style.cursor = "pointer";
     this.showMore.style.fontWeight = "250";
-    this.showMore.style.backgroundColor = "#1890ff";
+    this.showMore.style.backgroundColor = "#5db1ff";
+
+    this.showMore.addEventListener("mouseenter", function () {
+      meatball.showMore.style.color = "#F0F0F0";
+    });
+
+    this.showMore.addEventListener("mouseleave", function () {
+      meatball.showMore.style.color = "inherit";
+    });
 
     var addHistory = true;
 
@@ -755,20 +763,21 @@
     this.x.style.padding = ".25rem";
     this.x.style.cursor = "pointer";
     this.x.style.width = "15px";
+    this.x.style.color = "#dfdfdf";
 
     this.x.addEventListener("mouseenter", function () {
       this.style.color = "#202020";
-      this.style.textShadow = "1px 1px 1px #dfdfdf";
+      this.style.textShadow = "0px 0px 1px #dfdfdf";
     });
 
     this.x.addEventListener("mouseleave", function () {
       this.style.color = "#dfdfdf";
-      this.style.textShadow = "0px 0px 0px #000";
+      this.style.textShadow = "0px 0px 0px #333333";
     });
 
     this.x.addEventListener("click", function () {
       this.style.color = "#dfdfdf";
-      this.style.textShadow = "0px 0px 0px #000";
+      this.style.textShadow = "0px 0px 0px #333333";
       addMeatballHistory = true;
       meatballHistory.clear();
       meatballHistory.mainPanel.parentNode.removeChild(
