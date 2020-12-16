@@ -494,107 +494,102 @@
     //overriding other scripts
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
-      if (meatball.initHistoryContainer !== null) {
-        function success(param, data) {
-          // if (data[0].Message.length > 30) data.[0].Message.substring
-          if (meatball.initHistoryContainer !== null) {
-            if (data.length === 1) {
-              meatball.initHistoryName.innerText = data[0].UserName;
-              meatball.initHistoryMessage.innerText = data[0].Message;
-              meatball.initHistoryDate.innerText = generateDateTime(
-                data[0].Created
-              );
-            } else {
-              //remove the container div to close the space
-              meatball.initHistoryContainer.parentNode.removeChild(
-                meatball.initHistoryContainer
-              );
-            }
-          }
+      function success(param, data) {
+        // if (data[0].Message.length > 30) data.[0].Message.substring
+        if (data.length === 1) {
+          meatball.initHistoryName.innerText = data[0].UserName;
+          meatball.initHistoryMessage.innerText = data[0].Message;
+          meatball.initHistoryDate.innerText = generateDateTime(
+            data[0].Created
+          );
+        } else {
+          //remove the container div to close the space
+          meatball.initHistoryContainer.parentNode.removeChild(
+            meatball.initHistoryContainer
+          );
         }
-        retrieveHistory(table, rowIndex, internalColumn, success, true);
+      }
+      retrieveHistory(table, rowIndex, internalColumn, success, true);
 
-        add = true;
-        document.body.appendChild(meatball.popoverPanel);
+      add = true;
+      document.body.appendChild(meatball.popoverPanel);
 
-        meatball.popoverPanel.style.position = "fixed";
-        meatball.popoverPanel.style.right = "0px";
-        meatball.popoverPanel.style.left =
-          this.getBoundingClientRect().right - 12 + triangleSize + "px";
+      meatball.popoverPanel.style.position = "fixed";
+      meatball.popoverPanel.style.right = "0px";
+      meatball.popoverPanel.style.left =
+        this.getBoundingClientRect().right - 12 + triangleSize + "px";
 
-        meatball.carret.style.position = "absolute";
-        meatball.carret.style.top = "29px";
-        meatball.carret.style.left = "2px";
-        meatball.carret.style.right = "0px";
-        meatball.carret.style.borderLeft = "0px";
-        meatball.carret.style.borderRight =
-          triangleSize + "px solid " + defaultBackgroundColor;
-        if (meatball.carret.parentNode) {
-          meatball.carret.parentNode.removeChild(meatball.carret);
-        }
-        var windowHeight = window.innerHeight || document.body.clientHeight;
-        var windowWidth = window.innerWidth || document.body.clientWidth;
+      meatball.carret.style.position = "absolute";
+      meatball.carret.style.top = "29px";
+      meatball.carret.style.left = "2px";
+      meatball.carret.style.right = "0px";
+      meatball.carret.style.borderLeft = "0px";
+      meatball.carret.style.borderRight =
+        triangleSize + "px solid " + defaultBackgroundColor;
+      if (meatball.carret.parentNode) {
+        meatball.carret.parentNode.removeChild(meatball.carret);
+      }
+      var windowHeight = window.innerHeight || document.body.clientHeight;
+      var windowWidth = window.innerWidth || document.body.clientWidth;
+
+      if (
+        meatball.popoverPanel.offsetHeight + this.getBoundingClientRect().top <
+        windowHeight
+      ) {
+        meatball.popoverPanel.style.top =
+          this.getBoundingClientRect().top - 40 + triangleSize + "px";
+      } else {
+        var meatballHeight =
+          this.getBoundingClientRect().top - 40 + triangleSize;
+        var meatballDifferenceHeight = Math.abs(
+          meatballHeight - (windowHeight - meatball.popoverPanel.offsetHeight)
+        );
 
         if (
-          meatball.popoverPanel.offsetHeight +
-            this.getBoundingClientRect().top <
-          windowHeight
+          meatballHeight <=
+          windowHeight - meatball.popoverPanel.offsetHeight
         ) {
+          meatball.carret.style.top = meatballDifferenceHeight + "px";
           meatball.popoverPanel.style.top =
-            this.getBoundingClientRect().top - 40 + triangleSize + "px";
+            windowHeight -
+            meatball.popoverPanel.offsetHeight -
+            meatballDifferenceHeight +
+            "px";
         } else {
-          var meatballHeight =
-            this.getBoundingClientRect().top - 40 + triangleSize;
-          var meatballDifferenceHeight = Math.abs(
-            meatballHeight - (windowHeight - meatball.popoverPanel.offsetHeight)
-          );
-
-          if (
-            meatballHeight <=
-            windowHeight - meatball.popoverPanel.offsetHeight
-          ) {
-            meatball.carret.style.top = meatballDifferenceHeight + "px";
-            meatball.popoverPanel.style.top =
-              windowHeight -
-              meatball.popoverPanel.offsetHeight -
-              meatballDifferenceHeight +
-              "px";
-          } else {
-            meatball.carret.style.top = 29 + meatballDifferenceHeight + "px";
-            meatball.popoverPanel.style.top =
-              windowHeight - meatball.popoverPanel.offsetHeight + "px";
-          }
+          meatball.carret.style.top = 29 + meatballDifferenceHeight + "px";
+          meatball.popoverPanel.style.top =
+            windowHeight - meatball.popoverPanel.offsetHeight + "px";
         }
+      }
 
-        if (
+      if (
+        meatball.popoverBody.getBoundingClientRect().width +
+          this.getBoundingClientRect().right >
+        windowWidth
+      ) {
+        meatball.popoverPanel.appendChild(meatball.carret);
+        meatball.carret.style.left =
           meatball.popoverBody.getBoundingClientRect().width +
-            this.getBoundingClientRect().right >
-          windowWidth
-        ) {
-          meatball.popoverPanel.appendChild(meatball.carret);
-          meatball.carret.style.left =
-            meatball.popoverBody.getBoundingClientRect().width +
-            triangleSize +
-            "px";
-          meatball.carret.style.borderRight = "0px";
-          meatball.carret.style.borderLeft =
-            triangleSize + "px solid " + defaultBackgroundColor;
-          meatball.popoverPanel.style.left =
-            this.getBoundingClientRect().left -
-            meatball.popoverBody.getBoundingClientRect().width -
-            triangleSize -
-            12 +
-            "px";
-          meatball.popoverPanel.style.width =
-            meatball.popoverBody.getBoundingClientRect().width +
-            triangleSize +
-            "px";
-        } else {
-          meatball.popoverPanel.insertBefore(
-            meatball.carret,
-            meatball.popoverPanel.firstChild
-          );
-        }
+          triangleSize +
+          "px";
+        meatball.carret.style.borderRight = "0px";
+        meatball.carret.style.borderLeft =
+          triangleSize + "px solid " + defaultBackgroundColor;
+        meatball.popoverPanel.style.left =
+          this.getBoundingClientRect().left -
+          meatball.popoverBody.getBoundingClientRect().width -
+          triangleSize -
+          12 +
+          "px";
+        meatball.popoverPanel.style.width =
+          meatball.popoverBody.getBoundingClientRect().width +
+          triangleSize +
+          "px";
+      } else {
+        meatball.popoverPanel.insertBefore(
+          meatball.carret,
+          meatball.popoverPanel.firstChild
+        );
       }
     });
 
