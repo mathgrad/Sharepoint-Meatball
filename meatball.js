@@ -431,7 +431,15 @@
     this.showMore.style.display = "block";
     this.showMore.style.cursor = "pointer";
     this.showMore.style.fontWeight = "250";
-    this.showMore.style.backgroundColor = "#1890ff";
+    this.showMore.style.backgroundColor = "#5db1ff";
+
+    this.showMore.addEventListener("mouseenter", function () {
+      meatball.showMore.style.color = "#F0F0F0";
+    });
+
+    this.showMore.addEventListener("mouseleave", function () {
+      meatball.showMore.style.color = "inherit";
+    });
 
     var addHistory = true;
 
@@ -449,10 +457,10 @@
           }
 
           if (data.length !== 0) {
-            meatballHistoryDisplay.historyPanel.insertBefore(
-              meatballHistoryDisplay.addMore,
-              meatballHistoryDisplay.container
-            );
+            // meatballHistoryDisplay.historyPanel.insertBefore(
+            //   meatballHistoryDisplay.addMore,
+            //   meatballHistoryDisplay.container
+            // );
             meatballHistoryDisplay.query = data[0].Title;
             data.forEach(function (props) {
               meatballHistoryDisplay.build(
@@ -772,18 +780,22 @@
 
     this.title = document.createElement("div");
     this.title.style.width = "calc(500px - .5rem)";
+    this.title.style.height = "calc(10px + 1rem)";
     this.title.style.textAlign = "center";
     this.title.style.marginRight = "auto";
     this.title.style.marginLeft = "auto";
     this.title.style.marginBottom = ".5rem";
     this.title.style.display = "flex";
     this.title.style.flexDirection = "row";
+    this.title.style.backgroundColor = "#333333";
 
     this.titleDescription = document.createElement("div");
     this.titleDescription.innerText = title + " - History";
     this.titleDescription.style.flexGrow = "1";
     this.titleDescription.style.flexShrink = "1";
     this.titleDescription.style.paddingLeft = ".5rem";
+    this.titleDescription.style.paddingTop = ".25rem";
+    this.titleDescription.style.paddingBottom = ".25rem";
     this.titleDescription.style.textAlign = "left";
     this.titleDescription.style.color = "#dfdfdf";
 
@@ -799,23 +811,27 @@
     this.x.innerText = "X";
     this.x.title = "Close";
     this.x.style.textSize = "16pt";
+    this.x.style.fontWeight = "bolder";
     this.x.style.padding = ".25rem";
     this.x.style.cursor = "pointer";
-    this.x.style.width = "15px";
+    this.x.style.height = "calc(10px + .5rem)";
+    this.x.style.width = "calc(10px + .5rem)";
+    this.x.style.color = "#dfdfdf";
+    this.x.style.backgroundColor = "#333333";
 
     this.x.addEventListener("mouseenter", function () {
-      this.style.color = "#202020";
-      this.style.textShadow = "1px 1px 1px #dfdfdf";
+      this.style.color = "#333333";
+      this.style.backgroundColor = "#dfdfdf";
     });
 
     this.x.addEventListener("mouseleave", function () {
       this.style.color = "#dfdfdf";
-      this.style.textShadow = "0px 0px 0px #000";
+      this.style.backgroundColor = "#333333";
     });
 
     this.x.addEventListener("click", function () {
-      this.style.color = "#dfdfdf";
-      this.style.textShadow = "0px 0px 0px #000";
+      this.style.color = "#333333";
+      this.style.backgroundColor = "#dfdfdf";
       addMeatballHistory = true;
       meatballHistory.clear();
       meatballHistory.mainPanel.parentNode.removeChild(
@@ -920,6 +936,7 @@
     this.addPanel.style.marginTop = ".25rem";
     this.addPanel.style.marginLeft = "auto";
     this.addPanel.style.marginRight = "auto";
+    this.addPanel.style.backgroundColor = "#333333";
 
     this.svg = new SVGGenerator({
       color: "white",
@@ -929,6 +946,7 @@
     this.svg.style.cursor = "pointer";
     this.svg.style.padding = ".25rem";
     this.svg.style.verticalAlign = "middle";
+    this.svg.style.display = "inline-block";
 
     this.svg.addEventListener("click", function () {
       if (meatballHistory.container) {
@@ -951,10 +969,10 @@
     this.newComment.placeholder = "Enter Comment Here";
     this.newComment.value = "";
     this.newComment.title = "Enter Comment Here";
-    this.newComment.style.resize = "none";
+    this.newComment.style.resize = "vertical";
     this.newComment.style.row = "1";
     this.newComment.style.height = "14pt";
-    this.newComment.style.width = "calc(425px - 3rem)";
+    this.newComment.style.width = "calc(500px - 5rem)";
     this.newComment.style.display = "inline-block";
     this.newComment.style.padding = ".25rem";
     this.newComment.style.backgroundColor = "#333333";
@@ -1479,14 +1497,22 @@
   };
 
   Toast.prototype.setSuccess = function () {
-    var icon = new SVGGenerator({ color: "green", type: "success" });
+    var icon = new SVGGenerator({
+      color: "green",
+      type: "success",
+      size: "large",
+    });
     this.svg = icon.wrapper;
     this.title.innerText = "Successfully Saved";
     return this;
   };
 
   Toast.prototype.setFailed = function () {
-    var icon = new SVGGenerator({ color: "red", type: "failure" });
+    var icon = new SVGGenerator({
+      color: "red",
+      type: "failure",
+      size: "large",
+    });
     this.svg = icon.wrapper;
     this.title.innerText = "Failed to Save";
     return this;
@@ -1549,6 +1575,8 @@
 
     if (props.type !== "loading") {
       path.setAttribute("fill", props.color);
+    } else {
+      path.setAttribute("fill", "url(#colorFill)");
     }
     var iconPath;
     switch (props.type) {
@@ -1577,8 +1605,12 @@
         break;
 
       case "loading":
+        this.svg.setAttribute("width", "100px");
+        this.svg.setAttribute("height", "100px");
+        this.wrapper.style.width = "100px";
+        this.wrapper.style.height = "100px";
         iconPath =
-          "M 63.85,0 A 63.85,63.85 0 1 1 0,63.85 63.85,63.85 0 0 1 63.85,0 Z m 0.65,19.5 a 44,44 0 1 1 -44,44 44,44 0 0 1 44,-44 z";
+          "M67.733 0A67.733 67.733 0 110 67.733 67.733 67.733 0 0167.733 0zm.69 20.686a46.676 46.676 0 11-46.676 46.676 46.676 46.676 0 0146.676-46.676z";
         this.wrapper.title = "Loading";
         break;
 
@@ -1973,7 +2005,7 @@
     };
 
     var url =
-      ctx.PortalUrl + "_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+      ctx.PortalUrl + "_api/web/lists('" + listId + "')/items(" + id + ")";
 
     $.ajax({
       url: url,
