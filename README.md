@@ -11,11 +11,14 @@
 <dl>
   <dt>Exection</dt>
   <dd>
-    The meatball script exists on the sharepoint main page. If you do not see
+    The meatball script exists on the Sharepoint main page. If you do not see
     the script, then proceed to request it to be added to your organization's
     main page.
   </dd>
-  <dt>Inorder for it to be used, the following must be met</dt>
+  <dd>
+    The meatball script requires jquery to run.  If you see an error message indicating an improperly loaded script, then make sure request jquery to be added to your organization's main page.
+  </dd>
+  <dt>In order for it to be used, the following must be met</dt>
   <dd>
     <ul>
       <li>
@@ -100,7 +103,3 @@
     Once finished, toggle it back to false.
   </dd>
 </dl>
-<a
-  href="https://app.tettra.co/teams/imef-imo/pages/sharepoint-list-creating-meatball-status-icons?auth=86ad50a524415260aa173fcf1e279d8d6efb987d2efafa798a09ee6898acede94d47b91a1a5892bd83cd000489d0f1b7"
-  >Addtional Document</a
->
