@@ -390,7 +390,7 @@
     this.popoverBody.appendChild(this.popover);
 
     this.initHistory = document.createElement("div");
-    this.initHistory.innerText = "Test Message";
+    this.initHistory.innerText = "";
     this.initHistory.style.padding = ".25rem";
     this.initHistory.style.margin = ".25rem";
     this.initHistory.style.textAlign = "center";
