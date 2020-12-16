@@ -389,7 +389,7 @@
     this.popoverBody.appendChild(this.carret);
     this.popoverBody.appendChild(this.popover);
 
-    this.history = document.createElement("button");
+    this.history = document.createElement("div");
     this.history.innerText = "Show More";
     this.history.style.borderRadius = ".25rem";
     this.history.style.padding = ".25rem";
@@ -397,9 +397,7 @@
     this.history.style.textAlign = "center";
     this.history.style.display = "block";
     this.history.style.cursor = "pointer";
-    this.history.style.width = "calc(150px - 1.5rem)";
-
-    console.log(this.popover.getBoundingClientRect().width);
+    this.history.style.backgroundColor = "#F0F0F0";
 
     var addHistory = true;
 
@@ -950,7 +948,8 @@
       meatObject.container.appendChild(item.item);
       meatObject.container.scrollTop = meatObject.container.scrollHeight;
 
-      item.setEditable(item.getEditable(), historyListGUID, data.ID, true);
+      item.setEditable(item.getEditable());
+      updateHistory(historyListGUID, data.ID, true);
 
       meatObject.newComment.value = "";
     }
@@ -1061,12 +1060,8 @@
       function newHistoryChatCb(newListGUID) {
         if (meatballHistoryItem.isNew) {
           function listEntrySuccess(data) {
-            meatballHistoryItem.setEditable(
-              !meatballHistoryItem.getEditable(),
-              newListGUID,
-              data.ID,
-              false
-            );
+            meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
+            updateHistory(newListGUID, data.ID, false);
           }
           makeHistory(
             newListGUID,
@@ -1078,12 +1073,7 @@
             listEntrySuccess
           );
         } else {
-          meatballHistoryItem.setEditable(
-            !meatballHistoryItem.getEditable(),
-            newListGUID,
-            data.ID,
-            false
-          );
+          meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
         }
       }
       findHistoryChat(newHistoryChatCb);
@@ -1198,12 +1188,7 @@
     return this;
   };
 
-  MeatballHistoryItem.prototype.setEditable = function (
-    value,
-    listGUID,
-    id,
-    newEntry
-  ) {
+  MeatballHistoryItem.prototype.setEditable = function (value) {
     if (value) {
       this.comment.style.border = "1px solid black";
       this.display.appendChild(this.submit);
@@ -1230,11 +1215,6 @@
     }
     this.comment.contentEditable = value;
 
-    if (!value && newEntry) {
-      updateHistory(listGUID, id, currentText);
-    } else {
-      updateHistory(this.listGUID, this.id, currentText);
-    }
     return this;
   };
 
