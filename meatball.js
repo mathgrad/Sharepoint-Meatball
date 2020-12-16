@@ -1450,14 +1450,22 @@
   };
 
   Toast.prototype.setSuccess = function () {
-    var icon = new SVGGenerator({ color: "green", type: "success" });
+    var icon = new SVGGenerator({
+      color: "green",
+      type: "success",
+      size: "large",
+    });
     this.svg = icon.wrapper;
     this.title.innerText = "Successfully Saved";
     return this;
   };
 
   Toast.prototype.setFailed = function () {
-    var icon = new SVGGenerator({ color: "red", type: "failure" });
+    var icon = new SVGGenerator({
+      color: "red",
+      type: "failure",
+      size: "large",
+    });
     this.svg = icon.wrapper;
     this.title.innerText = "Failed to Save";
     return this;
@@ -1520,6 +1528,8 @@
 
     if (props.type !== "loading") {
       path.setAttribute("fill", props.color);
+    } else {
+      path.setAttribute("fill", "url(#colorFill)");
     }
     var iconPath;
     switch (props.type) {
@@ -1548,8 +1558,12 @@
         break;
 
       case "loading":
+        this.svg.setAttribute("width", "100px");
+        this.svg.setAttribute("height", "100px");
+        this.wrapper.style.width = "100px";
+        this.wrapper.style.height = "100px";
         iconPath =
-          "M 63.85,0 A 63.85,63.85 0 1 1 0,63.85 63.85,63.85 0 0 1 63.85,0 Z m 0.65,19.5 a 44,44 0 1 1 -44,44 44,44 0 0 1 44,-44 z";
+          "M67.733 0A67.733 67.733 0 110 67.733 67.733 67.733 0 0167.733 0zm.69 20.686a46.676 46.676 0 11-46.676 46.676 46.676 46.676 0 0146.676-46.676z";
         this.wrapper.title = "Loading";
         break;
 
@@ -1944,7 +1958,7 @@
     };
 
     var url =
-      ctx.PortalUrl + "_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+      ctx.PortalUrl + "_api/web/lists('" + listId + "')/items(" + id + ")";
 
     $.ajax({
       url: url,
