@@ -432,7 +432,7 @@
             });
           }
         }
-        retrieveHistory(table, rowIndex, internalColumn, cb, true);
+        retrieveHistory(table, rowIndex, internalColumn, cb, false);
       }
       document.body.appendChild(meatballHistoryDisplay.mainPanel);
       meatballHistoryDisplay.container.scrollTop =
@@ -1056,7 +1056,6 @@
     this.submit.style.borderRadius = ".25rem";
     this.submit.addEventListener("click", function () {
       if (meatballHistoryItem.isNew) {
-        console.log("hit0", meatballHistoryItem);
         function listEntrySuccess(newData) {
           meatballHistoryItem.setEditable(
             !meatballHistoryItem.getEditable(),
