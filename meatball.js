@@ -906,7 +906,7 @@
     this.newComment.placeholder = "Enter Comment Here";
     this.newComment.value = "";
     this.newComment.title = "Enter Comment Here";
-    this.newComment.style.resize = "none";
+    this.newComment.style.resize = "vertical";
     this.newComment.style.row = "1";
     this.newComment.style.height = "14pt";
     this.newComment.style.width = "calc(500px - 5rem)";
@@ -917,7 +917,6 @@
     this.newComment.style.borderRadius = ".25rem";
     this.newComment.style.border = "0px";
     this.newComment.style.verticalAlign = "middle";
-    this.newComment.style.resize = "vertical";
 
     this.addPanel.appendChild(this.newComment);
     this.addPanel.appendChild(this.svg);
