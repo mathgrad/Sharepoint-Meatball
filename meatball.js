@@ -1522,7 +1522,6 @@
         break;
 
       case "loading":
-      this.svg.setAttribute("viewBox", "0 0 1000 100");
         iconPath =
           "M 63.85,0 A 63.85,63.85 0 1 1 0,63.85 63.85,63.85 0 0 1 63.85,0 Z m 0.65,19.5 a 44,44 0 1 1 -44,44 44,44 0 0 1 44,-44 z";
         this.wrapper.title = "Loading";
@@ -1542,6 +1541,8 @@
     this.g.appendChild(path);
     this.svg.appendChild(this.g);
     this.wrapper.appendChild(this.svg);
+
+    return this;
   }
 
   SVGGenerator.prototype.setLoadAnimation = function () {
