@@ -1060,26 +1060,28 @@
     this.submit.style.padding = ".25rem";
     this.submit.style.borderRadius = ".25rem";
     this.submit.addEventListener("click", function () {
-      function newHistoryChatCb(newListGUID) {
-        if (meatballHistoryItem.isNew) {
-          function listEntrySuccess(data) {
-            meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
-            updateHistory(newListGUID, data.ID, false);
-          }
-          makeHistory(
-            newListGUID,
-            "placeholder",
-            internalColumn,
-            rowindex,
-            table,
-            userName,
-            listEntrySuccess
+      if (meatballHistoryItem.isNew) {
+        function listEntrySuccess(newData) {
+          meatballHistoryItem.setEditable(
+            !meatballHistoryItem.getEditable(),
+            newData
           );
-        } else {
-          meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
         }
+        makeHistory(
+          meatballHistoryItem.listGUID,
+          "placeholder",
+          internalColumn,
+          rowindex,
+          table,
+          userName,
+          listEntrySuccess
+        );
+      } else {
+        meatballHistoryItem.setEditable(
+          !meatballHistoryItem.getEditable(),
+          false
+        );
       }
-      findHistoryChat(newHistoryChatCb);
     });
 
     this.buttonGroup = document.createElement("div");
@@ -1191,7 +1193,7 @@
     return this;
   };
 
-  MeatballHistoryItem.prototype.setEditable = function (value) {
+  MeatballHistoryItem.prototype.setEditable = function (value, newData) {
     if (value) {
       this.comment.style.border = "1px solid black";
       this.display.appendChild(this.submit);
@@ -1214,6 +1216,11 @@
       }
       if (!this.item.parentNode.isEdit) {
         this.item.parentNode.isEdit = true;
+      }
+      if (newData && newData.ID) {
+        updateHistory(historyListGUID, newData.ID, currentText);
+      } else {
+        updateHistory(historyListGUID, this.id, currentText);
       }
     }
     this.comment.contentEditable = value;
@@ -1679,7 +1686,7 @@
         rowIndex +
         " - " +
         internalColumn +
-        "'&$orderby=Created desc";
+        "'&$orderby=Created desc&$top=100";
     }
 
     $.ajax({
