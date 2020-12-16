@@ -389,12 +389,36 @@
     this.popoverBody.appendChild(this.carret);
     this.popoverBody.appendChild(this.popover);
 
-    this.initHistory = document.createElement("div");
-    this.initHistory.innerText = "Test Message";
-    this.initHistory.style.padding = ".25rem";
-    this.initHistory.style.margin = ".25rem";
-    this.initHistory.style.textAlign = "center";
-    this.initHistory.style.display = "block";
+    this.initHistoryContainer = document.createElement("div");
+    this.initHistoryContainer.style.borderRadius = ".25rem";
+    this.initHistoryContainer.style.padding = ".25rem";
+    this.initHistoryContainer.style.marginBottom = ".5rem";
+    this.initHistoryContainer.style.marginLeft = ".5rem";
+    this.initHistoryContainer.style.marginRight = ".5rem";
+    this.initHistoryContainer.style.display = "block";
+    this.initHistoryContainer.style.backgroundColor = "rgb(189,191,170)";
+    this.initHistoryContainer.style.borderRadius = "0.25rem";
+
+    this.initHistoryDate = document.createElement("div");
+    this.initHistoryDate.style.padding = ".25rem";
+    this.initHistoryDate.style.margin = ".25rem";
+    this.initHistoryDate.style.textAlign = "left";
+    this.initHistoryDate.style.display = "block";
+    this.initHistoryDate.style.fontSize = "7pt";
+
+    this.initHistoryMessage = document.createElement("div");
+    this.initHistoryMessage.style.padding = ".25rem";
+    this.initHistoryMessage.style.margin = ".25rem";
+    this.initHistoryMessage.style.textAlign = "center";
+    this.initHistoryMessage.style.display = "block";
+    this.initHistoryMessage.style.fontSize = "9pt";
+
+    this.initHistoryName = document.createElement("div");
+    this.initHistoryName.style.padding = ".25rem";
+    this.initHistoryName.style.margin = ".25rem";
+    this.initHistoryName.style.textAlign = "left";
+    this.initHistoryName.style.display = "block";
+    this.initHistoryName.style.fontSize = "7pt";
 
     this.showMore = document.createElement("div");
     this.showMore.innerText = "Show More";
@@ -449,7 +473,11 @@
       meatballHistoryDisplay.container.scrollTop =
         meatballHistoryDisplay.container.scrollHeight;
     });
-    this.popoverBody.appendChild(this.initHistory);
+
+    this.initHistoryContainer.appendChild(this.initHistoryName);
+    this.initHistoryContainer.appendChild(this.initHistoryMessage);
+    this.initHistoryContainer.appendChild(this.initHistoryDate);
+    this.popoverBody.appendChild(this.initHistoryContainer);
     this.popoverBody.appendChild(this.showMore);
 
     this.popoverPanel.appendChild(this.popoverBody);
@@ -458,7 +486,26 @@
     //overriding other scripts
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
-      if (!meatball.popoverPanel.parentNode) {
+      if (meatball.initHistoryContainer !== null) {
+        function success(param, data) {
+          // if (data[0].Message.length > 30) data.[0].Message.substring
+          if (meatball.initHistoryContainer !== null) {
+            if (data.length === 1) {
+              meatball.initHistoryName.innerText = data[0].UserName;
+              meatball.initHistoryMessage.innerText = data[0].Message;
+              meatball.initHistoryDate.innerText = generateDateTime(
+                data[0].Created
+              );
+            } else {
+              //remove the container div to close the space
+              meatball.initHistoryContainer.parentNode.removeChild(
+                meatball.initHistoryContainer
+              );
+            }
+          }
+        }
+        retrieveHistory(table, rowIndex, internalColumn, success, true);
+
         add = true;
         document.body.appendChild(meatball.popoverPanel);
 
