@@ -425,10 +425,10 @@
           }
 
           if (data.length !== 0) {
-            meatballHistoryDisplay.historyPanel.insertBefore(
-              meatballHistoryDisplay.addMore,
-              meatballHistoryDisplay.container
-            );
+            // meatballHistoryDisplay.historyPanel.insertBefore(
+            //   meatballHistoryDisplay.addMore,
+            //   meatballHistoryDisplay.container
+            // );
             meatballHistoryDisplay.query = data[0].Title;
             data.forEach(function (props) {
               meatballHistoryDisplay.build(
@@ -443,7 +443,7 @@
             });
           }
         }
-        retrieveHistory(table, rowIndex, internalColumn, cb, true);
+        retrieveHistory(table, rowIndex, internalColumn, cb, false);
       }
       document.body.appendChild(meatballHistoryDisplay.mainPanel);
       meatballHistoryDisplay.container.scrollTop =
@@ -873,6 +873,7 @@
     this.addPanel.style.marginTop = ".25rem";
     this.addPanel.style.marginLeft = "auto";
     this.addPanel.style.marginRight = "auto";
+    this.addPanel.style.backgroundColor = "#333333";
 
     this.svg = new SVGGenerator({
       color: "white",
@@ -882,6 +883,7 @@
     this.svg.style.cursor = "pointer";
     this.svg.style.padding = ".25rem";
     this.svg.style.verticalAlign = "middle";
+    this.svg.style.display = "inline-block";
 
     this.svg.addEventListener("click", function () {
       if (meatballHistory.container) {
@@ -907,7 +909,7 @@
     this.newComment.style.resize = "none";
     this.newComment.style.row = "1";
     this.newComment.style.height = "14pt";
-    this.newComment.style.width = "calc(425px - 3rem)";
+    this.newComment.style.width = "calc(500px - 5rem)";
     this.newComment.style.display = "inline-block";
     this.newComment.style.padding = ".25rem";
     this.newComment.style.backgroundColor = "#333333";
@@ -915,6 +917,7 @@
     this.newComment.style.borderRadius = ".25rem";
     this.newComment.style.border = "0px";
     this.newComment.style.verticalAlign = "middle";
+    this.newComment.style.resize = "vertical";
 
     this.addPanel.appendChild(this.newComment);
     this.addPanel.appendChild(this.svg);
