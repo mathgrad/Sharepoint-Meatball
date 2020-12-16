@@ -389,22 +389,29 @@
     this.popoverBody.appendChild(this.carret);
     this.popoverBody.appendChild(this.popover);
 
-    this.history = document.createElement("div");
-    this.history.innerText = "Show More";
-    this.history.style.borderRadius = ".25rem";
-    this.history.style.padding = ".25rem";
-    this.history.style.marginBottom = ".5rem";
-    this.history.style.marginLeft = ".5rem";
-    this.history.style.marginRight = ".5rem";
-    this.history.style.textAlign = "center";
-    this.history.style.display = "block";
-    this.history.style.cursor = "pointer";
-    this.history.style.fontWeight = "250";
-    this.history.style.backgroundColor = "#1890ff";
+    this.initHistory = document.createElement("div");
+    this.initHistory.innerText = "Test Message";
+    this.initHistory.style.padding = ".25rem";
+    this.initHistory.style.margin = ".25rem";
+    this.initHistory.style.textAlign = "center";
+    this.initHistory.style.display = "block";
+
+    this.showMore = document.createElement("div");
+    this.showMore.innerText = "Show More";
+    this.showMore.style.borderRadius = ".25rem";
+    this.showMore.style.padding = ".25rem";
+    this.showMore.style.marginBottom = ".5rem";
+    this.showMore.style.marginLeft = ".5rem";
+    this.showMore.style.marginRight = ".5rem";
+    this.showMore.style.textAlign = "center";
+    this.showMore.style.display = "block";
+    this.showMore.style.cursor = "pointer";
+    this.showMore.style.fontWeight = "250";
+    this.showMore.style.backgroundColor = "#1890ff";
 
     var addHistory = true;
 
-    this.history.addEventListener("click", function () {
+    this.showMore.addEventListener("click", function () {
       if (!meatballHistoryDisplay.parentNode) {
         addHistory = true;
       }
@@ -442,7 +449,8 @@
       meatballHistoryDisplay.container.scrollTop =
         meatballHistoryDisplay.container.scrollHeight;
     });
-    this.popoverBody.appendChild(this.history);
+    this.popoverBody.appendChild(this.initHistory);
+    this.popoverBody.appendChild(this.showMore);
 
     this.popoverPanel.appendChild(this.popoverBody);
 
@@ -905,6 +913,7 @@
     this.newComment.style.backgroundColor = "#333333";
     this.newComment.style.color = "#dddddd";
     this.newComment.style.borderRadius = ".25rem";
+    this.newComment.style.border = "0px";
     this.newComment.style.verticalAlign = "middle";
 
     this.addPanel.appendChild(this.newComment);
