@@ -1416,6 +1416,7 @@
     var icon = new SVGGenerator({
       color: "",
       type: "loading",
+      size: "large",
     }).setLoadAnimation();
     this.svg = icon.wrapper;
     return this;
