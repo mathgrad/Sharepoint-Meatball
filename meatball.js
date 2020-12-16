@@ -1207,6 +1207,7 @@
         return;
       }
       this.comment.style.border = "0px";
+
       if (this.submit.parentNode) {
         this.display.removeChild(this.submit);
       }
@@ -1218,14 +1219,14 @@
       if (!this.item.parentNode.isEdit) {
         this.item.parentNode.isEdit = true;
       }
-
-      if (newEntry) {
-        updateHistory(listGUID, id, currentText);
-      } else {
-        updateHistory(this.listGUID, this.id, currentText);
-      }
     }
     this.comment.contentEditable = value;
+
+    if (!value && newEntry) {
+      updateHistory(listGUID, id, currentText);
+    } else {
+      updateHistory(this.listGUID, this.id, currentText);
+    }
     return this;
   };
 
