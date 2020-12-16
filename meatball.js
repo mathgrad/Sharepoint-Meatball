@@ -733,18 +733,22 @@
 
     this.title = document.createElement("div");
     this.title.style.width = "calc(500px - .5rem)";
+    this.title.style.height = "calc(10px + 1rem)";
     this.title.style.textAlign = "center";
     this.title.style.marginRight = "auto";
     this.title.style.marginLeft = "auto";
     this.title.style.marginBottom = ".5rem";
     this.title.style.display = "flex";
     this.title.style.flexDirection = "row";
+    this.title.style.backgroundColor = "#333333";
 
     this.titleDescription = document.createElement("div");
     this.titleDescription.innerText = title + " - History";
     this.titleDescription.style.flexGrow = "1";
     this.titleDescription.style.flexShrink = "1";
     this.titleDescription.style.paddingLeft = ".5rem";
+    this.titleDescription.style.paddingTop = ".25rem";
+    this.titleDescription.style.paddingBottom = ".25rem";
     this.titleDescription.style.textAlign = "left";
     this.titleDescription.style.color = "#dfdfdf";
 
@@ -760,24 +764,27 @@
     this.x.innerText = "X";
     this.x.title = "Close";
     this.x.style.textSize = "16pt";
+    this.x.style.fontWeight = "bolder";
     this.x.style.padding = ".25rem";
     this.x.style.cursor = "pointer";
-    this.x.style.width = "15px";
+    this.x.style.height = "calc(10px + .5rem)";
+    this.x.style.width = "calc(10px + .5rem)";
     this.x.style.color = "#dfdfdf";
+    this.x.style.backgroundColor = "#333333";
 
     this.x.addEventListener("mouseenter", function () {
-      this.style.color = "#202020";
-      this.style.textShadow = "0px 0px 1px #dfdfdf";
+      this.style.color = "#333333";
+      this.style.backgroundColor = "#dfdfdf";
     });
 
     this.x.addEventListener("mouseleave", function () {
       this.style.color = "#dfdfdf";
-      this.style.textShadow = "0px 0px 0px #333333";
+      this.style.backgroundColor = "#333333";
     });
 
     this.x.addEventListener("click", function () {
-      this.style.color = "#dfdfdf";
-      this.style.textShadow = "0px 0px 0px #333333";
+      this.style.color = "#333333";
+      this.style.backgroundColor = "#dfdfdf";
       addMeatballHistory = true;
       meatballHistory.clear();
       meatballHistory.mainPanel.parentNode.removeChild(
