@@ -522,10 +522,10 @@
             data[0].Created
           );
         } else {
-          //show the message if no history entries
           meatball.initHistoryContainer.innerText = "No History Found";
           meatball.initHistoryContainer.style.textAlign = "center";
         }
+        meatball.setPosition(triangleSize);
       }
       retrieveHistory(table, rowIndex, internalColumn, success, true);
 
