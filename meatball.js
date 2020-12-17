@@ -491,6 +491,7 @@
             });
           }
         }
+        //loading svg inside of the initHistory
         retrieveHistory(table, rowIndex, internalColumn, cb, false);
       }
       document.body.appendChild(meatballHistoryDisplay.mainPanel);
@@ -510,8 +511,11 @@
     //overriding other scripts
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
+      meatball.loading = new SVGGenerator({
+        type: "loading",
+      }).setLoadAnimation().wrapper;
+      meatball.initHistoryContainer.appendChild(meatball.loading);
       function success(param, data) {
-        // if (data[0].Message.length > 30) data.[0].Message.substring
         if (data.length === 1) {
           meatball.initHistoryName.innerText = data[0].UserName;
           meatball.initHistoryMessage.innerText = data[0].Message;
@@ -519,13 +523,11 @@
             data[0].Created
           );
         } else {
-          //remove the container div to close the space
-          meatball.initHistoryContainer.parentNode.removeChild(
-            meatball.initHistoryContainer
-          );
+          //show the message if no history entries
+          meatball.initHistoryMessage.innerText = "No History Found";
         }
       }
-      retrieveHistory(table, rowIndex, internalColumn, success, true);
+      retrieveHistory(table, rowIndex, internalColumn, success, meatball);
 
       add = true;
       document.body.appendChild(meatball.popoverPanel);
@@ -915,7 +917,7 @@
             priorDate = currentDate;
           });
         }
-        retrieveHistory(table, rowIndex, internalColumn, cb, false, null);
+        retrieveHistory(table, rowIndex, internalColumn, cb, false);
       }
       meatballHistory.addMore.parentNode.removeChild(meatballHistory.addMore);
       meatballHistory.container.scrollTop =
@@ -1765,10 +1767,10 @@
 
   //Show the history and on fail display "No Messages" in the history view
 
-  function retrieveHistory(table, rowIndex, internalColumn, cb, init, query) {
+  function retrieveHistory(table, rowIndex, internalColumn, cb, meatball) {
     var name = "History " + ctx.SiteTitle;
     var url = "";
-    if (init) {
+    if (meatball) {
       url =
         ctx.PortalUrl +
         "/_api/web/lists/getbytitle('" +
@@ -1804,6 +1806,9 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (res) {
+        if (meatball) {
+          meatball.loading.parentNode.removeChild(meatball.loading);
+        }
         cb(null, res.d.results);
       },
       error: cb,
