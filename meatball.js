@@ -1309,6 +1309,10 @@
       this.comment.style.border = "1px solid black";
       this.submit.style.backgroundColor = "#5db1ff";
       this.display.appendChild(this.submit);
+
+      if (this.item.parentNode) {
+        this.item.parentNode.scrollTop = this.item.parentNode.scrollHeight;
+      }
     } else {
       var currentText = this.comment.innerText;
       currentText = currentText.replace(regex, "", currentText);
