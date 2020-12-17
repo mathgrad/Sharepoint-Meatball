@@ -1005,7 +1005,7 @@
     this.newComment.placeholder = "Enter Comment Here";
     this.newComment.value = "";
     this.newComment.title = "Enter Comment Here";
-    this.newComment.style.resize = "vertical";
+    this.newComment.style.resize = "none";
     this.newComment.style.row = "1";
     this.newComment.style.height = "50px";
     this.newComment.style.width = "calc(500px - 6rem)";
@@ -1121,6 +1121,8 @@
 
   MeatballHistory.prototype.clear = function () {
     while (this.container.firstChild) {
+      this.container.firstChild.childNodes[1].contentEditable = false;
+      this.container.isEdit = true;
       this.container.removeChild(this.container.firstChild);
     }
   };
