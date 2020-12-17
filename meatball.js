@@ -761,15 +761,13 @@
     this.mainPanel.style.position = "absolute";
     this.mainPanel.style.left = "0px";
     this.mainPanel.style.top = "0px";
-    this.mainPanel.style.zIndex = "999";
+    this.mainPanel.style.zIndex = "201";
 
     this.mainPanel.addEventListener("click", function (e) {
-      if (e.target == meatballHistory.mainPanel) {
+      if (e.target == this) {
         addMeatballHistory = true;
         meatballHistory.clear();
-        meatballHistory.mainPanel.parentNode.removeChild(
-          meatballHistory.mainPanel
-        );
+        this.parentNode.removeChild(this);
       }
     });
 
@@ -953,15 +951,15 @@
     this.addPanel.style.marginRight = "auto";
     this.addPanel.style.backgroundColor = "#333333";
     this.addPanel.style.borderRadius = "4px";
+    this.addPanel.style.alignContent = "top";
 
     this.svg = new SVGGenerator({
       color: "white",
       type: "submit",
-      size: "normal",
+      size: "large",
     }).wrapper;
     this.svg.style.cursor = "pointer";
-    this.svg.style.padding = ".25rem";
-    this.svg.style.verticalAlign = "middle";
+    this.svg.style.padding = ".5rem";
     this.svg.style.display = "inline-block";
     this.svg.style.borderRadius = "2px";
 
@@ -989,15 +987,16 @@
     this.newComment.title = "Enter Comment Here";
     this.newComment.style.resize = "vertical";
     this.newComment.style.row = "1";
-    this.newComment.style.height = "14pt";
-    this.newComment.style.width = "calc(500px - 5rem)";
+    this.newComment.style.height = "50px";
+    this.newComment.style.width = "calc(500px - 6rem)";
     this.newComment.style.display = "inline-block";
     this.newComment.style.padding = ".25rem";
     this.newComment.style.backgroundColor = "#333333";
     this.newComment.style.color = "#dddddd";
     this.newComment.style.borderRadius = ".25rem";
     this.newComment.style.border = "0px";
-    this.newComment.style.verticalAlign = "middle";
+    this.newComment.style.marginRight = ".25rem";
+
     this.newComment.addEventListener("click", function () {
       $("CommentBox").blur();
     });
@@ -1459,7 +1458,7 @@
     this.toast.style.height = "50px";
     this.toast.style.padding = "0.5rem";
     this.toast.style.width = "275px";
-    this.toast.style.zIndex = "1";
+    this.toast.style.zIndex = "202";
     this.text = document.createElement("div");
     this.text.style.display = "flex";
     this.text.style.flexDirection = "column";
@@ -1631,8 +1630,9 @@
         break;
 
       case "submit":
-        this.svg.setAttribute("viewBox", "64 64 896 896");
         this.wrapper.style.backgroundColor = "#3949ab";
+        this.svg.setAttribute("viewBox", "0 0 1000 1000");
+
         iconPath =
           "M931.4 498.9L94.9 79.5c-3.4-1.7-7.3-2.1-11-1.2a15.99 15.99 0 00-11.7 19.3l86.2 352.2c1.3 5.3 5.2 9.6 10.4 11.3l147.7 50.7-147.6 50.7c-5.2 1.8-9.1 6-10.3 11.3L72.2 926.5c-.9 3.7-.5 7.6 1.2 10.9 3.9 7.9 13.5 11.1 21.5 7.2l836.5-417c3.1-1.5 5.6-4.1 7.2-7.1 3.9-8 .7-17.6-7.2-21.6zM170.8 826.3l50.3-205.6 295.2-101.3c2.3-.8 4.2-2.6 5-5 1.4-4.2-.8-8.7-5-10.2L221.1 403 171 198.2l628 314.9-628.2 313.2z";
         this.wrapper.title = "Submit";
