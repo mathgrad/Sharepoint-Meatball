@@ -81,7 +81,6 @@
 	<dd>
 	Note: Your name, time and date are all recorded and are placed into the message. Automated messages happen when a status change occurs.
 	</dd>
-	</br>
   <dt>Debugging</dt>
   <dd>
     The following should help fix most issues with the script.
