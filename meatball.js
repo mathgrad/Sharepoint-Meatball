@@ -412,7 +412,8 @@
     this.initHistoryContainer.style.marginLeft = ".5rem";
     this.initHistoryContainer.style.marginRight = ".5rem";
     this.initHistoryContainer.style.display = "block";
-    this.initHistoryContainer.style.backgroundColor = "#BDBFAA";
+    this.initHistoryContainer.style.backgroundColor = "#202020";
+    this.initHistoryContainer.style.color = "#F0F0F0";
     this.initHistoryContainer.style.borderRadius = "0.25rem";
 
     this.initHistoryDate = document.createElement("div");
@@ -438,6 +439,7 @@
 
     this.showMore = document.createElement("div");
     this.showMore.innerText = "Show More";
+    this.showMore.style.color = "#F0F0F0";
     this.showMore.style.borderRadius = ".25rem";
     this.showMore.style.padding = ".25rem";
     this.showMore.style.marginBottom = ".5rem";
@@ -450,11 +452,11 @@
     this.showMore.style.backgroundColor = "#5db1ff";
 
     this.showMore.addEventListener("mouseenter", function () {
-      meatball.showMore.style.color = "#F0F0F0";
+      this.style.backgroundColor = "#3F93E1";
     });
 
     this.showMore.addEventListener("mouseleave", function () {
-      meatball.showMore.style.color = "inherit";
+      this.style.backgroundColor = "#5db1ff";
     });
 
     var addHistory = true;
