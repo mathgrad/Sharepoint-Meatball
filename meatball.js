@@ -513,23 +513,21 @@
     //overriding other scripts
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
-      meatball.loading = new SVGGenerator({
-        type: "loading",
-      }).setLoadAnimation().wrapper;
-      meatball.initHistoryContainer.appendChild(meatball.loading);
+      meatball.initHistoryMessage.innerText = "Loading...";
       function success(param, data) {
         if (data.length === 1) {
-          meatball.initHistoryName.innerText = data[0].UserName;
           meatball.initHistoryMessage.innerText = data[0].Message;
+          meatball.initHistoryName.innerText = data[0].UserName;
           meatball.initHistoryDate.innerText = generateDateTime(
             data[0].Created
           );
         } else {
           //show the message if no history entries
-          meatball.initHistoryMessage.innerText = "No History Found";
+          meatball.initHistoryContainer.innerText = "No History Found";
+          meatball.initHistoryContainer.style.textAlign = "center";
         }
       }
-      retrieveHistory(table, rowIndex, internalColumn, success, meatball);
+      retrieveHistory(table, rowIndex, internalColumn, success, true);
 
       add = true;
       document.body.appendChild(meatball.popoverPanel);
@@ -1764,10 +1762,10 @@
 
   //Show the history and on fail display "No Messages" in the history view
 
-  function retrieveHistory(table, rowIndex, internalColumn, cb, meatball) {
+  function retrieveHistory(table, rowIndex, internalColumn, cb, init) {
     var name = "History " + ctx.SiteTitle;
     var url = "";
-    if (meatball) {
+    if (init) {
       url =
         ctx.PortalUrl +
         "/_api/web/lists/getbytitle('" +
@@ -1803,9 +1801,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (res) {
-        if (meatball) {
-          meatball.loading.parentNode.removeChild(meatball.loading);
-        }
         cb(null, res.d.results);
       },
       error: cb,
