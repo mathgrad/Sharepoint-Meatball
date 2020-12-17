@@ -377,6 +377,8 @@
     this.header.style.textAlign = "center";
     this.header.style.marginBottom = ".25rem";
     this.header.style.backgroundColor = "#BABBFD";
+    this.header.style.width = "100%";
+    this.header.style.textAlign = "center";
     this.header.innerText = value;
 
     //Create Options Panel Object
@@ -500,7 +502,6 @@
             });
           }
         }
-        //loading svg inside of the initHistory
         retrieveHistory(table, rowIndex, internalColumn, cb, false);
       }
       document.body.appendChild(meatballHistoryDisplay.mainPanel);
@@ -516,8 +517,6 @@
 
     this.popoverPanel.appendChild(this.popoverBody);
 
-    //Used addEventListener versus onmouseenter = function due to concerns of
-    //overriding other scripts
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
       meatball.initHistoryMessage.innerText = "Loading...";
@@ -671,6 +670,7 @@
       option.style.textAlign = "left";
       option.style.borderRadius = ".25rem";
       option.style.cursor = "pointer";
+      option.style.width = "100%";
 
       var description = document.createElement("div");
       description.innerText = ele;
