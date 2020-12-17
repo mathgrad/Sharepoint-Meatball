@@ -214,7 +214,8 @@
                 text,
                 displayValue,
                 listTitle,
-                this.meatballWidth.width + "px"
+                this.meatballWidth.width + "px",
+                longestString
               );
             }
           }
@@ -311,7 +312,8 @@
     cellText,
     value,
     listTitle,
-    panelWidth
+    panelWidth,
+    longestString
   ) {
     var meatball = this;
     var triangleSize = 10;
