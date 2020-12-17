@@ -73,21 +73,16 @@
     </ul>
   </dd>
   <dt>History Messages</dt>
-		<dd>Once a meatball is populated in the cell then history can be documented</dd>
-			</br>
-			<dd>
+	<dd>Once a meatball is populated in the cell then history can be documented</dd>
+	</br>
+	<dd>
 	To create a message hover over the meatball and click the "Show More" button at the bottom of the panel. This opens up a drawer on the right side of your screen.  
+	Type your message into the text input and then hit send. The message will appear and you can also edit and delete your own messages.
 	</dd>
 	<dd>
-		Type your message into the text input and then hit send. The message will appear and you can also edit and delete your own messages.
-		</dd>	
-			</br>
-			<dd>
-		Note: Your name, time and date are all recorded and are placed into the message. Automated messages happen when a status change occurs.
-			</dd>
-			</br>
+	Note: Your name, time and date are all recorded and are placed into the message. Automated messages happen when a status change occurs.
 	</dd>
-	
+	</br>
   <dt>Debugging</dt>
   <dd>
     The following should help fix most issues with the script.
