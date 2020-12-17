@@ -74,7 +74,6 @@
   </dd>
   <dt>History Messages</dt>
 	<dd>Once a meatball is populated in the cell then history can be documented</dd>
-	</br>
 	<dd>
 	To create a message hover over the meatball and click the "Show More" button at the bottom of the panel. This opens up a drawer on the right side of your screen.  
 	Type your message into the text input and then hit send. The message will appear and you can also edit and delete your own messages.
