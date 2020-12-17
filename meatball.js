@@ -17,6 +17,13 @@
   var historyListGUID = "";
   var userName = "";
 
+  var style = document.createElement("style");
+  style.type = "text/css";
+  style.textContent =
+    "@keyframes spin{0%{transform: rotate(0deg);}100%{transform: rotate(360deg);}}" +
+    "@-webkit-keyframes spin{0%{-webkit-transform: rotate(0deg);}100%{-webkit-transform: rotate(360deg);}}";
+  document.getElementsByTagName("head")[0].appendChild(style);
+
   //On initial load
   window.addEventListener("load", function () {
     start();
@@ -1490,12 +1497,7 @@
   };
 
   Toast.prototype.startLoading = function () {
-    var icon = new SVGGenerator({
-      color: "",
-      type: "loading",
-      size: "large",
-    }).setLoadAnimation();
-    this.svg = icon.wrapper;
+    this.svg = new LoaderCSS({ bSize: "5", diameter: "25" }).loader;
     return this;
   };
 
@@ -1690,6 +1692,18 @@
 
     return this;
   };
+
+  function LoaderCSS(props) {
+    this.loader = document.createElement("div");
+    this.loader.id = "LoaderCSS";
+    this.loader.style.border = props.bSize + "px solid #F3F3F3";
+    this.loader.style.borderTop = props.bSize + "px solid #3498db";
+    this.loader.style.borderRadius = props.diameter + "px";
+    this.loader.style.width = props.diameter + "px";
+    this.loader.style.height = props.diameter + "px";
+    this.loader.style.animation = "spin 2s linear infinite";
+    return this;
+  }
 
   function generateDateTime(date) {
     if (!date) {
