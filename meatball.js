@@ -493,6 +493,7 @@
             });
           }
         }
+        //loading svg inside of the initHistory
         retrieveHistory(table, rowIndex, internalColumn, cb, false);
       }
       document.body.appendChild(meatballHistoryDisplay.mainPanel);
@@ -512,19 +513,18 @@
     //overriding other scripts
     //Add Mouse Enter Event to display
     this.element.addEventListener("mouseenter", function () {
+      meatball.initHistoryMessage.innerText = "Loading...";
       function success(param, data) {
-        // if (data[0].Message.length > 30) data.[0].Message.substring
         if (data.length === 1) {
-          meatball.initHistoryName.innerText = data[0].UserName;
           meatball.initHistoryMessage.innerText = data[0].Message;
+          meatball.initHistoryName.innerText = data[0].UserName;
           meatball.initHistoryDate.innerText = generateDateTime(
             data[0].Created
           );
         } else {
-          //remove the container div to close the space
-          meatball.initHistoryContainer.parentNode.removeChild(
-            meatball.initHistoryContainer
-          );
+          //show the message if no history entries
+          meatball.initHistoryContainer.innerText = "No History Found";
+          meatball.initHistoryContainer.style.textAlign = "center";
         }
       }
       retrieveHistory(table, rowIndex, internalColumn, success, true);
@@ -912,7 +912,7 @@
             priorDate = currentDate;
           });
         }
-        retrieveHistory(table, rowIndex, internalColumn, cb, false, null);
+        retrieveHistory(table, rowIndex, internalColumn, cb, false);
       }
       meatballHistory.addMore.parentNode.removeChild(meatballHistory.addMore);
       meatballHistory.container.scrollTop =
@@ -940,11 +940,12 @@
 
     this.addPanel = document.createElement("div");
     this.addPanel.style.width = "calc(500px - 2.25rem)";
-    this.addPanel.style.padding = ".25rem";
+    this.addPanel.style.padding = ".5rem";
     this.addPanel.style.marginTop = ".25rem";
     this.addPanel.style.marginLeft = "auto";
     this.addPanel.style.marginRight = "auto";
     this.addPanel.style.backgroundColor = "#333333";
+    this.addPanel.style.borderRadius = "4px";
 
     this.svg = new SVGGenerator({
       color: "white",
@@ -955,6 +956,7 @@
     this.svg.style.padding = ".25rem";
     this.svg.style.verticalAlign = "middle";
     this.svg.style.display = "inline-block";
+    this.svg.style.borderRadius = "2px";
 
     this.svg.addEventListener("click", function () {
       if (meatballHistory.container) {
@@ -973,6 +975,7 @@
     });
 
     this.newComment = document.createElement("textarea");
+    this.newComment.id = "CommentBox";
     this.newComment.contentEditable = true;
     this.newComment.placeholder = "Enter Comment Here";
     this.newComment.value = "";
@@ -988,6 +991,9 @@
     this.newComment.style.borderRadius = ".25rem";
     this.newComment.style.border = "0px";
     this.newComment.style.verticalAlign = "middle";
+    this.newComment.addEventListener("click", function () {
+      $("CommentBox").blur();
+    });
 
     this.addPanel.appendChild(this.newComment);
     this.addPanel.appendChild(this.svg);
@@ -1756,7 +1762,7 @@
 
   //Show the history and on fail display "No Messages" in the history view
 
-  function retrieveHistory(table, rowIndex, internalColumn, cb, init, query) {
+  function retrieveHistory(table, rowIndex, internalColumn, cb, init) {
     var name = "History " + ctx.SiteTitle;
     var url = "";
     if (init) {
