@@ -927,11 +927,12 @@
 
     this.addPanel = document.createElement("div");
     this.addPanel.style.width = "calc(500px - 2.25rem)";
-    this.addPanel.style.padding = ".25rem";
+    this.addPanel.style.padding = ".5rem";
     this.addPanel.style.marginTop = ".25rem";
     this.addPanel.style.marginLeft = "auto";
     this.addPanel.style.marginRight = "auto";
     this.addPanel.style.backgroundColor = "#333333";
+    this.addPanel.style.borderRadius = "4px";
 
     this.svg = new SVGGenerator({
       color: "white",
@@ -942,6 +943,7 @@
     this.svg.style.padding = ".25rem";
     this.svg.style.verticalAlign = "middle";
     this.svg.style.display = "inline-block";
+    this.svg.style.borderRadius = "2px";
 
     this.svg.addEventListener("click", function () {
       if (meatballHistory.container) {
@@ -960,6 +962,7 @@
     });
 
     this.newComment = document.createElement("textarea");
+    this.newComment.id = "CommentBox";
     this.newComment.contentEditable = true;
     this.newComment.placeholder = "Enter Comment Here";
     this.newComment.value = "";
@@ -975,6 +978,9 @@
     this.newComment.style.borderRadius = ".25rem";
     this.newComment.style.border = "0px";
     this.newComment.style.verticalAlign = "middle";
+    this.newComment.addEventListener("click", function () {
+      $("CommentBox").blur();
+    });
 
     this.addPanel.appendChild(this.newComment);
     this.addPanel.appendChild(this.svg);
