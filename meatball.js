@@ -1285,6 +1285,7 @@
     this.comment.style.verticalAlign = "middle";
     this.comment.style.fontSize = "12pt";
     this.comment.style.textAlign = "left";
+    this.comment.style.wordBreak = "break-all";
 
     this.item.appendChild(this.comment);
     this.item.appendChild(this.display);
