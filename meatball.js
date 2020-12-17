@@ -1307,6 +1307,7 @@
   MeatballHistoryItem.prototype.setEditable = function (value, newData) {
     if (value) {
       this.comment.style.border = "1px solid black";
+      this.comment.style.backgroundColor = "#F0F0F0";
       this.submit.style.backgroundColor = "#5db1ff";
       this.display.appendChild(this.submit);
 
@@ -1321,6 +1322,7 @@
         return;
       }
       this.comment.style.border = "0px";
+      this.comment.style.backgroundColor = "inherit";
 
       if (this.submit.parentNode) {
         this.display.removeChild(this.submit);
