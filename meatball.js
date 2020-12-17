@@ -21,7 +21,8 @@
   style.type = "text/css";
   style.textContent =
     "@keyframes spin{0%{transform: rotate(0deg);}100%{transform: rotate(360deg);}}" +
-    "@-webkit-keyframes spin{0%{-webkit-transform: rotate(0deg);}100%{-webkit-transform: rotate(360deg);}}";
+    "@-webkit-keyframes spin{0%{-webkit-transform: rotate(0deg);}100%{-webkit-transform: rotate(360deg);}}" +
+    "#CommentBox:focus{outline:none;}";
   document.getElementsByTagName("head")[0].appendChild(style);
 
   //On initial load
