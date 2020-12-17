@@ -457,7 +457,7 @@
     this.showMore.style.textAlign = "center";
     this.showMore.style.display = "block";
     this.showMore.style.cursor = "pointer";
-    this.showMore.style.fontWeight = "250";
+    this.showMore.style.fontWeight = "500";
     this.showMore.style.backgroundColor = "#5db1ff";
 
     this.showMore.addEventListener("mouseenter", function () {
@@ -972,17 +972,29 @@
     });
 
     this.svg.addEventListener("click", function () {
-      if (meatballHistory.container) {
-        if (meatballHistory.container.addNew) {
-          meatballHistory.container.scrollTop =
-            meatballHistory.container.scrollHeight;
-          meatballHistory.container.addNew = false;
-          meatballHistory.newItem(
-            meatballHistory,
-            table,
-            rowIndex,
-            internalColumn
-          );
+      if (meatballHistory.newComment.value.length > 0) {
+        meatballHistory.newComment.value = meatballHistory.newComment.value.replace(
+          regex,
+          "",
+          meatballHistory.newComment.value
+        );
+      } else {
+        return;
+      }
+
+      if (meatballHistory.newComment.value.length > 0) {
+        if (meatballHistory.container) {
+          if (meatballHistory.container.addNew) {
+            meatballHistory.container.scrollTop =
+              meatballHistory.container.scrollHeight;
+            meatballHistory.container.addNew = false;
+            meatballHistory.newItem(
+              meatballHistory,
+              table,
+              rowIndex,
+              internalColumn
+            );
+          }
         }
       }
     });
@@ -1005,10 +1017,6 @@
     this.newComment.style.border = "0px";
     this.newComment.style.marginRight = ".25rem";
 
-    this.newComment.addEventListener("click", function () {
-      $("CommentBox").blur();
-    });
-
     this.addPanel.appendChild(this.newComment);
     this.addPanel.appendChild(this.svg);
 
@@ -1025,11 +1033,13 @@
     rowIndex,
     internalColumn
   ) {
-    var meatObject = this;
+    meatballObj.currentUser = userName;
+    if (meatballObj.container.innerText === meatballObj.containerText) {
+      meatballObj.container.innerText = "";
+    }
 
-    meatObject.currentUser = userName;
-    if (meatObject.container.innerText === meatObject.containerText) {
-      meatObject.container.innerText = "";
+    if (meatballObj.newComment.value.length <= 0) {
+      return;
     }
 
     function listEntrySuccess(data) {
@@ -1039,7 +1049,7 @@
         rowIndex,
         internalColumn
       ).setDisplay(
-        meatObject.currentUser,
+        meatballObj.currentUser,
         generateDateTime(),
         data.Message,
         data.ID,
@@ -1049,18 +1059,18 @@
         internalColumn
       );
       item.isNew = true;
-      item.setType(meatObject.currentUser);
-      meatObject.container.appendChild(item.item);
-      meatObject.container.scrollTop = meatObject.container.scrollHeight;
+      item.setType(meatballObj.currentUser);
+      meatballObj.container.appendChild(item.item);
+      meatballObj.container.scrollTop = meatballObj.container.scrollHeight;
 
       item.setEditable(item.getEditable());
       updateHistory(historyListGUID, data.ID, true);
 
-      meatObject.newComment.value = "";
+      meatballObj.newComment.value = "";
     }
     makeHistory(
       historyListGUID,
-      meatObject.newComment.value,
+      meatballObj.newComment.value,
       internalColumn,
       rowIndex,
       table,
@@ -1068,7 +1078,7 @@
       listEntrySuccess
     );
 
-    return meatObject;
+    return this;
   };
 
   MeatballHistory.prototype.build = function (props) {
@@ -1310,10 +1320,6 @@
       this.comment.style.backgroundColor = "#F0F0F0";
       this.submit.style.backgroundColor = "#5db1ff";
       this.display.appendChild(this.submit);
-
-      if (this.item.parentNode) {
-        this.item.parentNode.scrollTop = this.item.parentNode.scrollHeight;
-      }
     } else {
       var currentText = this.comment.innerText;
       currentText = currentText.replace(regex, "", currentText);
