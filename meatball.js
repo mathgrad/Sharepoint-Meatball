@@ -963,6 +963,14 @@
     this.svg.style.display = "inline-block";
     this.svg.style.borderRadius = "2px";
 
+    this.svg.addEventListener("mouseenter", function () {
+      this.style.backgroundColor = "#1B2B8D";
+    });
+
+    this.svg.addEventListener("mouseleave", function () {
+      this.style.backgroundColor = "#3949ab";
+    });
+
     this.svg.addEventListener("click", function () {
       if (meatballHistory.container) {
         if (meatballHistory.container.addNew) {
@@ -1146,13 +1154,22 @@
 
     this.submit = document.createElement("div");
     this.submit.innerText = "Submit";
-    this.submit.style.backgroundColor = "#aaaaaa";
+    this.submit.style.backgroundColor = "#5db1ff";
     this.submit.style.width = "75px";
     this.submit.style.cursor = "pointer";
     this.submit.style.margin = "auto";
     this.submit.style.marginRight = ".25rem";
     this.submit.style.padding = ".25rem";
     this.submit.style.borderRadius = ".25rem";
+
+    this.submit.addEventListener("mouseenter", function () {
+      this.style.backgroundColor = "#3F93E1";
+    });
+
+    this.submit.addEventListener("mouseleave", function () {
+      this.style.backgroundColor = "#5db1ff";
+    });
+
     this.submit.addEventListener("click", function () {
       if (meatballHistoryItem.isNew) {
         function listEntrySuccess(newData) {
@@ -1290,6 +1307,7 @@
   MeatballHistoryItem.prototype.setEditable = function (value, newData) {
     if (value) {
       this.comment.style.border = "1px solid black";
+      this.submit.style.backgroundColor = "#5db1ff";
       this.display.appendChild(this.submit);
     } else {
       var currentText = this.comment.innerText;
