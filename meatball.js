@@ -390,6 +390,14 @@
     this.header.style.textAlign = "center";
     this.header.innerText = value;
 
+    //Add Header Element
+    this.popover.appendChild(this.header);
+
+    this.dividor0 = document.createElement("hr");
+    this.dividor0.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
+
+    this.popover.appendChild(this.dividor0);
+
     //Create Options Panel Object
     this.options = new OptionPanel();
     this.options.create(
@@ -405,10 +413,13 @@
       meatballHistoryDisplay
     );
 
-    //Add Header Element
-    this.popover.appendChild(this.header);
     //Add Options Panel
     this.popover.appendChild(this.options.options);
+
+    this.dividor1 = document.createElement("hr");
+    this.dividor1.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
+
+    this.popover.appendChild(this.dividor1);
 
     //Add Click Event to display Options Panel
     this.header.addEventListener("click", function () {
