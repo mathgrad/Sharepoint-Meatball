@@ -515,17 +515,35 @@
             //   meatballHistoryDisplay.addMore,
             //   meatballHistoryDisplay.container
             // );
+            var priorDate,
+              currentDate = null;
+            var nowDate = new Date();
             meatballHistoryDisplay.query = data[0].Title;
-            data.forEach(function (props) {
-              meatballHistoryDisplay.build(
-                new MeatballHistoryItem().setDisplay(
-                  props.UserName,
-                  generateDateTime(props.Created),
-                  props.Message,
-                  props.ID,
-                  meatballHistoryDisplay.listGUID
-                )
+            data.forEach(function (props, index) {
+              currentDate = new Date(props.Created);
+              this.mhItem = new MeatballHistoryItem().setDisplay(
+                props.UserName,
+                generateDateTime(props.Created),
+                props.Message,
+                props.ID,
+                meatballHistoryDisplay.listGUID
               );
+              meatballHistoryDisplay.build(mhItem);
+
+              if (!priorDate) {
+                priorDate = currentDate;
+              }
+              if (currentDate.getDate() != nowDate.getDate()) {
+                if (priorDate.getDate() != currentDate.getDate()) {
+                  meatballHistoryDisplay.addDividor(priorDate, mhItem.item);
+                }
+
+                if (index + 1 === data.length) {
+                  meatballHistoryDisplay.addDividor(priorDate, mhItem.item);
+                }
+              }
+
+              priorDate = currentDate;
             });
           }
         }
