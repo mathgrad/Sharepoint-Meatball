@@ -31,7 +31,10 @@
   style.textContent =
     "@keyframes spin{0%{transform: rotate(0deg);}100%{transform: rotate(360deg);}}" +
     "@-webkit-keyframes spin{0%{-webkit-transform: rotate(0deg);}100%{-webkit-transform: rotate(360deg);}}" +
-    "#CommentBox:focus{outline:none;}";
+    "#CommentBox:focus{outline:none;}" +
+    "#MHContainer::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);border-radius:10px;background-color:inherit;margin-right:12px;}" +
+    "#MHContainer::-webkit-scrollbar{width:12px;background-color:inherit;}" +
+    "#MHContainer::-webkit-scrollbar-thumb{border-radius:10px;-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);background-color:#505050;}";
   document.getElementsByTagName("head")[0].appendChild(style);
 
   //On initial load
@@ -954,12 +957,12 @@
     this.containerText = "No History Available For This Item";
 
     this.container = document.createElement("div");
+    this.container.id = "MHContainer";
     this.container.style.width = "calc(500px - 2.25rem)";
     this.container.style.height = windowHeight - 150 + "px";
     this.container.style.margin = "auto";
     this.container.style.paddingTop = ".25rem";
-    this.container.style.paddingLeft = ".25rem";
-    this.container.style.paddingRight = "2rem";
+    this.container.style.paddingBottom = ".25rem";
     this.container.style.overflowX = "hidden";
     this.container.style.overflowY = "auto";
     this.container.style.textAlign = "center";
@@ -983,7 +986,6 @@
     this.addPanel.style.marginRight = "auto";
     this.addPanel.style.backgroundColor = defaultHoverBackgroundColor;
     this.addPanel.style.borderRadius = "4px";
-    this.addPanel.style.alignContent = "top";
 
     this.svg = new SVGGenerator({
       color: "white",
@@ -1031,7 +1033,7 @@
       }
     });
 
-    this.newComment = document.createElement("textarea");
+    this.newComment = document.createElement("input");
     this.newComment.id = "CommentBox";
     this.newComment.contentEditable = true;
     this.newComment.placeholder = "Enter Comment Here";
@@ -1039,7 +1041,6 @@
     this.newComment.title = "Enter Comment Here";
     this.newComment.style.resize = "vertical";
     this.newComment.style.row = "1";
-    this.newComment.style.height = "50px";
     this.newComment.style.width = "calc(500px - 6rem)";
     this.newComment.style.display = "inline-block";
     this.newComment.style.padding = ".25rem";
