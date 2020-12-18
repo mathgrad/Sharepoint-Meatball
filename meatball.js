@@ -1372,7 +1372,7 @@
   MeatballHistoryItem.prototype.setType = function (author) {
     if (this.author.innerText.indexOf(author) > -1) {
       this.item.type = "editable";
-      this.item.style.backgroundColor = defaultColor;
+      this.item.style.backgroundColor = defaultTitleColor;
       this.item.style.color = defaultBackgroundColor;
       this.item.style.float = "right";
     } else {
