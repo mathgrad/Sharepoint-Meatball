@@ -382,10 +382,8 @@
     //Create Header Element
     this.header = document.createElement("div");
     this.header.style.padding = ".25rem";
-    this.header.style.borderRadius = ".25rem";
     this.header.style.textAlign = "center";
     this.header.style.marginBottom = ".25rem";
-    this.header.style.backgroundColor = defaultHoverBackgroundColor;
     this.header.style.width = "100%";
     this.header.style.textAlign = "center";
     this.header.innerText = value;
