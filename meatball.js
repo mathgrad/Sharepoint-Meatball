@@ -1124,12 +1124,8 @@
     if (this.container.innerText === this.containerText) {
       this.container.innerText = "";
     }
+    props.setType(userName);
 
-    if (props.author.innerText !== "AutoBot") {
-      props.setType(props.author.innerText);
-    } else {
-      props.setType();
-    }
     this.container.insertBefore(props.item, this.container.firstChild);
     this.container.scrollTop = this.container.scrollHeight;
     return this;
