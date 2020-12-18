@@ -4,6 +4,12 @@
   var meatballHistoryItemContainerWidth = "calc(250px - 1.125rem)";
   //Creates the Color object which manages meatball colors
   var colors = new Colors();
+  // console.log(
+  //   "Background Color: ",
+  //   window
+  //     .getComputedStyle(document.body, null)
+  //     .getPropertyValue("background-color")
+  // );
   // var defaultBackgroundColor = "#F0F0F0";
   // var defaultHoverBackgroundColor = "#D2D2D2";
   // var defaultColor = "#202020";
