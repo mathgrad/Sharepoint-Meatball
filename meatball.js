@@ -1121,7 +1121,6 @@
       meatballObj.container.scrollTop = meatballObj.container.scrollHeight;
 
       item.setEditable(item.getEditable());
-      updateHistory(historyListGUID, data.ID, true);
 
       meatballObj.newComment.value = "";
     }
