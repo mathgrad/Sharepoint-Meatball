@@ -38,8 +38,12 @@
     "@keyframes spin{0%{transform: rotate(0deg);}100%{transform: rotate(360deg);}}" +
     "@-webkit-keyframes spin{0%{-webkit-transform: rotate(0deg);}100%{-webkit-transform: rotate(360deg);}}" +
     "#CommentBox:focus{outline:none;}" +
-    "#MHContainer::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);border-radius:10px;background-color:inherit;margin-right:12px;}" +
-    "#MHContainer::-webkit-scrollbar{width:12px;background-color:inherit;}" +
+    "#MHContainer::-webkit-scrollbar-track{border-radius:10px;background-color:" +
+    defaultBackgroundColor +
+    ";margin-right:5px;}" +
+    "#MHContainer::-webkit-scrollbar{width:12px;background-color:" +
+    defaultBackgroundColor +
+    ";}" +
     "#MHContainer::-webkit-scrollbar-thumb{border-radius:10px;-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);background-color:#505050;}" +
     "#MHContainer::-webkit-scrollbar-thumb:hover{background-color: #177ddc}";
   document.getElementsByTagName("head")[0].appendChild(style);
