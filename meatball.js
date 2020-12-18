@@ -1009,7 +1009,7 @@
     this.addPanel.style.marginLeft = "auto";
     this.addPanel.style.marginRight = "auto";
     this.addPanel.style.backgroundColor = defaultHoverBackgroundColor;
-    this.addPanel.style.borderRadius = "4px";
+    this.addPanel.style.borderRadius = ".25rem";
 
     this.svg = new SVGGenerator({
       color: "white",
@@ -1019,7 +1019,7 @@
     this.svg.style.cursor = "pointer";
     this.svg.style.padding = ".5rem";
     this.svg.style.display = "inline-block";
-    this.svg.style.borderRadius = "2px";
+    this.svg.style.borderRadius = ".25rem";
 
     this.svg.addEventListener("mouseenter", function () {
       this.style.backgroundColor = "#1B2B8D";
@@ -1424,7 +1424,6 @@
       this.item.style.width = "calc(457px - 1.125rem)";
       this.delete.style.marginRight = "-192px";
 
-      this.comment.style.border = "1px solid black";
       this.comment.style.backgroundColor = defaultColor;
       this.submit.style.backgroundColor = defaultButtonBackgroundColor;
 
