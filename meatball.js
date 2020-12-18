@@ -1150,25 +1150,39 @@
   };
 
   MeatballHistory.prototype.addDividor = function (date, child) {
-    var dividorPanel = document.createElement("div");
-    dividorPanel.style.padding = ".25rem";
-    dividorPanel.style.width = "calc(500px - 2.5rem)";
-    dividorPanel.style.margin = "0px";
-    dividorPanel.style.marginBottom = ".25rem";
-    dividorPanel.style.padding = ".25rem";
-    dividorPanel.style.padding = defaultHoverBackgroundColor;
-    dividorPanel.style.color = defaultTitleColor;
-    dividorPanel.style.float = "center";
-    dividorPanel.style.clear = "both";
+    this.dividorPanel = document.createElement("div");
+    this.dividorPanel.style.padding = ".25rem";
+    this.dividorPanel.style.width = "calc(500px - 2.5rem)";
+    this.dividorPanel.style.margin = "0px";
+    this.dividorPanel.style.padding = ".25rem";
+    this.dividorPanel.style.marginBottom = ".25rem";
+    this.dividorPanel.style.padding = defaultHoverBackgroundColor;
+    this.dividorPanel.style.color = defaultTitleColor;
+    this.dividorPanel.style.float = "center";
+    this.dividorPanel.style.clear = "both";
 
-    var text = document.createElement("div");
-    text.innerText = date.toDateString();
-    text.style.textAlign = "center";
+    this.dividorText = document.createElement("div");
+    this.dividorText.innerText = " " + date.toDateString() + " ";
+    this.dividorText.style.textAlign = "center";
+    this.dividorText.style.verticalAlign = "middle";
+    this.dividorText.style.display = "inline-block";
 
-    dividorPanel.appendChild(document.createElement("hr"));
-    dividorPanel.appendChild(text);
-    dividorPanel.appendChild(document.createElement("hr"));
-    this.container.insertBefore(dividorPanel, child);
+    this.leftDividorLine = document.createElement("div");
+    this.leftDividorLine.style.borderTop =
+      "1pt solid " + defaultHoverBackgroundColor;
+    this.leftDividorLine.style.display = "inline-block";
+    this.leftDividorLine.style.width = "35%";
+
+    this.rightDividorLine = document.createElement("div");
+    this.rightDividorLine.style.borderTop =
+      "1pt solid " + defaultHoverBackgroundColor;
+    this.rightDividorLine.style.display = "inline-block";
+    this.rightDividorLine.style.width = "35%";
+
+    this.dividorPanel.appendChild(this.leftDividorLine);
+    this.dividorPanel.appendChild(this.dividorText);
+    this.dividorPanel.appendChild(this.rightDividorLine);
+    this.container.insertBefore(this.dividorPanel, child);
     return this;
   };
 
