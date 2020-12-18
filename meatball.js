@@ -15,12 +15,13 @@
   // var defaultColor = "#202020";
   // var defaultTitleColor = "#333333";
   var defaultBackgroundColor = "#202020";
+  var defaultMHIBackgroundColor = "#191919";
   var defaultHoverBackgroundColor = "#333333";
   var defaultButtonBackgroundColor = "#5db1ff";
   var defaultButtonHoverBackgroundColor = "#3F93E1";
   var defaultCancelButtonBackgroundColor = "#D71010";
   var defaultCancelButtonHoverBackgroundColor = "#B90000";
-  var defaultInputBackgroundColor = "";
+  var defaultInputBackgroundColor = "#D2D2D2";
   var defaultColor = "#F0F0F0";
   var defaultTitleColor = "#DFDFDF";
 
@@ -1212,7 +1213,7 @@
     this.item.style.margin = "0px;";
     this.item.style.marginBottom = ".25rem";
     this.item.style.padding = ".25rem";
-    this.item.style.backgroundColor = "#191919";
+    this.item.style.backgroundColor = defaultMHIBackgroundColor;
     this.item.style.borderRadius = ".5rem";
 
     this.display = document.createElement("div");
@@ -1492,7 +1493,7 @@
       this.item.style.float = "right";
     } else {
       this.item.type = "disabled";
-      this.item.style.backgroundColor = defaultBackgroundColor;
+      this.item.style.backgroundColor = defaultMHIBackgroundColor;
       this.item.style.color = defaultColor;
       this.item.style.float = "left";
     }
