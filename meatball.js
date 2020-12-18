@@ -18,6 +18,8 @@
   var defaultHoverBackgroundColor = "#333333";
   var defaultButtonBackgroundColor = "#5db1ff";
   var defaultButtonHoverBackgroundColor = "#3F93E1";
+  var defaultCancelButtonBackgroundColor = "#D71010";
+  var defaultCancelButtonHoverBackgroundColor = "#B90000";
   var defaultInputBackgroundColor = "";
   var defaultColor = "#F0F0F0";
   var defaultTitleColor = "#DFDFDF";
@@ -1239,6 +1241,7 @@
     this.submit = document.createElement("div");
     this.submit.innerText = "Submit";
     this.submit.style.backgroundColor = defaultButtonBackgroundColor;
+    this.submit.style.color = defaultColor;
     this.submit.style.width = "75px";
     this.submit.style.cursor = "pointer";
     this.submit.style.padding = ".25rem";
@@ -1284,7 +1287,8 @@
 
     this.cancel = document.createElement("div");
     this.cancel.innerText = "Cancel";
-    this.cancel.style.backgroundColor = "#D71010";
+    this.cancel.style.backgroundColor = defaultCancelButtonBackgroundColor;
+    this.cancel.style.color = defaultColor;
     this.cancel.style.width = "75px";
     this.cancel.style.cursor = "pointer";
     this.cancel.style.marginLeft = "267px";
@@ -1293,11 +1297,11 @@
     this.cancel.style.display = "inline-block";
 
     this.cancel.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = "rgb(160,10,10)";
+      this.style.backgroundColor = defaultCancelButtonHoverBackgroundColor;
     });
 
     this.cancel.addEventListener("mouseleave", function () {
-      this.style.backgroundColor = "#D71010";
+      this.style.backgroundColor = defaultCancelButtonBackgroundColor;
     });
 
     this.cancel.addEventListener("click", function () {
