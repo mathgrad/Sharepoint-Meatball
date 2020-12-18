@@ -1084,7 +1084,7 @@
     if (this.container.innerText === this.containerText) {
       this.container.innerText = "";
     }
-
+    console.log(props, this, userName);
     if (props.author.innerText !== "AutoBot") {
       props.setType(props.author.innerText);
     } else {
