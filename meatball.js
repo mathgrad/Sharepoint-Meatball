@@ -1215,15 +1215,18 @@
 
     this.isNew = false;
 
+    this.btnContainer = document.createElement("div");
+    this.btnContainer.style.width = "calc(457px - 1.125rem)";
+
     this.submit = document.createElement("div");
     this.submit.innerText = "Submit";
     this.submit.style.backgroundColor = defaultButtonBackgroundColor;
     this.submit.style.width = "75px";
     this.submit.style.cursor = "pointer";
-    this.submit.style.margin = "auto";
-    this.submit.style.marginRight = ".25rem";
     this.submit.style.padding = ".25rem";
     this.submit.style.borderRadius = ".25rem";
+    this.submit.style.display = "inline-block";
+    this.submit.style.marginLeft = "4px";
 
     this.submit.addEventListener("mouseenter", function () {
       this.style.backgroundColor = defaultButtonHoverBackgroundColor;
@@ -1234,6 +1237,9 @@
     });
 
     this.submit.addEventListener("click", function () {
+      meatballHistoryItem.comment.style.minWidth = "unset";
+      meatballHistoryItem.item.style.width = meatballHistoryItemContainerWidth;
+      meatballHistoryItem.delete.style.marginRight = "15px";
       if (meatballHistoryItem.isNew) {
         function listEntrySuccess(newData) {
           meatballHistoryItem.setEditable(
@@ -1256,6 +1262,31 @@
           false
         );
       }
+    });
+
+    this.cancel = document.createElement("div");
+    this.cancel.innerText = "Cancel";
+    this.cancel.style.backgroundColor = "#D71010";
+    this.cancel.style.width = "75px";
+    this.cancel.style.cursor = "pointer";
+    this.cancel.style.marginLeft = "267px";
+    this.cancel.style.padding = ".25rem";
+    this.cancel.style.borderRadius = ".25rem";
+    this.cancel.style.display = "inline-block";
+
+    this.cancel.addEventListener("mouseenter", function () {
+      this.style.backgroundColor = "rgb(160,10,10)";
+    });
+
+    this.cancel.addEventListener("mouseleave", function () {
+      this.style.backgroundColor = "#D71010";
+    });
+
+    this.cancel.addEventListener("click", function () {
+      meatballHistoryItem.comment.style.minWidth = "unset";
+      meatballHistoryItem.item.style.width = meatballHistoryItemContainerWidth;
+      meatballHistoryItem.delete.style.marginRight = "15px";
+      meatballHistoryItem.setEditable(false, false, true);
     });
 
     this.buttonGroup = document.createElement("div");
@@ -1293,6 +1324,7 @@
         meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
       }
     });
+
     this.buttonGroup.appendChild(this.edit);
 
     this.delete = new SVGGenerator({
@@ -1357,6 +1389,7 @@
     if (comment) {
       this.author.innerText = author;
       this.comment.innerText = comment.replace(regex, "", comment);
+      this.prevComment = this.comment.innerText;
       this.date.innerText = date;
       this.id = id;
       this.listGUID = listGUID;
@@ -1367,23 +1400,46 @@
     return this;
   };
 
-  MeatballHistoryItem.prototype.setEditable = function (value, newData) {
+  MeatballHistoryItem.prototype.setEditable = function (
+    value,
+    newData,
+    oldComment
+  ) {
     if (value) {
+      this.comment.style.minWidth = "-webkit-fill-available";
+      this.item.style.width = "calc(457px - 1.125rem)";
+      this.delete.style.marginRight = "-192px";
+
+      this.comment.style.border = "1px solid black";
       this.comment.style.backgroundColor = defaultColor;
       this.submit.style.backgroundColor = defaultButtonBackgroundColor;
-      this.display.appendChild(this.submit);
+
+      this.btnContainer.appendChild(this.cancel);
+      this.btnContainer.appendChild(this.submit);
+      this.display.appendChild(this.btnContainer);
     } else {
-      var currentText = this.comment.innerText;
-      currentText = currentText.replace(regex, "", currentText);
-      this.comment.innerText = currentText;
-      if (currentText.trim().length === 0) {
-        return;
+      if (!oldComment) {
+        var currentText = this.comment.innerText;
+        currentText = currentText.replace(regex, "", currentText);
+        this.comment.innerText = currentText;
+        this.prevComment = currentText;
+        if (currentText.trim().length === 0) {
+          return;
+        }
+        if (newData && newData.ID) {
+          updateHistory(historyListGUID, newData.ID, currentText);
+        } else {
+          updateHistory(historyListGUID, this.id, currentText);
+        }
+      } else {
+        this.comment.innerText = this.prevComment;
       }
+
       this.comment.style.border = "0px";
       this.comment.style.backgroundColor = "inherit";
 
-      if (this.submit.parentNode) {
-        this.display.removeChild(this.submit);
+      if (this.btnContainer.parentNode) {
+        this.display.removeChild(this.btnContainer);
       }
 
       if (!this.item.parentNode.addNew && this.isNew) {
@@ -1392,11 +1448,6 @@
       }
       if (!this.item.parentNode.isEdit) {
         this.item.parentNode.isEdit = true;
-      }
-      if (newData && newData.ID) {
-        updateHistory(historyListGUID, newData.ID, currentText);
-      } else {
-        updateHistory(historyListGUID, this.id, currentText);
       }
     }
     this.comment.contentEditable = value;
