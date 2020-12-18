@@ -881,6 +881,11 @@
 
     this.historyPanel.appendChild(this.title);
 
+    this.dividor0 = document.createElement("hr");
+    this.dividor0.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
+
+    this.historyPanel.appendChild(this.dividor0);
+
     this.addMore = document.createElement("div");
     this.addMore.innerText = "Show More";
     this.addMore.style.cursor = "pointer";
@@ -966,6 +971,11 @@
     this.container.isEdit = true;
 
     this.historyPanel.appendChild(this.container);
+
+    this.dividor1 = document.createElement("hr");
+    this.dividor1.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
+
+    this.historyPanel.appendChild(this.dividor1);
 
     this.addPanel = document.createElement("div");
     this.addPanel.style.width = "calc(500px - 2.25rem)";
@@ -1340,7 +1350,6 @@
 
   MeatballHistoryItem.prototype.setEditable = function (value, newData) {
     if (value) {
-      this.comment.style.border = "1px solid black";
       this.comment.style.backgroundColor = defaultColor;
       this.submit.style.backgroundColor = defaultButtonBackgroundColor;
       this.display.appendChild(this.submit);
