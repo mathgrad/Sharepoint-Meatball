@@ -1392,6 +1392,10 @@
     this.comment.style.fontSize = "12pt";
     this.comment.style.textAlign = "left";
 
+    this.comment.addEventListener("focus", function () {
+      this.style.outline = "none";
+    });
+
     this.item.appendChild(this.comment);
     this.item.appendChild(this.display);
 
