@@ -1,7 +1,7 @@
 (function () {
   //Size sets the Meatball size in pixels
   var size = 20;
-  var meatballHistoryItemContainerWidth = "calc(250px - 1.125rem)";
+  var meatballHistoryItemContainerWidth = "calc(350px - 1.125rem)";
   //Creates the Color object which manages meatball colors
   var colors = new Colors();
   // console.log(
@@ -853,42 +853,25 @@
 
     this.title = document.createElement("div");
     this.title.style.width = "calc(500px - .5rem)";
-    this.title.style.height = "calc(10px + 1rem)";
+    this.title.style.height = "calc(28px + 1rem)";
     this.title.style.textAlign = "center";
     this.title.style.marginRight = "auto";
     this.title.style.marginLeft = "auto";
     this.title.style.marginBottom = ".5rem";
     this.title.style.display = "flex";
-    this.title.style.flexDirection = "row";
+    this.title.style.flexDirection = "column";
     this.title.style.backgroundColor = defaultBackgroundColor;
-
-    this.titleDescription = document.createElement("div");
-    this.titleDescription.innerText = title + " - History";
-    this.titleDescription.style.flexGrow = "1";
-    this.titleDescription.style.flexShrink = "1";
-    this.titleDescription.style.paddingLeft = ".5rem";
-    this.titleDescription.style.paddingTop = ".25rem";
-    this.titleDescription.style.paddingBottom = ".25rem";
-    this.titleDescription.style.textAlign = "left";
-    this.titleDescription.style.color = defaultTitleColor;
-
-    this.title.appendChild(this.titleDescription);
-
-    this.svgContainer = document.createElement("div");
-    this.svgContainer.style.flexGrow = "4";
-    this.svgContainer.style.flexShrink = "1";
-    this.svgContainer.style.textAlign = "right";
-    this.svgContainer.style.marginRight = ".75rem";
 
     this.x = document.createElement("div");
     this.x.innerText = "X";
-    this.x.title = "Close";
     this.x.style.textSize = "16pt";
     this.x.style.fontWeight = "bolder";
     this.x.style.padding = ".25rem";
     this.x.style.cursor = "pointer";
     this.x.style.height = "calc(10px + .5rem)";
-    this.x.style.width = "calc(10px + .5rem)";
+    this.x.style.position = "fixed";
+    this.x.style.right = "10px";
+    this.x.style.textAlign = "right";
     this.x.style.color = defaultTitleColor;
     this.x.style.backgroundColor = defaultBackgroundColor;
 
@@ -908,6 +891,37 @@
         meatballHistory.mainPanel
       );
     });
+
+    this.titleMain = document.createElement("div");
+    this.titleMain.innerText = "History";
+    this.titleMain.style.flexGrow = "1";
+    this.titleMain.style.flexShrink = "1";
+    this.titleMain.style.paddingLeft = ".5rem";
+    this.titleMain.style.paddingTop = ".25rem";
+    this.titleMain.style.paddingBottom = ".25rem";
+    this.titleMain.style.textAlign = "left";
+    this.titleMain.style.fontWeight = "bolder";
+    this.titleMain.style.color = defaultTitleColor;
+
+    this.titleDescription = document.createElement("div");
+    this.titleDescription.innerText = title;
+    this.titleDescription.style.flexGrow = "1";
+    this.titleDescription.style.flexShrink = "1";
+    this.titleDescription.style.paddingLeft = ".5rem";
+    this.titleDescription.style.paddingTop = ".25rem";
+    this.titleDescription.style.paddingBottom = ".25rem";
+    this.titleDescription.style.textAlign = "left";
+    this.titleDescription.style.color = defaultTitleColor;
+
+    this.title.appendChild(this.x);
+    this.title.appendChild(this.titleMain);
+    this.title.appendChild(this.titleDescription);
+
+    this.svgContainer = document.createElement("div");
+    this.svgContainer.style.flexGrow = "4";
+    this.svgContainer.style.flexShrink = "1";
+    this.svgContainer.style.textAlign = "right";
+    this.svgContainer.style.marginRight = ".75rem";
 
     this.title.appendChild(this.svgContainer);
     this.title.appendChild(this.x);
@@ -991,13 +1005,14 @@
     this.container = document.createElement("div");
     this.container.id = "MHContainer";
     this.container.style.width = "calc(500px - 2.25rem)";
+    this.container.style.display = "flex";
+    this.container.style.flexDirection = "column";
     this.container.style.height = windowHeight - 150 + "px";
     this.container.style.margin = "auto";
     this.container.style.paddingTop = ".25rem";
     this.container.style.paddingBottom = ".25rem";
     this.container.style.overflowX = "hidden";
     this.container.style.overflowY = "auto";
-    this.container.style.textAlign = "center";
     this.container.style.color = defaultTitleColor;
     this.container.innerText = this.containerText;
     this.container.addNew = true;
@@ -1209,7 +1224,7 @@
     this.item = document.createElement("div");
     this.item.type = "auto";
     this.item.style.padding = ".25rem";
-    this.item.style.width = meatballHistoryItemContainerWidth;
+    this.item.style.maxWidth = meatballHistoryItemContainerWidth;
     this.item.style.margin = "0px;";
     this.item.style.marginBottom = ".25rem";
     this.item.style.padding = ".25rem";
@@ -1218,20 +1233,20 @@
 
     this.display = document.createElement("div");
     this.display.style.display = "block";
-    this.display.style.width = meatballHistoryItemContainerWidth;
+    this.display.style.maxWidth = meatballHistoryItemContainerWidth;
     this.display.style.padding = "0px";
     this.display.style.marginRight = "0px";
     this.display.style.marginLeft = "0px";
 
     this.date = document.createElement("div");
     this.date.contentEditable = false;
-    this.date.style.width = meatballHistoryItemContainerWidth;
+    this.date.style.maxWidth = meatballHistoryItemContainerWidth;
     this.date.style.padding = ".25rem";
     this.date.style.margin = "0px";
     this.date.style.verticalAlign = "middle";
     this.date.style.textAlign = "left";
     this.date.style.fontSize = "8pt";
-    this.date.style.display = "inline-block";
+    this.date.style.display = "block";
     this.display.appendChild(this.date);
 
     this.isNew = false;
@@ -1313,7 +1328,7 @@
     });
 
     this.buttonGroup = document.createElement("div");
-    this.buttonGroup.style.width = meatballHistoryItemContainerWidth;
+    this.buttonGroup.style.maxWidth = meatballHistoryItemContainerWidth;
     this.buttonGroup.style.textAlign = "right";
     this.buttonGroup.style.margin = "0px";
     this.buttonGroup.style.padding = "0px";
@@ -1323,7 +1338,8 @@
 
     this.author = document.createElement("div");
     this.author.contentEditable = false;
-    this.author.style.width = "calc(500px - 2.75rem)";
+    this.author.style.maxWidth = meatballHistoryItemContainerWidth;
+    this.author.style.minWidth = "calc(190px - 2.75rem)";
     this.author.style.padding = ".25rem";
     this.author.style.margin = "0px";
     this.author.style.verticalAlign = "middle";
@@ -1389,9 +1405,8 @@
     this.comment.style.padding = ".25rem";
     this.comment.style.margin = "0px";
     this.comment.style.display = "inline-block";
-    this.comment.style.verticalAlign = "middle";
-    this.comment.style.fontSize = "12pt";
-    this.comment.style.textAlign = "left";
+    this.comment.style.verticalAlign = "right";
+    this.comment.style.fontSize = "9pt";
 
     this.comment.addEventListener("focus", function () {
       this.style.outline = "none";
@@ -1490,12 +1505,13 @@
       this.item.type = "editable";
       this.item.style.backgroundColor = defaultTitleColor;
       this.item.style.color = defaultBackgroundColor;
-      this.item.style.float = "right";
+      this.item.style.placeSelf = "flex-end";
+      this.item.style.textAlign = "right";
     } else {
       this.item.type = "disabled";
       this.item.style.backgroundColor = defaultMHIBackgroundColor;
       this.item.style.color = defaultColor;
-      this.item.style.float = "left";
+      this.item.style.textAlign = "left";
     }
     if (this.item.type !== "editable") {
       this.delete.parentNode.removeChild(this.delete);
