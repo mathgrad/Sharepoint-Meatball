@@ -17,10 +17,10 @@
   var defaultBackgroundColor = "#202020";
   var defaultMHIBackgroundColor = "#191919";
   var defaultHoverBackgroundColor = "#333333";
-  var defaultButtonBackgroundColor = "#5db1ff";
-  var defaultButtonHoverBackgroundColor = "#3F93E1";
-  var defaultCancelButtonBackgroundColor = "#D71010";
-  var defaultCancelButtonHoverBackgroundColor = "#B90000";
+  var defaultButtonBackgroundColor = "#3949ab";
+  var defaultButtonHoverBackgroundColor = "#1B2B8D";
+  var defaultCancelButtonBackgroundColor = "#3949ab";
+  var defaultCancelButtonHoverBackgroundColor = "#1B2B8D";
   var defaultInputBackgroundColor = "#D2D2D2";
   var defaultColor = "#F0F0F0";
   var defaultTitleColor = "#DFDFDF";
@@ -1018,6 +1018,7 @@
     this.addPanel.style.marginRight = "auto";
     this.addPanel.style.backgroundColor = defaultHoverBackgroundColor;
     this.addPanel.style.borderRadius = ".25rem";
+    this.addPanel.style.display = "flex";
 
     this.svg = new SVGGenerator({
       color: "white",
@@ -1071,9 +1072,7 @@
     this.newComment.placeholder = "Enter Comment Here";
     this.newComment.value = "";
     this.newComment.title = "Enter Comment Here";
-    this.newComment.style.resize = "vertical";
-    this.newComment.style.row = "1";
-    this.newComment.style.width = "calc(500px - 6rem)";
+    this.newComment.style.flex = "1";
     this.newComment.style.display = "inline-block";
     this.newComment.style.padding = ".25rem";
     this.newComment.style.backgroundColor = defaultHoverBackgroundColor;
@@ -1213,7 +1212,6 @@
     this.item.style.margin = "0px;";
     this.item.style.marginBottom = ".25rem";
     this.item.style.padding = ".25rem";
-    this.item.style.backgroundColor = defaultMHIBackgroundColor;
     this.item.style.borderRadius = ".5rem";
 
     this.display = document.createElement("div");
@@ -1332,7 +1330,7 @@
     this.buttonGroup.appendChild(this.author);
 
     this.edit = new SVGGenerator({
-      color: "green",
+      color: "#4AAB39",
       type: "edit",
       size: "small",
     }).wrapper;
@@ -1351,7 +1349,7 @@
     this.buttonGroup.appendChild(this.edit);
 
     this.delete = new SVGGenerator({
-      color: "black",
+      color: defaultColor,
       type: "delete",
       size: "small",
     }).wrapper;
@@ -1434,10 +1432,11 @@
   ) {
     if (value) {
       this.comment.style.minWidth = "-webkit-fill-available";
-      this.item.style.width = "calc(457px - 1.125rem)";
       this.delete.style.marginRight = "-192px";
-
-      this.comment.style.backgroundColor = defaultColor;
+      this.item.style.width = "calc(457px - 1.125rem)";
+      this.item.style.backgroundColor = defaultMHIBackgroundColor;
+      this.item.style.color = defaultColor;
+      this.comment.style.backgroundColor = defaultHoverBackgroundColor;
       this.submit.style.backgroundColor = defaultButtonBackgroundColor;
 
       this.btnContainer.appendChild(this.cancel);
@@ -1462,7 +1461,10 @@
       }
 
       this.comment.style.border = "0px";
-      this.comment.style.backgroundColor = "inherit";
+      this.comment.style.color = defaultColor;
+      this.comment.style.backgroundColor = defaultButtonBackgroundColor;
+      this.item.style.backgroundColor = defaultButtonBackgroundColor;
+      this.item.style.color = defaultColor;
 
       if (this.btnContainer.parentNode) {
         this.display.removeChild(this.btnContainer);
@@ -1488,8 +1490,8 @@
   MeatballHistoryItem.prototype.setType = function (author) {
     if (this.author.innerText.indexOf(author) > -1) {
       this.item.type = "editable";
-      this.item.style.backgroundColor = defaultTitleColor;
-      this.item.style.color = defaultBackgroundColor;
+      this.item.style.backgroundColor = defaultButtonBackgroundColor;
+      this.item.style.color = defaultColor;
       this.item.style.float = "right";
     } else {
       this.item.type = "disabled";
