@@ -66,6 +66,30 @@
     return this;
   };
 
+  DisplayMode.prototype.getLocal = function () {
+    if (window.mode_override) {
+      this.mode = window.mode_override;
+    }
+
+    this.mode = window.localStorage.getItem("mode_override");
+
+    if (typeof this.mode !== "boolean") {
+      this.setMode();
+    }
+
+    return this;
+  };
+
+  DisplayMode.prototype.setLocal = function (props) {
+    if (typeof props === "boolean") {
+      window.localStorage.setItem("mode_override", props);
+    } else {
+      window.localStorage.setItem("mode_override", this.mode);
+    }
+
+    return this;
+  };
+
   var dm = new DisplayMode().setMode().setColors();
 
   function hashtagExtract(props) {
