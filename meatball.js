@@ -1357,8 +1357,9 @@
 
     this.cancel = document.createElement("div");
     this.cancel.innerText = "Cancel";
-    this.cancel.style.backgroundColor = dm.defaultCancelButtonBackgroundColor;
+    this.cancel.style.backgroundColor = "inherit";
     this.cancel.style.color = dm.defaultButtonColor;
+    this.cancel.style.border = "1px solid " + dm.defaultButtonColor;
     this.cancel.style.width = "75px";
     this.cancel.style.cursor = "pointer";
     this.cancel.style.marginLeft = "267px";
@@ -1367,11 +1368,13 @@
     this.cancel.style.display = "inline-block";
 
     this.cancel.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = dm.defaultCancelButtonHoverBackgroundColor;
+      this.style.color = dm.defaultButtonBackgroundColor;
+      this.style.borderColor = dm.defaultButtonBackgroundColor;
     });
 
     this.cancel.addEventListener("mouseleave", function () {
-      this.style.backgroundColor = dm.defaultCancelButtonBackgroundColor;
+      this.style.color = dm.defaultButtonColor;
+      this.style.borderColor = dm.defaultButtonColor;
     });
 
     this.cancel.addEventListener("click", function () {
