@@ -1358,7 +1358,7 @@
     this.cancel = document.createElement("div");
     this.cancel.innerText = "Cancel";
     this.cancel.style.backgroundColor = dm.defaultCancelButtonBackgroundColor;
-    this.cancel.style.color = dm.defaultColor;
+    this.cancel.style.color = dm.defaultButtonColor;
     this.cancel.style.width = "75px";
     this.cancel.style.cursor = "pointer";
     this.cancel.style.marginLeft = "267px";
