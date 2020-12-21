@@ -16,6 +16,7 @@
     this.defaultInputBackgroundColor = "";
     this.defaultColor = "";
     this.defaultTitleColor = "";
+    this.defaultButtonColor = "#F0F0F0";
     this.mode = true;
 
     return this;
@@ -64,6 +65,7 @@
 
     return this;
   };
+
   var dm = new DisplayMode().setMode().setColors();
 
   function hashtagExtract(props) {
@@ -550,7 +552,7 @@
 
     this.showMore = document.createElement("div");
     this.showMore.innerText = "Show More";
-    this.showMore.style.color = dm.defaultColor;
+    this.showMore.style.color = dm.defaultButtonColor;
     this.showMore.style.borderRadius = ".25rem";
     this.showMore.style.padding = ".25rem";
     this.showMore.style.marginBottom = ".5rem";
@@ -1309,7 +1311,7 @@
     this.submit = document.createElement("div");
     this.submit.innerText = "Submit";
     this.submit.style.backgroundColor = dm.defaultButtonBackgroundColor;
-    this.submit.style.color = dm.defaultColor;
+    this.submit.style.color = dm.defaultButtonColor;
     this.submit.style.width = "75px";
     this.submit.style.cursor = "pointer";
     this.submit.style.padding = ".25rem";
@@ -1506,6 +1508,7 @@
       this.item.style.backgroundColor = dm.defaultMHIBackgroundColor;
       this.item.style.color = dm.defaultColor;
       this.comment.style.backgroundColor = dm.defaultHoverBackgroundColor;
+      this.comment.style.color = dm.defaultColor;
       this.submit.style.backgroundColor = dm.defaultButtonBackgroundColor;
 
       this.btnContainer.appendChild(this.cancel);
@@ -1530,10 +1533,10 @@
       }
 
       this.comment.style.border = "0px";
-      this.comment.style.color = dm.defaultColor;
+      this.comment.style.color = dm.defaultButtonColor;
       this.comment.style.backgroundColor = dm.defaultButtonBackgroundColor;
       this.item.style.backgroundColor = dm.defaultButtonBackgroundColor;
-      this.item.style.color = dm.defaultColor;
+      this.item.style.color = dm.defaultButtonColor;
 
       if (this.btnContainer.parentNode) {
         this.display.removeChild(this.btnContainer);
@@ -1560,7 +1563,7 @@
     if (this.author.innerText.indexOf(author) > -1) {
       this.item.type = "editable";
       this.item.style.backgroundColor = dm.defaultButtonBackgroundColor;
-      this.item.style.color = dm.defaultColor;
+      this.item.style.color = dm.defaultButtonColor;
       this.item.style.float = "right";
     } else {
       this.item.type = "disabled";
