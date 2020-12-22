@@ -1005,15 +1005,13 @@
 
     this.container = document.createElement("div");
     this.container.id = "MHContainer";
-    this.container.style.width = "calc(500px - 2.25rem)";
     this.container.style.display = "flex";
     this.container.style.flexDirection = "column";
     this.container.style.height = windowHeight - 150 + "px";
     this.container.style.margin = "auto";
-    this.container.style.paddingTop = ".25rem";
-    this.container.style.paddingBottom = ".25rem";
     this.container.style.overflowX = "hidden";
     this.container.style.overflowY = "auto";
+    this.container.style.padding = "0.25rem";
     this.container.style.color = defaultTitleColor;
     this.container.innerText = this.containerText;
     this.container.addNew = true;
@@ -1225,7 +1223,6 @@
     this.item = document.createElement("div");
     this.item.type = "auto";
     this.item.style.padding = ".25rem";
-    this.item.style.maxWidth = meatballHistoryItemContainerWidth;
     this.item.style.margin = "0px;";
     this.item.style.marginBottom = ".25rem";
     this.item.style.padding = ".25rem";
@@ -1233,7 +1230,6 @@
 
     this.display = document.createElement("div");
     this.display.style.display = "block";
-    this.display.style.maxWidth = meatballHistoryItemContainerWidth;
     this.display.style.padding = "0px";
     this.display.style.marginRight = "0px";
     this.display.style.marginLeft = "0px";
@@ -1252,7 +1248,7 @@
     this.isNew = false;
 
     this.btnContainer = document.createElement("div");
-    this.btnContainer.style.width = "calc(457px - 1.125rem)";
+    this.btnContainer.style.display = "flex";
 
     this.submit = document.createElement("div");
     this.submit.innerText = "Submit";
@@ -1305,7 +1301,8 @@
     this.cancel = document.createElement("div");
     this.cancel.innerText = "Cancel";
     this.cancel.style.textAlign = "center";
-    this.cancel.style.backgroundColor = defaultCancelButtonBackgroundColor;
+    this.cancel.style.backgroundColor = "transparent";
+    this.cancel.style.border = "1px solid rgb(67, 67, 67)";
     this.cancel.style.color = defaultColor;
     this.cancel.style.width = "75px";
     this.cancel.style.cursor = "pointer";
@@ -1315,22 +1312,24 @@
     this.cancel.style.display = "inline-block";
 
     this.cancel.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = defaultCancelButtonHoverBackgroundColor;
+      this.style.borderColor = "#165996";
+      this.style.color = "#165996";
     });
 
     this.cancel.addEventListener("mouseleave", function () {
-      this.style.backgroundColor = defaultCancelButtonBackgroundColor;
+      this.style.border = "1px solid rgb(67, 67, 67)";
+      this.style.color = "white";
     });
 
     this.cancel.addEventListener("click", function () {
       meatballHistoryItem.comment.style.minWidth = "unset";
+      meatballHistoryItem.comment.style.textAlign = "right";
       meatballHistoryItem.delete.style.marginRight = "15px";
       meatballHistoryItem.item.style.width = "auto";
       meatballHistoryItem.setEditable(false, false, true);
     });
 
     this.buttonGroup = document.createElement("div");
-    this.buttonGroup.style.maxWidth = "calc(310px - 1.125rem)";
     this.buttonGroup.style.textAlign = "right";
     this.buttonGroup.style.margin = "0px";
     this.buttonGroup.style.padding = "0px";
@@ -1340,13 +1339,11 @@
 
     this.author = document.createElement("div");
     this.author.contentEditable = false;
-    this.author.style.maxWidth = meatballHistoryItemContainerWidth;
-    this.author.style.minWidth = "calc(190px - 2.75rem)";
+    this.author.style.flex = "1";
     this.author.style.padding = ".25rem";
-    this.author.style.margin = "0px";
-    this.author.style.verticalAlign = "middle";
-    this.author.style.textAlign = "left";
+    this.author.style.marginRight = "10px";
     this.author.style.fontSize = "8pt";
+    this.author.style.textAlign = "left";
     this.buttonGroup.appendChild(this.author);
 
     this.edit = new SVGGenerator({
@@ -1355,11 +1352,9 @@
       size: "small",
     }).wrapper;
     this.edit.style.cursor = "pointer";
-    this.edit.style.flexGrow = "4";
-    this.edit.style.flexShrink = "1";
     this.edit.addEventListener("click", function () {
       meatballHistoryItem.isNew = false;
-      meatballHistoryItem.item.style.maxWidth = "calc(457px - 1.125rem)";
+      meatballHistoryItem.item.style.maxWidth = "90%";
       if (meatballHistoryItem.item.parentNode.isEdit) {
         meatballHistoryItem.item.parentNode.isEdit = false;
         console.log(!meatballHistoryItem.getEditable());
@@ -1377,9 +1372,7 @@
     this.delete.style.cursor = "pointer";
     this.delete.style.marginLeft = "15px";
     this.delete.style.marginRight = "15px";
-    this.delete.style.textAlign = "left";
-    this.delete.style.flexGrow = "1";
-    this.delete.style.flexShrink = "1";
+
     this.delete.addEventListener("click", function () {
       if (meatballHistoryItem.item) {
         if (meatballHistoryItem.item.parentNode) {
@@ -1406,7 +1399,6 @@
     this.comment = document.createElement("div");
     this.comment.contentEditable = false;
     this.comment.style.padding = ".25rem";
-    this.comment.style.margin = "0px";
     this.comment.style.display = "inline-block";
     this.comment.style.verticalAlign = "right";
     this.comment.style.fontSize = "9pt";
@@ -1452,8 +1444,9 @@
   ) {
     if (value) {
       this.comment.style.minWidth = "-webkit-fill-available";
-      this.delete.style.marginRight = "-192px";
-      this.item.style.width = "calc(457px - 1.125rem)";
+      this.comment.style.textAlign = "left";
+      this.delete.style.marginRight = "15px";
+      this.item.style.width = "90%";
       this.item.style.backgroundColor = defaultMHIBackgroundColor;
       this.item.style.color = defaultColor;
 
@@ -1481,7 +1474,6 @@
         this.comment.innerText = this.prevComment;
       }
 
-      this.comment.style.border = "0px";
       this.comment.style.color = defaultColor;
       this.comment.style.backgroundColor = defaultButtonBackgroundColor;
       this.item.style.backgroundColor = defaultButtonBackgroundColor;
@@ -1514,13 +1506,13 @@
       this.item.style.backgroundColor = defaultButtonBackgroundColor;
       this.item.style.color = defaultColor;
       this.item.style.placeSelf = "flex-end";
-      this.item.style.textAlign = "right";
-      this.comment.style.paddingLeft = "0px";
+      this.item.style.maxWidth = "90%";
     } else {
       this.item.type = "disabled";
       this.item.style.backgroundColor = defaultMHIBackgroundColor;
       this.item.style.color = defaultColor;
-      this.item.style.textAlign = "left";
+      this.item.style.maxWidth = "90%";
+      this.item.style.width = "fit-content";
     }
     if (this.item.type !== "editable") {
       this.delete.parentNode.removeChild(this.delete);
