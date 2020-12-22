@@ -32,6 +32,8 @@
   //Used by developers in Production to find bugs
   var debug = false;
 
+  var begin = true;
+
   var historyListGUID = "";
   var userName = "";
 
@@ -48,17 +50,23 @@
     defaultBackgroundColor +
     ";}" +
     "#MHContainer::-webkit-scrollbar-thumb{border-radius:10px;-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);background-color:#505050;}" +
-    "#MHContainer::-webkit-scrollbar-thumb:hover{background-color: #177ddc}";
+    "#MHContainer::-webkit-scrollbar-thumb:hover{background-color: #3949ab}";
   document.getElementsByTagName("head")[0].appendChild(style);
 
   //On initial load
   window.addEventListener("load", function () {
-    start();
+    if (begin) {
+      begin = false;
+      start();
+    }
   });
 
   //On change
   window.addEventListener("hashchange", function () {
-    start();
+    if (begin) {
+      begin = false;
+      start();
+    }
   });
 
   function start() {
@@ -121,6 +129,12 @@
         currentListId +
         "')/fields?$filter=TypeDisplayName eq 'Choice'";
       var listTitle = table.summary;
+
+      //Table Guid checker
+      if (currentListId.indexOf("-") < 0) {
+        return;
+      }
+
       $.ajax({
         url: url,
         type: "GET",
@@ -1243,7 +1257,7 @@
     this.date.style.margin = "0px";
     this.date.style.verticalAlign = "middle";
     this.date.style.textAlign = "left";
-    this.date.style.fontSize = "8pt";
+    this.date.style.fontSize = "6pt";
     this.date.style.display = "block";
     this.display.appendChild(this.date);
 
@@ -1509,6 +1523,7 @@
       this.item.style.color = defaultColor;
       this.item.style.placeSelf = "flex-end";
       this.item.style.textAlign = "right";
+      this.comment.style.paddingLeft = "0px";
     } else {
       this.item.type = "disabled";
       this.item.style.backgroundColor = defaultMHIBackgroundColor;
@@ -1897,17 +1912,11 @@
 
     this.returnTime = "";
 
-    if (this.time.getHours().toString().length < 2) {
-      this.returnTime += "0" + this.time.getHours();
-    } else {
-      this.returnTime += this.time.getHours();
-    }
+    var test = this.time.getHours() >= 12 ? " pm" : " am";
 
-    if (this.time.getMinutes().toString().length < 2) {
-      this.returnTime += "0" + this.time.getMinutes();
-    } else {
-      this.returnTime += this.time.getMinutes();
-    }
+    this.returnTime += this.time.getHours() % 12;
+
+    this.returnTime += ":" + this.time.getMinutes() + test;
 
     return this.returnTime;
   }
