@@ -262,7 +262,7 @@
                 text,
                 displayValue,
                 listTitle,
-                this.meatballWidth.width + "px",
+                "200px",
                 longestString
               );
             }
