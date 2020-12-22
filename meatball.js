@@ -866,15 +866,16 @@
     this.historyPanel.style.right = "0px";
 
     this.title = document.createElement("div");
-    this.title.style.width = "calc(500px - .5rem)";
-    this.title.style.height = "calc(28px + 1rem)";
-    this.title.style.textAlign = "center";
-    this.title.style.marginRight = "auto";
-    this.title.style.marginLeft = "auto";
-    this.title.style.marginBottom = ".5rem";
     this.title.style.display = "flex";
     this.title.style.flexDirection = "column";
     this.title.style.backgroundColor = defaultBackgroundColor;
+    this.title.style.justifyContent = "center";
+    this.title.style.borderBottom = "1px solid #2d2d2d";
+    this.title.style.marginBottom = "0.5rem";
+
+    this.titleContainer = document.createElement("div");
+    this.titleContainer.style.flex = "1";
+    this.titleContainer.style.padding = "0.25rem .5rem";
 
     this.x = document.createElement("div");
     this.x.innerText = "X";
@@ -906,30 +907,21 @@
       );
     });
 
-    this.titleMain = document.createElement("div");
+    this.titleMain = document.createElement("h3");
     this.titleMain.innerText = "History";
     this.titleMain.style.flexGrow = "1";
-    this.titleMain.style.flexShrink = "1";
-    this.titleMain.style.paddingLeft = ".5rem";
-    this.titleMain.style.paddingTop = ".25rem";
-    this.titleMain.style.paddingBottom = ".25rem";
-    this.titleMain.style.textAlign = "left";
     this.titleMain.style.fontWeight = "bolder";
     this.titleMain.style.color = defaultTitleColor;
 
     this.titleDescription = document.createElement("div");
     this.titleDescription.innerText = title;
-    this.titleDescription.style.flexGrow = "1";
-    this.titleDescription.style.flexShrink = "1";
-    this.titleDescription.style.paddingLeft = ".5rem";
-    this.titleDescription.style.paddingTop = ".25rem";
-    this.titleDescription.style.paddingBottom = ".25rem";
-    this.titleDescription.style.textAlign = "left";
     this.titleDescription.style.color = defaultTitleColor;
+    this.titleDescription.style.fontSize = "10px";
 
+    this.titleContainer.appendChild(this.titleMain);
+    this.titleContainer.appendChild(this.titleDescription);
+    this.title.appendChild(this.titleContainer);
     this.title.appendChild(this.x);
-    this.title.appendChild(this.titleMain);
-    this.title.appendChild(this.titleDescription);
 
     this.svgContainer = document.createElement("div");
     this.svgContainer.style.flexGrow = "4";
@@ -941,11 +933,6 @@
     this.title.appendChild(this.x);
 
     this.historyPanel.appendChild(this.title);
-
-    this.dividor0 = document.createElement("hr");
-    this.dividor0.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
-
-    this.historyPanel.appendChild(this.dividor0);
 
     this.addMore = document.createElement("div");
     this.addMore.innerText = "Show More";
@@ -1109,6 +1096,7 @@
     this.newComment.style.borderRadius = ".25rem";
     this.newComment.style.border = "0px";
     this.newComment.style.marginRight = ".25rem";
+    this.newComment.style.fontSize = "9pt";
 
     this.addPanel.appendChild(this.newComment);
     this.addPanel.appendChild(this.svg);
@@ -1268,6 +1256,7 @@
 
     this.submit = document.createElement("div");
     this.submit.innerText = "Submit";
+    this.submit.style.textAlign = "center";
     this.submit.style.backgroundColor = defaultButtonBackgroundColor;
     this.submit.style.color = defaultColor;
     this.submit.style.width = "75px";
@@ -1287,7 +1276,7 @@
 
     this.submit.addEventListener("click", function () {
       meatballHistoryItem.comment.style.minWidth = "unset";
-      meatballHistoryItem.item.style.width = meatballHistoryItemContainerWidth;
+      meatballHistoryItem.item.style.width = "auto";
       meatballHistoryItem.delete.style.marginRight = "15px";
       if (meatballHistoryItem.isNew) {
         function listEntrySuccess(newData) {
@@ -1315,6 +1304,7 @@
 
     this.cancel = document.createElement("div");
     this.cancel.innerText = "Cancel";
+    this.cancel.style.textAlign = "center";
     this.cancel.style.backgroundColor = defaultCancelButtonBackgroundColor;
     this.cancel.style.color = defaultColor;
     this.cancel.style.width = "75px";
@@ -1334,13 +1324,13 @@
 
     this.cancel.addEventListener("click", function () {
       meatballHistoryItem.comment.style.minWidth = "unset";
-      meatballHistoryItem.item.style.width = meatballHistoryItemContainerWidth;
       meatballHistoryItem.delete.style.marginRight = "15px";
+      meatballHistoryItem.item.style.width = "auto";
       meatballHistoryItem.setEditable(false, false, true);
     });
 
     this.buttonGroup = document.createElement("div");
-    this.buttonGroup.style.maxWidth = meatballHistoryItemContainerWidth;
+    this.buttonGroup.style.maxWidth = "calc(310px - 1.125rem)";
     this.buttonGroup.style.textAlign = "right";
     this.buttonGroup.style.margin = "0px";
     this.buttonGroup.style.padding = "0px";
@@ -1369,9 +1359,10 @@
     this.edit.style.flexShrink = "1";
     this.edit.addEventListener("click", function () {
       meatballHistoryItem.isNew = false;
-
+      meatballHistoryItem.item.style.maxWidth = "calc(457px - 1.125rem)";
       if (meatballHistoryItem.item.parentNode.isEdit) {
         meatballHistoryItem.item.parentNode.isEdit = false;
+        console.log(!meatballHistoryItem.getEditable());
         meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
       }
     });
@@ -1465,6 +1456,7 @@
       this.item.style.width = "calc(457px - 1.125rem)";
       this.item.style.backgroundColor = defaultMHIBackgroundColor;
       this.item.style.color = defaultColor;
+
       this.comment.style.backgroundColor = defaultHoverBackgroundColor;
       this.submit.style.backgroundColor = defaultButtonBackgroundColor;
 
