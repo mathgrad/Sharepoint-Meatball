@@ -33,7 +33,7 @@
   var debug = false;
 
   var begin = true;
-
+  var checkUser = "";
   var historyListGUID = "";
   var userName = "";
 
@@ -540,32 +540,59 @@
             var priorDate,
               currentDate = null;
             var nowDate = new Date();
+
             meatballHistoryDisplay.query = data[0].Title;
-            data.forEach(function (props, index) {
-              currentDate = new Date(props.Created);
-              this.mhItem = new MeatballHistoryItem().setDisplay(
-                props.UserName,
-                generateDateTime(props.Created),
-                props.Message,
-                props.ID,
-                meatballHistoryDisplay.listGUID
-              );
-              meatballHistoryDisplay.build(mhItem);
 
-              if (!priorDate) {
-                priorDate = currentDate;
-              }
-              if (currentDate.getDate() != nowDate.getDate()) {
-                if (priorDate.getDate() != currentDate.getDate()) {
-                  meatballHistoryDisplay.addDividor(priorDate, mhItem.item);
+            var avatar = false;
+            var lastAuthor = "";
+            var lastDay = new Date().getDay();
+            var organized = data.reduce(
+              function (r, props, index) {
+                var author = props.UserName;
+                var day = new Date(props.Created).getDay();
+                var lastIndex = r.length - 1;
+                if (lastDay !== day) {
+                  r.push([
+                    { type: "break", timeStamp: new Date(props.Created) },
+                  ]);
+                  lastDay = day;
+                  lastAuthor = "";
                 }
-
-                if (index + 1 === data.length) {
-                  meatballHistoryDisplay.addDividor(priorDate, mhItem.item);
+                //first mhItem
+                if (!lastIndex) {
+                  r[0].push(props);
+                  lastAuthor = author;
+                  lastDay = new Date(props.Created).getDay();
+                } else if (author === lastAuthor) {
+                  r[lastIndex].push(props);
+                } else {
+                  r.push([props]);
+                  lastAuthor = author;
                 }
-              }
+                return r;
+              },
+              [[]]
+            );
+            console.log(organized);
+            organized.map(function (block, index) {
+              return block.map(function (item, index2) {
+                var mhItem = new MeatballHistoryItem();
+                if (item.type !== "break") {
+                  currentDate = new Date(item.Created);
 
-              priorDate = currentDate;
+                  mhItem.setDisplay(
+                    item.UserName,
+                    generateDateTime(item.Created),
+                    item.Message,
+                    item.ID,
+                    meatballHistoryDisplay.listGUID
+                  );
+                  meatballHistoryDisplay.build(mhItem);
+                } else {
+                  meatballHistoryDisplay.addDividor(item);
+                }
+                return mhItem;
+              });
             });
           }
         }
@@ -1165,12 +1192,12 @@
     }
     props.setType(userName);
 
-    this.container.insertBefore(props.item, this.container.firstChild);
+    this.container.appendChild(props.item);
     this.container.scrollTop = this.container.scrollHeight;
     return this;
   };
 
-  MeatballHistory.prototype.addDividor = function (date, child) {
+  MeatballHistory.prototype.addDividor = function (props) {
     this.dividorPanel = document.createElement("div");
     this.dividorPanel.style.padding = ".25rem";
     this.dividorPanel.style.width = "calc(500px - 2.5rem)";
@@ -1183,7 +1210,7 @@
     this.dividorPanel.style.clear = "both";
 
     this.dividorText = document.createElement("div");
-    this.dividorText.innerText = " " + date.toDateString() + " ";
+    this.dividorText.innerText = " " + props.timeStamp.toDateString() + " ";
     this.dividorText.style.textAlign = "center";
     this.dividorText.style.verticalAlign = "middle";
     this.dividorText.style.display = "inline-block";
@@ -1203,7 +1230,8 @@
     this.dividorPanel.appendChild(this.leftDividorLine);
     this.dividorPanel.appendChild(this.dividorText);
     this.dividorPanel.appendChild(this.rightDividorLine);
-    this.container.insertBefore(this.dividorPanel, child);
+    this.container.appendChild(this.dividorPanel);
+    // this.container.insertBefore(this.dividorPanel, child);
     return this;
   };
 
@@ -1421,7 +1449,8 @@
     listGUID,
     table,
     rowIndex,
-    internalColumn
+    internalColumn,
+    avatar
   ) {
     if (comment) {
       this.author.innerText = author;
@@ -1433,6 +1462,8 @@
       this.table = table;
       this.rowIndex = rowIndex;
       this.internalColumn = internalColumn;
+      if (!avatar) {
+      }
     }
     return this;
   };
@@ -1972,7 +2003,7 @@
         rowIndex +
         " - " +
         internalColumn +
-        "'&$orderby=Created desc&$top=100";
+        "'&$top=100";
     }
 
     $.ajax({
