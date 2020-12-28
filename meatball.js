@@ -1,7 +1,6 @@
 (function () {
   //Size sets the Meatball size in pixels
   var size = 20;
-  var meatballHistoryItemContainerWidth = "calc(350px - 1.125rem)";
   //Creates the Color object which manages meatball colors
   var colors = new Colors();
   // console.log(
@@ -1200,7 +1199,6 @@
   MeatballHistory.prototype.addDividor = function (props) {
     this.dividorPanel = document.createElement("div");
     this.dividorPanel.style.padding = ".25rem";
-    this.dividorPanel.style.width = "calc(500px - 2.5rem)";
     this.dividorPanel.style.margin = "0px";
     this.dividorPanel.style.padding = ".25rem";
     this.dividorPanel.style.marginBottom = ".25rem";
@@ -1208,6 +1206,7 @@
     this.dividorPanel.style.color = defaultTitleColor;
     this.dividorPanel.style.float = "center";
     this.dividorPanel.style.clear = "both";
+    this.dividorPanel.style.textAlign = "center";
 
     this.dividorText = document.createElement("div");
     this.dividorText.innerText = " " + props.timeStamp.toDateString() + " ";
@@ -1264,7 +1263,6 @@
 
     this.date = document.createElement("div");
     this.date.contentEditable = false;
-    this.date.style.maxWidth = meatballHistoryItemContainerWidth;
     this.date.style.padding = ".25rem";
     this.date.style.margin = "0px";
     this.date.style.verticalAlign = "middle";
@@ -1925,13 +1923,18 @@
       this.time = new Date(date);
     }
 
+    console.log(this.time.getMinutes());
     this.returnTime = "";
 
-    var test = this.time.getHours() >= 12 ? " pm" : " am";
+    var meridiem = this.time.getHours() >= 12 ? " pm" : " am";
 
     this.returnTime += this.time.getHours() % 12;
 
-    this.returnTime += ":" + this.time.getMinutes() + test;
+    var minutes = this.time.getMinutes().toString();
+
+    minutes.length == 1
+      ? (this.returnTime += ":" + "0" + minutes + meridiem)
+      : (this.returnTime += ":" + this.time.getMinutes() + meridiem);
 
     return this.returnTime;
   }
