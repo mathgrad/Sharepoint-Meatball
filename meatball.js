@@ -532,12 +532,8 @@
           }
 
           if (data.length !== 0) {
-            // meatballHistoryDisplay.historyPanel.insertBefore(
-            //   meatballHistoryDisplay.addMore,
-            //   meatballHistoryDisplay.container
-            // );
-            var priorDate,
-              currentDate = null;
+            var priorDate = null;
+            var currentDate = null;
             var nowDate = new Date();
 
             meatballHistoryDisplay.query = data[0].Title;
@@ -547,7 +543,7 @@
             var lastDay = new Date().getDay();
             var organized = data.reduce(
               function (r, props, index) {
-                var author = props.UserName;
+                var author = props.Author.Title;
                 var day = new Date(props.Created).getDay();
                 var lastIndex = r.length - 1;
                 if (lastDay !== day) {
@@ -574,24 +570,71 @@
             );
             console.log(organized);
             organized.map(function (block, index) {
-              return block.map(function (item, index2) {
-                var mhItem = new MeatballHistoryItem();
-                if (item.type !== "break") {
-                  currentDate = new Date(item.Created);
+              if (block.length === 1 && block[0].type === "break") {
+                meatballHistoryDisplay.addDividor(block[0]);
+              } else {
+                var author = block[0].Author.Title;
+                var isRight = author === userName;
 
+                //step 0 create mssg container
+                //determine if its left or right -- important because before this was done in the message item
+                var messageContainer = document.createElement("div");
+                messageContainer.style.display = "flex";
+                messageContainer.style.flexDirection = isRight
+                  ? "row-reverse"
+                  : "row";
+
+                messageContainer.style.width = "100%";
+                //step 1 create continer for avatar
+                var avatarContainer = document.createElement("div");
+                var avatar = document.createElement("div");
+                avatar.style.width = "30px";
+                avatar.style.height = "30px";
+                avatar.style.fontSize = "14px";
+                avatar.style.backgroundColor = "#3949ab";
+                avatar.style.borderRadius = "50%";
+                avatar.style.textAlign = "center";
+                avatar.style.lineHeight = "28px";
+                var avatarParts = author.split(" ");
+
+                avatar.innerText =
+                  avatarParts.length > 1
+                    ? avatarParts[2].charAt(0) + avatarParts[0].charAt(0)
+                    : author.charAt(0);
+                avatarContainer.appendChild(avatar);
+                //step 2 create the message block
+                var messageBlock = document.createElement("div");
+                messageBlock.style.alignItems = isRight
+                  ? "flex-end"
+                  : "flex-start";
+                messageBlock.style.display = "flex";
+                messageBlock.style.flex = "1";
+                messageBlock.style.flexDirection = "column";
+
+                messageContainer.appendChild(avatarContainer);
+                messageContainer.appendChild(messageBlock);
+                meatballHistoryDisplay.container.appendChild(messageContainer);
+                //step 3 append each mssg to mssg block
+
+                return block.map(function (item, index2) {
+                  var authorName =
+                    item.Status === "Automated Message"
+                      ? "AutoBot"
+                      : item.Author.Title;
+                  var mhItem = new MeatballHistoryItem();
                   mhItem.setDisplay(
-                    item.UserName,
+                    authorName,
                     generateDateTime(item.Created),
                     item.Message,
                     item.ID,
                     meatballHistoryDisplay.listGUID
                   );
                   meatballHistoryDisplay.build(mhItem);
-                } else {
-                  meatballHistoryDisplay.addDividor(item);
-                }
-                return mhItem;
-              });
+                  messageBlock.appendChild(mhItem.item);
+
+                  return mhItem;
+                });
+              }
             });
           }
         }
@@ -616,7 +659,10 @@
       function success(param, data) {
         if (data.length === 1) {
           meatball.initHistoryMessage.innerText = data[0].Message;
-          meatball.initHistoryName.innerText = data[0].UserName;
+          meatball.initHistoryName.innerText =
+            data[0].Status === "Automated Message"
+              ? "AutoBot"
+              : data[0].Author.Title;
           meatball.initHistoryDate.innerText = generateDateTime(
             data[0].Created
           );
@@ -825,6 +871,7 @@
 
           var autoComment =
             "Status change: " + cellText + " to " + ele + " by " + userName;
+
           makeHistory(
             historyListGUID,
             autoComment,
@@ -985,14 +1032,19 @@
             console.log(error);
             return;
           }
-          var priorDate,
-            currentDate = null;
+
+          var priorDate = null;
+          var currentDate = null;
           var nowDate = new Date();
           meatballHistory.clear();
           data.forEach(function (props, index) {
+            var authorName =
+              data.Status === "Automated Message"
+                ? "AutoBot"
+                : data.Author.Title;
             currentDate = new Date(props.Created);
             var mhItem = new MeatballHistoryItem().setDisplay(
-              props.UserName,
+              authorName,
               generateDateTime(props.Created),
               props.Message,
               props.ID,
@@ -1148,13 +1200,15 @@
     }
 
     function listEntrySuccess(data) {
+      var authorName =
+        data.Status === "Automated Message" ? "AutoBot" : data.Author.Title;
       var item = new MeatballHistoryItem(
         historyListGUID,
         table,
         rowIndex,
         internalColumn
       ).setDisplay(
-        meatballObj.currentUser,
+        authorName,
         generateDateTime(),
         data.Message,
         data.ID,
@@ -1380,7 +1434,7 @@
     this.edit.style.cursor = "pointer";
     this.edit.addEventListener("click", function () {
       meatballHistoryItem.isNew = false;
-      meatballHistoryItem.item.style.maxWidth = "90%";
+      meatballHistoryItem.item.style.flex = "1";
       if (meatballHistoryItem.item.parentNode.isEdit) {
         meatballHistoryItem.item.parentNode.isEdit = false;
         console.log(!meatballHistoryItem.getEditable());
@@ -1447,8 +1501,7 @@
     listGUID,
     table,
     rowIndex,
-    internalColumn,
-    avatar
+    internalColumn
   ) {
     if (comment) {
       this.author.innerText = author;
@@ -1460,8 +1513,6 @@
       this.table = table;
       this.rowIndex = rowIndex;
       this.internalColumn = internalColumn;
-      if (!avatar) {
-      }
     }
     return this;
   };
@@ -1475,7 +1526,7 @@
       this.comment.style.minWidth = "-webkit-fill-available";
       this.comment.style.textAlign = "left";
       this.delete.style.marginRight = "15px";
-      this.item.style.width = "90%";
+      this.item.style.flex = "1";
       this.item.style.backgroundColor = defaultMHIBackgroundColor;
       this.item.style.color = defaultColor;
 
@@ -1534,14 +1585,10 @@
       this.item.type = "editable";
       this.item.style.backgroundColor = defaultButtonBackgroundColor;
       this.item.style.color = defaultColor;
-      this.item.style.placeSelf = "flex-end";
-      this.item.style.maxWidth = "90%";
     } else {
       this.item.type = "disabled";
       this.item.style.backgroundColor = defaultMHIBackgroundColor;
       this.item.style.color = defaultColor;
-      this.item.style.maxWidth = "90%";
-      this.item.style.width = "fit-content";
     }
     if (this.item.type !== "editable") {
       this.delete.parentNode.removeChild(this.delete);
@@ -1923,7 +1970,6 @@
       this.time = new Date(date);
     }
 
-    console.log(this.time.getMinutes());
     this.returnTime = "";
 
     var meridiem = this.time.getHours() >= 12 ? " pm" : " am";
@@ -1934,7 +1980,7 @@
 
     minutes.length == 1
       ? (this.returnTime += ":" + "0" + minutes + meridiem)
-      : (this.returnTime += ":" + this.time.getMinutes() + meridiem);
+      : (this.returnTime += ":" + minutes + meridiem);
 
     return this.returnTime;
   }
@@ -1983,31 +2029,29 @@
   function retrieveHistory(table, rowIndex, internalColumn, cb, init) {
     var name = "History " + ctx.SiteTitle;
     var url = "";
-    if (init) {
-      url =
-        ctx.PortalUrl +
-        "/_api/web/lists/getbytitle('" +
-        name +
-        "')/items?$filter=Title eq '" +
-        table +
-        " - " +
-        rowIndex +
-        " - " +
-        internalColumn +
-        "'&$orderby=Created desc&$top=1";
-    } else {
-      url =
-        ctx.PortalUrl +
-        "/_api/web/lists/getbytitle('" +
-        name +
-        "')/items?$filter=Title eq '" +
-        table +
-        " - " +
-        rowIndex +
-        " - " +
-        internalColumn +
-        "'&$top=100";
-    }
+    init
+      ? (url =
+          ctx.PortalUrl +
+          "_api/web/lists/getbytitle('" +
+          name +
+          "')/items?$select=Created,Author/Id,Author/EMail,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
+          table +
+          " - " +
+          rowIndex +
+          " - " +
+          internalColumn +
+          "'&$expand=Author&$orderby=Created desc&$top=1")
+      : (url =
+          ctx.PortalUrl +
+          "_api/web/lists/getbytitle('" +
+          name +
+          "')/items?$select=Created,Author/Id,Author/EMail,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
+          table +
+          " - " +
+          rowIndex +
+          " - " +
+          internalColumn +
+          "'&$expand=Author&$top=150");
 
     $.ajax({
       url: url,
@@ -2019,6 +2063,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (res) {
+        console.log(res.d.results);
         cb(null, res.d.results);
       },
       error: cb,
@@ -2125,7 +2170,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        createUserNameColumn(listId);
+        createStatusColumn(listId);
         return false;
       },
       error: function (error) {
@@ -2134,14 +2179,14 @@
     });
   }
 
-  function createUserNameColumn(listId) {
+  function createStatusColumn(listId) {
     var data = {
       __metadata: { type: "SP.Field" },
-      Title: "UserName",
+      Title: "Status",
       FieldTypeKind: 2,
       Required: "false",
       EnforceUniqueValues: "false",
-      StaticName: "UserName",
+      StaticName: "Status",
     };
 
     var url = ctx.PortalUrl + "_api/web/lists('" + listId + "')/Fields"; //this is dev env
@@ -2160,7 +2205,7 @@
         return false;
       },
       error: function (error) {
-        console.log("UserName col creation failed:", error);
+        console.log("Status col creation failed:", error);
       },
     });
   }
@@ -2179,7 +2224,8 @@
       __metadata: { type: "SP.ListItem" },
       Message: message,
       Title: tableGUID + " - " + rowId + " - " + colName, //name of the status column that is passed
-      UserName: currentUser,
+      Status:
+        currentUser !== "AutoBot" ? "User Generated" : "Automated Message",
     };
 
     var url = ctx.PortalUrl + "_api/web/lists('" + listId + "')/items "; //this is dev env
