@@ -1217,8 +1217,6 @@
 
     this.avatarContainer.appendChild(this.avatar);
     this.newCommentContainer.appendChild(this.avatarContainer);
-    this.newCommentContainer.appendChild(this.newMessageBlock);
-    this.container.appendChild(this.newCommentContainer);
 
     var avatarParts = userName.split(" ");
     this.avatar.innerText = avatarParts[2].charAt(0) + avatarParts[0].charAt(0);
@@ -1235,18 +1233,22 @@
         rowIndex,
         internalColumn
       ).setDisplay(
-        data.Author,
+        userName,
         generateDateTime(),
         data.Message,
         data.ID,
         historyListGUID,
         table,
         rowIndex,
-        internalColumn
+        internalColumn,
+        true
       );
       item.isNew = true;
       item.setType(meatballObj.currentUser);
-      meatballObj.container.appendChild(item.item);
+
+      meatballObj.newMessageBlock.appendChild(item.item);
+      meatballObj.newCommentContainer.appendChild(meatballObj.newMessageBlock);
+      meatballObj.container.appendChild(meatballObj.newCommentContainer);
       meatballObj.container.scrollTop = meatballObj.container.scrollHeight;
 
       item.setEditable(item.getEditable());
@@ -1330,7 +1332,7 @@
     var meatballHistoryItem = this;
     this.item = document.createElement("div");
     this.item.type = "auto";
-    this.item.style.padding = ".25rem";
+    // this.item.style.padding = ".25rem";
     this.item.style.margin = "0px;";
     this.item.style.marginBottom = ".25rem";
     this.item.style.padding = ".25rem";
@@ -1344,7 +1346,7 @@
 
     this.date = document.createElement("div");
     this.date.contentEditable = false;
-    this.date.style.padding = ".25rem";
+    this.date.style.paddingLeft = ".25rem";
     this.date.style.margin = "0px";
     this.date.style.verticalAlign = "middle";
     this.date.style.textAlign = "left";
@@ -1505,7 +1507,7 @@
     });
     this.buttonGroup.appendChild(this.delete);
 
-    this.item.appendChild(this.buttonGroup);
+    // this.item.appendChild(this.buttonGroup);
 
     this.comment = document.createElement("div");
     this.comment.contentEditable = false;
