@@ -530,22 +530,23 @@
             console.log(error);
             return;
           }
-
           if (data.length !== 0) {
-            var priorDate = null;
-            var currentDate = null;
+            var priorDate,
+              currentDate = null;
             var nowDate = new Date();
 
             meatballHistoryDisplay.query = data[0].Title;
 
             var avatar = false;
-            var lastAuthor = "";
+            var lastAuthor = false;
             var lastDay = new Date().getDay();
+
             var organized = data.reduce(
-              function (r, props, index) {
-                var author = props.Author.Title;
+              function (r, props) {
+                var author = props.Author;
                 var day = new Date(props.Created).getDay();
                 var lastIndex = r.length - 1;
+                //this pushes a "dividor" for today's entries
                 if (lastDay !== day) {
                   r.push([
                     { type: "break", timeStamp: new Date(props.Created) },
@@ -554,7 +555,7 @@
                   lastAuthor = "";
                 }
                 //first mhItem
-                if (!lastIndex) {
+                if (!lastIndex && !lastAuthor) {
                   r[0].push(props);
                   lastAuthor = author;
                   lastDay = new Date(props.Created).getDay();
@@ -568,12 +569,13 @@
               },
               [[]]
             );
-            console.log(organized);
+
+            console.log("organized", organized);
             organized.map(function (block, index) {
               if (block.length === 1 && block[0].type === "break") {
                 meatballHistoryDisplay.addDividor(block[0]);
               } else {
-                var author = block[0].Author.Title;
+                var author = block[0].Author;
                 var isRight = author === userName;
 
                 //step 0 create mssg container
@@ -617,17 +619,17 @@
                 //step 3 append each mssg to mssg block
 
                 return block.map(function (item, index2) {
-                  var authorName =
-                    item.Status === "Automated Message"
-                      ? "AutoBot"
-                      : item.Author.Title;
                   var mhItem = new MeatballHistoryItem();
                   mhItem.setDisplay(
-                    authorName,
+                    item.Author,
                     generateDateTime(item.Created),
                     item.Message,
                     item.ID,
-                    meatballHistoryDisplay.listGUID
+                    meatballHistoryDisplay.listGUID,
+                    null,
+                    null,
+                    null,
+                    index2 === 0
                   );
                   meatballHistoryDisplay.build(mhItem);
                   messageBlock.appendChild(mhItem.item);
@@ -659,10 +661,7 @@
       function success(param, data) {
         if (data.length === 1) {
           meatball.initHistoryMessage.innerText = data[0].Message;
-          meatball.initHistoryName.innerText =
-            data[0].Status === "Automated Message"
-              ? "AutoBot"
-              : data[0].Author.Title;
+          meatball.initHistoryName.innerText = data[0].Author;
           meatball.initHistoryDate.innerText = generateDateTime(
             data[0].Created
           );
@@ -1006,78 +1005,72 @@
     this.title.appendChild(this.x);
 
     this.historyPanel.appendChild(this.title);
-
-    this.addMore = document.createElement("div");
-    this.addMore.innerText = "Show More";
-    this.addMore.style.cursor = "pointer";
-    this.addMore.style.marginTop = ".25rem";
-    this.addMore.style.marginLeft = "auto";
-    this.addMore.style.marginRight = "auto";
-    this.addMore.style.padding = ".25rem";
-    this.addMore.style.borderRadius = ".25rem";
-    this.addMore.style.width = "115px";
-    this.addMore.style.backgroundColor = defaultTitleColor;
-    this.addMore.style.textAlign = "center";
-
-    var addMeatballHistory = true;
-
-    this.addMore.addEventListener("click", function () {
-      //possilble history.clear is needed  - pierre
-      //it needs the information for the cell, table, row etc
-      if (addMeatballHistory) {
-        addMeatballHistory = !addMeatballHistory;
-
-        function cb(error, data) {
-          if (error) {
-            console.log(error);
-            return;
-          }
-
-          var priorDate = null;
-          var currentDate = null;
-          var nowDate = new Date();
-          meatballHistory.clear();
-          data.forEach(function (props, index) {
-            var authorName =
-              data.Status === "Automated Message"
-                ? "AutoBot"
-                : data.Author.Title;
-            currentDate = new Date(props.Created);
-            var mhItem = new MeatballHistoryItem().setDisplay(
-              authorName,
-              generateDateTime(props.Created),
-              props.Message,
-              props.ID,
-              historyListGUID,
-              table,
-              rowIndex,
-              internalColumn
-            );
-
-            meatballHistory.build(mhItem);
-
-            if (!priorDate) {
-              priorDate = currentDate;
-            }
-            if (currentDate.getDate() != nowDate.getDate()) {
-              if (priorDate.getDate() != currentDate.getDate()) {
-                meatballHistory.addDividor(priorDate, mhItem.item);
-              }
-
-              if (index + 1 === data.length) {
-                meatballHistory.addDividor(priorDate, mhItem.item);
-              }
-            }
-
-            priorDate = currentDate;
-          });
-        }
-        retrieveHistory(table, rowIndex, internalColumn, cb, false);
-      }
-      meatballHistory.addMore.parentNode.removeChild(meatballHistory.addMore);
-      meatballHistory.container.scrollTop =
-        meatballHistory.container.scrollHeight;
-    });
+    //
+    // this.addMore = document.createElement("div");
+    // this.addMore.innerText = "Show More";
+    // this.addMore.style.cursor = "pointer";
+    // this.addMore.style.marginTop = ".25rem";
+    // this.addMore.style.marginLeft = "auto";
+    // this.addMore.style.marginRight = "auto";
+    // this.addMore.style.padding = ".25rem";
+    // this.addMore.style.borderRadius = ".25rem";
+    // this.addMore.style.width = "115px";
+    // this.addMore.style.backgroundColor = defaultTitleColor;
+    // this.addMore.style.textAlign = "center";
+    //
+    // var addMeatballHistory = true;
+    //
+    // this.addMore.addEventListener("click", function () {
+    //possilble history.clear is needed  - pierre
+    //it needs the information for the cell, table, row etc
+    // if (addMeatballHistory) {
+    //   addMeatballHistory = !addMeatballHistory;
+    // function cb(error, data) {
+    //   if (error) {
+    //     console.log(error);
+    //     return;
+    //   }
+    //
+    //   var priorDate = null;
+    //   var currentDate = null;
+    //   var nowDate = new Date();
+    //   meatballHistory.clear();
+    //   data.forEach(function (props, index) {
+    //     currentDate = new Date(props.Created);
+    //     var mhItem = new MeatballHistoryItem().setDisplay(
+    //       props.Author,
+    //       generateDateTime(props.Created),
+    //       props.Message,
+    //       props.ID,
+    //       historyListGUID,
+    //       table,
+    //       rowIndex,
+    //       internalColumn
+    //     );
+    //
+    //     meatballHistory.build(mhItem);
+    // if (!priorDate) {
+    //   priorDate = currentDate;
+    // }
+    // if (currentDate.getDate() != nowDate.getDate()) {
+    //   if (priorDate.getDate() != currentDate.getDate()) {
+    //     meatballHistory.addDividor(priorDate, mhItem.item);
+    //   }
+    //
+    //   if (index + 1 === data.length) {
+    //     meatballHistory.addDividor(priorDate, mhItem.item);
+    //   }
+    // }
+    //
+    // priorDate = currentDate;
+    //   });
+    // }
+    // retrieveHistory(table, rowIndex, internalColumn, cb, false);
+    // });
+    //meatballHistory.addMore.parentNode.removeChild(meatballHistory.addMore);
+    // meatballHistory.container.scrollTop =
+    //   meatballHistory.container.scrollHeight;
+    // }
 
     this.containerText = "No History Available For This Item";
 
@@ -1199,16 +1192,50 @@
       return;
     }
 
+    //create a messageContainer
+    this.newCommentContainer = document.createElement("div");
+    this.newCommentContainer.style.display = "flex";
+    this.newCommentContainer.style.flexDirection = "row-reverse";
+    this.newCommentContainer.style.width = "100%";
+
+    //create the avatar container + avatar
+    this.avatarContainer = document.createElement("div");
+    this.avatar = document.createElement("div");
+    this.avatar.style.width = "30px";
+    this.avatar.style.height = "30px";
+    this.avatar.style.fontSize = "14px";
+    this.avatar.style.backgroundColor = "#3949ab";
+    this.avatar.style.borderRadius = "50%";
+    this.avatar.style.textAlign = "center";
+    this.avatar.style.lineHeight = "28px";
+
+    this.newMessageBlock = document.createElement("div");
+    this.newMessageBlock.style.alignItems = "flex-end";
+    this.newMessageBlock.style.display = "flex";
+    this.newMessageBlock.style.flex = "1";
+    this.newMessageBlock.style.flexDirection = "column";
+
+    this.avatarContainer.appendChild(this.avatar);
+    this.newCommentContainer.appendChild(this.avatarContainer);
+    this.newCommentContainer.appendChild(this.newMessageBlock);
+    this.container.appendChild(this.newCommentContainer);
+
+    var avatarParts = userName.split(" ");
+    this.avatar.innerText = avatarParts[2].charAt(0) + avatarParts[0].charAt(0);
+
+    //create a message messageBlock
+
+    //message block will be on the right (user generated)
+    //create a message
+
     function listEntrySuccess(data) {
-      var authorName =
-        data.Status === "Automated Message" ? "AutoBot" : data.Author.Title;
       var item = new MeatballHistoryItem(
         historyListGUID,
         table,
         rowIndex,
         internalColumn
       ).setDisplay(
-        authorName,
+        data.Author,
         generateDateTime(),
         data.Message,
         data.ID,
@@ -1435,6 +1462,10 @@
     this.edit.addEventListener("click", function () {
       meatballHistoryItem.isNew = false;
       meatballHistoryItem.item.style.flex = "1";
+      console.log(
+        meatballHistoryItem.item.attributes,
+        meatballHistoryItem.item.parentNode
+      );
       if (meatballHistoryItem.item.parentNode.isEdit) {
         meatballHistoryItem.item.parentNode.isEdit = false;
         console.log(!meatballHistoryItem.getEditable());
@@ -1501,8 +1532,13 @@
     listGUID,
     table,
     rowIndex,
-    internalColumn
+    internalColumn,
+    isFirst
   ) {
+    if (!isFirst) {
+      this.author.parentNode.removeChild(this.author);
+      this.buttonGroup.style.display = "block";
+    }
     if (comment) {
       this.author.innerText = author;
       this.comment.innerText = comment.replace(regex, "", comment);
@@ -1974,7 +2010,11 @@
 
     var meridiem = this.time.getHours() >= 12 ? " pm" : " am";
 
-    this.returnTime += this.time.getHours() % 12;
+    var hours = (this.returnTime += this.time.getHours() % 12);
+
+    if (hours == "0") {
+      this.returnTime = 12;
+    }
 
     var minutes = this.time.getMinutes().toString();
 
@@ -2034,7 +2074,7 @@
           ctx.PortalUrl +
           "_api/web/lists/getbytitle('" +
           name +
-          "')/items?$select=Created,Author/Id,Author/EMail,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
+          "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
           table +
           " - " +
           rowIndex +
@@ -2045,7 +2085,7 @@
           ctx.PortalUrl +
           "_api/web/lists/getbytitle('" +
           name +
-          "')/items?$select=Created,Author/Id,Author/EMail,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
+          "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
           table +
           " - " +
           rowIndex +
@@ -2063,8 +2103,14 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (res) {
-        console.log(res.d.results);
-        cb(null, res.d.results);
+        // console.log(res.d.results);
+        var data = res.d.results.map(function (item) {
+          item.Author =
+            item.Status === "Automated Message" ? "AutoBot" : item.Author.Title;
+          return item;
+        });
+
+        cb(null, data);
       },
       error: cb,
     });
