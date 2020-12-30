@@ -34,6 +34,8 @@
   var begin = true;
   var checkUser = "";
   var historyListGUID = "";
+  var lastAuthor = false;
+  var organized = [[]];
   var userName = "";
 
   var style = document.createElement("style");
@@ -370,7 +372,6 @@
       internalColumn,
       value
     );
-    meatballHistoryDisplay.currentUser = userName;
     meatballHistoryDisplay.listGUID = historyListGUID;
 
     this.element.style.backgroundColor = colors.get(cellText);
@@ -538,10 +539,9 @@
             meatballHistoryDisplay.query = data[0].Title;
 
             var avatar = false;
-            var lastAuthor = false;
             var lastDay = new Date().getDay();
 
-            var organized = data.reduce(
+            organized = data.reduce(
               function (r, props) {
                 var author = props.Author;
                 var day = new Date(props.Created).getDay();
@@ -571,7 +571,7 @@
             );
 
             console.log("organized", organized);
-            organized.map(function (block, index) {
+            organized = organized.map(function (block, index) {
               if (block.length === 1 && block[0].type === "break") {
                 meatballHistoryDisplay.addDividor(block[0]);
               } else {
@@ -597,6 +597,9 @@
                 avatar.style.borderRadius = "50%";
                 avatar.style.textAlign = "center";
                 avatar.style.lineHeight = "28px";
+                avatar.style.margin = isRight
+                  ? "0px 0px 0px 4px"
+                  : "0px 4px 0px 0px";
                 var avatarParts = author.split(" ");
 
                 avatar.innerText =
@@ -618,24 +621,27 @@
                 meatballHistoryDisplay.container.appendChild(messageContainer);
                 //step 3 append each mssg to mssg block
 
-                return block.map(function (item, index2) {
-                  var mhItem = new MeatballHistoryItem();
-                  mhItem.setDisplay(
-                    item.Author,
-                    generateDateTime(item.Created),
-                    item.Message,
-                    item.ID,
-                    meatballHistoryDisplay.listGUID,
-                    null,
-                    null,
-                    null,
-                    index2 === 0
-                  );
-                  meatballHistoryDisplay.build(mhItem);
-                  messageBlock.appendChild(mhItem.item);
+                return {
+                  block: messageBlock,
+                  messages: block.map(function (item, index2) {
+                    var mhItem = new MeatballHistoryItem();
+                    mhItem.setDisplay(
+                      item.Author,
+                      generateDateTime(item.Created),
+                      item.Message,
+                      item.ID,
+                      meatballHistoryDisplay.listGUID,
+                      null,
+                      null,
+                      null,
+                      index2 === 0
+                    );
+                    meatballHistoryDisplay.build(mhItem);
+                    messageBlock.appendChild(mhItem.item);
 
-                  return mhItem;
-                });
+                    return mhItem;
+                  }),
+                };
               }
             });
           }
@@ -877,7 +883,6 @@
             internalColumn,
             rowIndex,
             table,
-            "AutoBot",
             null,
             true
           );
@@ -902,8 +907,7 @@
     this.mainPanel = document.createElement("div");
     this.mainPanel.style.width = windowWidth - 1 + "px";
     this.mainPanel.style.height = windowHeight - 1 + "px";
-    this.mainPanel.style.backgroundColor = "rgb(0, 0, 0)";
-    this.mainPanel.style.backgroundColor = "rgb(0, 0, 0, 0.4)";
+    this.mainPanel.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
     this.mainPanel.style.position = "absolute";
     this.mainPanel.style.left = "0px";
     this.mainPanel.style.top = "0px";
@@ -912,7 +916,7 @@
     this.mainPanel.addEventListener("click", function (e) {
       if (e.target == this) {
         addMeatballHistory = true;
-        meatballHistory.clear();
+        meatballHistory.reset();
         this.parentNode.removeChild(this);
       }
     });
@@ -925,7 +929,6 @@
     });
 
     this.listGUID = historyListGUID;
-    this.currentUser = userName;
 
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.padding = ".25rem";
@@ -973,7 +976,7 @@
     this.x.addEventListener("click", function () {
       this.style.backgroundColor = defaultBackgroundColor;
       addMeatballHistory = true;
-      meatballHistory.clear();
+      meatballHistory.reset();
       meatballHistory.mainPanel.parentNode.removeChild(
         meatballHistory.mainPanel
       );
@@ -1068,6 +1071,7 @@
     // retrieveHistory(table, rowIndex, internalColumn, cb, false);
     // });
     //meatballHistory.addMore.parentNode.removeChild(meatballHistory.addMore);
+    // meatballHistory.scrollDown();
     // meatballHistory.container.scrollTop =
     //   meatballHistory.container.scrollHeight;
     // }
@@ -1134,20 +1138,11 @@
         return;
       }
 
-      if (meatballHistory.newComment.value.length > 0) {
-        if (meatballHistory.container) {
-          if (meatballHistory.container.addNew) {
-            meatballHistory.container.scrollTop =
-              meatballHistory.container.scrollHeight;
-            meatballHistory.container.addNew = false;
-            meatballHistory.newItem(
-              meatballHistory,
-              table,
-              rowIndex,
-              internalColumn
-            );
-          }
-        }
+      if (meatballHistory.container) {
+        //if (meatballHistory.container.addNew) {
+        //meatballHistory.container.addNew = false;
+        meatballHistory.newItem(table, rowIndex, internalColumn);
+        //}
       }
     });
 
@@ -1167,6 +1162,12 @@
     this.newComment.style.marginRight = ".25rem";
     this.newComment.style.fontSize = "9pt";
 
+    this.newComment.addEventListener("keydown", function (e) {
+      if (e.keyCode === 13) {
+        meatballHistory.newItem(table, rowIndex, internalColumn);
+      }
+    });
+
     this.addPanel.appendChild(this.newComment);
     this.addPanel.appendChild(this.svg);
 
@@ -1176,108 +1177,6 @@
 
     return this;
   }
-
-  MeatballHistory.prototype.newItem = function (
-    meatballObj,
-    table,
-    rowIndex,
-    internalColumn
-  ) {
-    meatballObj.currentUser = userName;
-    if (meatballObj.container.innerText === meatballObj.containerText) {
-      meatballObj.container.innerText = "";
-    }
-
-    if (meatballObj.newComment.value.length <= 0) {
-      return;
-    }
-
-    //create a messageContainer
-    this.newCommentContainer = document.createElement("div");
-    this.newCommentContainer.style.display = "flex";
-    this.newCommentContainer.style.flexDirection = "row-reverse";
-    this.newCommentContainer.style.width = "100%";
-
-    //create the avatar container + avatar
-    this.avatarContainer = document.createElement("div");
-    this.avatar = document.createElement("div");
-    this.avatar.style.width = "30px";
-    this.avatar.style.height = "30px";
-    this.avatar.style.fontSize = "14px";
-    this.avatar.style.backgroundColor = "#3949ab";
-    this.avatar.style.borderRadius = "50%";
-    this.avatar.style.textAlign = "center";
-    this.avatar.style.lineHeight = "28px";
-
-    this.newMessageBlock = document.createElement("div");
-    this.newMessageBlock.style.alignItems = "flex-end";
-    this.newMessageBlock.style.display = "flex";
-    this.newMessageBlock.style.flex = "1";
-    this.newMessageBlock.style.flexDirection = "column";
-
-    this.avatarContainer.appendChild(this.avatar);
-    this.newCommentContainer.appendChild(this.avatarContainer);
-
-    var avatarParts = userName.split(" ");
-    this.avatar.innerText = avatarParts[2].charAt(0) + avatarParts[0].charAt(0);
-
-    //create a message messageBlock
-
-    //message block will be on the right (user generated)
-    //create a message
-
-    function listEntrySuccess(data) {
-      var item = new MeatballHistoryItem(
-        historyListGUID,
-        table,
-        rowIndex,
-        internalColumn
-      ).setDisplay(
-        userName,
-        generateDateTime(),
-        data.Message,
-        data.ID,
-        historyListGUID,
-        table,
-        rowIndex,
-        internalColumn,
-        true
-      );
-      item.isNew = true;
-      item.setType(meatballObj.currentUser);
-
-      meatballObj.newMessageBlock.appendChild(item.item);
-      meatballObj.newCommentContainer.appendChild(meatballObj.newMessageBlock);
-      meatballObj.container.appendChild(meatballObj.newCommentContainer);
-      meatballObj.container.scrollTop = meatballObj.container.scrollHeight;
-
-      item.setEditable(item.getEditable());
-
-      meatballObj.newComment.value = "";
-    }
-    makeHistory(
-      historyListGUID,
-      meatballObj.newComment.value,
-      internalColumn,
-      rowIndex,
-      table,
-      userName,
-      listEntrySuccess
-    );
-
-    return this;
-  };
-
-  MeatballHistory.prototype.build = function (props) {
-    if (this.container.innerText === this.containerText) {
-      this.container.innerText = "";
-    }
-    props.setType(userName);
-
-    this.container.appendChild(props.item);
-    this.container.scrollTop = this.container.scrollHeight;
-    return this;
-  };
 
   MeatballHistory.prototype.addDividor = function (props) {
     this.dividorPanel = document.createElement("div");
@@ -1317,10 +1216,140 @@
     return this;
   };
 
-  MeatballHistory.prototype.clear = function () {
+  MeatballHistory.prototype.build = function (props) {
+    if (this.container.innerText === this.containerText) {
+      this.container.innerText = "";
+    }
+    props.setType(userName);
+
+    this.container.appendChild(props.item);
+    this.container.scrollTop = this.container.scrollHeight;
+    return this;
+  };
+
+  MeatballHistory.prototype.newItem = function (
+    table,
+    rowIndex,
+    internalColumn
+  ) {
+    if (this.container.innerText === this.containerText) {
+      this.container.innerText = "";
+    }
+
+    if (this.newComment.value.length <= 0) {
+      return;
+    }
+
+    //create a messageContainer
+    this.newCommentContainer = document.createElement("div");
+    this.newCommentContainer.style.display = "flex";
+    this.newCommentContainer.style.flexDirection = "row-reverse";
+    this.newCommentContainer.style.width = "100%";
+
+    //create the avatar container + avatar
+    var avatar = document.createElement("div");
+    avatar.style.width = "30px";
+    avatar.style.height = "30px";
+    avatar.style.fontSize = "14px";
+    avatar.style.backgroundColor = "#3949ab";
+    avatar.style.borderRadius = "50%";
+    avatar.style.textAlign = "center";
+    avatar.style.lineHeight = "28px";
+    avatar.style.marginLeft = "4px";
+
+    this.newMessageBlock = document.createElement("div");
+    this.newMessageBlock.style.alignItems = "flex-end";
+    this.newMessageBlock.style.display = "flex";
+    this.newMessageBlock.style.flex = "1";
+    this.newMessageBlock.style.flexDirection = "column";
+
+    var chatWindow = this;
+    var commentBlock = this.newMessageBlock;
+    var commentRow = this.newCommentContainer;
+
+    var avatarParts = userName.split(" ");
+    avatar.innerText = avatarParts[2].charAt(0) + avatarParts[0].charAt(0);
+
+    //create a message messageBlock
+    //message block will be on the right (user generated)
+    //create a message
+
+    function listEntrySuccess(data) {
+      var item = new MeatballHistoryItem(
+        historyListGUID,
+        table,
+        rowIndex,
+        internalColumn
+      );
+      item.setDisplay(
+        userName,
+        generateDateTime(),
+        data.Message,
+        data.ID,
+        historyListGUID,
+        table,
+        rowIndex,
+        internalColumn,
+        true
+      );
+      item.isNew = true;
+      //item.setType(meatballObj.currentUser);
+
+      //Step 1. Determine whether to append to existing block or append to new block
+      if (lastAuthor === userName) {
+        //Step 1a. Find last message block and append to existing
+        var lastBlock = organized[organized.length - 1];
+
+        //Step 1b. Append new message to latest block in screen.
+        lastBlock.block.appendChild(item.item);
+
+        //Step 1c. Push new message into memory for later use.
+        organized[organized.length - 1].messages.push(item);
+        //Step 2. Append new comment to new block. Add to overall display.
+      } else {
+        //Step 2a. Append message to message block.
+        commentBlock.appendChild(item.item);
+
+        //Step 2b. Append avatar container to message container row.
+        commentRow.appendChild(avatar);
+
+        //Step 2c. Append message block to message container row.
+        commentRow.appendChild(commentBlock);
+
+        //Step 2d. Append new comment to chat window
+        chatWindow.container.appendChild(commentRow);
+      }
+
+      //Step 3. Scroll bottom to give appearance of chat window update.
+      chatWindow.scrollDown();
+
+      item.setEditable(item.getEditable());
+
+      //Step 4. Reset the input to NO value to start over.
+      chatWindow.newComment.value = "";
+    }
+    makeHistory(
+      historyListGUID,
+      this.newComment.value,
+      internalColumn,
+      rowIndex,
+      table,
+      listEntrySuccess
+    );
+
+    return this;
+  };
+
+  MeatballHistory.prototype.reset = function () {
     while (this.container.firstChild) {
       this.container.removeChild(this.container.firstChild);
     }
+    return this;
+  };
+
+  MeatballHistory.prototype.scrollDown = function () {
+    this.container.scrollTop = this.container.scrollHeight;
+    return this;
   };
 
   function MeatballHistoryItem(
@@ -1396,7 +1425,6 @@
           internalColumn,
           rowindex,
           table,
-          userName,
           listEntrySuccess
         );
       } else {
@@ -1552,6 +1580,7 @@
       this.rowIndex = rowIndex;
       this.internalColumn = internalColumn;
     }
+
     return this;
   };
 
@@ -2264,7 +2293,6 @@
     colName,
     rowId,
     tableGUID,
-    currentUser,
     listEntrySuccess,
     autoBot
   ) {
@@ -2272,8 +2300,7 @@
       __metadata: { type: "SP.ListItem" },
       Message: message,
       Title: tableGUID + " - " + rowId + " - " + colName, //name of the status column that is passed
-      Status:
-        currentUser !== "AutoBot" ? "User Generated" : "Automated Message",
+      Status: autoBot ? "Automated Message" : "User Generated",
     };
 
     var url = ctx.PortalUrl + "_api/web/lists('" + listId + "')/items "; //this is dev env
