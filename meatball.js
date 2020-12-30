@@ -422,11 +422,6 @@
     //Add Header Element
     this.popover.appendChild(this.header);
 
-    this.dividor0 = document.createElement("hr");
-    this.dividor0.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
-
-    this.popover.appendChild(this.dividor0);
-
     //Create Options Panel Object
     this.options = new OptionPanel();
     this.options.create(
@@ -484,7 +479,6 @@
     this.initHistoryMessage = document.createElement("div");
     this.initHistoryMessage.style.padding = ".25rem";
     this.initHistoryMessage.style.margin = ".25rem";
-    this.initHistoryMessage.style.textAlign = "center";
     this.initHistoryMessage.style.display = "block";
     this.initHistoryMessage.style.fontSize = "9pt";
 
@@ -494,6 +488,10 @@
     this.initHistoryName.style.textAlign = "left";
     this.initHistoryName.style.display = "block";
     this.initHistoryName.style.fontSize = "7pt";
+
+    this.initHistoryHeader = document.createElement("div");
+    this.initHistoryHeader.style.display = "flex";
+    this.initHistoryHeader.style.justifyContent = "space-between";
 
     this.showMore = document.createElement("div");
     this.showMore.innerText = "Show More";
@@ -653,9 +651,10 @@
         meatballHistoryDisplay.container.scrollHeight;
     });
 
-    this.initHistoryContainer.appendChild(this.initHistoryName);
+    this.initHistoryHeader.appendChild(this.initHistoryName);
+    this.initHistoryHeader.appendChild(this.initHistoryDate);
+    this.initHistoryContainer.appendChild(this.initHistoryHeader);
     this.initHistoryContainer.appendChild(this.initHistoryMessage);
-    this.initHistoryContainer.appendChild(this.initHistoryDate);
     this.popoverBody.appendChild(this.initHistoryContainer);
     this.popoverBody.appendChild(this.showMore);
 
@@ -931,26 +930,31 @@
     this.listGUID = historyListGUID;
 
     this.historyPanel = document.createElement("div");
-    this.historyPanel.style.padding = ".25rem";
-    this.historyPanel.style.width = "calc(500px - .5rem)";
-    this.historyPanel.style.height = windowHeight + "px";
+    this.historyPanel.style.alignItems = "stretch";
     this.historyPanel.style.backgroundColor = defaultBackgroundColor;
-    this.historyPanel.style.textAlign = "left";
+    this.historyPanel.style.display = "flex";
+    this.historyPanel.style.flexDirection = "column";
+    this.historyPanel.style.height = windowHeight + "px";
     this.historyPanel.style.position = "fixed";
-    this.historyPanel.style.top = "0px";
     this.historyPanel.style.right = "0px";
+    this.historyPanel.style.textAlign = "left";
+    this.historyPanel.style.top = "0px";
+    this.historyPanel.style.width = "calc(500px - .5rem)";
 
     this.title = document.createElement("div");
-    this.title.style.display = "flex";
-    this.title.style.flexDirection = "column";
     this.title.style.backgroundColor = defaultBackgroundColor;
     this.title.style.justifyContent = "center";
     this.title.style.borderBottom = "1px solid #2d2d2d";
     this.title.style.marginBottom = "0.5rem";
 
+    this.headerContainer = document.createElement("div");
+    this.headerContainer.style.height = "50px";
+    this.headerContainer.style.padding = "0.25rem .5rem";
+    this.headerContainer.style.display = "flex";
+    this.headerContainer.style.flexDirection = "row";
+
     this.titleContainer = document.createElement("div");
     this.titleContainer.style.flex = "1";
-    this.titleContainer.style.padding = "0.25rem .5rem";
 
     this.x = document.createElement("div");
     this.x.innerText = "X";
@@ -959,7 +963,7 @@
     this.x.style.padding = ".25rem";
     this.x.style.cursor = "pointer";
     this.x.style.height = "calc(10px + .5rem)";
-    this.x.style.position = "fixed";
+    this.x.style.alignSelf = "center";
     this.x.style.right = "10px";
     this.x.style.textAlign = "right";
     this.x.style.color = defaultTitleColor;
@@ -984,7 +988,6 @@
 
     this.titleMain = document.createElement("h3");
     this.titleMain.innerText = "History";
-    this.titleMain.style.flexGrow = "1";
     this.titleMain.style.fontWeight = "bolder";
     this.titleMain.style.color = defaultTitleColor;
 
@@ -995,17 +998,9 @@
 
     this.titleContainer.appendChild(this.titleMain);
     this.titleContainer.appendChild(this.titleDescription);
-    this.title.appendChild(this.titleContainer);
-    this.title.appendChild(this.x);
-
-    this.svgContainer = document.createElement("div");
-    this.svgContainer.style.flexGrow = "4";
-    this.svgContainer.style.flexShrink = "1";
-    this.svgContainer.style.textAlign = "right";
-    this.svgContainer.style.marginRight = ".75rem";
-
-    this.title.appendChild(this.svgContainer);
-    this.title.appendChild(this.x);
+    this.headerContainer.appendChild(this.titleContainer);
+    this.headerContainer.appendChild(this.x);
+    this.title.appendChild(this.headerContainer);
 
     this.historyPanel.appendChild(this.title);
     //
@@ -1076,22 +1071,28 @@
     //   meatballHistory.container.scrollHeight;
     // }
 
-    this.containerText = "No History Available For This Item";
+    this.containerText = document.createElement("p");
+    this.containerText.innerText = "No History Available For This Item";
+    this.containerText.style.color = "white";
+    this.containerText.style.textAlign = "center";
+    this.containerText.style.width = "100%";
+    this.containerText.style.fontWeight = "600";
+    this.containerText.style.position = "absolute";
 
     this.container = document.createElement("div");
     this.container.id = "MHContainer";
     this.container.style.display = "flex";
+    this.container.style.flex = "1";
     this.container.style.flexDirection = "column";
-    this.container.style.height = windowHeight - 150 + "px";
-    this.container.style.margin = "auto";
     this.container.style.overflowX = "hidden";
     this.container.style.overflowY = "auto";
     this.container.style.padding = "0.25rem";
     this.container.style.color = defaultTitleColor;
-    this.container.innerText = this.containerText;
+
     this.container.addNew = true;
     this.container.isEdit = true;
 
+    this.container.appendChild(this.containerText);
     this.historyPanel.appendChild(this.container);
 
     this.dividor1 = document.createElement("hr");
@@ -1100,39 +1101,39 @@
     this.historyPanel.appendChild(this.dividor1);
 
     this.addPanel = document.createElement("div");
-    this.addPanel.style.width = "calc(500px - 2.25rem)";
-    this.addPanel.style.padding = ".5rem";
-    this.addPanel.style.marginTop = ".25rem";
-    this.addPanel.style.marginLeft = "auto";
-    this.addPanel.style.marginRight = "auto";
-    this.addPanel.style.backgroundColor = defaultHoverBackgroundColor;
-    this.addPanel.style.borderRadius = ".25rem";
+    this.addPanel.style.borderTop = "1px solid #444444";
     this.addPanel.style.display = "flex";
+    this.addPanel.style.height = "60px";
+    this.addPanel.style.padding = ".25rem";
 
-    this.svg = new SVGGenerator({
+    this.send = new SVGGenerator({
       color: "white",
       type: "submit",
       size: "large",
     }).wrapper;
-    this.svg.style.cursor = "pointer";
-    this.svg.style.padding = ".5rem";
-    this.svg.style.display = "inline-block";
-    this.svg.style.borderRadius = ".25rem";
+    this.send.style.alignItems = "center";
+    this.send.style.borderRadius = ".25rem";
+    this.send.style.cursor = "pointer";
+    this.send.style.display = "flex";
+    this.send.style.height = "auto";
+    this.send.style.justifyContent = "center";
+    this.send.style.padding = "0.5rem";
+    this.send.style.width = "40px";
 
-    this.svg.addEventListener("mouseenter", function () {
+    this.send.addEventListener("mouseenter", function () {
       this.style.backgroundColor = "#1B2B8D";
     });
 
-    this.svg.addEventListener("mouseleave", function () {
+    this.send.addEventListener("mouseleave", function () {
       this.style.backgroundColor = "#3949ab";
     });
 
-    this.svg.addEventListener("click", function () {
-      if (meatballHistory.newComment.value.length > 0) {
-        meatballHistory.newComment.value = meatballHistory.newComment.value.replace(
+    this.send.addEventListener("click", function () {
+      if (meatballHistory.input.value.length > 0) {
+        meatballHistory.input.value = meatballHistory.input.value.replace(
           regex,
           "",
-          meatballHistory.newComment.value
+          meatballHistory.input.value
         );
       } else {
         return;
@@ -1146,30 +1147,38 @@
       }
     });
 
-    this.newComment = document.createElement("input");
-    this.newComment.id = "CommentBox";
-    this.newComment.contentEditable = true;
-    this.newComment.placeholder = "Enter Comment Here";
-    this.newComment.value = "";
-    this.newComment.title = "Enter Comment Here";
-    this.newComment.style.flex = "1";
-    this.newComment.style.display = "inline-block";
-    this.newComment.style.padding = ".25rem";
-    this.newComment.style.backgroundColor = defaultHoverBackgroundColor;
-    this.newComment.style.color = defaultTitleColor;
-    this.newComment.style.borderRadius = ".25rem";
-    this.newComment.style.border = "0px";
-    this.newComment.style.marginRight = ".25rem";
-    this.newComment.style.fontSize = "9pt";
+    this.footer = document.createElement("div");
+    this.footer.style.borderRadius = "0.25rem";
+    this.footer.style.padding = "0.25rem";
+    this.footer.style.display = "flex";
+    this.footer.style.flex = "1";
+    this.footer.style.flexDirection = "row";
+    this.footer.style.backgroundColor = "rgb(51, 51, 51)";
 
-    this.newComment.addEventListener("keydown", function (e) {
+    this.input = document.createElement("input");
+    this.input.id = "CommentBox";
+    this.input.placeholder = "Enter Comment Here";
+    this.input.style.backgroundColor = defaultHoverBackgroundColor;
+    this.input.style.border = "0px";
+    this.input.style.borderRadius = ".25rem";
+    this.input.style.color = defaultTitleColor;
+    this.input.style.display = "flex";
+    this.input.style.flex = "1 1 0%";
+    this.input.style.fontSize = "9pt";
+    this.input.style.padding = ".25rem .5rem";
+
+    this.input.addEventListener("keydown", function (e) {
       if (e.keyCode === 13) {
+        if (organized.length < 2 && organized[0].length === 0) {
+          meatballHistory.reset();
+        }
         meatballHistory.newItem(table, rowIndex, internalColumn);
       }
     });
 
-    this.addPanel.appendChild(this.newComment);
-    this.addPanel.appendChild(this.svg);
+    this.footer.appendChild(this.input);
+    this.footer.appendChild(this.send);
+    this.addPanel.appendChild(this.footer);
 
     this.historyPanel.appendChild(this.addPanel);
 
@@ -1212,14 +1221,12 @@
     this.dividorPanel.appendChild(this.dividorText);
     this.dividorPanel.appendChild(this.rightDividorLine);
     this.container.appendChild(this.dividorPanel);
-    // this.container.insertBefore(this.dividorPanel, child);
     return this;
   };
 
   MeatballHistory.prototype.build = function (props) {
-    if (this.container.innerText === this.containerText) {
-      this.container.innerText = "";
-    }
+    this.containerText.innerText = "";
+
     props.setType(userName);
 
     this.container.appendChild(props.item);
@@ -1236,7 +1243,7 @@
       this.container.innerText = "";
     }
 
-    if (this.newComment.value.length <= 0) {
+    if (this.input.value.length <= 0) {
       return;
     }
 
@@ -1318,6 +1325,10 @@
 
         //Step 2d. Append new comment to chat window
         chatWindow.container.appendChild(commentRow);
+
+        organized.push({ block: commentBlock, messages: [item.item] });
+
+        lastAuthor = userName;
       }
 
       //Step 3. Scroll bottom to give appearance of chat window update.
@@ -1326,11 +1337,11 @@
       item.setEditable(item.getEditable());
 
       //Step 4. Reset the input to NO value to start over.
-      chatWindow.newComment.value = "";
+      chatWindow.input.value = "";
     }
     makeHistory(
       historyListGUID,
-      this.newComment.value,
+      this.input.value,
       internalColumn,
       rowIndex,
       table,
