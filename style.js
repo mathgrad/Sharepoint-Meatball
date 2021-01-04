@@ -3,9 +3,9 @@
     this.$ele = "";
     switch (props.type) {
       case "avatar":
-        break;
+        return this;
       case "button":
-        break;
+        return this;
       case "carret":
         switch (props.size) {
           case "small":
@@ -61,19 +61,9 @@
         }
         return this;
       case "message":
-        break;
+        return this;
       default:
-        break;
-    }
-    switch (props.size) {
-      case "small":
-        break;
-      case "normal":
-        break;
-      case "large":
-        break;
-      default:
-        break;
+        return this;
     }
   }
 
