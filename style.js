@@ -6,25 +6,25 @@
         switch (props.size) {
           case "small":
             this.$ele +=
-              "width: 15px; height: 15px; font-size: 7px; border-radius: 15px; text-align: center; line-height: 14px; background-color: " +
+              "width: 15px; height: 15px; font-size: 5.25pt; border-radius: 15px; text-align: center; line-height: 14px; background-color: " +
               color(props.bgc) +
               ";";
             break;
           case "normal":
             this.$ele +=
-              "width: 30px; height: 30px; font-size: 14px; border-radius: 30px; text-align: center; line-height: 28px; background-color: " +
+              "width: 30px; height: 30px; font-size: 10.5pt; border-radius: 30px; text-align: center; line-height: 28px; background-color: " +
               color(props.bgc) +
               ";";
             break;
           case "large":
             this.$ele +=
-              "width: 45px; height: 45px; font-size: 21px; border-radius: 45px; text-align: center; line-height: 42px; background-color: " +
+              "width: 45px; height: 45px; font-size: 15.75pt; border-radius: 45px; text-align: center; line-height: 42px; background-color: " +
               color(props.bgc) +
               ";";
             break;
           default:
             this.$ele +=
-              "width: 30px; height: 30px; font-size: 14px; border-radius: 30px; text-align: center; line-height: 28px; background-color: " +
+              "width: 30px; height: 30px; font-size: 10.5pt; border-radius: 30px; text-align: center; line-height: 28px; background-color: " +
               color(props.bgc) +
               ";";
             break;
