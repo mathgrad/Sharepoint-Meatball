@@ -17,6 +17,12 @@
       case "button":
         switch (props.size) {
           case "small":
+            this.$ele +=
+              "border-radius: .125rem; padding: .125rem; margin: 0px .25rem .25rem .25rem; text-align: center; display: block; cursor: pointer: font-weight: 500; background-color: " +
+              color(props.bgc) +
+              "; color: " +
+              color(props.fc) +
+              ";";
             break;
           case "normal":
             this.$ele +=
@@ -27,8 +33,20 @@
               ";";
             break;
           case "large":
+            this.$ele +=
+              "border-radius: .5rem; padding: .5rem; margin: 0px 1rem 1rem 1rem; text-align: center; display: block; cursor: pointer: font-weight: 500; background-color: " +
+              color(props.bgc) +
+              "; color: " +
+              color(props.fc) +
+              ";";
             break;
           default:
+            this.$ele +=
+              "border-radius: .25rem; padding: .25rem; margin: 0px .5rem .5rem .5rem; text-align: center; display: block; cursor: pointer: font-weight: 500; background-color: " +
+              color(props.bgc) +
+              "; color: " +
+              color(props.fc) +
+              ";";
             break;
         }
         return this;
