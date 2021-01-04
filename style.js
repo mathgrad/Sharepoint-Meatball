@@ -7,7 +7,29 @@
       case "button":
         break;
       case "carret":
-        break;
+        switch (props.size) {
+          case "small":
+            this.$ele +=
+              "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 14px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 5px solid " +
+              color(props);
+            break;
+          case "normal":
+            this.$ele +=
+              "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 29px; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid " +
+              color(props);
+            break;
+          case "large":
+            this.$ele +=
+              "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 44px; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-right: 15px solid " +
+              color(props);
+            break;
+          default:
+            this.$ele +=
+              "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 29px; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid " +
+              color(props);
+            break;
+        }
+        return this;
       case "container":
         break;
       case "meatball":
