@@ -11,7 +11,33 @@
       case "container":
         break;
       case "meatball":
-        break;
+        switch (props.size) {
+          case "small":
+            this.$ele +=
+              "width: 10px; height: 10px; border-radius: 10px; margin: auto; padding: 0px; background-color: " +
+              color(props) +
+              ";";
+            break;
+          case "normal":
+            this.$ele +=
+              "width: 15px; height: 15px; border-radius: 15px; margin: auto; padding: 0px; background-color: " +
+              color(props) +
+              ";";
+            break;
+          case "large":
+            this.$ele +=
+              "width: 20px; height: 20px; border-radius: 20px; margin: auto; padding: 0px; background-color: " +
+              color(props) +
+              ";";
+            break;
+          default:
+            this.$ele +=
+              "width: 15px; height: 15px; border-radius: 15px; margin: auto; padding: 0px; background-color: " +
+              color(props) +
+              ";";
+            break;
+        }
+        return this;
       case "message":
         break;
       default:
@@ -27,62 +53,46 @@
       default:
         break;
     }
+  }
+
+  function color(props) {
     switch (props.color) {
       case "0":
-        //#f0f0f0;
-        break;
+        return "#f0f0f0";
       case "1":
-        //#e53935;
-        break;
+        return "#e53935";
       case "2":
-        //#e91e63;
-        break;
+        return "#e91e63";
       case "3":
-        //#8e24aa;
-        break;
+        return "#8e24aa";
       case "4":
-        //#3949ab;
-        break;
+        return "#3949ab";
       case "5":
-        //#00796b;
-        break;
+        return "#00796b";
       case "6":
-        //#64dd17;
-        break;
+        return "#64dd17";
       case "7":
-        //#f4511e;
-        break;
+        return "#f4511e";
       case "8":
-        //#aaaaaa;
-        break;
+        return "#aaaaaa";
       case "9":
-        //#f96816;
-        break;
+        return "#f96816";
       case "10":
-        //#222;
-        break;
+        return "#222";
       case "11":
-        //#191919;
-        break;
+        return "#191919";
       case "12":
-        //#2c2c2c;
-        break;
+        return "#2c2c2c";
       case "13":
-        //#dfdfdf;
-        break;
+        return "#dfdfdf";
       case "14":
-        //#1b2b8d;
-        break;
+        return "#1b2b8d";
       case "15":
-        //#333333
-        break;
+        return "#333333";
       case "16":
-        //#202020;
-        break;
+        return "#202020";
       default:
-        //#f0f0f0;
-        break;
+        return "#f0f0f0";
     }
-    return this;
   }
 });
