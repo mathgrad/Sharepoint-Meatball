@@ -188,6 +188,8 @@
         return "#333333";
       case "16":
         return "#202020";
+      case "17":
+        return "#d2d2d2";
       default:
         return "#f0f0f0";
     }

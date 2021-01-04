@@ -13,15 +13,25 @@
   // var defaultHoverBackgroundColor = "#D2D2D2";
   // var defaultColor = "#202020";
   // var defaultTitleColor = "#333333";
+  // dbgc = 16
   var defaultBackgroundColor = "#202020";
+  // dMHIbgc = 11;
   var defaultMHIBackgroundColor = "#191919";
+  // dHbgc = 15
   var defaultHoverBackgroundColor = "#333333";
+  // dBgbc = 4
   var defaultButtonBackgroundColor = "#3949ab";
+  // dBHbgc = 14
   var defaultButtonHoverBackgroundColor = "#1B2B8D";
+  // dCBbgc = 4
   var defaultCancelButtonBackgroundColor = "#3949ab";
+  // dCBHbgc = 14
   var defaultCancelButtonHoverBackgroundColor = "#1B2B8D";
+  // dIbgc = 17
   var defaultInputBackgroundColor = "#D2D2D2";
+  // dc = 0
   var defaultColor = "#F0F0F0";
+  // dTc = 13
   var defaultTitleColor = "#DFDFDF";
 
   //Creates the Pantry object which manages toast notifications
@@ -1153,7 +1163,7 @@
     this.footer.style.display = "flex";
     this.footer.style.flex = "1";
     this.footer.style.flexDirection = "row";
-    this.footer.style.backgroundColor = "rgb(51, 51, 51)";
+    this.footer.style.backgroundColor = defaultHoverBackgroundColor;
 
     this.input = document.createElement("input");
     this.input.id = "CommentBox";
