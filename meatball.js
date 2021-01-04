@@ -622,7 +622,7 @@
                 return {
                   block: messageBlock,
                   messages: block.map(function (item, index2) {
-                    var mhItem = new MeatballHistoryItem();
+                    var mhItem = new MeatballHistoryMessage();
                     mhItem.setDisplay(
                       item.Author,
                       generateDateTime(item.Created),
@@ -1035,7 +1035,7 @@
     //   meatballHistory.clear();
     //   data.forEach(function (props, index) {
     //     currentDate = new Date(props.Created);
-    //     var mhItem = new MeatballHistoryItem().setDisplay(
+    //     var mhItem = new MeatballHistoryMessage().setDisplay(
     //       props.Author,
     //       generateDateTime(props.Created),
     //       props.Message,
@@ -1282,7 +1282,7 @@
     //create a message
 
     function listEntrySuccess(data) {
-      var item = new MeatballHistoryItem(
+      var item = new MeatballHistoryMessage(
         historyListGUID,
         table,
         rowIndex,
@@ -1363,7 +1363,7 @@
     return this;
   };
 
-  function MeatballHistoryItem(
+  function MeatballHistoryMessage(
     historyListGUID,
     table,
     rowindex,
@@ -1565,7 +1565,7 @@
     return this;
   }
 
-  MeatballHistoryItem.prototype.setDisplay = function (
+  MeatballHistoryMessage.prototype.setDisplay = function (
     author,
     date,
     comment,
@@ -1595,7 +1595,7 @@
     return this;
   };
 
-  MeatballHistoryItem.prototype.setEditable = function (
+  MeatballHistoryMessage.prototype.setEditable = function (
     value,
     newData,
     oldComment
@@ -1654,11 +1654,11 @@
     return this;
   };
 
-  MeatballHistoryItem.prototype.getEditable = function () {
+  MeatballHistoryMessage.prototype.getEditable = function () {
     return this.comment.contentEditable === "true";
   };
 
-  MeatballHistoryItem.prototype.setType = function (author) {
+  MeatballHistoryMessage.prototype.setType = function (author) {
     if (this.author.innerText.indexOf(author) > -1) {
       this.item.type = "editable";
       this.item.style.backgroundColor = defaultButtonBackgroundColor;
