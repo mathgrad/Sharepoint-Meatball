@@ -3,8 +3,28 @@
     this.$ele = "";
     switch (props.type) {
       case "avatar":
+        switch (props.size) {
+          case "small":
+            break;
+          case "normal":
+            break;
+          case "large":
+            break;
+          default:
+            break;
+        }
         return this;
       case "button":
+        switch (props.size) {
+          case "small":
+            break;
+          case "normal":
+            break;
+          case "large":
+            break;
+          default:
+            break;
+        }
         return this;
       case "carret":
         switch (props.size) {
@@ -31,7 +51,17 @@
         }
         return this;
       case "container":
-        break;
+        switch (props.size) {
+          case "small":
+            break;
+          case "normal":
+            break;
+          case "large":
+            break;
+          default:
+            break;
+        }
+        return this;
       case "meatball":
         switch (props.size) {
           case "small":
@@ -61,8 +91,19 @@
         }
         return this;
       case "message":
+        switch (props.size) {
+          case "small":
+            break;
+          case "normal":
+            break;
+          case "large":
+            break;
+          default:
+            break;
+        }
         return this;
       default:
+        throw new Error("No Type Defined\nPlease Define a Type");
         return this;
     }
   }
