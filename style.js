@@ -19,6 +19,12 @@
           case "small":
             break;
           case "normal":
+            this.$ele +=
+              "border-radius: .25rem; padding: .25rem; margin: 0px .5rem .5rem .5rem; text-align: center; display: block; cursor: pointer: font-weight: 500; background-color: " +
+              color(props.bgc) +
+              "; color: " +
+              color(props.fc) +
+              ";";
             break;
           case "large":
             break;
@@ -31,22 +37,26 @@
           case "small":
             this.$ele +=
               "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 14px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 5px solid " +
-              color(props);
+              color(props.bgc) +
+              ";";
             break;
           case "normal":
             this.$ele +=
               "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 29px; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid " +
-              color(props);
+              color(props.bgc) +
+              ";";
             break;
           case "large":
             this.$ele +=
               "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 44px; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-right: 15px solid " +
-              color(props);
+              color(props.bgc) +
+              ";";
             break;
           default:
             this.$ele +=
               "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 29px; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid " +
-              color(props);
+              color(props.bgc) +
+              ";";
             break;
         }
         return this;
@@ -67,25 +77,25 @@
           case "small":
             this.$ele +=
               "width: 10px; height: 10px; border-radius: 10px; margin: auto; padding: 0px; background-color: " +
-              color(props) +
+              color(props.bgc) +
               ";";
             break;
           case "normal":
             this.$ele +=
               "width: 15px; height: 15px; border-radius: 15px; margin: auto; padding: 0px; background-color: " +
-              color(props) +
+              color(props.bgc) +
               ";";
             break;
           case "large":
             this.$ele +=
               "width: 20px; height: 20px; border-radius: 20px; margin: auto; padding: 0px; background-color: " +
-              color(props) +
+              color(props.bgc) +
               ";";
             break;
           default:
             this.$ele +=
               "width: 15px; height: 15px; border-radius: 15px; margin: auto; padding: 0px; background-color: " +
-              color(props) +
+              color(props.bgc) +
               ";";
             break;
         }
@@ -109,7 +119,7 @@
   }
 
   function color(props) {
-    switch (props.color) {
+    switch (props) {
       case "0":
         return "#f0f0f0";
       case "1":
