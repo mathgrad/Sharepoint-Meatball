@@ -1,21 +1,21 @@
 (function () {
   //Controller for the Toast Object
   function Pantry() {
-    this.container = document.createElement("div");
-    this.container.style.width = "250px";
-    this.container.style.right = "40px";
-    this.container.style.display = "flex";
-    this.container.style.flexDirection = "column";
-    this.container.style.zIndex = "1";
-    this.container.style.top = "75px";
-    this.container.style.position = "fixed";
-    this.container.style.backgroundColor = "transparent";
-    document.body.appendChild(this.container);
+    this.$ele = document.createElement("div");
+    this.$ele.style.width = "250px";
+    this.$ele.style.right = "40px";
+    this.$ele.style.display = "flex";
+    this.$ele.style.flexDirection = "column";
+    this.$ele.style.zIndex = "1";
+    this.$ele.style.top = "75px";
+    this.$ele.style.position = "fixed";
+    this.$ele.style.backgroundColor = "transparent";
+    document.body.appendChild(this.$ele);
   }
 
   Pantry.prototype.show = function (notification) {
     var note = notification;
-    this.container.appendChild(notification.toast);
+    this.$ele.appendChild(notification.toast);
     var timer = setTimeout(
       function (note) {
         note.removeToast();
@@ -27,7 +27,7 @@
   };
 
   Pantry.prototype.debug = function (toast) {
-    this.container.appendChild(toast.toast);
+    this.$ele.appendChild(toast.toast);
   };
 
   //Notification object with ability to display messages, and images
@@ -134,4 +134,54 @@
     }
     return this;
   };
+
+  function errorCheck() {
+    var scripts = [].slice.call(document.getElementsByTagName("script"));
+
+    var svgGenerator = scripts.filter(function (script) {
+      if (script.src.indexOf("svgGenerator") > -1) {
+        return script;
+      } else {
+        return;
+      }
+    });
+
+    if (svgGenerator.length == 0) {
+      var pantry = scripts.filter(function (script) {
+        if (script.src.indexOf("pantry") > -1) {
+          return script.src;
+        } else {
+          return;
+        }
+      });
+      loadScript(pantry.substring(0, pantry.indexOf("pantry")), null);
+    } else {
+      return true;
+    }
+  }
+
+  function LoaderCSS(props) {
+    this.loader = document.createElement("div");
+    this.loader.id = "LoaderCSS";
+    this.loader.style.border = props.bSize + "px solid #F3F3F3";
+    this.loader.style.borderTop = props.bSize + "px solid #3498db";
+    this.loader.style.borderRadius = props.diameter + "px";
+    this.loader.style.width = props.diameter + "px";
+    this.loader.style.height = props.diameter + "px";
+    this.loader.style.animation = "spin 2s linear infinite";
+    return this;
+  }
+
+  function loadScript(url, callback) {
+    var head = document.head;
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+
+    if (callback) {
+      script.addEventListener("readystatechange", callback);
+      script.addEventListener("load", callback);
+    }
+    head.appendChild(script);
+  }
 });
