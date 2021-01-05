@@ -258,6 +258,10 @@
         break;
     }
 
+    if (this.colors.length > parseInt(value)) {
+      return this.colors[parseInt(value)];
+    }
+
     return "#000000";
   };
 
