@@ -608,7 +608,6 @@
                 avatar.style.margin = isRight
                   ? "0px 0px 0px 4px"
                   : "0px 4px 0px 0px";
-                console.log("author", author);
                 var avatarParts = author.split(" ");
 
                 avatar.innerText =
@@ -2224,7 +2223,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        createMessageColumn(data.d.Id); //colName and rowId come from the cell
+        createMessageColumn(); //colName and rowId come from the cell
         return false;
       },
       error: function (error) {
@@ -2233,7 +2232,7 @@
     });
   }
 
-  function createMessageColumn(listId) {
+  function createMessageColumn() {
     var data = {
       __metadata: { type: "SP.Field" },
       Title: "Message",
@@ -2243,7 +2242,7 @@
       StaticName: "Message",
     };
 
-    var url = ctx.PortalUrl + "_api/web/lists('" + listId + "')/Fields";
+    var url = ctx.PortalUrl + "_api/web/lists/getbytitle('History')/Fields";
 
     $.ajax({
       url: url,
@@ -2256,7 +2255,7 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        createStatusColumn(listId);
+        createStatusColumn();
         return false;
       },
       error: function (error) {
@@ -2265,7 +2264,7 @@
     });
   }
 
-  function createStatusColumn(listId) {
+  function createStatusColumn() {
     var data = {
       __metadata: { type: "SP.Field" },
       Title: "Status",
@@ -2275,7 +2274,7 @@
       StaticName: "Status",
     };
 
-    var url = ctx.PortalUrl + "_api/web/lists('" + listId + "')/Fields"; //this is dev env
+    var url = ctx.PortalUrl + "_api/web/lists/getbytitle('History')/Fields"; //this is dev env
 
     $.ajax({
       url: url,
@@ -2312,7 +2311,7 @@
       Status: autoBot ? "Automated Message" : "User Generated",
     };
 
-    var url = ctx.PortalUrl + "_api/web/lists('" + listId + "')/items "; //this is dev env
+    var url = ctx.PortalUrl + "_api/web/lists/getbytitle('History')/items "; //this is dev env
 
     $.ajax({
       url: url,
@@ -2339,7 +2338,7 @@
 
   function deleteHistory(listId, id) {
     var url =
-      ctx.PortalUrl + "_api/web/lists('" + listId + "')/items(" + id + ")"; //this is dev env
+      ctx.PortalUrl + "_api/web/lists/getbytitle('History')/items(" + id + ")"; //this is dev env
 
     $.ajax({
       url: url,
@@ -2367,7 +2366,7 @@
     };
 
     var url =
-      ctx.PortalUrl + "_api/web/lists('" + listId + "')/items(" + id + ")";
+      ctx.PortalUrl + "_api/web/lists/getbytitle('History')/items(" + id + ")";
 
     $.ajax({
       url: url,
