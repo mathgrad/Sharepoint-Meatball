@@ -135,6 +135,18 @@
     return this;
   };
 
+  function LoaderCSS(props) {
+    this.loader = document.createElement("div");
+    this.loader.id = "LoaderCSS";
+    this.loader.style.border = props.bSize + "px solid #F3F3F3";
+    this.loader.style.borderTop = props.bSize + "px solid #3498db";
+    this.loader.style.borderRadius = props.diameter + "px";
+    this.loader.style.width = props.diameter + "px";
+    this.loader.style.height = props.diameter + "px";
+    this.loader.style.animation = "spin 2s linear infinite";
+    return this;
+  }
+
   function errorCheck() {
     var scripts = [].slice.call(document.getElementsByTagName("script"));
 
@@ -158,18 +170,6 @@
     } else {
       return true;
     }
-  }
-
-  function LoaderCSS(props) {
-    this.loader = document.createElement("div");
-    this.loader.id = "LoaderCSS";
-    this.loader.style.border = props.bSize + "px solid #F3F3F3";
-    this.loader.style.borderTop = props.bSize + "px solid #3498db";
-    this.loader.style.borderRadius = props.diameter + "px";
-    this.loader.style.width = props.diameter + "px";
-    this.loader.style.height = props.diameter + "px";
-    this.loader.style.animation = "spin 2s linear infinite";
-    return this;
   }
 
   function loadScript(url, callback) {
