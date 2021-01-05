@@ -608,6 +608,7 @@
                 avatar.style.margin = isRight
                   ? "0px 0px 0px 4px"
                   : "0px 4px 0px 0px";
+                console.log("author", author);
                 var avatarParts = author.split(" ");
 
                 avatar.innerText =
@@ -877,12 +878,12 @@
             table,
             externalColumn,
             internalColumn,
-            listTitle,
-            userName
+            listTitle
           );
 
-          var autoComment =
-            "Status change: " + cellText + " to " + ele + " by " + userName;
+          var autoComment = cellText
+            ? "Status change: " + cellText + " to " + ele + " by " + userName
+            : "Initial Status: " + ele + " by " + userName;
 
           makeHistory(
             historyListGUID,
@@ -2113,14 +2114,11 @@
   //Show the history and on fail display "No Messages" in the history view
 
   function retrieveHistory(table, rowIndex, internalColumn, cb, init) {
-    var name = "History " + ctx.SiteTitle;
     var url = "";
     init
       ? (url =
           ctx.PortalUrl +
-          "_api/web/lists/getbytitle('" +
-          name +
-          "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
+          "_api/web/lists/getbytitle('History')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
           table +
           " - " +
           rowIndex +
@@ -2129,9 +2127,7 @@
           "'&$expand=Author&$orderby=Created desc&$top=1")
       : (url =
           ctx.PortalUrl +
-          "_api/web/lists/getbytitle('" +
-          name +
-          "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
+          "_api/web/lists/getbytitle('History')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
           table +
           " - " +
           rowIndex +
@@ -2149,7 +2145,6 @@
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (res) {
-        // console.log(res.d.results);
         var data = res.d.results.map(function (item) {
           item.Author =
             item.Status === "Automated Message" ? "AutoBot" : item.Author.Title;
@@ -2163,8 +2158,7 @@
   }
 
   function findHistoryChat(cb) {
-    var name = "History " + ctx.SiteTitle;
-    var url = ctx.PortalUrl + "_api/web/lists/getbytitle('" + name + "')";
+    var url = ctx.PortalUrl + "_api/web/lists/getbytitle('History')";
 
     $.ajax({
       url: url,
@@ -2181,7 +2175,7 @@
       },
       error: function (error) {
         console.log("Error in the findHistoryChat:", error);
-        makeList(name);
+        makeList("History");
       },
     });
   }
