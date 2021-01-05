@@ -1,7 +1,8 @@
 //Controller for the Toast Object
-if (errorCheck) {
+if (errorCheck()) {
   throw new Error("Failed to Make Script");
 }
+
 function Pantry() {
   this.$ele = document.createElement("div");
   this.$ele.style.width = "250px";
@@ -188,7 +189,7 @@ function errorCheck() {
 function loadScript(url, callback) {
   var head = document.head;
   var script = document.createElement("script");
-  script.type = "module";
+  script.type = "text/javascript";
   script.src = url;
 
   if (callback) {
@@ -197,5 +198,3 @@ function loadScript(url, callback) {
   }
   head.appendChild(script);
 }
-
-export { Pantry, Toast };
