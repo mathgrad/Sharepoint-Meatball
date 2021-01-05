@@ -1,5 +1,9 @@
 (function () {
   //Controller for the Toast Object
+
+  if (errorCheck) {
+    throw new Error("Failed to Make Script");
+  }
   function Pantry() {
     this.$ele = document.createElement("div");
     this.$ele.style.width = "250px";
@@ -159,17 +163,25 @@
     });
 
     if (svgGenerator.length == 0) {
-      var pantry = scripts.filter(function (script) {
-        if (script.src.indexOf("pantry") > -1) {
-          return script.src;
-        } else {
-          return;
-        }
-      });
-      loadScript(pantry.substring(0, pantry.indexOf("pantry")), null);
-    } else {
-      return true;
+      try {
+        var pantry = scripts.filter(function (script) {
+          if (script.src.indexOf("pantry") > -1) {
+            return script.src;
+          } else {
+            return;
+          }
+        });
+        loadScript(
+          pantry.substring(0, pantry.indexOf("pantry")) + "pantry.js",
+          null
+        );
+      } catch (error) {
+        console.log(error);
+        return true;
+      }
     }
+
+    return false;
   }
 
   function loadScript(url, callback) {
