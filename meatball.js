@@ -352,12 +352,12 @@
   //Attaches popover to the color circle along with updateTarget function
   function Meatball(size) {
     this.size = size + "px";
-    this.element = document.createElement("div");
-    this.element.style.width = this.size;
-    this.element.style.height = this.size;
-    this.element.style.borderRadius = this.size;
-    this.element.style.margin = "auto";
-    this.element.style.padding = "0px";
+    this.circle = document.createElement("div");
+    this.circle.style.width = this.size;
+    this.circle.style.height = this.size;
+    this.circle.style.borderRadius = this.size;
+    this.circle.style.margin = "auto";
+    this.circle.style.padding = "0px";
   }
 
   Meatball.prototype.init = function (
@@ -384,11 +384,11 @@
     );
     meatballHistoryDisplay.listGUID = historyListGUID;
 
-    this.element.style.backgroundColor = colors.get(cellText);
+    this.circle.style.backgroundColor = colors.get(cellText);
 
-    this.popoverPanel = document.createElement("div");
-    this.popoverPanel.style.backgroundColor = "transparent";
-    this.popoverPanel.style.padding = "10px";
+    this.$ele = document.createElement("div");
+    this.$ele.style.backgroundColor = "transparent";
+    this.$ele.style.padding = "10px";
 
     this.popoverBody = document.createElement("div");
     this.popoverBody.style.display = "inline-block";
@@ -582,7 +582,7 @@
             organized = organized.map(function (block, index) {
               if (block.length === 1 && block[0].type === "break") {
                 meatballHistoryDisplay.addDividor(block[0]);
-              } else {
+              } else if (block.length >= 1) {
                 var author = block[0].Author;
                 var isRight = author === userName;
 
@@ -645,7 +645,7 @@
                       index2 === 0
                     );
                     meatballHistoryDisplay.build(mhItem);
-                    messageBlock.appendChild(mhItem.item);
+                    messageBlock.appendChild(mhItem.$ele);
 
                     return mhItem;
                   }),
@@ -656,7 +656,7 @@
         }
         retrieveHistory(table, rowIndex, internalColumn, cb, false);
       }
-      document.body.appendChild(meatballHistoryDisplay.mainPanel);
+      document.body.appendChild(meatballHistoryDisplay.$ele);
       meatballHistoryDisplay.container.scrollTop =
         meatballHistoryDisplay.container.scrollHeight;
     });
@@ -668,10 +668,10 @@
     this.popoverBody.appendChild(this.initHistoryContainer);
     this.popoverBody.appendChild(this.showMore);
 
-    this.popoverPanel.appendChild(this.popoverBody);
+    this.$ele.appendChild(this.popoverBody);
 
     //Add Mouse Enter Event to display
-    this.element.addEventListener("mouseenter", function () {
+    this.circle.addEventListener("mouseenter", function () {
       meatball.initHistoryMessage.innerText = "Loading...";
       function success(param, data) {
         if (data.length === 1) {
@@ -689,34 +689,34 @@
       retrieveHistory(table, rowIndex, internalColumn, success, true);
 
       add = true;
-      document.body.appendChild(meatball.popoverPanel);
+      document.body.appendChild(meatball.$ele);
 
       meatball.setPosition(triangleSize);
     });
 
-    this.element.addEventListener("mouseleave", function (e) {
-      if (!e.toElement.parentNode.contains(meatball.popoverPanel)) {
-        meatball.popoverPanel.parentNode.removeChild(meatball.popoverPanel);
+    this.circle.addEventListener("mouseleave", function (e) {
+      if (!e.toElement.parentNode.contains(meatball.$ele)) {
+        meatball.$ele.parentNode.removeChild(meatball.$ele);
       }
     });
 
     //Add Mouse leave Event to hide
-    this.popoverPanel.addEventListener("mouseleave", function (e) {
-      if (meatball.popoverPanel) {
-        if (meatball.popoverPanel.parentNode) {
-          meatball.popoverPanel.parentNode.removeChild(meatball.popoverPanel);
+    this.$ele.addEventListener("mouseleave", function (e) {
+      if (meatball.$ele) {
+        if (meatball.$ele.parentNode) {
+          meatball.$ele.parentNode.removeChild(meatball.$ele);
         }
       }
     });
     parent.innerText = "";
-    parent.appendChild(this.element);
+    parent.appendChild(this.circle);
   };
 
   Meatball.prototype.setPosition = function (triangleSize) {
-    this.popoverPanel.style.position = "fixed";
-    this.popoverPanel.style.right = "0px";
-    this.popoverPanel.style.left =
-      this.element.getBoundingClientRect().right - 12 + triangleSize + "px";
+    this.$ele.style.position = "fixed";
+    this.$ele.style.right = "0px";
+    this.$ele.style.left =
+      this.circle.getBoundingClientRect().right - 12 + triangleSize + "px";
 
     this.carret.style.position = "absolute";
     this.carret.style.top = "29px";
@@ -732,65 +732,63 @@
     var windowWidth = window.innerWidth || document.body.clientWidth;
 
     if (
-      this.popoverPanel.offsetHeight +
-        this.element.getBoundingClientRect().top <
+      this.$ele.offsetHeight + this.circle.getBoundingClientRect().top <
       windowHeight
     ) {
-      this.popoverPanel.style.top =
-        this.element.getBoundingClientRect().top - 40 + triangleSize + "px";
+      this.$ele.style.top =
+        this.circle.getBoundingClientRect().top - 40 + triangleSize + "px";
     } else {
       var meatballHeight =
-        this.element.getBoundingClientRect().top - 40 + triangleSize;
+        this.circle.getBoundingClientRect().top - 40 + triangleSize;
       var meatballDifferenceHeight = Math.abs(
-        meatballHeight - (windowHeight - this.popoverPanel.offsetHeight)
+        meatballHeight - (windowHeight - this.$ele.offsetHeight)
       );
 
-      if (meatballHeight <= windowHeight - this.popoverPanel.offsetHeight) {
+      if (meatballHeight <= windowHeight - this.$ele.offsetHeight) {
         this.carret.style.top = meatballDifferenceHeight + "px";
-        this.popoverPanel.style.top =
+        this.$ele.style.top =
           windowHeight -
-          this.popoverPanel.offsetHeight -
+          this.$ele.offsetHeight -
           meatballDifferenceHeight +
           "px";
       } else {
         this.carret.style.top = 29 + meatballDifferenceHeight + "px";
-        this.popoverPanel.style.top =
-          windowHeight - this.popoverPanel.offsetHeight + "px";
+        this.$ele.style.top = windowHeight - this.$ele.offsetHeight + "px";
       }
     }
 
     if (
       this.popoverBody.getBoundingClientRect().width +
-        this.element.getBoundingClientRect().right >
+        this.circle.getBoundingClientRect().right >
       windowWidth
     ) {
-      this.popoverPanel.appendChild(this.carret);
+      this.$ele.appendChild(this.carret);
       this.carret.style.left =
         this.popoverBody.getBoundingClientRect().width + triangleSize + "px";
       this.carret.style.borderRight = "0px";
       this.carret.style.borderLeft =
         triangleSize + "px solid " + defaultBackgroundColor;
-      this.popoverPanel.style.left =
-        this.element.getBoundingClientRect().left -
+      this.$ele.style.left =
+        this.circle.getBoundingClientRect().left -
         this.popoverBody.getBoundingClientRect().width -
         triangleSize -
         12 +
         "px";
-      this.popoverPanel.style.width =
+      this.$ele.style.width =
         this.popoverBody.getBoundingClientRect().width + triangleSize + "px";
     } else {
-      this.popoverPanel.insertBefore(this.carret, this.popoverPanel.firstChild);
+      this.$ele.insertBefore(this.carret, this.$ele.firstChild);
     }
   };
 
   Meatball.prototype.setColor = function (value) {
-    this.element.style.backgroundColor = colors.get(value);
+    this.circle.style.backgroundColor = colors.get(value);
   };
 
   Meatball.prototype.removePopover = function () {
-    if (this.popoverPanel) {
-      if (this.popoverPanel.parentNode) {
-        this.popoverPanel.parentNode.removeChild(this.popoverPanel);
+    if (this.$ele) {
+      if (this.$ele.parentNode) {
+        this.$ele.parentNode.removeChild(this.$ele);
       }
     }
   };
@@ -913,16 +911,16 @@
     var windowWidth = window.innerWidth || document.body.clientWidth;
     var windowHeight = window.innerHeight || document.body.clientHeight;
 
-    this.mainPanel = document.createElement("div");
-    this.mainPanel.style.width = windowWidth - 1 + "px";
-    this.mainPanel.style.height = windowHeight - 1 + "px";
-    this.mainPanel.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
-    this.mainPanel.style.position = "absolute";
-    this.mainPanel.style.left = "0px";
-    this.mainPanel.style.top = "0px";
-    this.mainPanel.style.zIndex = "201";
+    this.$ele = document.createElement("div");
+    this.$ele.style.width = windowWidth - 1 + "px";
+    this.$ele.style.height = windowHeight - 1 + "px";
+    this.$ele.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
+    this.$ele.style.position = "absolute";
+    this.$ele.style.left = "0px";
+    this.$ele.style.top = "0px";
+    this.$ele.style.zIndex = "201";
 
-    this.mainPanel.addEventListener("click", function (e) {
+    this.$ele.addEventListener("click", function (e) {
       if (e.target == this) {
         addMeatballHistory = true;
         meatballHistory.reset();
@@ -933,8 +931,8 @@
     window.addEventListener("resize", function () {
       var windowWidth = window.innerWidth || document.body.clientWidth;
       var windowHeight = window.innerHeight || document.body.clientHeight;
-      meatballHistory.mainPanel.style.width = windowWidth;
-      meatballHistory.mainPanel.style.height = windowHeight;
+      meatballHistory.$ele.style.width = windowWidth;
+      meatballHistory.$ele.style.height = windowHeight;
     });
 
     this.listGUID = historyListGUID;
@@ -991,9 +989,7 @@
       this.style.backgroundColor = defaultBackgroundColor;
       addMeatballHistory = true;
       meatballHistory.reset();
-      meatballHistory.mainPanel.parentNode.removeChild(
-        meatballHistory.mainPanel
-      );
+      meatballHistory.$ele.parentNode.removeChild(meatballHistory.$ele);
     });
 
     this.titleMain = document.createElement("h3");
@@ -1062,11 +1058,11 @@
     // }
     // if (currentDate.getDate() != nowDate.getDate()) {
     //   if (priorDate.getDate() != currentDate.getDate()) {
-    //     meatballHistory.addDividor(priorDate, mhItem.item);
+    //     meatballHistory.addDividor(priorDate, mhItem.$ele);
     //   }
     //
     //   if (index + 1 === data.length) {
-    //     meatballHistory.addDividor(priorDate, mhItem.item);
+    //     meatballHistory.addDividor(priorDate, mhItem.$ele);
     //   }
     // }
     //
@@ -1192,7 +1188,7 @@
 
     this.historyPanel.appendChild(this.addPanel);
 
-    this.mainPanel.appendChild(this.historyPanel);
+    this.$ele.appendChild(this.historyPanel);
 
     return this;
   }
@@ -1239,7 +1235,7 @@
 
     props.setType(userName);
 
-    this.container.appendChild(props.item);
+    this.container.appendChild(props.$ele);
     this.container.scrollTop = this.container.scrollHeight;
     return this;
   };
@@ -1318,14 +1314,14 @@
         var lastBlock = organized[organized.length - 1];
 
         //Step 1b. Append new message to latest block in screen.
-        lastBlock.block.appendChild(item.item);
+        lastBlock.block.appendChild(item.$ele);
 
         //Step 1c. Push new message into memory for later use.
         organized[organized.length - 1].messages.push(item);
         //Step 2. Append new comment to new block. Add to overall display.
       } else {
         //Step 2a. Append message to message block.
-        commentBlock.appendChild(item.item);
+        commentBlock.appendChild(item.$ele);
 
         //Step 2b. Append avatar container to message container row.
         commentRow.appendChild(avatar);
@@ -1336,7 +1332,7 @@
         //Step 2d. Append new comment to chat window
         chatWindow.container.appendChild(commentRow);
 
-        organized.push({ block: commentBlock, messages: [item.item] });
+        organized.push({ block: commentBlock, messages: [item.$ele] });
 
         lastAuthor = userName;
       }
@@ -1380,13 +1376,11 @@
     internalColumn
   ) {
     var meatballHistoryItem = this;
-    this.item = document.createElement("div");
-    this.item.type = "auto";
-    // this.item.style.padding = ".25rem";
-    this.item.style.margin = "0px;";
-    this.item.style.marginBottom = ".25rem";
-    this.item.style.padding = ".25rem";
-    this.item.style.borderRadius = ".5rem";
+    this.$ele = document.createElement("div");
+    this.$ele.style.margin = "0px;";
+    this.$ele.style.marginBottom = ".25rem";
+    this.$ele.style.padding = ".25rem";
+    this.$ele.style.borderRadius = ".5rem";
 
     this.display = document.createElement("div");
     this.display.style.display = "block";
@@ -1431,7 +1425,7 @@
 
     this.submit.addEventListener("click", function () {
       meatballHistoryItem.comment.style.minWidth = "unset";
-      meatballHistoryItem.item.style.width = "auto";
+      meatballHistoryItem.$ele.style.width = "auto";
       meatballHistoryItem.delete.style.marginRight = "15px";
       if (meatballHistoryItem.isNew) {
         function listEntrySuccess(newData) {
@@ -1483,7 +1477,7 @@
       meatballHistoryItem.comment.style.minWidth = "unset";
       meatballHistoryItem.comment.style.textAlign = "right";
       meatballHistoryItem.delete.style.marginRight = "15px";
-      meatballHistoryItem.item.style.width = "auto";
+      meatballHistoryItem.$ele.style.width = "auto";
       meatballHistoryItem.setEditable(false, false, true);
     });
 
@@ -1512,13 +1506,13 @@
     this.edit.style.cursor = "pointer";
     this.edit.addEventListener("click", function () {
       meatballHistoryItem.isNew = false;
-      meatballHistoryItem.item.style.flex = "1";
+      meatballHistoryItem.$ele.style.flex = "1";
       console.log(
-        meatballHistoryItem.item.attributes,
-        meatballHistoryItem.item.parentNode
+        meatballHistoryItem.$ele.attributes,
+        meatballHistoryItem.$ele.parentNode
       );
-      if (meatballHistoryItem.item.parentNode.isEdit) {
-        meatballHistoryItem.item.parentNode.isEdit = false;
+      if (meatballHistoryItem.$ele.parentNode.isEdit) {
+        meatballHistoryItem.$ele.parentNode.isEdit = false;
         console.log(!meatballHistoryItem.getEditable());
         meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
       }
@@ -1536,16 +1530,16 @@
     this.delete.style.marginRight = "15px";
 
     this.delete.addEventListener("click", function () {
-      if (meatballHistoryItem.item) {
-        if (meatballHistoryItem.item.parentNode) {
-          if (!meatballHistoryItem.item.parentNode.addNew) {
-            meatballHistoryItem.item.parentNode.addNew = true;
+      if (meatballHistoryItem.$ele) {
+        if (meatballHistoryItem.$ele.parentNode) {
+          if (!meatballHistoryItem.$ele.parentNode.addNew) {
+            meatballHistoryItem.$ele.parentNode.addNew = true;
           }
-          if (!meatballHistoryItem.item.parentNode.isEdit) {
-            meatballHistoryItem.item.parentNode.isEdit = true;
+          if (!meatballHistoryItem.$ele.parentNode.isEdit) {
+            meatballHistoryItem.$ele.parentNode.isEdit = true;
           }
-          meatballHistoryItem.item.parentNode.removeChild(
-            meatballHistoryItem.item
+          meatballHistoryItem.$ele.parentNode.removeChild(
+            meatballHistoryItem.$ele
           );
           function newHistoryChatCb(listGUID) {
             deleteHistory(listGUID, meatballHistoryItem.id);
@@ -1556,7 +1550,7 @@
     });
     this.buttonGroup.appendChild(this.delete);
 
-    // this.item.appendChild(this.buttonGroup);
+    // this.$ele.appendChild(this.buttonGroup);
 
     this.comment = document.createElement("div");
     this.comment.contentEditable = false;
@@ -1569,8 +1563,8 @@
       this.style.outline = "none";
     });
 
-    this.item.appendChild(this.comment);
-    this.item.appendChild(this.display);
+    this.$ele.appendChild(this.comment);
+    this.$ele.appendChild(this.display);
 
     return this;
   }
@@ -1614,9 +1608,9 @@
       this.comment.style.minWidth = "-webkit-fill-available";
       this.comment.style.textAlign = "left";
       this.delete.style.marginRight = "15px";
-      this.item.style.flex = "1";
-      this.item.style.backgroundColor = defaultMHIBackgroundColor;
-      this.item.style.color = defaultColor;
+      this.$ele.style.flex = "1";
+      this.$ele.style.backgroundColor = defaultMHIBackgroundColor;
+      this.$ele.style.color = defaultColor;
 
       this.comment.style.backgroundColor = defaultHoverBackgroundColor;
       this.submit.style.backgroundColor = defaultButtonBackgroundColor;
@@ -1644,19 +1638,19 @@
 
       this.comment.style.color = defaultColor;
       this.comment.style.backgroundColor = defaultButtonBackgroundColor;
-      this.item.style.backgroundColor = defaultButtonBackgroundColor;
-      this.item.style.color = defaultColor;
+      this.$ele.style.backgroundColor = defaultButtonBackgroundColor;
+      this.$ele.style.color = defaultColor;
 
       if (this.btnContainer.parentNode) {
         this.display.removeChild(this.btnContainer);
       }
 
-      if (!this.item.parentNode.addNew && this.isNew) {
-        this.item.parentNode.addNew = true;
+      if (!this.$ele.parentNode.addNew && this.isNew) {
+        this.$ele.parentNode.addNew = true;
         this.isNew = false;
       }
-      if (!this.item.parentNode.isEdit) {
-        this.item.parentNode.isEdit = true;
+      if (!this.$ele.parentNode.isEdit) {
+        this.$ele.parentNode.isEdit = true;
       }
     }
     this.comment.contentEditable = value;
@@ -1670,15 +1664,15 @@
 
   MeatballHistoryMessage.prototype.setType = function (author) {
     if (this.author.innerText.indexOf(author) > -1) {
-      this.item.type = "editable";
-      this.item.style.backgroundColor = defaultButtonBackgroundColor;
-      this.item.style.color = defaultColor;
+      this.$ele.type = "editable";
+      this.$ele.style.backgroundColor = defaultButtonBackgroundColor;
+      this.$ele.style.color = defaultColor;
     } else {
-      this.item.type = "disabled";
-      this.item.style.backgroundColor = defaultMHIBackgroundColor;
-      this.item.style.color = defaultColor;
+      this.$ele.type = "disabled";
+      this.$ele.style.backgroundColor = defaultMHIBackgroundColor;
+      this.$ele.style.color = defaultColor;
     }
-    if (this.item.type !== "editable") {
+    if (this.$ele.type !== "editable") {
       this.delete.parentNode.removeChild(this.delete);
       this.edit.parentNode.removeChild(this.edit);
     }
@@ -1769,7 +1763,7 @@
 
   Pantry.prototype.show = function (notification) {
     var note = notification;
-    this.container.appendChild(notification.toast);
+    this.container.appendChild(notification.$ele);
     var timer = setTimeout(
       function (note) {
         note.removeToast();
@@ -1781,24 +1775,24 @@
   };
 
   Pantry.prototype.debug = function (toast) {
-    this.container.appendChild(toast.toast);
+    this.container.appendChild(toast.$ele);
   };
 
   //Notification object with ability to display messages, and images
   function Toast() {
-    this.toast = document.createElement("div");
-    this.toast.id = generateId();
-    this.toast.style.backgroundColor = "white";
-    this.toast.style.borderRadius = "0";
-    this.toast.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
-    this.toast.style.color = "black";
-    this.toast.style.display = "flex";
-    this.toast.style.marginTop = "5px";
-    this.toast.style["-ms-flex"] = "1 0 1";
-    this.toast.style.height = "50px";
-    this.toast.style.padding = "0.5rem";
-    this.toast.style.width = "275px";
-    this.toast.style.zIndex = "202";
+    this.$ele = document.createElement("div");
+    this.$ele.id = generateId();
+    this.$ele.style.backgroundColor = "white";
+    this.$ele.style.borderRadius = "0";
+    this.$ele.style.boxShadow = "0px 1px 1px rgba(0,0,0,0.1)";
+    this.$ele.style.color = "black";
+    this.$ele.style.display = "flex";
+    this.$ele.style.marginTop = "5px";
+    this.$ele.style["-ms-flex"] = "1 0 1";
+    this.$ele.style.height = "50px";
+    this.$ele.style.padding = "0.5rem";
+    this.$ele.style.width = "275px";
+    this.$ele.style.zIndex = "202";
     this.text = document.createElement("div");
     this.text.style.display = "flex";
     this.text.style.flexDirection = "column";
@@ -1834,7 +1828,7 @@
   };
 
   Toast.prototype.setListeners = function () {
-    var self = this.toast;
+    var self = this.$ele;
     this.close.addEventListener("click", function () {
       self.removeToast();
     });
@@ -1874,15 +1868,15 @@
   };
 
   Toast.prototype.show = function () {
-    this.toast.appendChild(this.svg);
-    this.toast.appendChild(this.text);
+    this.$ele.appendChild(this.svg);
+    this.$ele.appendChild(this.text);
     return this;
   };
 
   Toast.prototype.removeToast = function () {
-    if (this.toast) {
-      if (this.toast.parentNode) {
-        this.toast.parentNode.removeChild(this.toast);
+    if (this.$ele) {
+      if (this.$ele.parentNode) {
+        this.$ele.parentNode.removeChild(this.$ele);
         clearTimeout(this.timer);
       }
     }
@@ -2143,7 +2137,7 @@
           rowIndex +
           " - " +
           internalColumn +
-          "'&$expand=Author&$top=150");
+          "'&$expand=Author&$top=200");
 
     $.ajax({
       url: url,
