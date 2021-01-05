@@ -142,10 +142,10 @@
             break;
         }
 
-        if (props.fc) {
+        if (props.fc && props.type != "carret") {
           this.$ele += "color: " + color.get(props.fc) + ";";
         }
-        if (props.bgc) {
+        if (props.bgc && props.type != "carret") {
           this.$ele += "background-color: " + color.get(props.bgc) + ";";
         }
         return this;
