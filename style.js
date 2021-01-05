@@ -1,4 +1,11 @@
 (function () {
+  /*
+    props properties:
+    type
+    size
+    fc
+    bgc
+  */
   function style(props) {
     this.$ele = "";
     switch (props.type) {
@@ -146,6 +153,43 @@
             break;
         }
         return this;
+      case "popoverBody": {
+        switch (props.size) {
+          case "small":
+            this.$ele +=
+              "display: inline-block; margin: 0px; padding: 0px; width: 100px; box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 0.2); color: " +
+              color(props.fc) +
+              "; background-color: " +
+              color(props.bgc) +
+              ";";
+            break;
+          case "normal":
+            this.$ele +=
+              "display: inline-block; margin: 0px; padding: 0px; width: 200px; box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 0.2); color: " +
+              color(props.fc) +
+              "; background-color: " +
+              color(props.bgc) +
+              ";";
+            break;
+          case "large":
+            this.$ele +=
+              "display: inline-block; margin: 0px; padding: 0px; width: 300px; box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 0.2); color: " +
+              color(props.fc) +
+              "; background-color: " +
+              color(props.bgc) +
+              ";";
+            break;
+          default:
+            this.$ele +=
+              "display: inline-block; margin: 0px; padding: 0px; width: 200px; box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 0.2); color: " +
+              color(props.fc) +
+              "; background-color: " +
+              color(props.bgc) +
+              ";";
+            break;
+        }
+        return this;
+      }
       default:
         throw new Error("No Type Defined\nPlease Define a Type");
         return this;
