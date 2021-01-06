@@ -150,6 +150,10 @@ function LoaderCSS(props) {
   return this;
 }
 
+function generateId() {
+  return Math.floor(Math.random() * 1000);
+}
+
 function errorCheck() {
   var scripts = [].slice.call(document.getElementsByTagName("script"));
 
