@@ -251,16 +251,9 @@
 
             if (displayValue) {
               text = $cell.innerText;
-              var longestString = displayValue;
-              values.forEach(function (item, i) {
-                if (longestString.length < item.length) {
-                  longestString = item;
-                }
-              });
               this.canvas = document.createElement("canvas");
               this.context = canvas.getContext("2d");
               context.font = "100 12pt arial";
-              this.meatballWidth = context.measureText(longestString);
 
               new Meatball(size).init(
                 values,
@@ -273,8 +266,7 @@
                 text,
                 displayValue,
                 listTitle,
-                "200px",
-                longestString
+                "200px"
               );
             }
           }
@@ -371,8 +363,7 @@
     cellText,
     value,
     listTitle,
-    panelWidth,
-    longestString
+    panelWidth
   ) {
     var meatball = this;
     var triangleSize = 10;
@@ -391,43 +382,42 @@
     this.$ele.style.padding = "10px";
 
     this.popoverBody = document.createElement("div");
+    this.popoverBody.style.backgroundColor = defaultBackgroundColor;
+    this.popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
+    this.popoverBody.style.color = defaultColor;
     this.popoverBody.style.display = "inline-block";
     this.popoverBody.style.margin = "0px";
     this.popoverBody.style.padding = "0px";
     this.popoverBody.style.width = panelWidth;
-    this.popoverBody.style.backgroundColor = defaultBackgroundColor;
-    this.popoverBody.style.color = defaultColor;
-    this.popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
 
     this.carret = document.createElement("div");
-    this.carret.style.margin = "0px";
-    this.carret.style.display = "inline-block";
-    this.carret.style.position = "absolute";
-    this.carret.style.height = "0px";
-    this.carret.style.width = "0px";
-    this.carret.style.left = "2px";
-    this.carret.style.top = "29px";
-    this.carret.style.borderTop = triangleSize + "px solid transparent";
     this.carret.style.borderBottom = triangleSize + "px solid transparent";
+    this.carret.style.borderTop = triangleSize + "px solid transparent";
     this.carret.style.borderRight =
       triangleSize + "px solid " + defaultBackgroundColor;
+    this.carret.style.display = "inline-block";
+    this.carret.style.height = "0px";
+    this.carret.style.left = "2px";
+    this.carret.style.margin = "0px";
+    this.carret.style.position = "absolute";
+    this.carret.style.top = "29px";
+    this.carret.style.width = "0px";
 
     //Create Popover Element
     this.popover = document.createElement("div");
+    this.popover.style.borderRadius = ".25rem";
+    this.popover.style.boxShadow = "0px 0px 5px " + defaultBackgroundColor;
     this.popover.style.display = "inline-block";
     this.popover.style.padding = ".5rem";
-    this.popover.style.boxShadow = "0px 0px 5px " + defaultBackgroundColor;
-    this.popover.style.borderRadius = ".25rem";
     this.popover.style.zIndex = "1";
 
     //Create Header Element
     this.header = document.createElement("div");
+    this.header.innerText = value;
+    this.header.style.marginBottom = ".25rem";
     this.header.style.padding = ".25rem";
     this.header.style.textAlign = "center";
-    this.header.style.marginBottom = ".25rem";
     this.header.style.width = "100%";
-    this.header.style.textAlign = "center";
-    this.header.innerText = value;
 
     //Add Header Element
     this.popover.appendChild(this.header);
@@ -450,10 +440,10 @@
     //Add Options Panel
     this.popover.appendChild(this.options.options);
 
-    this.dividor1 = document.createElement("hr");
-    this.dividor1.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
+    this.divider1 = document.createElement("hr");
+    this.divider1.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
 
-    this.popover.appendChild(this.dividor1);
+    this.popover.appendChild(this.divider1);
 
     //Add Click Event to display Options Panel
     this.header.addEventListener("click", function () {
@@ -469,35 +459,34 @@
     this.popoverBody.appendChild(this.popover);
 
     this.initHistoryContainer = document.createElement("div");
+    this.initHistoryContainer.style.backgroundColor = defaultHoverBackgroundColor;
     this.initHistoryContainer.style.borderRadius = ".25rem";
-    this.initHistoryContainer.style.padding = ".25rem";
+    this.initHistoryContainer.style.color = defaultColor;
+    this.initHistoryContainer.style.display = "block";
     this.initHistoryContainer.style.marginBottom = ".5rem";
     this.initHistoryContainer.style.marginLeft = ".5rem";
     this.initHistoryContainer.style.marginRight = ".5rem";
-    this.initHistoryContainer.style.display = "block";
-    this.initHistoryContainer.style.backgroundColor = defaultHoverBackgroundColor;
-    this.initHistoryContainer.style.color = defaultColor;
-    this.initHistoryContainer.style.borderRadius = "0.25rem";
+    this.initHistoryContainer.style.padding = ".25rem";
 
     this.initHistoryDate = document.createElement("div");
-    this.initHistoryDate.style.padding = ".25rem";
-    this.initHistoryDate.style.margin = ".25rem";
-    this.initHistoryDate.style.textAlign = "left";
     this.initHistoryDate.style.display = "block";
     this.initHistoryDate.style.fontSize = "7pt";
+    this.initHistoryDate.style.margin = ".25rem";
+    this.initHistoryDate.style.padding = ".25rem";
+    this.initHistoryDate.style.textAlign = "left";
 
     this.initHistoryMessage = document.createElement("div");
-    this.initHistoryMessage.style.padding = ".25rem";
-    this.initHistoryMessage.style.margin = ".25rem";
     this.initHistoryMessage.style.display = "block";
     this.initHistoryMessage.style.fontSize = "9pt";
+    this.initHistoryMessage.style.margin = ".25rem";
+    this.initHistoryMessage.style.padding = ".25rem";
 
     this.initHistoryName = document.createElement("div");
-    this.initHistoryName.style.padding = ".25rem";
-    this.initHistoryName.style.margin = ".25rem";
-    this.initHistoryName.style.textAlign = "left";
     this.initHistoryName.style.display = "block";
     this.initHistoryName.style.fontSize = "7pt";
+    this.initHistoryName.style.margin = ".25rem";
+    this.initHistoryName.style.padding = ".25rem";
+    this.initHistoryName.style.textAlign = "left";
 
     this.initHistoryHeader = document.createElement("div");
     this.initHistoryHeader.style.display = "flex";
@@ -505,17 +494,17 @@
 
     this.showMore = document.createElement("div");
     this.showMore.innerText = "Show More";
-    this.showMore.style.color = defaultColor;
+    this.showMore.style.backgroundColor = defaultButtonBackgroundColor;
     this.showMore.style.borderRadius = ".25rem";
-    this.showMore.style.padding = ".25rem";
+    this.showMore.style.color = defaultColor;
+    this.showMore.style.cursor = "pointer";
+    this.showMore.style.display = "block";
+    this.showMore.style.fontWeight = "500";
     this.showMore.style.marginBottom = ".5rem";
     this.showMore.style.marginLeft = ".5rem";
     this.showMore.style.marginRight = ".5rem";
+    this.showMore.style.padding = ".25rem";
     this.showMore.style.textAlign = "center";
-    this.showMore.style.display = "block";
-    this.showMore.style.cursor = "pointer";
-    this.showMore.style.fontWeight = "500";
-    this.showMore.style.backgroundColor = defaultButtonBackgroundColor;
 
     this.showMore.addEventListener("mouseenter", function () {
       this.style.backgroundColor = defaultButtonHoverBackgroundColor;
@@ -554,7 +543,7 @@
                 var author = props.Author;
                 var day = new Date(props.Created).getDay();
                 var lastIndex = r.length - 1;
-                //this pushes a "dividor" for today's entries
+                //this pushes a "divider" for today's entries
                 if (lastDay !== day) {
                   r.push([
                     { type: "break", timeStamp: new Date(props.Created) },
@@ -581,7 +570,7 @@
             console.log("organized", organized);
             organized = organized.map(function (block, index) {
               if (block.length === 1 && block[0].type === "break") {
-                meatballHistoryDisplay.addDividor(block[0]);
+                meatballHistoryDisplay.addDivider(block[0]);
               } else if (block.length >= 1) {
                 var author = block[0].Author;
                 var isRight = author === userName;
@@ -1058,11 +1047,11 @@
     // }
     // if (currentDate.getDate() != nowDate.getDate()) {
     //   if (priorDate.getDate() != currentDate.getDate()) {
-    //     meatballHistory.addDividor(priorDate, mhItem.$ele);
+    //     meatballHistory.addDivider(priorDate, mhItem.$ele);
     //   }
     //
     //   if (index + 1 === data.length) {
-    //     meatballHistory.addDividor(priorDate, mhItem.$ele);
+    //     meatballHistory.addDivider(priorDate, mhItem.$ele);
     //   }
     // }
     //
@@ -1101,10 +1090,10 @@
     this.container.appendChild(this.containerText);
     this.historyPanel.appendChild(this.container);
 
-    this.dividor1 = document.createElement("hr");
-    this.dividor1.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
+    this.divider1 = document.createElement("hr");
+    this.divider1.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
 
-    this.historyPanel.appendChild(this.dividor1);
+    this.historyPanel.appendChild(this.divider1);
 
     this.addPanel = document.createElement("div");
     this.addPanel.style.borderTop = "1px solid #444444";
@@ -1193,40 +1182,40 @@
     return this;
   }
 
-  MeatballHistory.prototype.addDividor = function (props) {
-    this.dividorPanel = document.createElement("div");
-    this.dividorPanel.style.padding = ".25rem";
-    this.dividorPanel.style.margin = "0px";
-    this.dividorPanel.style.padding = ".25rem";
-    this.dividorPanel.style.marginBottom = ".25rem";
-    this.dividorPanel.style.padding = defaultHoverBackgroundColor;
-    this.dividorPanel.style.color = defaultTitleColor;
-    this.dividorPanel.style.float = "center";
-    this.dividorPanel.style.clear = "both";
-    this.dividorPanel.style.textAlign = "center";
+  MeatballHistory.prototype.addDivider = function (props) {
+    this.dividerPanel = document.createElement("div");
+    this.dividerPanel.style.padding = ".25rem";
+    this.dividerPanel.style.margin = "0px";
+    this.dividerPanel.style.padding = ".25rem";
+    this.dividerPanel.style.marginBottom = ".25rem";
+    this.dividerPanel.style.padding = defaultHoverBackgroundColor;
+    this.dividerPanel.style.color = defaultTitleColor;
+    this.dividerPanel.style.float = "center";
+    this.dividerPanel.style.clear = "both";
+    this.dividerPanel.style.textAlign = "center";
 
-    this.dividorText = document.createElement("div");
-    this.dividorText.innerText = " " + props.timeStamp.toDateString() + " ";
-    this.dividorText.style.textAlign = "center";
-    this.dividorText.style.verticalAlign = "middle";
-    this.dividorText.style.display = "inline-block";
+    this.dividerText = document.createElement("div");
+    this.dividerText.innerText = " " + props.timeStamp.toDateString() + " ";
+    this.dividerText.style.textAlign = "center";
+    this.dividerText.style.verticalAlign = "middle";
+    this.dividerText.style.display = "inline-block";
 
-    this.leftDividorLine = document.createElement("div");
-    this.leftDividorLine.style.borderTop =
+    this.leftDividerLine = document.createElement("div");
+    this.leftDividerLine.style.borderTop =
       "1pt solid " + defaultHoverBackgroundColor;
-    this.leftDividorLine.style.display = "inline-block";
-    this.leftDividorLine.style.width = "35%";
+    this.leftDividerLine.style.display = "inline-block";
+    this.leftDividerLine.style.width = "35%";
 
-    this.rightDividorLine = document.createElement("div");
-    this.rightDividorLine.style.borderTop =
+    this.rightDividerLine = document.createElement("div");
+    this.rightDividerLine.style.borderTop =
       "1pt solid " + defaultHoverBackgroundColor;
-    this.rightDividorLine.style.display = "inline-block";
-    this.rightDividorLine.style.width = "35%";
+    this.rightDividerLine.style.display = "inline-block";
+    this.rightDividerLine.style.width = "35%";
 
-    this.dividorPanel.appendChild(this.leftDividorLine);
-    this.dividorPanel.appendChild(this.dividorText);
-    this.dividorPanel.appendChild(this.rightDividorLine);
-    this.container.appendChild(this.dividorPanel);
+    this.dividerPanel.appendChild(this.leftDividerLine);
+    this.dividerPanel.appendChild(this.dividerText);
+    this.dividerPanel.appendChild(this.rightDividerLine);
+    this.container.appendChild(this.dividerPanel);
     return this;
   };
 
