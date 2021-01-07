@@ -1,6 +1,6 @@
 function List() {}
 
-List.prototype.create = function (path, name, cb) {
+List.prototype.createList = function (path, name, cb) {
   var data = {
     __metadata: { type: "SP.List" },
     AllowContentTypes: true,
@@ -23,10 +23,89 @@ List.prototype.create = function (path, name, cb) {
       "X-RequestDigest": $("#__REQUESTDIGEST").val(),
     },
     success: function (data) {
+      cb(null, data);
       return false;
     },
     error: function (error) {
+      cb(error, null);
       console.log("History list creation failed:", error);
+    },
+  });
+};
+
+List.prototype.update = function (id, message, path, searchName) {
+  var data = {
+    __metadata: { type: "SP.ListItem" },
+    Message: message,
+  };
+
+  var url =
+    path + "_api/web/lists/getbytitle('" + searchName + "')/items(" + id + ")";
+
+  $.ajax({
+    url: url,
+    type: "POST",
+    data: JSON.stringify(data),
+    headers: {
+      Accept: "application/json; odata=verbose",
+      "Content-Type": "application/json;odata=verbose",
+      credentials: true,
+      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      "X-HTTP-Method": "MERGE",
+      "IF-MATCH": "*",
+    },
+    success: function (data) {
+      return false;
+    },
+    error: function (error) {
+      console.log("History entry update failed:", error);
+    },
+  });
+};
+
+List.prototype.deleteItem = function (listId, id, path, searchName) {
+  var url =
+    path + "_api/web/lists/getbytitle('" + searchName + "')/items(" + id + ")";
+
+  $.ajax({
+    url: url,
+    type: "DELETE",
+    headers: {
+      Accept: "application/json; odata=verbose",
+      "Content-Type": "application/json;odata=verbose",
+      credentials: true,
+      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      "IF-MATCH": "*",
+    },
+    success: function (data) {
+      return false;
+    },
+    error: function (error) {
+      console.log("History entry deletion failed:", error);
+    },
+  });
+};
+
+//will find a list by name
+List.prototype.find = function (path, searchName, cb) {
+  var url = path + "_api/web/lists/getbytitle('" + searchName + "')";
+
+  $.ajax({
+    url: url,
+    type: "GET",
+    headers: {
+      Accept: "application/json; odata=verbose",
+      "Content-Type": "application/json;odata=verbose",
+      credentials: true,
+      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+    },
+    success: function (data) {
+      cb(null, data.d.Id);
+      return false;
+    },
+    error: function (error) {
+      console.log("Error in the findHistoryChat:", error);
+      cb(error, null);
     },
   });
 };

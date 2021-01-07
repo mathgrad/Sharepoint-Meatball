@@ -8,7 +8,7 @@ meatball = meatball[0].src;
 var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
 var ims = {};
 ims.sharepoint = {};
-var scripts = ["notification.js", "list.js"];
+var scripts = ["column.js", "list.js", "notification.js"];
 
 function scriptBuilder(url) {
   var script = document.createElement("script");
@@ -25,15 +25,21 @@ var builtScripts = scripts.map(function (src) {
 function assignScripts() {
   builtScripts[0].addEventListener("load", function () {
     builtScripts[1].addEventListener("load", function () {
-      ims.sharepoint.notification = Pantry;
-      ims.sharepoint.list = List;
-      startMeatball();
+      builtScripts[2].addEventListener("load", function () {
+        ims.sharepoint.column = Column;
+        ims.sharepoint.list = List;
+        ims.sharepoint.notification = Pantry;
+        startMeatball();
+      });
     });
   });
 }
 assignScripts();
 
 function startMeatball() {
+  var rest = new ims.sharepoint.list();
+  var restCol = new ims.sharepoint.column();
+
   //Size sets the Meatball size in pixels
   var size = 20;
   //Creates the Color object which manages meatball colors
@@ -136,11 +142,55 @@ function startMeatball() {
     }
 
     if (historyListGUID.length <= 0) {
-      function historyChatCb(props) {
-        historyListGUID = props;
+      function cb(error, props) {
+        if (error) {
+          function cb(error) {
+            if (error) {
+              console.log(error);
+            }
+            function cb(error) {
+              if (error) {
+                console.log(error);
+              }
+              function cb(error, props) {
+                if (error) {
+                  console.log(error);
+                }
+                if (props.length !== 0) {
+                  historyListGUID = props.d.Id;
+                }
+              }
+              restCol.create(
+                Status,
+                2,
+                "false",
+                "false",
+                ctx.PortalUrl,
+                "History",
+                cb
+              );
+            }
+            restCol.create(
+              Message,
+              2,
+              "false",
+              "false",
+              ctx.PortalUrl,
+              "History",
+              cb
+            );
+          }
+          rest.createList(ctx.PortalUrl, "History", cb);
+          console.log(error);
+          return;
+        }
+        if (props.length !== 0) {
+          historyListGUID = props;
+        }
       }
-      findHistoryChat(historyChatCb);
+      rest.find(ctx.PortalUrl, "History", cb);
     }
+
     if (userName.length <= 0) {
       function success(props, name) {
         userName = name;
@@ -1565,10 +1615,19 @@ function startMeatball() {
           meatballHistoryItem.$ele.parentNode.removeChild(
             meatballHistoryItem.$ele
           );
-          function newHistoryChatCb(listGUID) {
-            deleteHistory(listGUID, meatballHistoryItem.id);
+          function cb(error, listGUID) {
+            if (error) {
+              console.log(error);
+              return;
+            }
+            rest.deleteItem(
+              listGUID,
+              meatballHistoryItem.id,
+              ctx.PortalUrl,
+              "History"
+            );
           }
-          findHistoryChat(newHistoryChatCb);
+          rest.find(ctx.PortalUrl, "History", cb);
         }
       }
     });
@@ -1652,9 +1711,9 @@ function startMeatball() {
           return;
         }
         if (newData && newData.ID) {
-          updateHistory(historyListGUID, newData.ID, currentText);
+          rest.update(newData.ID, currentText, ctx.PortalUrl, "History");
         } else {
-          updateHistory(historyListGUID, this.id, currentText);
+          rest.update(this.id, currentText, ctx.PortalUrl, "History");
         }
       } else {
         this.comment.innerText = this.prevComment;
@@ -1894,29 +1953,6 @@ function startMeatball() {
     });
   }
 
-  function findHistoryChat(cb) {
-    var url = ctx.PortalUrl + "_api/web/lists/getbytitle('History')";
-
-    $.ajax({
-      url: url,
-      type: "GET",
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        cb(data.d.Id);
-        return false;
-      },
-      error: function (error) {
-        console.log("Error in the findHistoryChat:", error);
-        makeList("History");
-      },
-    });
-  }
-
   function getUserName(success, meatballHistory) {
     var url =
       ctx.HttpRoot + "/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
@@ -1935,100 +1971,6 @@ function startMeatball() {
       },
       error: function (error) {
         console.log("Error in the getting the current:", error);
-      },
-    });
-  }
-
-  function makeList(name) {
-    var data = {
-      __metadata: { type: "SP.List" },
-      AllowContentTypes: true,
-      BaseTemplate: 100,
-      ContentTypesEnabled: true,
-      Title: name,
-    };
-
-    var url = ctx.PortalUrl + "/_api/web/lists";
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        createMessageColumn(); //colName and rowId come from the cell
-        return false;
-      },
-      error: function (error) {
-        console.log("History list creation failed:", error);
-      },
-    });
-  }
-
-  function createMessageColumn() {
-    var data = {
-      __metadata: { type: "SP.Field" },
-      Title: "Message",
-      FieldTypeKind: 2,
-      Required: "false",
-      EnforceUniqueValues: "false",
-      StaticName: "Message",
-    };
-
-    var url = ctx.PortalUrl + "_api/web/lists/getbytitle('History')/Fields";
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        createStatusColumn();
-        return false;
-      },
-      error: function (error) {
-        console.log("Message col creation failed:", error);
-      },
-    });
-  }
-
-  function createStatusColumn() {
-    var data = {
-      __metadata: { type: "SP.Field" },
-      Title: "Status",
-      FieldTypeKind: 2,
-      Required: "false",
-      EnforceUniqueValues: "false",
-      StaticName: "Status",
-    };
-
-    var url = ctx.PortalUrl + "_api/web/lists/getbytitle('History')/Fields"; //this is dev env
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        return false;
-      },
-      error: function (error) {
-        console.log("Status col creation failed:", error);
       },
     });
   }
@@ -2070,59 +2012,6 @@ function startMeatball() {
       },
       error: function (error) {
         console.log("History entry creation failed:", error);
-      },
-    });
-  }
-
-  function deleteHistory(listId, id) {
-    var url =
-      ctx.PortalUrl + "_api/web/lists/getbytitle('History')/items(" + id + ")"; //this is dev env
-
-    $.ajax({
-      url: url,
-      type: "DELETE",
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-        "IF-MATCH": "*",
-      },
-      success: function (data) {
-        return false;
-      },
-      error: function (error) {
-        console.log("History entry deletion failed:", error);
-      },
-    });
-  }
-
-  function updateHistory(listId, id, message) {
-    var data = {
-      __metadata: { type: "SP.ListItem" },
-      Message: message,
-    };
-
-    var url =
-      ctx.PortalUrl + "_api/web/lists/getbytitle('History')/items(" + id + ")";
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-        "X-HTTP-Method": "MERGE",
-        "IF-MATCH": "*",
-      },
-      success: function (data) {
-        return false;
-      },
-      error: function (error) {
-        console.log("History entry update failed:", error);
       },
     });
   }
