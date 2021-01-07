@@ -1,4 +1,38 @@
-(function () {
+var scripts = [].slice.call(document.getElementsByTagName("script"));
+var meatball = scripts.filter(function (script) {
+  if (script.src.indexOf("meatball.js") > -1) {
+    return script;
+  }
+});
+meatball = meatball[0].src;
+var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
+var ims = {};
+ims.sharepoint = {};
+var scripts = ["list.js"];
+
+function scriptBuilder(url) {
+  var script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = baseUrl + url;
+  document.body.appendChild(script);
+  return script;
+}
+
+scripts
+  .map(function (src) {
+    return scriptBuilder(src);
+  })
+  .map(function (script) {
+    script.addEventListener("load", function () {
+      ims.sharepoint.list = List;
+
+      startMeatball();
+    });
+  });
+
+function startMeatball() {
+  var test = new ims.sharepoint.list();
+  test.create();
   //Size sets the Meatball size in pixels
   var size = 20;
   //Creates the Color object which manages meatball colors
@@ -2377,4 +2411,4 @@
       },
     });
   }
-})();
+}
