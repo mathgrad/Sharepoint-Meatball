@@ -31,8 +31,6 @@ scripts
   });
 
 function startMeatball() {
-  var test = new ims.sharepoint.list();
-  test.create();
   //Size sets the Meatball size in pixels
   var size = 20;
   //Creates the Color object which manages meatball colors
