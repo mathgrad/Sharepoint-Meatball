@@ -8,7 +8,7 @@ meatball = meatball[0].src;
 var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
 var ims = {};
 ims.sharepoint = {};
-var scripts = ["column.js", "list.js", "notification.js"];
+var scripts = ["column.js", "list.js", "notification.js", "person.js"];
 
 function scriptBuilder(url) {
   var script = document.createElement("script");
@@ -24,12 +24,19 @@ var builtScripts = scripts.map(function (src) {
 
 function assignScripts() {
   builtScripts[0].addEventListener("load", function () {
+    console.log("1 Loaded Scripts");
     builtScripts[1].addEventListener("load", function () {
+      console.log("2 Loaded Scripts");
       builtScripts[2].addEventListener("load", function () {
-        ims.sharepoint.column = Column;
-        ims.sharepoint.list = List;
-        ims.sharepoint.notification = Pantry;
-        startMeatball();
+        console.log("3 Loaded Scripts");
+        builtScripts[3].addEventListener("load", function () {
+          console.log("4 Loaded Scripts");
+          ims.sharepoint.column = Column;
+          ims.sharepoint.list = List;
+          ims.sharepoint.notification = Pantry;
+          ims.sharepoint.person = Person;
+          startMeatball();
+        });
       });
     });
   });
@@ -37,8 +44,10 @@ function assignScripts() {
 assignScripts();
 
 function startMeatball() {
+  console.log("Meatball Started");
   var rest = new ims.sharepoint.list();
   var restCol = new ims.sharepoint.column();
+  var restPerson = new ims.sharepoint.person();
 
   //Size sets the Meatball size in pixels
   var size = 20;
@@ -192,10 +201,13 @@ function startMeatball() {
     }
 
     if (userName.length <= 0) {
-      function success(props, name) {
+      function cb(error, name) {
+        if (error) {
+          console.log(error);
+        }
         userName = name;
       }
-      getUserName(success);
+      restPerson.get(ctx.PortalUrl, cb);
     }
 
     //Get all the tables -- create array
@@ -611,7 +623,6 @@ function startMeatball() {
         function cb(error, data) {
           if (error) {
             console.log(error);
-            return;
           }
           if (data.length !== 0) {
             var priorDate,
@@ -728,7 +739,15 @@ function startMeatball() {
             });
           }
         }
-        retrieveHistory(table, rowIndex, internalColumn, cb, false);
+        rest.get(
+          table,
+          rowIndex,
+          internalColumn,
+          cb,
+          false,
+          ctx.PortalUrl,
+          "History"
+        );
       }
       document.body.appendChild(meatballHistoryDisplay.$ele);
       meatballHistoryDisplay.container.scrollTop =
@@ -747,7 +766,10 @@ function startMeatball() {
     //Add Mouse Enter Event to display
     this.circle.addEventListener("mouseenter", function () {
       meatball.initHistoryMessage.innerText = "Loading...";
-      function success(param, data) {
+      function cb(error, data) {
+        if (error) {
+          console.log(error);
+        }
         if (data.length === 1) {
           meatball.initHistoryMessage.innerText = data[0].Message;
           meatball.initHistoryName.innerText = data[0].Author;
@@ -760,7 +782,15 @@ function startMeatball() {
         }
         meatball.setPosition(triangleSize);
       }
-      retrieveHistory(table, rowIndex, internalColumn, success, true);
+      rest.get(
+        table,
+        rowIndex,
+        internalColumn,
+        cb,
+        true,
+        ctx.PortalUrl,
+        "History"
+      );
 
       add = true;
       document.body.appendChild(meatball.$ele);
@@ -1905,74 +1935,6 @@ function startMeatball() {
 
   function generateId() {
     return Math.floor(Math.random() * 1000);
-  }
-
-  //Show the history and on fail display "No Messages" in the history view
-
-  function retrieveHistory(table, rowIndex, internalColumn, cb, init) {
-    var url = "";
-    init
-      ? (url =
-          ctx.PortalUrl +
-          "_api/web/lists/getbytitle('History')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
-          table +
-          " - " +
-          rowIndex +
-          " - " +
-          internalColumn +
-          "'&$expand=Author&$orderby=Created desc&$top=1")
-      : (url =
-          ctx.PortalUrl +
-          "_api/web/lists/getbytitle('History')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
-          table +
-          " - " +
-          rowIndex +
-          " - " +
-          internalColumn +
-          "'&$expand=Author&$top=200");
-
-    $.ajax({
-      url: url,
-      type: "GET",
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (res) {
-        var data = res.d.results.map(function (item) {
-          item.Author =
-            item.Status === "Automated Message" ? "AutoBot" : item.Author.Title;
-          return item;
-        });
-
-        cb(null, data);
-      },
-      error: cb,
-    });
-  }
-
-  function getUserName(success, meatballHistory) {
-    var url =
-      ctx.HttpRoot + "/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
-    $.ajax({
-      url: url,
-      type: "GET",
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        success(meatballHistory, data.d.DisplayName);
-        return false;
-      },
-      error: function (error) {
-        console.log("Error in the getting the current:", error);
-      },
-    });
   }
 
   function makeHistory(
