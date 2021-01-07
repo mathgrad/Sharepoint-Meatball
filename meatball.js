@@ -604,7 +604,6 @@ function startMeatball() {
               [[]]
             );
 
-            console.log("organized", organized);
             organized = organized.map(function (block, index) {
               if (block.length === 1 && block[0].type === "break") {
                 meatballHistoryDisplay.addDivider(block[0]);
@@ -1533,13 +1532,9 @@ function startMeatball() {
     this.edit.addEventListener("click", function () {
       meatballHistoryItem.isNew = false;
       meatballHistoryItem.$ele.style.flex = "1";
-      console.log(
-        meatballHistoryItem.$ele.attributes,
-        meatballHistoryItem.$ele.parentNode
-      );
+
       if (meatballHistoryItem.$ele.parentNode.isEdit) {
         meatballHistoryItem.$ele.parentNode.isEdit = false;
-        console.log(!meatballHistoryItem.getEditable());
         meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
       }
     });
