@@ -6,7 +6,8 @@ var color = new Color();
     fc
     bgc
   */
-export function style(props) {
+
+function style(props) {
   this.$ele = "";
   switch (props.type) {
     case "avatar":
@@ -28,67 +29,55 @@ export function style(props) {
             "width: 30px; height: 30px; font-size: 10.5pt; border-radius: 30px; text-align: center; line-height: 28px;";
           break;
       }
-      return this;
+      break;
     case "button":
       switch (props.size) {
         case "small":
           this.$ele +=
-            "border-radius: .125rem; padding: .125rem; margin: 0px .25rem .25rem .25rem; text-align: center; display: block; cursor: pointer: font-weight: 500;";
+            "border-radius: .125rem; padding: .125rem; margin: 0px .25rem .25rem .25rem; text-align: center; display: block; cursor; pointer: font-weight: 500;";
           break;
         case "normal":
           this.$ele +=
-            "border-radius: .25rem; padding: .25rem; margin: 0px .5rem .5rem .5rem; text-align: center; display: block; cursor: pointer: font-weight: 500;";
+            "border-radius: .25rem; padding: .25rem; margin: 0px .5rem .5rem .5rem; text-align: center; display: block; cursor: pointer; font-weight: 500;";
           break;
         case "large":
           this.$ele +=
-            "border-radius: .5rem; padding: .5rem; margin: 0px 1rem 1rem 1rem; text-align: center; display: block; cursor: pointer: font-weight: 500;";
+            "border-radius: .5rem; padding: .5rem; margin: 0px 1rem 1rem 1rem; text-align: center; display: block; cursor: pointer; font-weight: 500;";
           break;
         default:
           this.$ele +=
-            "border-radius: .25rem; padding: .25rem; margin: 0px .5rem .5rem .5rem; text-align: center; display: block; cursor: pointer: font-weight: 500;";
+            "border-radius: .25rem; padding: .25rem; margin: 0px .5rem .5rem .5rem; text-align: center; display: block; cursor: pointer; font-weight: 500;";
           break;
       }
-      return this;
+      break;
     case "carret":
       switch (props.size) {
         case "small":
           this.$ele +=
-            "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 14px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 5px solid " +
+            "margin: 0px; display: inline-block; position: absolute; height: 0px; width: 0px; left: 2px; top: 14px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 5px solid " +
             color.get(props.bgc) +
             ";";
           break;
         case "normal":
           this.$ele +=
-            "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 29px; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid " +
+            "margin: 0px; display: inline-block; position: absolute; height: 0px; width: 0px; left: 2px; top: 29px; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid " +
             color.get(props.bgc) +
             ";";
           break;
         case "large":
           this.$ele +=
-            "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 44px; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-right: 15px solid " +
+            "margin: 0px; display: inline-block; position: absolute; height: 0px; width: 0px; left: 2px; top: 44px; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-right: 15px solid " +
             color.get(props.bgc) +
             ";";
           break;
         default:
           this.$ele +=
-            "margin: 0px; display: inline-block; position:absolute; height: 0px; width: 0px; left: 2px; top: 29px; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid " +
+            "margin: 0px; display: inline-block; position: absolute; height: 0px; width: 0px; left: 2px; top: 29px; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid " +
             color.get(props.bgc) +
             ";";
           break;
       }
-      return this;
-    case "container":
-      switch (props.size) {
-        case "small":
-          break;
-        case "normal":
-          break;
-        case "large":
-          break;
-        default:
-          break;
-      }
-      return this;
+      break;
     case "meatball":
       switch (props.size) {
         case "small":
@@ -108,54 +97,21 @@ export function style(props) {
             "width: 15px; height: 15px; border-radius: 15px; margin: auto; padding: 0px;";
           break;
       }
-      return this;
-    case "message":
-      switch (props.size) {
-        case "small":
-          break;
-        case "normal":
-          break;
-        case "large":
-          break;
-        default:
-          break;
-      }
-      return this;
-    case "popoverBody": {
-      switch (props.size) {
-        case "small":
-          this.$ele +=
-            "display: inline-block; margin: 0px; padding: 0px; width: 100px; box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 0.2);";
-          break;
-        case "normal":
-          this.$ele +=
-            "display: inline-block; margin: 0px; padding: 0px; width: 200px; box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 0.2);";
-          break;
-        case "large":
-          this.$ele +=
-            "display: inline-block; margin: 0px; padding: 0px; width: 300px; box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 0.2);";
-          break;
-        default:
-          this.$ele +=
-            "display: inline-block; margin: 0px; padding: 0px; width: 200px; box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 0.2);";
-          break;
-      }
-
-      if (props.fc && props.type != "carret") {
-        this.$ele += "color: " + color.get(props.fc) + ";";
-      }
-      if (props.bgc && props.type != "carret") {
-        this.$ele += "background-color: " + color.get(props.bgc) + ";";
-      }
-      return this;
-    }
+      break;
     default:
       throw new Error("No Type Defined\nPlease Define a Type");
       return this;
   }
+  if (props.fc && props.type != "carret") {
+    this.$ele += "color: " + color.get(props.fc) + ";";
+  }
+  if (props.bgc && props.type != "carret") {
+    this.$ele += "background-color: " + color.get(props.bgc) + ";";
+  }
+  return this;
 }
 
-export function Color() {
+function Color() {
   this.blue = "#0075ff";
   this.green = "#27e833";
   this.red = "#d71010";
