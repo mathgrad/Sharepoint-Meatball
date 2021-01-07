@@ -1,5 +1,63 @@
 function List() {}
 
+List.prototype.get = function (
+  table,
+  rowIndex,
+  internalColumn,
+  cb,
+  init,
+  path,
+  searchName
+) {
+  var url = "";
+  init
+    ? (url =
+        path +
+        "_api/web/lists/getbytitle('" +
+        searchName +
+        "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
+        table +
+        " - " +
+        rowIndex +
+        " - " +
+        internalColumn +
+        "'&$expand=Author&$orderby=Created desc&$top=1")
+    : (url =
+        path +
+        "_api/web/lists/getbytitle('" +
+        searchName +
+        "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
+        table +
+        " - " +
+        rowIndex +
+        " - " +
+        internalColumn +
+        "'&$expand=Author&$top=200");
+
+  $.ajax({
+    url: url,
+    type: "GET",
+    headers: {
+      Accept: "application/json; odata=verbose",
+      "Content-Type": "application/json;odata=verbose",
+      credentials: true,
+      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+    },
+    success: function (res) {
+      var data = res.d.results.map(function (item) {
+        item.Author =
+          item.Status === "Automated Message" ? "AutoBot" : item.Author.Title;
+        return item;
+      });
+
+      cb(null, data);
+    },
+    error: function (error) {
+      cb(error, null);
+    },
+  });
+};
+
 List.prototype.createList = function (path, name, cb) {
   var data = {
     __metadata: { type: "SP.List" },
