@@ -8,7 +8,7 @@ meatball = meatball[0].src;
 var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
 var ims = {};
 ims.sharepoint = {};
-var scripts = ["notification.js", "list.js"];
+var scripts = ["style", "notification.js", "list.js"];
 
 function scriptBuilder(url) {
   var script = document.createElement("script");
@@ -25,9 +25,11 @@ var builtScripts = scripts.map(function (src) {
 function assignScripts() {
   builtScripts[0].addEventListener("load", function () {
     builtScripts[1].addEventListener("load", function () {
-      ims.sharepoint.notification = Pantry;
-      ims.sharepoint.list = List;
-      startMeatball();
+      builtScripts[2].addEventListener("load", function () {
+        ims.sharepoint.notification = Pantry;
+        ims.sharepoint.list = List;
+        startMeatball();
+      });
     });
   });
 }

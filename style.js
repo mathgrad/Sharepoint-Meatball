@@ -6,7 +6,8 @@ var color = new Color();
     fc
     bgc
   */
-export function style(props) {
+
+function style(props) {
   this.$ele = "";
   switch (props.type) {
     case "avatar":
@@ -155,7 +156,7 @@ export function style(props) {
   }
 }
 
-export function Color() {
+function Color() {
   this.blue = "#0075ff";
   this.green = "#27e833";
   this.red = "#d71010";
