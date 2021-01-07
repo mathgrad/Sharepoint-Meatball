@@ -8,7 +8,7 @@ meatball = meatball[0].src;
 var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
 var ims = {};
 ims.sharepoint = {};
-var scripts = ["style", "notification.js", "list.js"];
+var scripts = ["style.js", "notification.js", "list.js"];
 
 function scriptBuilder(url) {
   var script = document.createElement("script");
@@ -26,6 +26,8 @@ function assignScripts() {
   builtScripts[0].addEventListener("load", function () {
     builtScripts[1].addEventListener("load", function () {
       builtScripts[2].addEventListener("load", function () {
+        ims.sharepoint.color = Color;
+        ims.sharepoint.style = style;
         ims.sharepoint.notification = Pantry;
         ims.sharepoint.list = List;
         startMeatball();
@@ -39,7 +41,11 @@ function startMeatball() {
   //Size sets the Meatball size in pixels
   var size = 20;
   //Creates the Color object which manages meatball colors
-  var colors = new Colors();
+  var colors = new ims.sharepoint.color();
+  var meatballDefaults = new Defaults();
+  console.log(
+    ims.sharepoint.style({ type: "avatar", size: "normal", fc: "2", bgc: "4" }) .$ele
+  );
   // console.log(
   //   "Background Color: ",
   //   window
@@ -133,7 +139,7 @@ function startMeatball() {
     //Checks for overrides
     if (window.meatball_override) {
       meatball_override.forEach(function (item) {
-        colors.set(item.value, item.color);
+        meatballDefaults.set(item);
       });
     }
 
@@ -412,7 +418,9 @@ function startMeatball() {
     );
     meatballHistoryDisplay.listGUID = historyListGUID;
 
-    this.circle.style.backgroundColor = colors.get(cellText);
+    this.circle.style.backgroundColor = colors.get(
+      meatballDefaults.get(cellText)
+    );
 
     this.$ele = document.createElement("div");
     this.$ele.style.backgroundColor = "transparent";
@@ -531,17 +539,7 @@ function startMeatball() {
 
     this.showMore = document.createElement("div");
     this.showMore.innerText = "Show More";
-    this.showMore.style.backgroundColor = defaultButtonBackgroundColor;
-    this.showMore.style.borderRadius = ".25rem";
-    this.showMore.style.color = defaultColor;
-    this.showMore.style.cursor = "pointer";
-    this.showMore.style.display = "block";
-    this.showMore.style.fontWeight = "500";
-    this.showMore.style.marginBottom = ".5rem";
-    this.showMore.style.marginLeft = ".5rem";
-    this.showMore.style.marginRight = ".5rem";
-    this.showMore.style.padding = ".25rem";
-    this.showMore.style.textAlign = "center";
+    this.showMore.style = ims.sharepoint.style({type: "button", size: "normal", fc: 0, bgc: 4}).$ele;
 
     this.showMore.addEventListener("mouseenter", function () {
       this.style.backgroundColor = defaultButtonHoverBackgroundColor;
@@ -1532,7 +1530,6 @@ function startMeatball() {
     this.edit.addEventListener("click", function () {
       meatballHistoryItem.isNew = false;
       meatballHistoryItem.$ele.style.flex = "1";
-
       if (meatballHistoryItem.$ele.parentNode.isEdit) {
         meatballHistoryItem.$ele.parentNode.isEdit = false;
         meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
@@ -1699,70 +1696,52 @@ function startMeatball() {
     }
   };
 
-  //A hashmap between values and colors
-  function Colors() {
-    this.blue = "#0075ff";
-    this.green = "#27e833";
-    this.red = "#d71010";
-    this.yellow = "#f6de1c";
+  function Defaults() {
     this.defaults = [
-      { value: "Up", color: this.green },
-      { value: "Down", color: this.red },
-      { value: "Degraded", color: this.yellow },
-      { value: "NA", color: "inherit" },
-      { value: "100-90", color: this.green },
-      { value: "89-79", color: this.yellow },
-      { value: "79-10", color: this.red },
-      { value: "<79", color: this.red },
-      { value: "<10", color: this.blue },
+      { value: "Up", color: "green" },
+      { value: "Down", color: "red" },
+      { value: "Degraded", color: "yellow" },
+      { value: "NA", color: "0" },
+      { value: "100-90", color: "green" },
+      { value: "89-79", color: "yellow" },
+      { value: "79-10", color: "red" },
+      { value: "<79", color: "red" },
+      { value: "<10", color: "blue" },
     ];
   }
 
-  //Gets colors.  If it cannot find a color, it defaults to black
-  Colors.prototype.get = function (value) {
-    if (!value) {
-      return "#000000";
+  Defaults.prototype.get = function (props) {
+    if (!props) {
+      return "0";
     }
     var results = this.defaults.filter(function (item) {
-      if (containsSubString(item.value, value)) {
+      if (containsSubString(item.value, props)) {
         return item;
       }
     });
-
     if (results[0]) {
       return results[0].color;
     } else {
-      return "#000000";
+      return "0";
     }
   };
 
-  //Either replaces the default value or creates a new values
-  //If a known color value is called, it will use one of the default colors
-  //For example, if user supplies blue, then #0075ff is added
-  Colors.prototype.set = function (value, color) {
-    if (this.replaceValue(value, color)) {
+  Defaults.prototype.set = function (props) {
+    if (this.replace(props)) {
       return;
     }
-    if (compareString(color, "blue")) {
-      this.defaults.push({ value: value, color: this.blue });
-    } else if (compareString(color, "green")) {
-      this.defaults.push({ value: value, color: this.green });
-    } else if (compareString(color, "red")) {
-      this.defaults.push({ value: value, color: this.red });
-    } else if (compareString(color, "yellow")) {
-      this.defaults.push({ value: value, color: this.yellow });
-    } else {
-      this.defaults.push({ value: value, color: color });
-    }
+    this.defaults.push({ value: props.value, color: props.color });
   };
 
-  //Private function for the Color object
-  Colors.prototype.replaceValue = function (value, color) {
+  Defaults.prototype.replace = function (props) {
     var found = false;
-    this.defaults.map(function (item, index) {
-      if (compareString(value, item.value)) {
+    this.defaults.map(function (item) {
+      if (found) {
+        return;
+      }
+      if (compareString(props.value, item.value)) {
         found = true;
-        item = { value: value, color: color };
+        item = { value: props.value, color: props.color };
       }
     });
     return found;
