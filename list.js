@@ -1,5 +1,7 @@
 function List() {}
 
+List;
+
 List.prototype.get = function (
   table,
   rowIndex,
@@ -169,58 +171,57 @@ List.prototype.find = function (path, searchName, cb) {
 };
 
 //be able to use this for libraies and lists
-List.prototype.createColumn = function (path, nameColumn, cb) {
-  var data = {
-    __metadata: { type: "SP.Field" },
-    Title: "Message",
-    FieldTypeKind: 2,
-    Required: "false",
-    EnforceUniqueValues: "false",
-    StaticName: nameColumn,
-  };
-
-  var url = path + "_api/web/lists/getbytitle('History')/Fields";
-
-  $.ajax({
-    url: url,
-    type: "POST",
-    data: JSON.stringify(data),
-    headers: {
-      Accept: "application/json; odata=verbose",
-      "Content-Type": "application/json;odata=verbose",
-      credentials: true,
-      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-    },
-    success: function (data) {
-      return false;
-    },
-    error: function (error) {
-      console.log("Message col creation failed:", error);
-    },
-  });
-};
+// List.prototype.createColumn = function (path, nameColumn, cb) {
+//   var data = {
+//     __metadata: { type: "SP.Field" },
+//     Title: nameColumn,
+//     FieldTypeKind: 2,
+//     Required: "false",
+//     EnforceUniqueValues: "false",
+//     StaticName: nameColumn,
+//   };
+//
+//   var url = path + "_api/web/lists/getbytitle('History')/Fields";
+//
+//   $.ajax({
+//     url: url,
+//     type: "POST",
+//     data: JSON.stringify(data),
+//     headers: {
+//       Accept: "application/json; odata=verbose",
+//       "Content-Type": "application/json;odata=verbose",
+//       credentials: true,
+//       "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+//     },
+//     success: function (data) {
+//       return false;
+//     },
+//     error: function (error) {
+//       console.log("Message col creation failed:", error);
+//     },
+//   });
+// };
 
 //figure out a better way to
-List.prototype.makeHistory = function (
+List.prototype.makeHistoryEntry = function (
   listId,
   message,
   colName,
   rowId,
   tableGUID,
-  listEntrySuccess,
   autoBot,
   path,
+  searchName,
   cb
 ) {
   var data = {
     __metadata: { type: "SP.ListItem" },
     Message: message,
-    Title: tableGUID + " - " + rowId + " - " + colName, //name of the status column that is passed
+    Title: tableGUID + " - " + rowId + " - " + colName,
     Status: autoBot ? "Automated Message" : "User Generated",
   };
 
-  var url = ctx.PortalUrl + "_api/web/lists/getbytitle('History')/items "; //this is dev env
-
+  var url = path + "_api/web/lists/getbytitle('" + searchName + "')/items ";
   $.ajax({
     url: url,
     type: "POST",
@@ -235,11 +236,11 @@ List.prototype.makeHistory = function (
       if (autoBot) {
         return false;
       }
-      // listEntrySuccess(data.d);
+      cb(null, data.d);
       return false;
     },
     error: function (error) {
-      console.log("History entry creation failed:", error);
+      cb(error, null);
     },
   });
 };
