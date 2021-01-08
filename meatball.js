@@ -14,47 +14,42 @@ var scripts = [
   "person.js",
   "notification.js",
   "style.js",
+  "svg.js",
 ];
 
 function scriptBuilder(url) {
   var script = document.createElement("script");
   script.type = "text/javascript";
   script.src = baseUrl + url;
+  script.defer = true;
+  script.async = false;
   document.body.appendChild(script);
   return script;
 }
 
-var builtScripts = scripts.map(function (src) {
-  return scriptBuilder(src);
-});
-
-function assignScripts() {
-  builtScripts[0].addEventListener("load", function () {
-    console.log("1 Loaded Scripts");
-    builtScripts[1].addEventListener("load", function () {
-      console.log("2 Loaded Scripts");
-      builtScripts[2].addEventListener("load", function () {
-        console.log("3 Loaded Scripts");
-        builtScripts[3].addEventListener("load", function () {
-          console.log("4 Loaded Scripts");
-          builtScripts[4].addEventListener("load", function () {
-            console.log("5 Loaded Scripts");
-            ims.sharepoint.column = Column;
-            ims.sharepoint.list = List;
-            ims.sharepoint.person = Person;
-            ims.sharepoint.notification = Pantry;
-            ims.sharepoint.style = style;
-            startMeatball();
-          });
+function loadScripts() {
+  scripts
+    .map(function (src) {
+      return scriptBuilder(src);
+    })
+    .map(function (script, i) {
+      if (i == scripts.length - 1) {
+        script.addEventListener("load", function () {
+          ims.sharepoint.color = Color;
+          ims.sharepoint.column = Column;
+          ims.sharepoint.list = List;
+          ims.sharepoint.person = Person;
+          ims.sharepoint.notification = Pantry;
+          ims.sharepoint.style = style;
+          startMeatball();
         });
-      });
+      }
     });
-  });
 }
-assignScripts();
+
+loadScripts();
 
 function startMeatball() {
-  console.log("Meatball Started");
   var rest = new ims.sharepoint.list();
   var restCol = new ims.sharepoint.column();
   var restPerson = new ims.sharepoint.person();
