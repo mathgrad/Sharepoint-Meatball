@@ -53,6 +53,7 @@ function startMeatball() {
   var rest = new ims.sharepoint.list();
   var restCol = new ims.sharepoint.column();
   var restPerson = new ims.sharepoint.person();
+  var color = new ims.sharepoint.color();
 
   //Size sets the Meatball size in pixels
   var size = 20;
@@ -70,25 +71,25 @@ function startMeatball() {
   // var defaultColor = "#202020";
   // var defaultTitleColor = "#333333";
   // dbgc = 16
-  var defaultBackgroundColor = "#202020";
+  var defaultBackgroundColor = 16;
   // dMHIbgc = 11;
-  var defaultMHIBackgroundColor = "#191919";
+  var defaultMHIBackgroundColor = 11;
   // dHbgc = 15
-  var defaultHoverBackgroundColor = "#333333";
+  var defaultHoverBackgroundColor = 15;
   // dBgbc = 4
-  var defaultButtonBackgroundColor = "#3949ab";
+  var defaultButtonBackgroundColor = 4;
   // dBHbgc = 14
-  var defaultButtonHoverBackgroundColor = "#1B2B8D";
+  var defaultButtonHoverBackgroundColor = 14;
   // dCBbgc = 4
-  var defaultCancelButtonBackgroundColor = "#3949ab";
+  var defaultCancelButtonBackgroundColor = 4;
   // dCBHbgc = 14
-  var defaultCancelButtonHoverBackgroundColor = "#1B2B8D";
+  var defaultCancelButtonHoverBackgroundColor = 14;
   // dIbgc = 17
-  var defaultInputBackgroundColor = "#D2D2D2";
+  var defaultInputBackgroundColor = 17;
   // dc = 0
-  var defaultColor = "#F0F0F0";
+  var defaultColor = 0;
   // dTc = 13
-  var defaultTitleColor = "#DFDFDF";
+  var defaultTitleColor = 13;
 
   //Creates the Pantry object which manages toast notifications
   var kitchen = new Pantry();
@@ -111,13 +112,17 @@ function startMeatball() {
     "@-webkit-keyframes spin{0%{-webkit-transform: rotate(0deg);}100%{-webkit-transform: rotate(360deg);}}" +
     "#CommentBox:focus{outline:none;}" +
     "#MHContainer::-webkit-scrollbar-track{border-radius:10px;background-color:" +
-    defaultBackgroundColor +
+    color.get(defaultBackgroundColor) +
     ";margin-right:5px;}" +
     "#MHContainer::-webkit-scrollbar{width:12px;background-color:" +
-    defaultBackgroundColor +
+    color.get(defaultBackgroundColor) +
     ";}" +
-    "#MHContainer::-webkit-scrollbar-thumb{border-radius:10px;-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);background-color:#505050;}" +
-    "#MHContainer::-webkit-scrollbar-thumb:hover{background-color: #3949ab}";
+    "#MHContainer::-webkit-scrollbar-thumb{border-radius:10px;-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);background-color: " +
+    color.get(24) +
+    ";}" +
+    "#MHContainer::-webkit-scrollbar-thumb:hover{background-color: " +
+    color.get(4) +
+    "}";
   document.getElementsByTagName("head")[0].appendChild(style);
 
   //On initial load
@@ -354,11 +359,7 @@ function startMeatball() {
 
             if (displayValue) {
               text = $cell.innerText;
-              this.canvas = document.createElement("canvas");
-              this.context = canvas.getContext("2d");
-              context.font = "100 12pt arial";
-
-              new Meatball(size).init(
+              new Meatball().init(
                 values,
                 externalColumn,
                 internalColumn,
@@ -445,14 +446,12 @@ function startMeatball() {
   //Main object
   //Replaces default text from Color object with circles with color from Color object
   //Attaches popover to the color circle along with updateTarget function
-  function Meatball(size) {
-    this.size = size + "px";
+  function Meatball() {
     this.circle = document.createElement("div");
-    this.circle.style.width = this.size;
-    this.circle.style.height = this.size;
-    this.circle.style.borderRadius = this.size;
-    this.circle.style.margin = "auto";
-    this.circle.style.padding = "0px";
+    this.circle.style = ims.sharepoint.style({
+      type: "meatball",
+      size: "large",
+    }).$ele;
   }
 
   Meatball.prototype.init = function (
@@ -487,31 +486,26 @@ function startMeatball() {
     this.$ele.style.padding = "10px";
 
     this.popoverBody = document.createElement("div");
-    this.popoverBody.style.backgroundColor = defaultBackgroundColor;
+    this.popoverBody.style.backgroundColor = color.get(defaultBackgroundColor);
     this.popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
-    this.popoverBody.style.color = defaultColor;
+    this.popoverBody.style.color = color.get(defaultColor);
     this.popoverBody.style.display = "inline-block";
     this.popoverBody.style.margin = "0px";
     this.popoverBody.style.padding = "0px";
     this.popoverBody.style.width = panelWidth;
 
     this.carret = document.createElement("div");
-    this.carret.style.borderBottom = triangleSize + "px solid transparent";
-    this.carret.style.borderTop = triangleSize + "px solid transparent";
-    this.carret.style.borderRight =
-      triangleSize + "px solid " + defaultBackgroundColor;
-    this.carret.style.display = "inline-block";
-    this.carret.style.height = "0px";
-    this.carret.style.left = "2px";
-    this.carret.style.margin = "0px";
-    this.carret.style.position = "absolute";
-    this.carret.style.top = "29px";
-    this.carret.style.width = "0px";
+    this.carret.style = ims.sharepoint.style({
+      type: "carret",
+      size: "",
+      bgc: defaultBackgroundColor,
+    }).$ele;
 
     //Create Popover Element
     this.popover = document.createElement("div");
     this.popover.style.borderRadius = ".25rem";
-    this.popover.style.boxShadow = "0px 0px 5px " + defaultBackgroundColor;
+    this.popover.style.boxShadow =
+      "0px 0px 5px " + color.get(defaultBackgroundColor);
     this.popover.style.display = "inline-block";
     this.popover.style.padding = ".5rem";
     this.popover.style.zIndex = "1";
@@ -546,7 +540,8 @@ function startMeatball() {
     this.popover.appendChild(this.options.options);
 
     this.divider1 = document.createElement("hr");
-    this.divider1.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
+    this.divider1.style.borderTop =
+      "1pt solid " + color.get(defaultHoverBackgroundColor);
 
     this.popover.appendChild(this.divider1);
 
@@ -564,9 +559,11 @@ function startMeatball() {
     this.popoverBody.appendChild(this.popover);
 
     this.initHistoryContainer = document.createElement("div");
-    this.initHistoryContainer.style.backgroundColor = defaultHoverBackgroundColor;
+    this.initHistoryContainer.style.backgroundColor = color.get(
+      defaultHoverBackgroundColor
+    );
     this.initHistoryContainer.style.borderRadius = ".25rem";
-    this.initHistoryContainer.style.color = defaultColor;
+    this.initHistoryContainer.style.color = color.get(defaultColor);
     this.initHistoryContainer.style.display = "block";
     this.initHistoryContainer.style.marginBottom = ".5rem";
     this.initHistoryContainer.style.marginLeft = ".5rem";
@@ -602,16 +599,16 @@ function startMeatball() {
     this.showMore.style = ims.sharepoint.style({
       type: "button",
       size: "normal",
-      fc: 0,
-      bgc: 4,
+      fc: defaultColor,
+      bgc: defaultButtonBackgroundColor,
     }).$ele;
 
     this.showMore.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = defaultButtonHoverBackgroundColor;
+      this.style.backgroundColor = color.get(defaultButtonHoverBackgroundColor);
     });
 
     this.showMore.addEventListener("mouseleave", function () {
-      this.style.backgroundColor = defaultButtonBackgroundColor;
+      this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
     });
 
     var addHistory = true;
@@ -684,13 +681,10 @@ function startMeatball() {
                 //step 1 create continer for avatar
                 var avatarContainer = document.createElement("div");
                 var avatar = document.createElement("div");
-                avatar.style.width = "30px";
-                avatar.style.height = "30px";
-                avatar.style.fontSize = "14px";
-                avatar.style.backgroundColor = "#3949ab";
-                avatar.style.borderRadius = "50%";
-                avatar.style.textAlign = "center";
-                avatar.style.lineHeight = "28px";
+                avatar.style = ims.sharepoint.style({
+                  type: "avatar",
+                  bgc: defaultButtonBackgroundColor,
+                }).$ele;
                 avatar.style.margin = isRight
                   ? "0px 0px 0px 4px"
                   : "0px 4px 0px 0px";
@@ -823,13 +817,11 @@ function startMeatball() {
     this.$ele.style.left =
       this.circle.getBoundingClientRect().right - 12 + triangleSize + "px";
 
-    this.carret.style.position = "absolute";
-    this.carret.style.top = "29px";
-    this.carret.style.left = "2px";
-    this.carret.style.right = "0px";
-    this.carret.style.borderLeft = "0px";
-    this.carret.style.borderRight =
-      triangleSize + "px solid " + defaultBackgroundColor;
+    this.carret.style = ims.sharepoint.style({
+      type: "carret",
+      size: "",
+      bgc: defaultBackgroundColor,
+    }).$ele;
     if (this.carret.parentNode) {
       this.carret.parentNode.removeChild(this.carret);
     }
@@ -872,7 +864,7 @@ function startMeatball() {
         this.popoverBody.getBoundingClientRect().width + triangleSize + "px";
       this.carret.style.borderRight = "0px";
       this.carret.style.borderLeft =
-        triangleSize + "px solid " + defaultBackgroundColor;
+        triangleSize + "px solid " + color.get(defaultBackgroundColor);
       this.$ele.style.left =
         this.circle.getBoundingClientRect().left -
         this.popoverBody.getBoundingClientRect().width -
@@ -887,7 +879,7 @@ function startMeatball() {
   };
 
   Meatball.prototype.setColor = function (value) {
-    this.circle.style.backgroundColor = colors.get(value);
+    this.circle.style.backgroundColor = color.get(value);
   };
 
   Meatball.prototype.removePopover = function () {
@@ -942,30 +934,30 @@ function startMeatball() {
 
       if (containsSubString(ele, cellText)) {
         radio.checked = true;
-        option.style.backgroundColor = defaultHoverBackgroundColor;
+        option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
       }
 
       option.addEventListener("mouseenter", function () {
         if (radio.checked) {
-          option.style.backgroundColor = defaultBackgroundColor;
+          option.style.backgroundColor = color.get(defaultBackgroundColor);
         } else {
-          option.style.backgroundColor = defaultHoverBackgroundColor;
+          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
         }
       });
       option.addEventListener("mouseleave", function () {
         if (radio.checked) {
-          option.style.backgroundColor = defaultHoverBackgroundColor;
+          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
         } else {
-          option.style.backgroundColor = defaultBackgroundColor;
+          option.style.backgroundColor = color.get(defaultBackgroundColor);
         }
       });
 
       panel.options.addEventListener("mousedown", function () {
         [].slice.call(panel.options.children).forEach(function (item) {
           if (item.parentElement.querySelector(":hover") === item) {
-            item.style.backgroundColor = defaultHoverBackgroundColor;
+            item.style.backgroundColor = color.get(defaultHoverBackgroundColor);
           } else {
-            item.style.backgroundColor = defaultBackgroundColor;
+            item.style.backgroundColor = color.get(defaultBackgroundColor);
           }
         });
       });
@@ -973,7 +965,7 @@ function startMeatball() {
       option.addEventListener("mouseup", function () {
         if (!radio.checked) {
           radio.checked = true;
-          option.style.backgroundColor = defaultHoverBackgroundColor;
+          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
           updateTarget(
             ele,
             rowIndex,
@@ -1001,7 +993,7 @@ function startMeatball() {
           );
           cellText = ele; //this will change the current value of meatball for the view purposes.
         } else {
-          option.style.backgroundColor = defaultHoverBackgroundColor;
+          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
         }
       });
 
@@ -1045,7 +1037,7 @@ function startMeatball() {
 
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.alignItems = "stretch";
-    this.historyPanel.style.backgroundColor = defaultBackgroundColor;
+    this.historyPanel.style.backgroundColor = color.get(defaultBackgroundColor);
     this.historyPanel.style.display = "flex";
     this.historyPanel.style.flexDirection = "column";
     this.historyPanel.style.height = windowHeight + "px";
@@ -1056,9 +1048,9 @@ function startMeatball() {
     this.historyPanel.style.width = "calc(500px - .5rem)";
 
     this.title = document.createElement("div");
-    this.title.style.backgroundColor = defaultBackgroundColor;
+    this.title.style.backgroundColor = color.get(defaultBackgroundColor);
     this.title.style.justifyContent = "center";
-    this.title.style.borderBottom = "1px solid #2d2d2d";
+    this.title.style.borderBottom = "1px solid " + color.get(22);
     this.title.style.marginBottom = "0.5rem";
 
     this.headerContainer = document.createElement("div");
@@ -1080,19 +1072,19 @@ function startMeatball() {
     this.x.style.alignSelf = "center";
     this.x.style.right = "10px";
     this.x.style.textAlign = "right";
-    this.x.style.color = defaultTitleColor;
-    this.x.style.backgroundColor = defaultBackgroundColor;
+    this.x.style.color = color.get(defaultTitleColor);
+    this.x.style.backgroundColor = color.get(defaultBackgroundColor);
 
     this.x.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = defaultHoverBackgroundColor;
+      this.style.backgroundColor = color.get(defaultHoverBackgroundColor);
     });
 
     this.x.addEventListener("mouseleave", function () {
-      this.style.backgroundColor = defaultBackgroundColor;
+      this.style.backgroundColor = color.get(defaultBackgroundColor);
     });
 
     this.x.addEventListener("click", function () {
-      this.style.backgroundColor = defaultBackgroundColor;
+      this.style.backgroundColor = color.get(defaultBackgroundColor);
       addMeatballHistory = true;
       meatballHistory.reset();
       meatballHistory.$ele.parentNode.removeChild(meatballHistory.$ele);
@@ -1101,11 +1093,11 @@ function startMeatball() {
     this.titleMain = document.createElement("h3");
     this.titleMain.innerText = "History";
     this.titleMain.style.fontWeight = "bolder";
-    this.titleMain.style.color = defaultTitleColor;
+    this.titleMain.style.color = color.get(defaultTitleColor);
 
     this.titleDescription = document.createElement("div");
     this.titleDescription.innerText = title;
-    this.titleDescription.style.color = defaultTitleColor;
+    this.titleDescription.style.color = color.get(defaultTitleColor);
     this.titleDescription.style.fontSize = "10px";
 
     this.titleContainer.appendChild(this.titleMain);
@@ -1115,77 +1107,10 @@ function startMeatball() {
     this.title.appendChild(this.headerContainer);
 
     this.historyPanel.appendChild(this.title);
-    //
-    // this.addMore = document.createElement("div");
-    // this.addMore.innerText = "Show More";
-    // this.addMore.style.cursor = "pointer";
-    // this.addMore.style.marginTop = ".25rem";
-    // this.addMore.style.marginLeft = "auto";
-    // this.addMore.style.marginRight = "auto";
-    // this.addMore.style.padding = ".25rem";
-    // this.addMore.style.borderRadius = ".25rem";
-    // this.addMore.style.width = "115px";
-    // this.addMore.style.backgroundColor = defaultTitleColor;
-    // this.addMore.style.textAlign = "center";
-    //
-    // var addMeatballHistory = true;
-    //
-    // this.addMore.addEventListener("click", function () {
-    //possilble history.clear is needed  - pierre
-    //it needs the information for the cell, table, row etc
-    // if (addMeatballHistory) {
-    //   addMeatballHistory = !addMeatballHistory;
-    // function cb(error, data) {
-    //   if (error) {
-    //     console.log(error);
-    //     return;
-    //   }
-    //
-    //   var priorDate = null;
-    //   var currentDate = null;
-    //   var nowDate = new Date();
-    //   meatballHistory.clear();
-    //   data.forEach(function (props, index) {
-    //     currentDate = new Date(props.Created);
-    //     var mhItem = new MeatballHistoryMessage().setDisplay(
-    //       props.Author,
-    //       generateDateTime(props.Created),
-    //       props.Message,
-    //       props.ID,
-    //       historyListGUID,
-    //       table,
-    //       rowIndex,
-    //       internalColumn
-    //     );
-    //
-    //     meatballHistory.build(mhItem);
-    // if (!priorDate) {
-    //   priorDate = currentDate;
-    // }
-    // if (currentDate.getDate() != nowDate.getDate()) {
-    //   if (priorDate.getDate() != currentDate.getDate()) {
-    //     meatballHistory.addDivider(priorDate, mhItem.$ele);
-    //   }
-    //
-    //   if (index + 1 === data.length) {
-    //     meatballHistory.addDivider(priorDate, mhItem.$ele);
-    //   }
-    // }
-    //
-    // priorDate = currentDate;
-    //   });
-    // }
-    // retrieveHistory(table, rowIndex, internalColumn, cb, false);
-    // });
-    //meatballHistory.addMore.parentNode.removeChild(meatballHistory.addMore);
-    // meatballHistory.scrollDown();
-    // meatballHistory.container.scrollTop =
-    //   meatballHistory.container.scrollHeight;
-    // }
 
     this.containerText = document.createElement("p");
     this.containerText.innerText = "No History Available For This Item";
-    this.containerText.style.color = "white";
+    this.containerText.style.color = color.get(0);
     this.containerText.style.textAlign = "center";
     this.containerText.style.width = "100%";
     this.containerText.style.fontWeight = "600";
@@ -1199,7 +1124,7 @@ function startMeatball() {
     this.container.style.overflowX = "hidden";
     this.container.style.overflowY = "auto";
     this.container.style.padding = "0.25rem";
-    this.container.style.color = defaultTitleColor;
+    this.container.style.color = color.get(defaultTitleColor);
 
     this.container.addNew = true;
     this.container.isEdit = true;
@@ -1208,12 +1133,13 @@ function startMeatball() {
     this.historyPanel.appendChild(this.container);
 
     this.divider1 = document.createElement("hr");
-    this.divider1.style.borderTop = "1pt solid " + defaultHoverBackgroundColor;
+    this.divider1.style.borderTop =
+      "1pt solid " + color.get(defaultHoverBackgroundColor);
 
     this.historyPanel.appendChild(this.divider1);
 
     this.addPanel = document.createElement("div");
-    this.addPanel.style.borderTop = "1px solid #444444";
+    this.addPanel.style.borderTop = "1px solid " + color.get(23);
     this.addPanel.style.display = "flex";
     this.addPanel.style.height = "60px";
     this.addPanel.style.padding = ".25rem";
@@ -1233,11 +1159,11 @@ function startMeatball() {
     this.send.style.width = "40px";
 
     this.send.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = "#1B2B8D";
+      this.style.backgroundColor = color.get(14);
     });
 
     this.send.addEventListener("mouseleave", function () {
-      this.style.backgroundColor = "#3949ab";
+      this.style.backgroundColor = color.get(4);
     });
 
     this.send.addEventListener("click", function () {
@@ -1252,10 +1178,7 @@ function startMeatball() {
       }
 
       if (meatballHistory.container) {
-        //if (meatballHistory.container.addNew) {
-        //meatballHistory.container.addNew = false;
         meatballHistory.newItem(table, rowIndex, internalColumn);
-        //}
       }
     });
 
@@ -1265,15 +1188,15 @@ function startMeatball() {
     this.footer.style.display = "flex";
     this.footer.style.flex = "1";
     this.footer.style.flexDirection = "row";
-    this.footer.style.backgroundColor = defaultHoverBackgroundColor;
+    this.footer.style.backgroundColor = color.get(defaultHoverBackgroundColor);
 
     this.input = document.createElement("input");
     this.input.id = "CommentBox";
     this.input.placeholder = "Enter Comment Here";
-    this.input.style.backgroundColor = defaultHoverBackgroundColor;
+    this.input.style.backgroundColor = color.get(defaultHoverBackgroundColor);
     this.input.style.border = "0px";
     this.input.style.borderRadius = ".25rem";
-    this.input.style.color = defaultTitleColor;
+    this.input.style.color = color.get(defaultTitleColor);
     this.input.style.display = "flex";
     this.input.style.flex = "1 1 0%";
     this.input.style.fontSize = "9pt";
@@ -1303,10 +1226,9 @@ function startMeatball() {
     this.dividerPanel = document.createElement("div");
     this.dividerPanel.style.padding = ".25rem";
     this.dividerPanel.style.margin = "0px";
-    this.dividerPanel.style.padding = ".25rem";
     this.dividerPanel.style.marginBottom = ".25rem";
-    this.dividerPanel.style.padding = defaultHoverBackgroundColor;
-    this.dividerPanel.style.color = defaultTitleColor;
+    this.dividerPanel.style.padding = color.get(defaultHoverBackgroundColor);
+    this.dividerPanel.style.color = color.get(defaultTitleColor);
     this.dividerPanel.style.float = "center";
     this.dividerPanel.style.clear = "both";
     this.dividerPanel.style.textAlign = "center";
@@ -1319,13 +1241,13 @@ function startMeatball() {
 
     this.leftDividerLine = document.createElement("div");
     this.leftDividerLine.style.borderTop =
-      "1pt solid " + defaultHoverBackgroundColor;
+      "1pt solid " + color.get(defaultHoverBackgroundColor);
     this.leftDividerLine.style.display = "inline-block";
     this.leftDividerLine.style.width = "35%";
 
     this.rightDividerLine = document.createElement("div");
     this.rightDividerLine.style.borderTop =
-      "1pt solid " + defaultHoverBackgroundColor;
+      "1pt solid " + color.get(defaultHoverBackgroundColor);
     this.rightDividerLine.style.display = "inline-block";
     this.rightDividerLine.style.width = "35%";
 
@@ -1370,7 +1292,7 @@ function startMeatball() {
     avatar.style.width = "30px";
     avatar.style.height = "30px";
     avatar.style.fontSize = "14px";
-    avatar.style.backgroundColor = "#3949ab";
+    avatar.style.backgroundColor = color.get(4);
     avatar.style.borderRadius = "50%";
     avatar.style.textAlign = "center";
     avatar.style.lineHeight = "28px";
@@ -1517,22 +1439,22 @@ function startMeatball() {
 
     this.submit = document.createElement("div");
     this.submit.innerText = "Submit";
-    this.submit.style.textAlign = "center";
-    this.submit.style.backgroundColor = defaultButtonBackgroundColor;
-    this.submit.style.color = defaultColor;
+    this.submit.style = ims.sharepoint.style({
+      type: "button",
+      size: "",
+      bgc: defaultButtonBackgroundColor,
+      fc: defaultColor,
+    });
     this.submit.style.width = "75px";
-    this.submit.style.cursor = "pointer";
-    this.submit.style.padding = ".25rem";
-    this.submit.style.borderRadius = ".25rem";
     this.submit.style.display = "inline-block";
     this.submit.style.marginLeft = "4px";
 
     this.submit.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = defaultButtonHoverBackgroundColor;
+      this.style.backgroundColor = color.get(defaultButtonHoverBackgroundColor);
     });
 
     this.submit.addEventListener("mouseleave", function () {
-      this.style.backgroundColor = defaultButtonBackgroundColor;
+      this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
     });
 
     this.submit.addEventListener("click", function () {
@@ -1570,25 +1492,25 @@ function startMeatball() {
 
     this.cancel = document.createElement("div");
     this.cancel.innerText = "Cancel";
-    this.cancel.style.textAlign = "center";
-    this.cancel.style.backgroundColor = "transparent";
-    this.cancel.style.border = "1px solid rgb(67, 67, 67)";
-    this.cancel.style.color = defaultColor;
+    this.cancel.style = ims.sharepoint.style({
+      type: "button",
+      size: "",
+      bgc: "transparent",
+      fc: defaultColor,
+    }).$ele;
+    this.cancel.style.border = "1px solid " + color.get(23);
     this.cancel.style.width = "75px";
-    this.cancel.style.cursor = "pointer";
     this.cancel.style.marginLeft = "267px";
-    this.cancel.style.padding = ".25rem";
-    this.cancel.style.borderRadius = ".25rem";
     this.cancel.style.display = "inline-block";
 
     this.cancel.addEventListener("mouseenter", function () {
-      this.style.borderColor = "#165996";
-      this.style.color = "#165996";
+      this.style.borderColor = color.get(25);
+      this.style.color = color.get(25);
     });
 
     this.cancel.addEventListener("mouseleave", function () {
-      this.style.border = "1px solid rgb(67, 67, 67)";
-      this.style.color = "white";
+      this.style.border = "1px solid " + color.get(23);
+      this.style.color = color.get(defaultColor);
     });
 
     this.cancel.addEventListener("click", function () {
@@ -1617,7 +1539,7 @@ function startMeatball() {
     this.buttonGroup.appendChild(this.author);
 
     this.edit = new SVGGenerator({
-      color: "#4AAB39",
+      color: color.get(6),
       type: "edit",
       size: "small",
     }).wrapper;
@@ -1634,7 +1556,7 @@ function startMeatball() {
     this.buttonGroup.appendChild(this.edit);
 
     this.delete = new SVGGenerator({
-      color: defaultColor,
+      color: color.get(defaultColor),
       type: "delete",
       size: "small",
     }).wrapper;
@@ -1731,11 +1653,15 @@ function startMeatball() {
       this.comment.style.textAlign = "left";
       this.delete.style.marginRight = "15px";
       this.$ele.style.flex = "1";
-      this.$ele.style.backgroundColor = defaultMHIBackgroundColor;
-      this.$ele.style.color = defaultColor;
+      this.$ele.style.backgroundColor = color.get(defaultMHIBackgroundColor);
+      this.$ele.style.color = color.get(defaultColor);
 
-      this.comment.style.backgroundColor = defaultHoverBackgroundColor;
-      this.submit.style.backgroundColor = defaultButtonBackgroundColor;
+      this.comment.style.backgroundColor = color.get(
+        defaultHoverBackgroundColor
+      );
+      this.submit.style.backgroundColor = color.get(
+        defaultButtonBackgroundColor
+      );
 
       this.btnContainer.appendChild(this.cancel);
       this.btnContainer.appendChild(this.submit);
@@ -1758,10 +1684,12 @@ function startMeatball() {
         this.comment.innerText = this.prevComment;
       }
 
-      this.comment.style.color = defaultColor;
-      this.comment.style.backgroundColor = defaultButtonBackgroundColor;
-      this.$ele.style.backgroundColor = defaultButtonBackgroundColor;
-      this.$ele.style.color = defaultColor;
+      this.comment.style.color = color.get(defaultColor);
+      this.comment.style.backgroundColor = color.get(
+        defaultButtonBackgroundColor
+      );
+      this.$ele.style.backgroundColor = color.get(defaultButtonBackgroundColor);
+      this.$ele.style.color = color.get(defaultColor);
 
       if (this.btnContainer.parentNode) {
         this.display.removeChild(this.btnContainer);
@@ -1787,12 +1715,12 @@ function startMeatball() {
   MeatballHistoryMessage.prototype.setType = function (author) {
     if (this.author.innerText.indexOf(author) > -1) {
       this.$ele.type = "editable";
-      this.$ele.style.backgroundColor = defaultButtonBackgroundColor;
-      this.$ele.style.color = defaultColor;
+      this.$ele.style.backgroundColor = color.get(defaultButtonBackgroundColor);
+      this.$ele.style.color = color.get(defaultColor);
     } else {
       this.$ele.type = "disabled";
-      this.$ele.style.backgroundColor = defaultMHIBackgroundColor;
-      this.$ele.style.color = defaultColor;
+      this.$ele.style.backgroundColor = color.get(defaultMHIBackgroundColor);
+      this.$ele.style.color = color.get(defaultColor);
     }
     if (this.$ele.type !== "editable") {
       this.delete.parentNode.removeChild(this.delete);
@@ -1854,8 +1782,8 @@ function startMeatball() {
   function LoaderCSS(props) {
     this.loader = document.createElement("div");
     this.loader.id = "LoaderCSS";
-    this.loader.style.border = props.bSize + "px solid #F3F3F3";
-    this.loader.style.borderTop = props.bSize + "px solid #3498db";
+    this.loader.style.border = props.bSize + "px solid " + color.get(26);
+    this.loader.style.borderTop = props.bSize + "px solid " + color.get(27);
     this.loader.style.borderRadius = props.diameter + "px";
     this.loader.style.width = props.diameter + "px";
     this.loader.style.height = props.diameter + "px";
@@ -1928,3 +1856,72 @@ function startMeatball() {
     return Math.floor(Math.random() * 1000);
   }
 }
+
+//Code for the show more button in drawer
+//
+// this.addMore = document.createElement("div");
+// this.addMore.innerText = "Show More";
+// this.addMore.style.cursor = "pointer";
+// this.addMore.style.marginTop = ".25rem";
+// this.addMore.style.marginLeft = "auto";
+// this.addMore.style.marginRight = "auto";
+// this.addMore.style.padding = ".25rem";
+// this.addMore.style.borderRadius = ".25rem";
+// this.addMore.style.width = "115px";
+// this.addMore.style.backgroundColor = defaultTitleColor;
+// this.addMore.style.textAlign = "center";
+//
+// var addMeatballHistory = true;
+//
+// this.addMore.addEventListener("click", function () {
+//possilble history.clear is needed  - pierre
+//it needs the information for the cell, table, row etc
+// if (addMeatballHistory) {
+//   addMeatballHistory = !addMeatballHistory;
+// function cb(error, data) {
+//   if (error) {
+//     console.log(error);
+//     return;
+//   }
+//
+//   var priorDate = null;
+//   var currentDate = null;
+//   var nowDate = new Date();
+//   meatballHistory.clear();
+//   data.forEach(function (props, index) {
+//     currentDate = new Date(props.Created);
+//     var mhItem = new MeatballHistoryMessage().setDisplay(
+//       props.Author,
+//       generateDateTime(props.Created),
+//       props.Message,
+//       props.ID,
+//       historyListGUID,
+//       table,
+//       rowIndex,
+//       internalColumn
+//     );
+//
+//     meatballHistory.build(mhItem);
+// if (!priorDate) {
+//   priorDate = currentDate;
+// }
+// if (currentDate.getDate() != nowDate.getDate()) {
+//   if (priorDate.getDate() != currentDate.getDate()) {
+//     meatballHistory.addDivider(priorDate, mhItem.$ele);
+//   }
+//
+//   if (index + 1 === data.length) {
+//     meatballHistory.addDivider(priorDate, mhItem.$ele);
+//   }
+// }
+//
+// priorDate = currentDate;
+//   });
+// }
+// retrieveHistory(table, rowIndex, internalColumn, cb, false);
+// });
+//meatballHistory.addMore.parentNode.removeChild(meatballHistory.addMore);
+// meatballHistory.scrollDown();
+// meatballHistory.container.scrollTop =
+//   meatballHistory.container.scrollHeight;
+// }
