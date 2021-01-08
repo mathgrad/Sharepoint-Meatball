@@ -47,9 +47,6 @@ function startMeatball() {
   //Creates the Color object which manages meatball colors
   var colors = new ims.sharepoint.color();
   var meatballDefaults = new Defaults();
-  console.log(
-    ims.sharepoint.style({ type: "avatar", size: "normal", fc: "2", bgc: "4" }) .$ele
-  );
   // console.log(
   //   "Background Color: ",
   //   window
