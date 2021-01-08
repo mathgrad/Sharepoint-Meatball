@@ -694,7 +694,6 @@ function startMeatball() {
                 avatar.style.margin = isRight
                   ? "0px 0px 0px 4px"
                   : "0px 4px 0px 0px";
-                console.log(author);
                 var avatarParts = author.split(" ");
 
                 avatar.innerText =
@@ -772,7 +771,6 @@ function startMeatball() {
         if (error) {
           console.log(error);
         }
-        console.log(data, data.length);
         if (data.length === 1) {
           meatball.initHistoryMessage.innerText = data[0].Message;
           meatball.initHistoryName.innerText = data[0].Author;
@@ -780,7 +778,7 @@ function startMeatball() {
             data[0].Created
           );
         } else {
-          meatball.initHistoryContainer.innerText = "No History Found";
+          meatball.initHistoryMessage.innerText = "No History Found";
           meatball.initHistoryContainer.style.textAlign = "center";
         }
         meatball.setPosition(triangleSize);
