@@ -6,7 +6,6 @@ var color = new Color();
     fc
     bgc
   */
-
 function style(props) {
   this.$ele = "";
   switch (props.type) {
@@ -139,15 +138,17 @@ function Color() {
     "#27e833",
     "#d71010",
     "#f6de1c",
+    "#2d2d2d",
+    "#444444",
+    "#505050",
+    "#165996",
+    "#f3f3f3",
+    "#3498db",
   ];
 }
 
 //Gets colors.  If it cannot find a color, it defaults to black
 Color.prototype.get = function (value) {
-  if (!value) {
-    return "#000000";
-  }
-
   switch (typeof value) {
     case "number":
       if (this.colors.length > value) {
@@ -175,6 +176,10 @@ Color.prototype.get = function (value) {
 
   if (this.colors.length > parseInt(value)) {
     return this.colors[parseInt(value)];
+  }
+
+  if (value === "inherit" || value === "transparent") {
+    return value;
   }
 
   return "#000000";
