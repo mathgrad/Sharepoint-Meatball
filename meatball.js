@@ -643,15 +643,14 @@ function startMeatball() {
                 var day = new Date(props.Created).getDay();
                 var lastIndex = r.length - 1;
                 //this pushes a "divider" for today's entries
+                //Combined the break into the conditional because when it continued it pushed a author block into the break block
                 if (lastDay !== day) {
                   r.push([
                     { type: "break", timeStamp: new Date(props.Created) },
                   ]);
                   lastDay = day;
                   lastAuthor = "";
-                }
-                //first mhItem
-                if (!lastIndex && !lastAuthor) {
+                } else if (!lastIndex && !lastAuthor) {
                   r[0].push(props);
                   lastAuthor = author;
                   lastDay = new Date(props.Created).getDay();
@@ -665,7 +664,7 @@ function startMeatball() {
               },
               [[]]
             );
-
+            console.log("organized:", organized);
             organized = organized.map(function (block, index) {
               if (block.length === 1 && block[0].type === "break") {
                 meatballHistoryDisplay.addDivider(block[0]);
@@ -779,7 +778,7 @@ function startMeatball() {
             data[0].Created
           );
         } else {
-          meatball.initHistoryContainer.innerText = "No History Found";
+          meatball.initHistoryMessage.innerText = "No History Found";
           meatball.initHistoryContainer.style.textAlign = "center";
         }
         meatball.setPosition(triangleSize);
