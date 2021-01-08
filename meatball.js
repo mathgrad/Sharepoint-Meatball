@@ -14,6 +14,7 @@ var scripts = [
   "person.js",
   "notification.js",
   "style.js",
+  "svg.js",
 ];
 
 function scriptBuilder(url) {
@@ -30,21 +31,26 @@ var builtScripts = scripts.map(function (src) {
 
 function assignScripts() {
   builtScripts[0].addEventListener("load", function () {
-    console.log("1 Loaded Scripts");
+    console.log("0 Loaded Scripts");
     builtScripts[1].addEventListener("load", function () {
-      console.log("2 Loaded Scripts");
+      console.log("1 Loaded Scripts");
       builtScripts[2].addEventListener("load", function () {
-        console.log("3 Loaded Scripts");
+        console.log("2 Loaded Scripts");
         builtScripts[3].addEventListener("load", function () {
-          console.log("4 Loaded Scripts");
+          console.log("3 Loaded Scripts");
           builtScripts[4].addEventListener("load", function () {
-            console.log("5 Loaded Scripts");
-            ims.sharepoint.column = Column;
-            ims.sharepoint.list = List;
-            ims.sharepoint.person = Person;
-            ims.sharepoint.notification = Pantry;
-            ims.sharepoint.style = style;
-            startMeatball();
+            console.log("4 Loaded Scripts");
+            builtScripts[5].addEventListener("load", function () {
+              console.log("5 Loaded Scripts");
+              ims.sharepoint.column = Column;
+              ims.sharepoint.color = Color;
+              ims.sharepoint.list = List;
+              ims.sharepoint.person = Person;
+              ims.sharepoint.notification = Pantry;
+              ims.sharepoint.style = style;
+              ims.sharepoint.svg = SVGGenerator;
+              startMeatball();
+            });
           });
         });
       });
@@ -54,7 +60,7 @@ function assignScripts() {
 assignScripts();
 
 function startMeatball() {
-  console.log("Meatball Started");
+  console.log("Meatball Started:", ims);
   var rest = new ims.sharepoint.list();
   var restCol = new ims.sharepoint.column();
   var restPerson = new ims.sharepoint.person();
@@ -182,7 +188,7 @@ function startMeatball() {
                 }
               }
               restCol.create(
-                Status,
+                "Status",
                 2,
                 "false",
                 "false",
@@ -192,7 +198,7 @@ function startMeatball() {
               );
             }
             restCol.create(
-              Message,
+              "Message",
               2,
               "false",
               "false",
@@ -995,15 +1001,16 @@ function startMeatball() {
           var autoComment = cellText
             ? "Status change: " + cellText + " to " + ele + " by " + userName
             : "Initial Status: " + ele + " by " + userName;
-
-          makeHistory(
+          rest.makeHistoryEntry(
             historyListGUID,
             autoComment,
             internalColumn,
             rowIndex,
             table,
-            null,
-            true
+            true,
+            ctx.PortalUrl,
+            "History",
+            null
           );
           cellText = ele; //this will change the current value of meatball for the view purposes.
         } else {
@@ -1399,7 +1406,10 @@ function startMeatball() {
     //message block will be on the right (user generated)
     //create a message
 
-    function listEntrySuccess(data) {
+    function cb(error, data) {
+      if (error) {
+        console.log(error);
+      }
       var item = new MeatballHistoryMessage(
         historyListGUID,
         table,
@@ -1457,13 +1467,16 @@ function startMeatball() {
       //Step 4. Reset the input to NO value to start over.
       chatWindow.input.value = "";
     }
-    makeHistory(
+    rest.makeHistoryEntry(
       historyListGUID,
       this.input.value,
       internalColumn,
       rowIndex,
       table,
-      listEntrySuccess
+      null,
+      ctx.PortalUrl,
+      "History",
+      cb
     );
 
     return this;
@@ -1540,19 +1553,25 @@ function startMeatball() {
       meatballHistoryItem.$ele.style.width = "auto";
       meatballHistoryItem.delete.style.marginRight = "15px";
       if (meatballHistoryItem.isNew) {
-        function listEntrySuccess(newData) {
+        function cb(newData) {
+          if (error) {
+            console.log(error);
+          }
           meatballHistoryItem.setEditable(
             !meatballHistoryItem.getEditable(),
             newData
           );
         }
-        makeHistory(
+        rest.makeHistoryEntry(
           meatballHistoryItem.listGUID,
           "placeholder",
           internalColumn,
           rowindex,
           table,
-          listEntrySuccess
+          false,
+          ctx.PortalUrl,
+          "History",
+          cb
         );
       } else {
         meatballHistoryItem.setEditable(
@@ -1920,46 +1939,5 @@ function startMeatball() {
 
   function generateId() {
     return Math.floor(Math.random() * 1000);
-  }
-
-  function makeHistory(
-    listId,
-    message,
-    colName,
-    rowId,
-    tableGUID,
-    listEntrySuccess,
-    autoBot
-  ) {
-    var data = {
-      __metadata: { type: "SP.ListItem" },
-      Message: message,
-      Title: tableGUID + " - " + rowId + " - " + colName, //name of the status column that is passed
-      Status: autoBot ? "Automated Message" : "User Generated",
-    };
-
-    var url = ctx.PortalUrl + "_api/web/lists/getbytitle('History')/items "; //this is dev env
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        if (autoBot) {
-          return false;
-        }
-        listEntrySuccess(data.d);
-        return false;
-      },
-      error: function (error) {
-        console.log("History entry creation failed:", error);
-      },
-    });
   }
 }
