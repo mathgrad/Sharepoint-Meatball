@@ -643,15 +643,14 @@ function startMeatball() {
                 var day = new Date(props.Created).getDay();
                 var lastIndex = r.length - 1;
                 //this pushes a "divider" for today's entries
+                //Combined the break into the conditional because when it continued it pushed a author block into the break block
                 if (lastDay !== day) {
                   r.push([
                     { type: "break", timeStamp: new Date(props.Created) },
                   ]);
                   lastDay = day;
                   lastAuthor = "";
-                }
-                //first mhItem
-                if (!lastIndex && !lastAuthor) {
+                } else if (!lastIndex && !lastAuthor) {
                   r[0].push(props);
                   lastAuthor = author;
                   lastDay = new Date(props.Created).getDay();
@@ -665,7 +664,7 @@ function startMeatball() {
               },
               [[]]
             );
-
+            console.log("organized:", organized);
             organized = organized.map(function (block, index) {
               if (block.length === 1 && block[0].type === "break") {
                 meatballHistoryDisplay.addDivider(block[0]);
@@ -695,6 +694,7 @@ function startMeatball() {
                 avatar.style.margin = isRight
                   ? "0px 0px 0px 4px"
                   : "0px 4px 0px 0px";
+                console.log(author);
                 var avatarParts = author.split(" ");
 
                 avatar.innerText =
@@ -772,6 +772,7 @@ function startMeatball() {
         if (error) {
           console.log(error);
         }
+        console.log(data, data.length);
         if (data.length === 1) {
           meatball.initHistoryMessage.innerText = data[0].Message;
           meatball.initHistoryName.innerText = data[0].Author;

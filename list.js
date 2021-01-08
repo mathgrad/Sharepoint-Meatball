@@ -1,7 +1,5 @@
 function List() {}
 
-List;
-
 List.prototype.get = function (
   table,
   rowIndex,
@@ -170,39 +168,6 @@ List.prototype.find = function (path, searchName, cb) {
   });
 };
 
-//be able to use this for libraies and lists
-// List.prototype.createColumn = function (path, nameColumn, cb) {
-//   var data = {
-//     __metadata: { type: "SP.Field" },
-//     Title: nameColumn,
-//     FieldTypeKind: 2,
-//     Required: "false",
-//     EnforceUniqueValues: "false",
-//     StaticName: nameColumn,
-//   };
-//
-//   var url = path + "_api/web/lists/getbytitle('History')/Fields";
-//
-//   $.ajax({
-//     url: url,
-//     type: "POST",
-//     data: JSON.stringify(data),
-//     headers: {
-//       Accept: "application/json; odata=verbose",
-//       "Content-Type": "application/json;odata=verbose",
-//       credentials: true,
-//       "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-//     },
-//     success: function (data) {
-//       return false;
-//     },
-//     error: function (error) {
-//       console.log("Message col creation failed:", error);
-//     },
-//   });
-// };
-
-//figure out a better way to
 List.prototype.makeHistoryEntry = function (
   listId,
   message,
