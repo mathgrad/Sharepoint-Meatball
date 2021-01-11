@@ -49,6 +49,11 @@ function loadScripts() {
 
 loadScripts();
 
+//On change
+window.addEventListener("hashchange", function () {
+  loadScripts();
+});
+
 function startMeatball() {
   var rest = new ims.sharepoint.list();
   var restCol = new ims.sharepoint.column();
