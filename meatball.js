@@ -452,7 +452,7 @@ function startMeatball() {
     );
     meatballHistoryDisplay.listGUID = historyListGUID;
 
-    this.circle.style.backgroundColor = colors.get(
+    this.circle.style.backgroundColor = color.get(
       meatballDefaults.get(cellText)
     );
 
