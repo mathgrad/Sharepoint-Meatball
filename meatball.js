@@ -55,44 +55,20 @@ function startMeatball() {
   var restPerson = new ims.sharepoint.person();
   var color = new ims.sharepoint.color();
 
-  //Size sets the Meatball size in pixels
-  var size = 20;
-  //Creates the Color object which manages meatball colors
-  var colors = new ims.sharepoint.color();
   var meatballDefaults = new Defaults();
-  // console.log(
-  //   "Background Color: ",
-  //   window
-  //     .getComputedStyle(document.body, null)
-  //     .getPropertyValue("background-color")
-  // );
-  // var defaultBackgroundColor = "#F0F0F0";
-  // var defaultHoverBackgroundColor = "#D2D2D2";
-  // var defaultColor = "#202020";
-  // var defaultTitleColor = "#333333";
-  // dbgc = 16
   var defaultBackgroundColor = 16;
-  // dMHIbgc = 11;
   var defaultMHIBackgroundColor = 11;
-  // dHbgc = 15
   var defaultHoverBackgroundColor = 15;
-  // dBgbc = 4
   var defaultButtonBackgroundColor = 4;
-  // dBHbgc = 14
   var defaultButtonHoverBackgroundColor = 14;
-  // dCBbgc = 4
   var defaultCancelButtonBackgroundColor = 4;
-  // dCBHbgc = 14
   var defaultCancelButtonHoverBackgroundColor = 14;
-  // dIbgc = 17
   var defaultInputBackgroundColor = 17;
-  // dc = 0
   var defaultColor = 0;
-  // dTc = 13
   var defaultTitleColor = 13;
 
   //Creates the Pantry object which manages toast notifications
-  var kitchen = new Pantry();
+  var kitchen = new ims.sharepoint.notification();
 
   var regex = /[^\d\w\s\.\?\!\@\-\:\"\']/g;
   //Used by developers in Production to find bugs
@@ -402,7 +378,6 @@ function startMeatball() {
       rowIndex +
       ")?$select=" +
       internalColumn;
-    //Closes the popover
     meatball.removePopover();
     var toast = new Toast().startLoading().show();
     kitchen.show(toast);
@@ -635,33 +610,33 @@ function startMeatball() {
             var lastDay = new Date().getDay();
 
             organized = data.reduce(
-              function (r, props) {
+              function (acc, props) {
                 var author = props.Author;
                 var day = new Date(props.Created).getDay();
                 var lastIndex = r.length - 1;
                 //this pushes a "divider" for today's entries
                 //Combined the break into the conditional because when it continued it pushed a author block into the break block
                 if (lastDay !== day) {
-                  r.push([
+                  acc.push([
                     { type: "break", timeStamp: new Date(props.Created) },
                   ]);
                   lastDay = day;
                   lastAuthor = "";
                 } else if (!lastIndex && !lastAuthor) {
-                  r[0].push(props);
+                  acc[0].push(props);
                   lastAuthor = author;
                   lastDay = new Date(props.Created).getDay();
                 } else if (author === lastAuthor) {
-                  r[lastIndex].push(props);
+                  acc[lastIndex].push(props);
                 } else {
-                  r.push([props]);
+                  acc.push([props]);
                   lastAuthor = author;
                 }
-                return r;
+                return acc;
               },
               [[]]
             );
-            console.log("organized:", organized);
+
             organized = organized.map(function (block, index) {
               if (block.length === 1 && block[0].type === "break") {
                 meatballHistoryDisplay.addDivider(block[0]);
@@ -676,10 +651,11 @@ function startMeatball() {
                 messageContainer.style.flexDirection = isRight
                   ? "row-reverse"
                   : "row";
-
                 messageContainer.style.width = "100%";
+
                 //step 1 create continer for avatar
                 var avatarContainer = document.createElement("div");
+
                 var avatar = document.createElement("div");
                 avatar.style = ims.sharepoint.style({
                   type: "avatar",
@@ -688,13 +664,14 @@ function startMeatball() {
                 avatar.style.margin = isRight
                   ? "0px 0px 0px 4px"
                   : "0px 4px 0px 0px";
-                var avatarParts = author.split(" ");
 
+                var avatarParts = author.split(" ");
                 avatar.innerText =
                   avatarParts.length > 1
                     ? avatarParts[2].charAt(0) + avatarParts[0].charAt(0)
                     : author.charAt(0);
                 avatarContainer.appendChild(avatar);
+
                 //step 2 create the message block
                 var messageBlock = document.createElement("div");
                 messageBlock.style.alignItems = isRight
@@ -703,12 +680,11 @@ function startMeatball() {
                 messageBlock.style.display = "flex";
                 messageBlock.style.flex = "1";
                 messageBlock.style.flexDirection = "column";
-
                 messageContainer.appendChild(avatarContainer);
                 messageContainer.appendChild(messageBlock);
                 meatballHistoryDisplay.container.appendChild(messageContainer);
-                //step 3 append each mssg to mssg block
 
+                //step 3 append each mssg to mssg block
                 return {
                   block: messageBlock,
                   messages: block.map(function (item, index2) {
