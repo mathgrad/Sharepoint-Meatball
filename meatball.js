@@ -80,6 +80,8 @@ function startMeatball() {
   var lastAuthor = false;
   var organized = [[]];
   var userName = "";
+  var queryParam =
+    "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '";
 
   var style = document.createElement("style");
   style.type = "text/css";
@@ -718,7 +720,8 @@ function startMeatball() {
           cb,
           false,
           ctx.PortalUrl,
-          "History"
+          "History",
+          queryParam
         );
       }
       document.body.appendChild(meatballHistoryDisplay.$ele);
@@ -761,7 +764,8 @@ function startMeatball() {
         cb,
         true,
         ctx.PortalUrl,
-        "History"
+        "History",
+        queryParam
       );
 
       add = true;
