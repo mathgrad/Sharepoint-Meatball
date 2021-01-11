@@ -828,7 +828,9 @@ function startMeatball() {
       );
 
       if (meatballHeight <= windowHeight - this.$ele.offsetHeight) {
-        if (meatballDifferenceHeight < this.$ele.offsetHeight) {
+        if (meatballDifferenceHeight > this.$ele.offsetHeight) {
+          this.carret.style.top = "29px";
+        } else {
           this.carret.style.top = meatballDifferenceHeight + "px";
         }
         this.$ele.style.top =
