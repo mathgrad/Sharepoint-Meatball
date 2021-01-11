@@ -452,7 +452,7 @@ function startMeatball() {
     );
     meatballHistoryDisplay.listGUID = historyListGUID;
 
-    this.circle.style.backgroundColor = colors.get(
+    this.circle.style.backgroundColor = color.get(
       meatballDefaults.get(cellText)
     );
 
@@ -613,7 +613,7 @@ function startMeatball() {
               function (acc, props) {
                 var author = props.Author;
                 var day = new Date(props.Created).getDay();
-                var lastIndex = r.length - 1;
+                var lastIndex = acc.length - 1;
                 //this pushes a "divider" for today's entries
                 //Combined the break into the conditional because when it continued it pushed a author block into the break block
                 if (lastDay !== day) {
