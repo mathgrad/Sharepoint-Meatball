@@ -15,6 +15,8 @@ function scriptBuilder(url) {
   var script = document.createElement("script");
   script.type = "text/javascript";
   script.src = baseUrl + url;
+  script.defer = true;
+  script.async = false;
   document.body.appendChild(script);
   return script;
 }
