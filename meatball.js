@@ -614,15 +614,16 @@ function startMeatball() {
                 var author = props.Author;
                 var day = new Date(props.Created).getDay();
                 var lastIndex = acc.length - 1;
-                //this pushes a "divider" for today's entries
-                //Combined the break into the conditional because when it continued it pushed a author block into the break block
+                //this pushes a "divider" for date entries
                 if (lastDay !== day) {
+                  lastAuthor = "";
+                  author = "";
                   acc.push([
                     { type: "break", timeStamp: new Date(props.Created) },
                   ]);
                   lastDay = day;
-                  lastAuthor = "";
-                } else if (!lastIndex && !lastAuthor) {
+                }
+                if (!lastIndex && !lastAuthor) {
                   acc[0].push(props);
                   lastAuthor = author;
                   lastDay = new Date(props.Created).getDay();
