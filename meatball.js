@@ -613,21 +613,20 @@ function startMeatball() {
               function (acc, props) {
                 var author = props.Author;
                 var day = new Date(props.Created).getDay();
-                var lastIndex = acc.length - 1;
-                //this pushes a "divider" for date entries
-                if (lastDay !== day) {
+                var isBreak = lastDay !== day;
+                if (isBreak) {
                   lastAuthor = "";
-                  author = "";
                   acc.push([
                     { type: "break", timeStamp: new Date(props.Created) },
                   ]);
                   lastDay = day;
                 }
+                var lastIndex = acc.length - 1;
                 if (!lastIndex && !lastAuthor) {
                   acc[0].push(props);
                   lastAuthor = author;
                   lastDay = new Date(props.Created).getDay();
-                } else if (author === lastAuthor) {
+                } else if (author === lastAuthor && !isBreak) {
                   acc[lastIndex].push(props);
                 } else {
                   acc.push([props]);
@@ -681,6 +680,7 @@ function startMeatball() {
                 messageBlock.style.display = "flex";
                 messageBlock.style.flex = "1";
                 messageBlock.style.flexDirection = "column";
+                messageBlock.style.maxWidth = "75%";
                 messageContainer.appendChild(avatarContainer);
                 messageContainer.appendChild(messageBlock);
                 meatballHistoryDisplay.container.appendChild(messageContainer);
@@ -1282,6 +1282,7 @@ function startMeatball() {
     this.newMessageBlock.style.display = "flex";
     this.newMessageBlock.style.flex = "1";
     this.newMessageBlock.style.flexDirection = "column";
+    this.newMessageBlock.style.maxWidth = "75%";
 
     var chatWindow = this;
     var commentBlock = this.newMessageBlock;
@@ -1355,6 +1356,7 @@ function startMeatball() {
       //Step 4. Reset the input to NO value to start over.
       chatWindow.input.value = "";
     }
+
     rest.makeHistoryEntry(
       historyListGUID,
       this.input.value,
