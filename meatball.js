@@ -855,7 +855,7 @@ function startMeatball() {
   };
 
   Meatball.prototype.setColor = function (value) {
-    this.circle.style.backgroundColor = color.get(value);
+    this.circle.style.backgroundColor = color.get(meatballDefaults.get(value));
   };
 
   Meatball.prototype.removePopover = function () {
