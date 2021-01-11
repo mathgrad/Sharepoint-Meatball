@@ -7,7 +7,8 @@ List.prototype.get = function (
   cb,
   init,
   path,
-  searchName
+  searchName,
+  queryParam
 ) {
   var url = "";
   init
@@ -15,7 +16,7 @@ List.prototype.get = function (
         path +
         "_api/web/lists/getbytitle('" +
         searchName +
-        "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
+        queryParam +
         table +
         " - " +
         rowIndex +
@@ -26,7 +27,7 @@ List.prototype.get = function (
         path +
         "_api/web/lists/getbytitle('" +
         searchName +
-        "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
+        queryParam +
         table +
         " - " +
         rowIndex +
