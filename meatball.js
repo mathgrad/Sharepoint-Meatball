@@ -4,6 +4,7 @@ var meatball = scripts.filter(function (script) {
     return script;
   }
 });
+
 meatball = meatball[0].src;
 var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
 var ims = {};
@@ -829,9 +830,9 @@ function startMeatball() {
 
       if (meatballHeight <= windowHeight - this.$ele.offsetHeight) {
         if (meatballDifferenceHeight > this.$ele.offsetHeight) {
-          this.carret.style.top = "29px";
+          this.carret.style.top = meatballHeight + "px";
         } else {
-          this.carret.style.top = meatballDifferenceHeight + "px";
+          this.carret.style.top = "29px";
         }
         this.$ele.style.top =
           windowHeight -
