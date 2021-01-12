@@ -1189,6 +1189,7 @@ function startMeatball() {
 
     this.input = document.createElement("input");
     this.input.id = "CommentBox";
+    this.input.maxLength = "255";
     this.input.placeholder = "Enter Comment Here";
     this.input.style.backgroundColor = color.get(defaultHoverBackgroundColor);
     this.input.style.border = "0px";
