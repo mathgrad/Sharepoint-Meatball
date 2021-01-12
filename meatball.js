@@ -16,11 +16,13 @@ var scripts = [
   "style.js",
   "svg.js",
 ];
+var queryParam =
+  "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '";
 
 function scriptBuilder(url) {
   var script = document.createElement("script");
   script.type = "text/javascript";
-  script.src = baseUrl + url;
+  script.src = baseUrl + url + "?v=" + new Date().getTime();
   script.defer = true;
   script.async = false;
   document.body.appendChild(script);
@@ -46,8 +48,10 @@ function loadScripts() {
       }
     });
 }
-
 loadScripts();
+window.addEventListener("hashchange", function () {
+  loadScripts();
+});
 
 function startMeatball() {
   var rest = new ims.sharepoint.list();
@@ -75,13 +79,10 @@ function startMeatball() {
   var debug = false;
 
   var begin = true;
-  var checkUser = "";
   var historyListGUID = "";
   var lastAuthor = false;
   var organized = [[]];
   var userName = "";
-  var queryParam =
-    "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '";
 
   var style = document.createElement("style");
   style.type = "text/css";
@@ -315,6 +316,12 @@ function startMeatball() {
           add = false;
           text = "";
 
+          $thead.slice
+            .call($thead[ci].children)
+            .slice(1, -1)
+            .forEach(function ($th, i) {
+              $th.addEventListener("click", start());
+            });
           if ($thead[ci]) {
             [].slice.call($thead[ci].children).forEach(function (item, ti) {
               if (add) {
