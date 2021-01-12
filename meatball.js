@@ -9,7 +9,7 @@ meatball = meatball[0].src;
 var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
 var ims = {};
 ims.sharepoint = {};
-var scripts = [
+var requiredScripts = [
   "column.js",
   "list.js",
   "person.js",
@@ -29,12 +29,12 @@ function scriptBuilder(url) {
 }
 
 function loadScripts() {
-  scripts
+  requiredScripts
     .map(function (src) {
       return scriptBuilder(src);
     })
     .map(function (script, i) {
-      if (i == scripts.length - 1) {
+      if (i == requiredScripts.length - 1) {
         script.addEventListener("load", function () {
           ims.sharepoint.color = Color;
           ims.sharepoint.column = Column;
@@ -487,8 +487,6 @@ function startMeatball() {
     //Create Popover Element
     this.popover = document.createElement("div");
     this.popover.style.borderRadius = ".25rem";
-    this.popover.style.boxShadow =
-      "0px 0px 5px " + color.get(defaultBackgroundColor);
     this.popover.style.display = "inline-block";
     this.popover.style.padding = ".5rem";
     this.popover.style.zIndex = "1";
