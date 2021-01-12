@@ -23,7 +23,7 @@ var queryParam =
 function scriptBuilder(url) {
   var script = document.createElement("script");
   script.type = "text/javascript";
-  script.src = baseUrl + url + "?v=" + new Date().getTime();
+  script.src = baseUrl;
   script.defer = true;
   script.async = false;
   document.body.appendChild(script);
@@ -50,11 +50,6 @@ function loadScripts() {
     });
 }
 loadScripts();
-window.addEventListener("hashchange", function () {
-  loadScripts();
-});
-
-//On change
 window.addEventListener("hashchange", function () {
   loadScripts();
 });
@@ -128,7 +123,7 @@ function startMeatball() {
 
   function start() {
     if (!window.jQuery) {
-      alert("Please contact help desk.  Script not properly loaded.");
+      alert("Please contact help desk. Script not properly loaded.");
       return;
     }
 
