@@ -50,9 +50,6 @@ function loadScripts() {
     });
 }
 loadScripts();
-window.addEventListener("hashchange", function () {
-  loadScripts();
-});
 
 //On change
 window.addEventListener("hashchange", function () {
@@ -109,22 +106,6 @@ function startMeatball() {
     color.get(4) +
     "}";
   document.getElementsByTagName("head")[0].appendChild(style);
-
-  //On initial load
-  window.addEventListener("load", function () {
-    if (begin) {
-      begin = false;
-      start();
-    }
-  });
-
-  //On change
-  window.addEventListener("hashchange", function () {
-    if (begin) {
-      begin = false;
-      start();
-    }
-  });
 
   function start() {
     if (!window.jQuery) {
@@ -438,10 +419,13 @@ function startMeatball() {
   //Attaches popover to the color circle along with updateTarget function
   function Meatball() {
     this.circle = document.createElement("div");
-    this.circle.style = ims.sharepoint.style({
-      type: "meatball",
-      size: "large",
-    }).$ele;
+    this.circle.setAttribute(
+      "style",
+      ims.sharepoint.style({
+        type: "meatball",
+        size: "large",
+      }).$ele
+    );
   }
 
   Meatball.prototype.init = function (
@@ -1853,4 +1837,6 @@ function startMeatball() {
   function generateId() {
     return Math.floor(Math.random() * 1000);
   }
+
+  start();
 }

@@ -21,10 +21,18 @@ function notificationStyle(props) {
   }
 }
 
+var pantryId = "_NOTIFICATION_PARENT";
+
 function Pantry() {
-  this.$ele = document.createElement("div");
-  this.$ele.style = notificationStyle("pMain");
-  document.body.appendChild(this.$ele);
+  if (document.getElementById(pantryId)) {
+    this.$ele = document.getElementById(pantryId);
+  } else {
+    this.$ele = document.createElement("div");
+    this.$ele.style = notificationStyle("pMain");
+    this.$ele.id = pantryId;
+    document.body.appendChild(this.$ele);
+  }
+  return this;
 }
 
 Pantry.prototype.show = function (notification) {
