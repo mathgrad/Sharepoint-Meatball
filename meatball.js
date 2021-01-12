@@ -53,6 +53,11 @@ window.addEventListener("hashchange", function () {
   loadScripts();
 });
 
+//On change
+window.addEventListener("hashchange", function () {
+  loadScripts();
+});
+
 function startMeatball() {
   var rest = new ims.sharepoint.list();
   var restCol = new ims.sharepoint.column();
@@ -830,7 +835,9 @@ function startMeatball() {
       );
 
       if (meatballHeight <= windowHeight - this.$ele.offsetHeight) {
-        if (meatballDifferenceHeight < this.$ele.offsetHeight) {
+        if (meatballDifferenceHeight > this.$ele.offsetHeight) {
+          this.carret.style.top = "29px";
+        } else {
           this.carret.style.top = meatballDifferenceHeight + "px";
         }
         this.$ele.style.top =
