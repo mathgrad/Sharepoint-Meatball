@@ -17,11 +17,13 @@ var requiredScripts = [
   "style.js",
   "svg.js",
 ];
+var queryParam =
+  "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '";
 
 function scriptBuilder(url) {
   var script = document.createElement("script");
   script.type = "text/javascript";
-  script.src = baseUrl + url;
+  script.src = baseUrl + url + "?v=" + new Date().getTime();
   script.defer = true;
   script.async = false;
   document.body.appendChild(script);
@@ -47,8 +49,10 @@ function loadScripts() {
       }
     });
 }
-
 loadScripts();
+window.addEventListener("hashchange", function () {
+  loadScripts();
+});
 
 //On change
 window.addEventListener("hashchange", function () {
@@ -81,13 +85,10 @@ function startMeatball() {
   var debug = false;
 
   var begin = true;
-  var checkUser = "";
   var historyListGUID = "";
   var lastAuthor = false;
   var organized = [[]];
   var userName = "";
-  var queryParam =
-    "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '";
 
   var style = document.createElement("style");
   style.type = "text/css";
@@ -321,6 +322,12 @@ function startMeatball() {
           add = false;
           text = "";
 
+          $thead.slice
+            .call($thead[ci].children)
+            .slice(1, -1)
+            .forEach(function ($th, i) {
+              $th.addEventListener("click", start());
+            });
           if ($thead[ci]) {
             [].slice.call($thead[ci].children).forEach(function (item, ti) {
               if (add) {
@@ -1181,6 +1188,7 @@ function startMeatball() {
 
     this.input = document.createElement("input");
     this.input.id = "CommentBox";
+    this.input.maxLength = "255";
     this.input.placeholder = "Enter Comment Here";
     this.input.style.backgroundColor = color.get(defaultHoverBackgroundColor);
     this.input.style.border = "0px";
