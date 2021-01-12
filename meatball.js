@@ -50,9 +50,6 @@ function loadScripts() {
     });
 }
 loadScripts();
-window.addEventListener("hashchange", function () {
-  loadScripts();
-});
 
 function startMeatball() {
   var rest = new ims.sharepoint.list();
@@ -104,22 +101,6 @@ function startMeatball() {
     color.get(4) +
     "}";
   document.getElementsByTagName("head")[0].appendChild(style);
-
-  //On initial load
-  window.addEventListener("load", function () {
-    if (begin) {
-      begin = false;
-      start();
-    }
-  });
-
-  //On change
-  window.addEventListener("hashchange", function () {
-    if (begin) {
-      begin = false;
-      start();
-    }
-  });
 
   function start() {
     if (!window.jQuery) {
@@ -433,10 +414,13 @@ function startMeatball() {
   //Attaches popover to the color circle along with updateTarget function
   function Meatball() {
     this.circle = document.createElement("div");
-    this.circle.style = ims.sharepoint.style({
-      type: "meatball",
-      size: "large",
-    }).$ele;
+    this.circle.setAttribute(
+      "style",
+      ims.sharepoint.style({
+        type: "meatball",
+        size: "large",
+      }).$ele
+    );
   }
 
   Meatball.prototype.init = function (
@@ -480,11 +464,14 @@ function startMeatball() {
     this.popoverBody.style.width = panelWidth;
 
     this.carret = document.createElement("div");
-    this.carret.style = ims.sharepoint.style({
-      type: "carret",
-      size: "",
-      bgc: defaultBackgroundColor,
-    }).$ele;
+    this.carret.setAttribute(
+      "style",
+      ims.sharepoint.style({
+        type: "carret",
+        size: "",
+        bgc: defaultBackgroundColor,
+      }).$ele
+    );
 
     //Create Popover Element
     this.popover = document.createElement("div");
@@ -579,12 +566,15 @@ function startMeatball() {
 
     this.showMore = document.createElement("div");
     this.showMore.innerText = "Show More";
-    this.showMore.style = ims.sharepoint.style({
-      type: "button",
-      size: "normal",
-      fc: defaultColor,
-      bgc: defaultButtonBackgroundColor,
-    }).$ele;
+    this.showMore.setAttribute(
+      "style",
+      ims.sharepoint.style({
+        type: "button",
+        size: "normal",
+        fc: defaultColor,
+        bgc: defaultButtonBackgroundColor,
+      }).$ele
+    );
 
     this.showMore.addEventListener("mouseenter", function () {
       this.style.backgroundColor = color.get(defaultButtonHoverBackgroundColor);
@@ -665,10 +655,13 @@ function startMeatball() {
                 var avatarContainer = document.createElement("div");
 
                 var avatar = document.createElement("div");
-                avatar.style = ims.sharepoint.style({
-                  type: "avatar",
-                  bgc: defaultButtonBackgroundColor,
-                }).$ele;
+                avatar.setAttribute(
+                  "style",
+                  ims.sharepoint.style({
+                    type: "avatar",
+                    bgc: defaultButtonBackgroundColor,
+                  }).$ele
+                );
                 avatar.style.margin = isRight
                   ? "0px 0px 0px 4px"
                   : "0px 4px 0px 0px";
@@ -802,11 +795,14 @@ function startMeatball() {
     this.$ele.style.left =
       this.circle.getBoundingClientRect().right - 12 + triangleSize + "px";
 
-    this.carret.style = ims.sharepoint.style({
-      type: "carret",
-      size: "",
-      bgc: defaultBackgroundColor,
-    }).$ele;
+    this.carret.setAttribute(
+      "style",
+      ims.sharepoint.style({
+        type: "carret",
+        size: "",
+        bgc: defaultBackgroundColor,
+      }).$ele
+    );
     if (this.carret.parentNode) {
       this.carret.parentNode.removeChild(this.carret);
     }
@@ -1432,12 +1428,15 @@ function startMeatball() {
 
     this.submit = document.createElement("div");
     this.submit.innerText = "Submit";
-    this.submit.style = ims.sharepoint.style({
-      type: "button",
-      size: "",
-      bgc: defaultButtonBackgroundColor,
-      fc: defaultColor,
-    });
+    this.submit.setAttribute(
+      "style",
+      ims.sharepoint.style({
+        type: "button",
+        size: "",
+        bgc: defaultButtonBackgroundColor,
+        fc: defaultColor,
+      }).$ele
+    );
     this.submit.style.display = "inline-block";
     this.submit.style.marginLeft = "4px";
     this.submit.style.width = "75px";
@@ -1485,12 +1484,15 @@ function startMeatball() {
 
     this.cancel = document.createElement("div");
     this.cancel.innerText = "Cancel";
-    this.cancel.style = ims.sharepoint.style({
-      type: "button",
-      size: "",
-      bgc: "transparent",
-      fc: defaultColor,
-    }).$ele;
+    this.cancel.setAttribute(
+      "style",
+      ims.sharepoint.style({
+        type: "button",
+        size: "",
+        bgc: "transparent",
+        fc: defaultColor,
+      }).$ele
+    );
     this.cancel.style.border = "1px solid " + color.get(23);
     this.cancel.style.display = "inline-block";
 
@@ -1848,4 +1850,6 @@ function startMeatball() {
   function generateId() {
     return Math.floor(Math.random() * 1000);
   }
+
+  start();
 }
