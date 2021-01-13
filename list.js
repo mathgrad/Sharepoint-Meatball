@@ -1,13 +1,14 @@
 function List() {}
 
-List.prototype.get = function (
+//only make agnogistic
+List.prototype.search = function (
   table,
   rowIndex,
   internalColumn,
   cb,
   init,
   path,
-  searchName,
+  searchName, //listname or id
   queryParam
 ) {
   var url = "";
@@ -59,7 +60,8 @@ List.prototype.get = function (
   });
 };
 
-List.prototype.createList = function (path, name, cb) {
+//changed from createList to create because it is ims.sharepoint.list.create
+List.prototype.create = function (path, name, cb) {
   var data = {
     __metadata: { type: "SP.List" },
     AllowContentTypes: true,
@@ -67,10 +69,7 @@ List.prototype.createList = function (path, name, cb) {
     ContentTypesEnabled: true,
     Title: name,
   };
-
-  //60% of the time "ctx.PortalUrl" works every time
   var url = path + "/_api/web/lists";
-
   $.ajax({
     url: url,
     type: "POST",
@@ -83,15 +82,14 @@ List.prototype.createList = function (path, name, cb) {
     },
     success: function (data) {
       cb(null, data);
-      return false;
     },
     error: function (error) {
       cb(error, null);
-      console.log("History list creation failed:", error);
     },
   });
 };
 
+//change to use props
 List.prototype.update = function (id, message, path, searchName) {
   var data = {
     __metadata: { type: "SP.ListItem" },
@@ -122,6 +120,7 @@ List.prototype.update = function (id, message, path, searchName) {
   });
 };
 
+//change from deleteList to delete because it should only ref the list not item that's separate
 List.prototype.deleteItem = function (listId, id, path, searchName) {
   var url =
     path + "_api/web/lists/getbytitle('" + searchName + "')/items(" + id + ")";
@@ -146,7 +145,7 @@ List.prototype.deleteItem = function (listId, id, path, searchName) {
 };
 
 //will find a list by name
-List.prototype.find = function (path, searchName, cb) {
+List.prototype.listInfo = function (path, searchName, cb) {
   var url = path + "_api/web/lists/getbytitle('" + searchName + "')";
 
   $.ajax({
@@ -159,8 +158,7 @@ List.prototype.find = function (path, searchName, cb) {
       "X-RequestDigest": $("#__REQUESTDIGEST").val(),
     },
     success: function (data) {
-      cb(null, data.d.Id);
-      return false;
+      cb(null, data.d);
     },
     error: function (error) {
       console.log("Error in the findHistoryChat:", error);
@@ -169,6 +167,38 @@ List.prototype.find = function (path, searchName, cb) {
   });
 };
 
+//change so the Absolute url is passed in the props
+List.prototype.choiceFields = function (props, cb) {
+  var listType = props.listId ? "lists" : "getbytitle";
+  var listName = props.listId ? props.listId : props.listName;
+  $.ajax({
+    url:
+      _spPageContextInfo.siteAbsoluteUrl +
+      "/_api/web/" +
+      listType +
+      "('" +
+      listName +
+      "')/fields?$filter=TypeDisplayName eq 'Choice'",
+    type: "GET",
+    headers: {
+      Accept: "application/json; odata=verbose",
+      "Content-Type": "application/json;odata=verbose",
+      credentials: true,
+      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+    },
+    success: function (data) {
+      cb(null, data.d.results);
+    },
+    error: function (e) {
+      console.error(e);
+      cb(null, []);
+    },
+  });
+};
+
+List.prototype.item.create = function (props, query, cb) {};
+
+//specific to meatball
 List.prototype.makeHistoryEntry = function (
   listId,
   message,
@@ -186,7 +216,6 @@ List.prototype.makeHistoryEntry = function (
     Title: tableGUID + " - " + rowId + " - " + colName,
     Status: autoBot ? "Automated Message" : "User Generated",
   };
-
   var url = path + "_api/web/lists/getbytitle('" + searchName + "')/items ";
   $.ajax({
     url: url,
@@ -203,7 +232,6 @@ List.prototype.makeHistoryEntry = function (
         return false;
       }
       cb(null, data.d);
-      return false;
     },
     error: function (error) {
       cb(error, null);

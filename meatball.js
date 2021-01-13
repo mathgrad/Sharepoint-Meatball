@@ -23,7 +23,7 @@ var queryParam =
 function scriptBuilder(url) {
   var script = document.createElement("script");
   script.type = "text/javascript";
-  script.src = baseUrl;
+  script.src = baseUrl + url;
   script.defer = true;
   script.async = false;
   document.body.appendChild(script);
@@ -298,18 +298,12 @@ function startMeatball() {
           add = false;
           text = "";
 
-          $thead.slice
-            .call($thead[ci].children)
-            .slice(1, -1)
-            .forEach(function ($th, i) {
-              $th.addEventListener("click", start());
-            });
           if ($thead[ci]) {
-            [].slice.call($thead[ci].children).forEach(function (item, ti) {
+            [].slice.call($thead[ci].children).forEach(function ($th, ti) {
               if (add) {
                 return;
               }
-              [].slice.call(item.children).forEach(function (item, tci) {
+              [].slice.call($th.children).forEach(function (item, tci) {
                 if (add) {
                   return;
                 }
