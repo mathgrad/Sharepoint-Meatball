@@ -23,7 +23,7 @@ var queryParam =
 function scriptBuilder(url) {
   var script = document.createElement("script");
   script.type = "text/javascript";
-  script.src = baseUrl + url + "?v=" + new Date().getTime();
+  script.src = baseUrl + url;
   script.defer = true;
   script.async = false;
   document.body.appendChild(script);
@@ -108,6 +108,7 @@ function startMeatball() {
   document.getElementsByTagName("head")[0].appendChild(style);
 
   function start() {
+    console.log("Meatball Start Function Start");
     if (!window.jQuery) {
       alert("Please contact help desk.  Script not properly loaded.");
       return;
@@ -115,7 +116,9 @@ function startMeatball() {
 
     window.addEventListener("error", function (msg, url, line) {
       if (debug) {
-        var errorToast = new Toast().setMessage(msg).setListeners().show();
+        //Fix me. Pass message into method not prototype
+        var errorToast = new Toast();
+        errorToast.setMessage(msg).setListeners().show();
         kitchen.debug(errorToast);
       }
     });
@@ -188,88 +191,107 @@ function startMeatball() {
     }
 
     //Get all the tables -- create array
-    var tables = [].slice.call(document.getElementsByTagName("table"));
+    var tables = [].slice.call(
+      document.getElementsByClassName("ms-listviewtable")
+    );
 
-    if (errorChecking(tables)) {
-      if (debug) {
-        var errorToast = new Toast()
-          .setMessage("No Tables Found")
-          .setListeners()
-          .show();
-        kitchen.debug(errorToast);
-      }
-      return;
-    }
-    //Include only the actual lists
-    tables = tables.filter(function (table) {
-      return table.getAttribute("class") === "ms-listviewtable";
-    });
+    //Step . Reduce tables and its cells into an object.
+    var organizedTables = tables.reduce(function (r, $table, index1) {
+      //Step a. Get $rows of this table.
+      var $thead = $table.getElementsByTagName("thead")[0];
+      var $tbody = $table.getElementsByTagName("tbody")[0];
+      var $tcells = [].slice
+        .call($thead.getElementsByTagName("th"))
+        .map(function ($th) {
+          return $th.innerText;
+        });
+      var $rows = [].slice.call($tbody.children);
+      //console.log("Elements of Table before filter: \n", $tcells, $rows);
+
+      //Step b. Build table object.
+      r["table" + index1] = $rows.reduce(function (r2, $row) {
+        [].slice.call($row.children).forEach(function ($cell, index3) {
+          var colKey = $tcells[index3] || "delete";
+          if (!r2[colKey]) {
+            r2[colKey] = [];
+          }
+          r2[colKey].push($cell);
+        });
+
+        return r2;
+      }, {});
+
+      return r;
+    }, []);
+    console.log("Tables reorganized function: \n", organizedTables);
+
     //Grabbing the list url + Iterate through the set of tables
-    tables.forEach(function (table, ti) {
-      var currentListId = table.getAttribute("id").substring(1, 37);
-      var root = ctx.HttpRoot;
-      var url =
-        root +
-        "/_api/web/lists('" +
-        currentListId +
-        "')/fields?$filter=TypeDisplayName eq 'Choice'";
-      var listTitle = table.summary;
+    tables.forEach(function ($table, index4) {
+      var listId = $table.getAttribute("id").substring(1, 37);
+      var listTitle = $table.summary;
+      var tableKey = "table" + index4;
+      console.log(listId, listTitle, tableKey, ims)
 
-      //Table Guid checker
-      if (currentListId.indexOf("-") < 0) {
-        return;
-      }
-
-      $.ajax({
-        url: url,
-        type: "GET",
-        headers: {
-          Accept: "application/json; odata=verbose",
-          "Content-Type": "application/json;odata=verbose",
-          credentials: true,
-          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      //Step . Fetch choice fields based on list id.
+      ims.sharepoint.list.choiceFields(listId, function (results) {
+        var choiceFields = results.reduce(function (
+          acc,
+          props,
+          index5
+        ) {
+          acc[props.InternalName] = {
+            choices: props.Choices.results,
+            external: props.Title,
+            internal: props.InternalName,
+          };
+          return acc;
         },
-        success: function (data) {
-          if (data && data.d) {
-            //Returns all columns with choices
-            var popoverData = data.d.results.reduce(
-              function (acc, cv, ci, data) {
-                if (cv.Choices) {
-                  if (acc.value.indexOf(cv.Choices.results) < 0) {
-                    acc.value.push(cv.Choices.results);
-                    acc.internalColumn.push(cv.InternalName);
-                    acc.externalColumn.push(cv.Title);
-                  }
-                }
-                return acc;
-              },
-              {
-                externalColumn: [],
-                internalColumn: [],
-                value: [],
+        {});
+
+        //Step . Break out external name to reference below
+        let choiceFieldNames = Object.values(choiceFields).map(function (
+          props
+        ) {
+          return props.external;
+        });
+
+
+        //Step . Delete "non-choice" related columns from object.
+        for (var colKey in tables[tableKey]) {
+          if (choiceFieldNames.indexOf(colKey) === -1) {
+            delete tables[colKey];
+          }
+        }
+        console.log("Choice Fields: ", tables);
+
+        var findChoiceField = function (externalName) {
+          var match = Object.values(choiceFields).filter(function (props) {
+            return props.external === externalName;
+          });
+          return match.length ? match[0] : false;
+        };
+
+        //Step . For each remaining $cell, convert to meatball.
+        for (var colKey2 in tables[tableKey]) {
+          tables[tableKey][colKey2].forEach(function ($cell) {
+            //Step A. Define the choice column in question.
+            var choiceProps = findChoiceField(colKey2);
+            console.log("Choices Props: ", choiceProps);
+            /*
+              Should look like this = {
+                $el: $cell,
+                choices: [],
+                external: "Change Column Name...",
+                internal: "Title",
               }
-            );
-            popoverData.value.forEach(function (item, i) {
-              findTargets(
-                table,
-                item,
-                popoverData.externalColumn[i],
-                popoverData.internalColumn[i],
-                listTitle
-              );
-            });
-          }
-          return false;
-        },
-        error: function (error) {
-          if (debug) {
-            var errorToast = new Toast()
-              .setMessage("Error: Get list choices request Failed.")
-              .setListeners()
-              .show();
-            kitchen.debug(errorToast);
-          }
-        },
+            */
+
+            //Step B. Build Meatball with these options.
+            //var props = Object.assign(choiceProps, { $el: $cell });
+            //var mb = new Meatball(props);
+            //mb.build().replace().listeners()
+          });
+        }
       });
     });
   }
@@ -288,66 +310,70 @@ function startMeatball() {
     //Iterate over each cell and compare the inner text to the list of known defaults.
     var $rows = [].slice.call($table.getElementsByTagName("tr"));
     var $thead = [].slice.call($table.getElementsByTagName("th"));
-    var displayValue,
-      text = "";
-    var add = false;
+    var displayValue;
+    var text = "";
+    //var add = false;
     $rows.map(function ($row, ri) {
+      var itemId = $row.id.split(",")[1];
       displayValue = "";
 
       var $cells = [].slice.call($row.getElementsByTagName("td"));
 
-      if ($cells.length > 0) {
-        //this checks if the cell contains the text which is in user choices, selects that cell to add the meatball and popover
-        $cells.map(function ($cell, ci) {
-          //Comparing the thead (internal name) with the external name
-          add = false;
-          text = "";
+      //if ($cells.length > 0) {
+      //this checks if the cell contains the text which is in user choices, selects that cell to add the meatball and popover
+      $cells.forEach(function ($cell, ci) {
+        //Comparing the thead (internal name) with the external name
+        add = false;
+        text = "";
 
-          $thead.slice
-            .call($thead[ci].children)
-            .slice(1, -1)
-            .forEach(function ($th, i) {
-              $th.addEventListener("click", start());
-            });
-          if ($thead[ci]) {
-            [].slice.call($thead[ci].children).forEach(function (item, ti) {
-              if (add) {
-                return;
-              }
-              [].slice.call(item.children).forEach(function (item, tci) {
-                if (add) {
-                  return;
-                }
-
-                if (item.innerText) {
-                  add = compareString(externalColumn, item.innerText);
-                }
-              });
-            });
+        // $thead.slice
+        //   .call($thead[ci].children)
+        //   .slice(1, -1)
+        //   .forEach(function ($th, i) {
+        //     $th.addEventListener("click", start());
+        //   });
+        //if ($thead[ci]) {
+        [].slice.call($thead[ci].children).forEach(function ($th, ti) {
+          if (add) {
+            return;
           }
-
-          if (add && $table.getAttribute("id") && $row.getAttribute("iid")) {
-            displayValue = $row.childNodes[1].innerText + ": " + externalColumn;
-
-            if (displayValue) {
-              text = $cell.innerText;
-              new Meatball().init(
-                values,
-                externalColumn,
-                internalColumn,
-                $cell,
-                $row.getAttribute("iid").split(",")[1],
-                $thead[ci],
-                $table.getAttribute("id").substring(1, 37),
-                text,
-                displayValue,
-                listTitle,
-                "200px"
-              );
+          [].slice.call($th.children).forEach(function (item, tci) {
+            if (add) {
+              return;
             }
-          }
+
+            if (item.innerText) {
+              add = compareString(externalColumn, item.innerText);
+            }
+          });
         });
-      }
+        //}
+
+        if (add && $table.getAttribute("id") && $row.getAttribute("iid")) {
+          displayValue = $row.childNodes[1].innerText + ": " + externalColumn;
+
+          if (displayValue) {
+            text = $cell.innerText;
+            console.log("Meatball Init Function Start");
+            var mt = new Meatball();
+            mt.init(
+              values,
+              externalColumn,
+              internalColumn,
+              $cell,
+              $row.getAttribute("iid").split(",")[1],
+              $thead[ci],
+              $table.getAttribute("id").substring(1, 37),
+              text,
+              displayValue,
+              listTitle,
+              "200px"
+            );
+            console.log("Meatball Init Function End");
+          }
+        }
+      });
+      //}
     });
   }
 
@@ -405,7 +431,9 @@ function startMeatball() {
       error: function (error) {
         toast
           .endLoading()
-          .setMessage(listTitle + " - " + externalColumn + " failed to update")
+          .setMessage(
+            listTitle + " - " + externalColumn + " failed to update"
+          )
           .setFailed()
           .setListeners()
           .show();
@@ -441,6 +469,7 @@ function startMeatball() {
     listTitle,
     panelWidth
   ) {
+    console.log("Inside Meatball Init Function Start");
     var meatball = this;
     var triangleSize = 10;
     var meatballHistoryDisplay = new MeatballHistory(
@@ -460,7 +489,9 @@ function startMeatball() {
     this.$ele.style.padding = "10px";
 
     this.popoverBody = document.createElement("div");
-    this.popoverBody.style.backgroundColor = color.get(defaultBackgroundColor);
+    this.popoverBody.style.backgroundColor = color.get(
+      defaultBackgroundColor
+    );
     this.popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
     this.popoverBody.style.color = color.get(defaultColor);
     this.popoverBody.style.display = "inline-block";
@@ -582,7 +613,9 @@ function startMeatball() {
     );
 
     this.showMore.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = color.get(defaultButtonHoverBackgroundColor);
+      this.style.backgroundColor = color.get(
+        defaultButtonHoverBackgroundColor
+      );
     });
 
     this.showMore.addEventListener("mouseleave", function () {
@@ -689,7 +722,9 @@ function startMeatball() {
                 messageBlock.style.maxWidth = "75%";
                 messageContainer.appendChild(avatarContainer);
                 messageContainer.appendChild(messageBlock);
-                meatballHistoryDisplay.container.appendChild(messageContainer);
+                meatballHistoryDisplay.container.appendChild(
+                  messageContainer
+                );
 
                 //step 3 append each mssg to mssg block
                 return {
@@ -792,6 +827,8 @@ function startMeatball() {
     });
     parent.innerText = "";
     parent.appendChild(this.circle);
+    console.log(typeof parent);
+    console.log("Inside Meatball Init Function End");
   };
 
   Meatball.prototype.setPosition = function (triangleSize) {
@@ -869,7 +906,9 @@ function startMeatball() {
   };
 
   Meatball.prototype.setColor = function (value) {
-    this.circle.style.backgroundColor = color.get(meatballDefaults.get(value));
+    this.circle.style.backgroundColor = color.get(
+      meatballDefaults.get(value)
+    );
   };
 
   Meatball.prototype.removePopover = function () {
@@ -931,12 +970,16 @@ function startMeatball() {
         if (radio.checked) {
           option.style.backgroundColor = color.get(defaultBackgroundColor);
         } else {
-          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+          option.style.backgroundColor = color.get(
+            defaultHoverBackgroundColor
+          );
         }
       });
       option.addEventListener("mouseleave", function () {
         if (radio.checked) {
-          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+          option.style.backgroundColor = color.get(
+            defaultHoverBackgroundColor
+          );
         } else {
           option.style.backgroundColor = color.get(defaultBackgroundColor);
         }
@@ -945,7 +988,9 @@ function startMeatball() {
       panel.options.addEventListener("mousedown", function () {
         [].slice.call(panel.options.children).forEach(function (item) {
           if (item.parentElement.querySelector(":hover") === item) {
-            item.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+            item.style.backgroundColor = color.get(
+              defaultHoverBackgroundColor
+            );
           } else {
             item.style.backgroundColor = color.get(defaultBackgroundColor);
           }
@@ -955,7 +1000,9 @@ function startMeatball() {
       option.addEventListener("mouseup", function () {
         if (!radio.checked) {
           radio.checked = true;
-          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+          option.style.backgroundColor = color.get(
+            defaultHoverBackgroundColor
+          );
           updateTarget(
             ele,
             rowIndex,
@@ -983,7 +1030,9 @@ function startMeatball() {
           );
           cellText = ele; //this will change the current value of meatball for the view purposes.
         } else {
-          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+          option.style.backgroundColor = color.get(
+            defaultHoverBackgroundColor
+          );
         }
       });
 
@@ -1027,7 +1076,9 @@ function startMeatball() {
 
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.alignItems = "stretch";
-    this.historyPanel.style.backgroundColor = color.get(defaultBackgroundColor);
+    this.historyPanel.style.backgroundColor = color.get(
+      defaultBackgroundColor
+    );
     this.historyPanel.style.display = "flex";
     this.historyPanel.style.flexDirection = "column";
     this.historyPanel.style.height = windowHeight + "px";
@@ -1174,7 +1225,9 @@ function startMeatball() {
     });
 
     this.footer = document.createElement("div");
-    this.footer.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+    this.footer.style.backgroundColor = color.get(
+      defaultHoverBackgroundColor
+    );
     this.footer.style.borderRadius = "0.25rem";
     this.footer.style.padding = "0.25rem";
     this.footer.style.display = "flex";
@@ -1447,7 +1500,9 @@ function startMeatball() {
     this.submit.style.width = "75px";
 
     this.submit.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = color.get(defaultButtonHoverBackgroundColor);
+      this.style.backgroundColor = color.get(
+        defaultButtonHoverBackgroundColor
+      );
     });
 
     this.submit.addEventListener("mouseleave", function () {
@@ -1687,7 +1742,9 @@ function startMeatball() {
       this.comment.style.backgroundColor = color.get(
         defaultButtonBackgroundColor
       );
-      this.$ele.style.backgroundColor = color.get(defaultButtonBackgroundColor);
+      this.$ele.style.backgroundColor = color.get(
+        defaultButtonBackgroundColor
+      );
       this.$ele.style.color = color.get(defaultColor);
 
       if (this.btnContainer.parentNode) {
@@ -1714,7 +1771,9 @@ function startMeatball() {
   MeatballHistoryMessage.prototype.setType = function (author) {
     if (this.author.innerText.indexOf(author) > -1) {
       this.$ele.type = "editable";
-      this.$ele.style.backgroundColor = color.get(defaultButtonBackgroundColor);
+      this.$ele.style.backgroundColor = color.get(
+        defaultButtonBackgroundColor
+      );
       this.$ele.style.color = color.get(defaultColor);
     } else {
       this.$ele.type = "disabled";
@@ -1839,7 +1898,9 @@ function startMeatball() {
     if (s0.length === s1.length) {
       return containsString(s0, s1);
     }
-    return s1.slice(0, s0.length).toLowerCase().indexOf(s0.toLowerCase()) > -1;
+    return (
+      s1.slice(0, s0.length).toLowerCase().indexOf(s0.toLowerCase()) > -1
+    );
   }
 
   /*Checks to see if s0 contains to s1*/
@@ -1856,5 +1917,8 @@ function startMeatball() {
     return Math.floor(Math.random() * 1000);
   }
 
-  start();
+  setTimeout(function () {
+    start();
+  }, 2000);
 }
+})();
