@@ -28,7 +28,7 @@ function Pantry() {
     this.$ele = document.getElementById(pantryId);
   } else {
     this.$ele = document.createElement("div");
-    this.$ele.style = notificationStyle("pMain");
+    this.$ele.setAttribute("style", notificationStyle("pMain"));
     this.$ele.id = pantryId;
     document.body.appendChild(this.$ele);
   }
@@ -56,10 +56,10 @@ Pantry.prototype.debug = function (toast) {
 function Toast() {
   this.toast = document.createElement("div");
   this.toast.id = generateId();
-  this.toast.style = notificationStyle("tMain");
+  this.toast.setAttribute("style", notificationStyle("tMain"));
 
   this.text = document.createElement("div");
-  this.text.style = notificationStyle("textContainer");
+  this.text.setAttribute("style", notificationStyle("textContainer"));
   return this;
 }
 
@@ -75,7 +75,7 @@ Toast.prototype.setMessage = function (message) {
 
   this.close = document.createElement("div");
   this.close.innerText = "x";
-  this.close.style = notificationStyle("toastClose");
+  this.close.setAttribute("style", notificationStyle("toastClose"));
 
   this.text.appendChild(this.title);
   this.text.appendChild(this.subtitle);
@@ -142,7 +142,7 @@ Toast.prototype.removeToast = function () {
 function LoaderCSS() {
   this.loader = document.createElement("div");
   this.loader.id = "LoaderCSS " + generateId();
-  this.loader.style = notificationStyle("loaderMain");
+  this.loader.setAttribute("style", notificationStyle("loaderMain"));
   return this;
 }
 

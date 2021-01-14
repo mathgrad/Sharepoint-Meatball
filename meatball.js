@@ -10,6 +10,7 @@ var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
 var ims = {};
 ims.sharepoint = {};
 var requiredScripts = [
+  "chat.js",
   "column.js",
   "list.js",
   "person.js",
@@ -17,8 +18,6 @@ var requiredScripts = [
   "style.js",
   "svg.js",
 ];
-var queryParam =
-  "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '";
 
 function scriptBuilder(url) {
   var script = document.createElement("script");
@@ -38,9 +37,10 @@ function loadScripts() {
     .map(function (script, i) {
       if (i == requiredScripts.length - 1) {
         script.addEventListener("load", function () {
+          ims.sharepoint.chat = chat;
           ims.sharepoint.color = Color;
-          ims.sharepoint.column = Column;
-          ims.sharepoint.list = List;
+          ims.sharepoint.column = column;
+          ims.sharepoint.list = list;
           ims.sharepoint.person = Person;
           ims.sharepoint.notification = Pantry;
           ims.sharepoint.style = style;
@@ -53,6 +53,7 @@ loadScripts();
 
 function startMeatball() {
   var rest = new ims.sharepoint.list();
+  var restChat = new ims.sharepoint.chat();
   var restCol = new ims.sharepoint.column();
   var restPerson = new ims.sharepoint.person();
   var color = new ims.sharepoint.color();
@@ -103,6 +104,7 @@ function startMeatball() {
   document.getElementsByTagName("head")[0].appendChild(style);
 
   function start() {
+    console.log("Meatball Start Function Start");
     if (!window.jQuery) {
       alert("Please contact help desk. Script not properly loaded.");
       return;
@@ -110,7 +112,9 @@ function startMeatball() {
 
     window.addEventListener("error", function (msg, url, line) {
       if (debug) {
-        var errorToast = new Toast().setMessage(msg).setListeners().show();
+        //Fix me. Pass message into method not prototype
+        var errorToast = new Toast();
+        errorToast.setMessage(msg).setListeners().show();
         kitchen.debug(errorToast);
       }
     });
@@ -142,26 +146,28 @@ function startMeatball() {
                 }
               }
               restCol.create(
-                "Status",
-                2,
-                "false",
-                "false",
-                ctx.PortalUrl,
-                "History",
+                (props: {
+                  colTitle: "Status",
+                  fieldType: 2,
+                  required: "false",
+                  uniqueValue: "false",
+                  searchName: "History",
+                }),
                 cb
               );
             }
             restCol.create(
-              "Message",
-              2,
-              "false",
-              "false",
-              ctx.PortalUrl,
-              "History",
+              (props: {
+                colTitle: "Message",
+                fieldType: 2,
+                required: "false",
+                uniqueValue: "false",
+                searchName: "History",
+              }),
               cb
             );
           }
-          rest.createList(ctx.PortalUrl, "History", cb);
+          rest.create((props: { searchName: "History" }), cb);
           console.log(error);
           return;
         }
@@ -169,7 +175,7 @@ function startMeatball() {
           historyListGUID = props;
         }
       }
-      rest.find(ctx.PortalUrl, "History", cb);
+      rest.find((props: { searchName: "History" }), cb);
     }
 
     if (userName.length <= 0) {
@@ -179,92 +185,105 @@ function startMeatball() {
         }
         userName = name;
       }
-      restPerson.get(ctx.PortalUrl, cb);
+      restPerson.get(cb);
     }
 
     //Get all the tables -- create array
-    var tables = [].slice.call(document.getElementsByTagName("table"));
+    var tables = [].slice.call(
+      document.getElementsByClassName("ms-listviewtable")
+    );
 
-    if (errorChecking(tables)) {
-      if (debug) {
-        var errorToast = new Toast()
-          .setMessage("No Tables Found")
-          .setListeners()
-          .show();
-        kitchen.debug(errorToast);
-      }
-      return;
-    }
-    //Include only the actual lists
-    tables = tables.filter(function (table) {
-      return table.getAttribute("class") === "ms-listviewtable";
-    });
+    //Step . Reduce tables and its cells into an object.
+    var organizedTables = tables.reduce(function (r, $table, index1) {
+      //Step a. Get $rows of this table.
+      var $thead = $table.getElementsByTagName("thead")[0];
+      var $tbody = $table.getElementsByTagName("tbody")[0];
+      var $tcells = [].slice
+        .call($thead.getElementsByTagName("th"))
+        .map(function ($th) {
+          return $th.innerText;
+        });
+      var $rows = [].slice.call($tbody.children);
+      //console.log("Elements of Table before filter: \n", $tcells, $rows);
+
+      //Step b. Build table object.
+      r["table" + index1] = $rows.reduce(function (r2, $row) {
+        [].slice.call($row.children).forEach(function ($cell, index3) {
+          var colKey = $tcells[index3] || "delete";
+          if (!r2[colKey]) {
+            r2[colKey] = [];
+          }
+          r2[colKey].push($cell);
+        });
+
+        return r2;
+      }, {});
+
+      return r;
+    }, []);
+    console.log("Tables reorganized function: \n", organizedTables);
+
     //Grabbing the list url + Iterate through the set of tables
-    tables.forEach(function (table, ti) {
-      var currentListId = table.getAttribute("id").substring(1, 37);
-      var root = ctx.HttpRoot;
-      var url =
-        root +
-        "/_api/web/lists('" +
-        currentListId +
-        "')/fields?$filter=TypeDisplayName eq 'Choice'";
-      var listTitle = table.summary;
+    tables.forEach(function ($table, index4) {
+      var listId = $table.getAttribute("id").substring(1, 37);
+      var listTitle = $table.summary;
+      var tableKey = "table" + index4;
+      console.log(listId, listTitle, tableKey, ims);
 
-      //Table Guid checker
-      if (currentListId.indexOf("-") < 0) {
-        return;
-      }
+      //Step . Fetch choice fields based on list id.
+      ims.sharepoint.list.choiceFields(listId, function (results) {
+        var choiceFields = results.reduce(function (acc, props, index5) {
+          acc[props.InternalName] = {
+            choices: props.Choices.results,
+            external: props.Title,
+            internal: props.InternalName,
+          };
+          return acc;
+        }, {});
 
-      $.ajax({
-        url: url,
-        type: "GET",
-        headers: {
-          Accept: "application/json; odata=verbose",
-          "Content-Type": "application/json;odata=verbose",
-          credentials: true,
-          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-        },
-        success: function (data) {
-          if (data && data.d) {
-            //Returns all columns with choices
-            var popoverData = data.d.results.reduce(
-              function (acc, cv, ci, data) {
-                if (cv.Choices) {
-                  if (acc.value.indexOf(cv.Choices.results) < 0) {
-                    acc.value.push(cv.Choices.results);
-                    acc.internalColumn.push(cv.InternalName);
-                    acc.externalColumn.push(cv.Title);
-                  }
-                }
-                return acc;
-              },
-              {
-                externalColumn: [],
-                internalColumn: [],
-                value: [],
+        //Step . Break out external name to reference below
+        let choiceFieldNames = Object.values(choiceFields).map(function (
+          props
+        ) {
+          return props.external;
+        });
+
+        //Step . Delete "non-choice" related columns from object.
+        for (var colKey in tables[tableKey]) {
+          if (choiceFieldNames.indexOf(colKey) === -1) {
+            delete tables[colKey];
+          }
+        }
+        console.log("Choice Fields: ", tables);
+
+        var findChoiceField = function (externalName) {
+          var match = Object.values(choiceFields).filter(function (props) {
+            return props.external === externalName;
+          });
+          return match.length ? match[0] : false;
+        };
+
+        //Step . For each remaining $cell, convert to meatball.
+        for (var colKey2 in tables[tableKey]) {
+          tables[tableKey][colKey2].forEach(function ($cell) {
+            //Step A. Define the choice column in question.
+            var choiceProps = findChoiceField(colKey2);
+            console.log("Choices Props: ", choiceProps);
+            /*
+              Should look like this = {
+                $el: $cell,
+                choices: [],
+                external: "Change Column Name...",
+                internal: "Title",
               }
-            );
-            popoverData.value.forEach(function (item, i) {
-              findTargets(
-                table,
-                item,
-                popoverData.externalColumn[i],
-                popoverData.internalColumn[i],
-                listTitle
-              );
-            });
-          }
-          return false;
-        },
-        error: function (error) {
-          if (debug) {
-            var errorToast = new Toast()
-              .setMessage("Error: Get list choices request Failed.")
-              .setListeners()
-              .show();
-            kitchen.debug(errorToast);
-          }
-        },
+            */
+
+            //Step B. Build Meatball with these options.
+            //var props = Object.assign(choiceProps, { $el: $cell });
+            //var mb = new Meatball(props);
+            //mb.build().replace().listeners()
+          });
+        }
       });
     });
   }
@@ -283,60 +302,70 @@ function startMeatball() {
     //Iterate over each cell and compare the inner text to the list of known defaults.
     var $rows = [].slice.call($table.getElementsByTagName("tr"));
     var $thead = [].slice.call($table.getElementsByTagName("th"));
-    var displayValue,
-      text = "";
-    var add = false;
+    var displayValue;
+    var text = "";
+    //var add = false;
     $rows.map(function ($row, ri) {
+      var itemId = $row.id.split(",")[1];
       displayValue = "";
 
       var $cells = [].slice.call($row.getElementsByTagName("td"));
 
-      if ($cells.length > 0) {
-        //this checks if the cell contains the text which is in user choices, selects that cell to add the meatball and popover
-        $cells.map(function ($cell, ci) {
-          //Comparing the thead (internal name) with the external name
-          add = false;
-          text = "";
+      //if ($cells.length > 0) {
+      //this checks if the cell contains the text which is in user choices, selects that cell to add the meatball and popover
+      $cells.forEach(function ($cell, ci) {
+        //Comparing the thead (internal name) with the external name
+        add = false;
+        text = "";
 
-          if ($thead[ci]) {
-            [].slice.call($thead[ci].children).forEach(function ($th, ti) {
-              if (add) {
-                return;
-              }
-              [].slice.call($th.children).forEach(function (item, tci) {
-                if (add) {
-                  return;
-                }
-
-                if (item.innerText) {
-                  add = compareString(externalColumn, item.innerText);
-                }
-              });
-            });
+        // $thead.slice
+        //   .call($thead[ci].children)
+        //   .slice(1, -1)
+        //   .forEach(function ($th, i) {
+        //     $th.addEventListener("click", start());
+        //   });
+        //if ($thead[ci]) {
+        [].slice.call($thead[ci].children).forEach(function ($th, ti) {
+          if (add) {
+            return;
           }
-
-          if (add && $table.getAttribute("id") && $row.getAttribute("iid")) {
-            displayValue = $row.childNodes[1].innerText + ": " + externalColumn;
-
-            if (displayValue) {
-              text = $cell.innerText;
-              new Meatball().init(
-                values,
-                externalColumn,
-                internalColumn,
-                $cell,
-                $row.getAttribute("iid").split(",")[1],
-                $thead[ci],
-                $table.getAttribute("id").substring(1, 37),
-                text,
-                displayValue,
-                listTitle,
-                "200px"
-              );
+          [].slice.call($th.children).forEach(function (item, tci) {
+            if (add) {
+              return;
             }
-          }
+
+            if (item.innerText) {
+              add = compareString(externalColumn, item.innerText);
+            }
+          });
         });
-      }
+        //}
+
+        if (add && $table.getAttribute("id") && $row.getAttribute("iid")) {
+          displayValue = $row.childNodes[1].innerText + ": " + externalColumn;
+
+          if (displayValue) {
+            text = $cell.innerText;
+            console.log("Meatball Init Function Start");
+            var mt = new Meatball();
+            mt.init(
+              values,
+              externalColumn,
+              internalColumn,
+              $cell,
+              $row.getAttribute("iid").split(",")[1],
+              $thead[ci],
+              $table.getAttribute("id").substring(1, 37),
+              text,
+              displayValue,
+              listTitle,
+              "200px"
+            );
+            console.log("Meatball Init Function End");
+          }
+        }
+      });
+      //}
     });
   }
 
@@ -430,6 +459,7 @@ function startMeatball() {
     listTitle,
     panelWidth
   ) {
+    console.log("Inside Meatball Init Function Start");
     var meatball = this;
     var triangleSize = 10;
     var meatballHistoryDisplay = new MeatballHistory(
@@ -706,15 +736,17 @@ function startMeatball() {
             });
           }
         }
-        rest.get(
-          table,
-          rowIndex,
-          internalColumn,
-          cb,
-          false,
-          ctx.PortalUrl,
-          "History",
-          queryParam
+        restChat.getMessage(
+          {
+            props: {
+              table: table,
+              rowIndex: rowIndex,
+              internalColumn: internalColumn,
+              searchName: "History",
+              qs: "'&$expand=Author&$orderby=Created desc&$top=1",
+            },
+          },
+          cb
         );
       }
       document.body.appendChild(meatballHistoryDisplay.$ele);
@@ -750,15 +782,18 @@ function startMeatball() {
         }
         meatball.setPosition(triangleSize);
       }
-      rest.get(
-        table,
-        rowIndex,
-        internalColumn,
-        cb,
-        true,
-        ctx.PortalUrl,
-        "History",
-        queryParam
+      //should only have one function -- to call one history entry
+      restChat.getMessage(
+        {
+          props: {
+            table: table,
+            rowIndex: rowIndex,
+            internalColumn: internalColumn,
+            searchName: "History",
+            qs: "'&$expand=Author&$top=300",
+          },
+        },
+        cb
       );
       add = true;
       document.body.appendChild(meatball.$ele);
@@ -781,6 +816,8 @@ function startMeatball() {
     });
     parent.innerText = "";
     parent.appendChild(this.circle);
+    console.log(typeof parent);
+    console.log("Inside Meatball Init Function End");
   };
 
   Meatball.prototype.setPosition = function (triangleSize) {
@@ -959,15 +996,18 @@ function startMeatball() {
           var autoComment = cellText
             ? "Status change: " + cellText + " to " + ele + " by " + userName
             : "Initial Status: " + ele + " by " + userName;
-          rest.makeHistoryEntry(
-            historyListGUID,
-            autoComment,
-            internalColumn,
-            rowIndex,
-            table,
-            true,
-            ctx.PortalUrl,
-            "History",
+          restChat.creatMessage(
+            {
+              props: {
+                listId: historyListGUID,
+                message: autoComment,
+                colName: internalColumn,
+                rowId: rowIndex,
+                tableGUID: table,
+                autoBot: true,
+                searchName: "History",
+              },
+            },
             null
           );
           cellText = ele; //this will change the current value of meatball for the view purposes.
@@ -1358,17 +1398,18 @@ function startMeatball() {
       chatWindow.input.value = "";
     }
 
-    rest.makeHistoryEntry(
-      historyListGUID,
-      this.input.value,
-      internalColumn,
-      rowIndex,
-      table,
-      null,
-      ctx.PortalUrl,
-      "History",
-      cb
-    );
+    restChat.chatMessage({
+      props: {
+        listId: historyListGUID,
+        message: this.input.value,
+        colName: internalColumn,
+        rowId: rowIndex,
+        tableGUID: table,
+        autoBot: false,
+        searchName: "History",
+      },
+      cb,
+    });
 
     return this;
   };
@@ -1388,7 +1429,7 @@ function startMeatball() {
   function MeatballHistoryMessage(
     historyListGUID,
     table,
-    rowindex,
+    rowIndex,
     internalColumn
   ) {
     var meatballHistoryItem = this;
@@ -1457,15 +1498,16 @@ function startMeatball() {
             newData
           );
         }
-        rest.makeHistoryEntry(
-          meatballHistoryItem.listGUID,
-          "placeholder",
-          internalColumn,
-          rowindex,
-          table,
-          false,
-          ctx.PortalUrl,
-          "History",
+        restChat.createMessage(
+          (props: {
+            listId: meatballHistoryItem.listGUID,
+            message: "placeholder",
+            colName: internalColumn,
+            rowId: rowIndex,
+            tableGUID: table,
+            autoBot: false,
+            searchName: "History",
+          }),
           cb
         );
       } else {
@@ -1566,19 +1608,20 @@ function startMeatball() {
           meatballHistoryItem.$ele.parentNode.removeChild(
             meatballHistoryItem.$ele
           );
-          function cb(error, listGUID) {
-            if (error) {
-              console.log(error);
-              return;
-            }
-            rest.deleteItem(
-              listGUID,
-              meatballHistoryItem.id,
-              ctx.PortalUrl,
-              "History"
-            );
-          }
-          rest.find(ctx.PortalUrl, "History", cb);
+          //Need to test but the rest call to check if history exsists doesn';t matter because if you could get this far it does exsist
+          // function cb(error) {
+          //   if (error) {
+          //     console.log(error);
+          //     return;
+          //   }
+          restChat.delete(
+            (props: {
+              id: meatballHistoryItem.id,
+              searchName: "History",
+            })
+          );
+          // }
+          // rest.find((props: { searchName: "History" }), cb);
         }
       }
     });
@@ -1664,9 +1707,24 @@ function startMeatball() {
           return;
         }
         if (newData && newData.ID) {
-          rest.update(newData.ID, currentText, ctx.PortalUrl, "History");
+          rest.item.update(
+            (props: {
+              column: "Message",
+              id: newData.ID,
+              text: currentText,
+              searchName: "History",
+            })
+          );
         } else {
-          rest.update(this.id, currentText, ctx.PortalUrl, "History");
+          var id = this.id;
+          rest.item.update(
+            (props: {
+              column: "Message",
+              id: id,
+              text: currentText,
+              searchName: "History",
+            })
+          );
         }
       } else {
         this.comment.innerText = this.prevComment;
@@ -1845,5 +1903,7 @@ function startMeatball() {
     return Math.floor(Math.random() * 1000);
   }
 
-  start();
+  setTimeout(function () {
+    start();
+  }, 2000);
 }
