@@ -10,6 +10,7 @@ var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
 var ims = {};
 ims.sharepoint = {};
 var requiredScripts = [
+  "chat.js",
   "column.js",
   "list.js",
   "person.js",
@@ -17,8 +18,6 @@ var requiredScripts = [
   "style.js",
   "svg.js",
 ];
-var queryParam =
-  "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '";
 
 function scriptBuilder(url) {
   var script = document.createElement("script");
@@ -38,10 +37,11 @@ function loadScripts() {
     .map(function (script, i) {
       if (i == requiredScripts.length - 1) {
         script.addEventListener("load", function () {
+          ims.sharepoint.chat = chat;
           ims.sharepoint.color = Color;
-          ims.sharepoint.column = Column;
-          ims.sharepoint.list = List;
-          ims.sharepoint.person = Person;
+          ims.sharepoint.column = column;
+          ims.sharepoint.list = list;
+          ims.sharepoint.person = person;
           ims.sharepoint.notification = Pantry;
           ims.sharepoint.style = style;
           startMeatball();
@@ -51,15 +51,7 @@ function loadScripts() {
 }
 loadScripts();
 
-//On change
-window.addEventListener("hashchange", function () {
-  loadScripts();
-});
-
 function startMeatball() {
-  var rest = new ims.sharepoint.list();
-  var restCol = new ims.sharepoint.column();
-  var restPerson = new ims.sharepoint.person();
   var color = new ims.sharepoint.color();
 
   var meatballDefaults = new Defaults();
@@ -110,7 +102,7 @@ function startMeatball() {
   function start() {
     console.log("Meatball Start Function Start");
     if (!window.jQuery) {
-      alert("Please contact help desk.  Script not properly loaded.");
+      alert("Please contact help desk. Script not properly loaded.");
       return;
     }
 
@@ -149,27 +141,31 @@ function startMeatball() {
                   historyListGUID = props.d.Id;
                 }
               }
-              restCol.create(
-                "Status",
-                2,
-                "false",
-                "false",
-                ctx.PortalUrl,
-                "History",
+              ims.sharepoint.column.create(
+                {
+                  colTitle: "Status",
+                  fieldType: 2,
+                  required: "false",
+                  uniqueValue: "false",
+                  searchName: "History",
+                },
+
                 cb
               );
             }
-            restCol.create(
-              "Message",
-              2,
-              "false",
-              "false",
-              ctx.PortalUrl,
-              "History",
+            ims.sharepoint.column.create(
+              {
+                colTitle: "Message",
+                fieldType: 2,
+                required: "false",
+                uniqueValue: "false",
+                searchName: "History",
+              },
+
               cb
             );
           }
-          rest.createList(ctx.PortalUrl, "History", cb);
+          ims.sharepoint.list.create({ searchName: "History" }, cb);
           console.log(error);
           return;
         }
@@ -177,7 +173,7 @@ function startMeatball() {
           historyListGUID = props;
         }
       }
-      rest.find(ctx.PortalUrl, "History", cb);
+      ims.sharepoint.list.find({ searchName: "History" }, cb);
     }
 
     if (userName.length <= 0) {
@@ -187,7 +183,7 @@ function startMeatball() {
         }
         userName = name;
       }
-      restPerson.get(ctx.PortalUrl, cb);
+      ims.sharepoint.person.get(cb);
     }
 
     //Get all the tables -- create array
@@ -230,23 +226,21 @@ function startMeatball() {
       var listId = $table.getAttribute("id").substring(1, 37);
       var listTitle = $table.summary;
       var tableKey = "table" + index4;
-      console.log(listId, listTitle, tableKey, ims)
+      console.log(listId, listTitle, tableKey, ims);
 
       //Step . Fetch choice fields based on list id.
-      ims.sharepoint.list.choiceFields(listId, function (results) {
-        var choiceFields = results.reduce(function (
-          acc,
-          props,
-          index5
-        ) {
+      ims.sharepoint.list.choiceFields({ listId: listId }, function (
+        error,
+        results
+      ) {
+        var choiceFields = results.reduce(function (acc, props, index5) {
           acc[props.InternalName] = {
             choices: props.Choices.results,
             external: props.Title,
             internal: props.InternalName,
           };
           return acc;
-        },
-        {});
+        }, {});
 
         //Step . Break out external name to reference below
         let choiceFieldNames = Object.values(choiceFields).map(function (
@@ -254,7 +248,6 @@ function startMeatball() {
         ) {
           return props.external;
         });
-
 
         //Step . Delete "non-choice" related columns from object.
         for (var colKey in tables[tableKey]) {
@@ -431,9 +424,7 @@ function startMeatball() {
       error: function (error) {
         toast
           .endLoading()
-          .setMessage(
-            listTitle + " - " + externalColumn + " failed to update"
-          )
+          .setMessage(listTitle + " - " + externalColumn + " failed to update")
           .setFailed()
           .setListeners()
           .show();
@@ -489,9 +480,7 @@ function startMeatball() {
     this.$ele.style.padding = "10px";
 
     this.popoverBody = document.createElement("div");
-    this.popoverBody.style.backgroundColor = color.get(
-      defaultBackgroundColor
-    );
+    this.popoverBody.style.backgroundColor = color.get(defaultBackgroundColor);
     this.popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
     this.popoverBody.style.color = color.get(defaultColor);
     this.popoverBody.style.display = "inline-block";
@@ -613,9 +602,7 @@ function startMeatball() {
     );
 
     this.showMore.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = color.get(
-        defaultButtonHoverBackgroundColor
-      );
+      this.style.backgroundColor = color.get(defaultButtonHoverBackgroundColor);
     });
 
     this.showMore.addEventListener("mouseleave", function () {
@@ -722,9 +709,7 @@ function startMeatball() {
                 messageBlock.style.maxWidth = "75%";
                 messageContainer.appendChild(avatarContainer);
                 messageContainer.appendChild(messageBlock);
-                meatballHistoryDisplay.container.appendChild(
-                  messageContainer
-                );
+                meatballHistoryDisplay.container.appendChild(messageContainer);
 
                 //step 3 append each mssg to mssg block
                 return {
@@ -752,15 +737,16 @@ function startMeatball() {
             });
           }
         }
-        rest.get(
-          table,
-          rowIndex,
-          internalColumn,
-          cb,
-          false,
-          ctx.PortalUrl,
-          "History",
-          queryParam
+        ims.sharepoint.chat.getMessage(
+          {
+            table: table,
+            rowIndex: rowIndex,
+            internalColumn: internalColumn,
+            searchName: "History",
+            qs: "'&$expand=Author&$orderby=Created desc&$top=1",
+          },
+
+          cb
         );
       }
       document.body.appendChild(meatballHistoryDisplay.$ele);
@@ -796,15 +782,17 @@ function startMeatball() {
         }
         meatball.setPosition(triangleSize);
       }
-      rest.get(
-        table,
-        rowIndex,
-        internalColumn,
-        cb,
-        true,
-        ctx.PortalUrl,
-        "History",
-        queryParam
+      //should only have one function -- to call one history entry
+      ims.sharepoint.chat.getMessage(
+        {
+          table: table,
+          rowIndex: rowIndex,
+          internalColumn: internalColumn,
+          searchName: "History",
+          qs: "'&$expand=Author&$top=300",
+        },
+
+        cb
       );
       add = true;
       document.body.appendChild(meatball.$ele);
@@ -906,9 +894,7 @@ function startMeatball() {
   };
 
   Meatball.prototype.setColor = function (value) {
-    this.circle.style.backgroundColor = color.get(
-      meatballDefaults.get(value)
-    );
+    this.circle.style.backgroundColor = color.get(meatballDefaults.get(value));
   };
 
   Meatball.prototype.removePopover = function () {
@@ -970,16 +956,12 @@ function startMeatball() {
         if (radio.checked) {
           option.style.backgroundColor = color.get(defaultBackgroundColor);
         } else {
-          option.style.backgroundColor = color.get(
-            defaultHoverBackgroundColor
-          );
+          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
         }
       });
       option.addEventListener("mouseleave", function () {
         if (radio.checked) {
-          option.style.backgroundColor = color.get(
-            defaultHoverBackgroundColor
-          );
+          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
         } else {
           option.style.backgroundColor = color.get(defaultBackgroundColor);
         }
@@ -988,9 +970,7 @@ function startMeatball() {
       panel.options.addEventListener("mousedown", function () {
         [].slice.call(panel.options.children).forEach(function (item) {
           if (item.parentElement.querySelector(":hover") === item) {
-            item.style.backgroundColor = color.get(
-              defaultHoverBackgroundColor
-            );
+            item.style.backgroundColor = color.get(defaultHoverBackgroundColor);
           } else {
             item.style.backgroundColor = color.get(defaultBackgroundColor);
           }
@@ -1000,9 +980,7 @@ function startMeatball() {
       option.addEventListener("mouseup", function () {
         if (!radio.checked) {
           radio.checked = true;
-          option.style.backgroundColor = color.get(
-            defaultHoverBackgroundColor
-          );
+          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
           updateTarget(
             ele,
             rowIndex,
@@ -1017,22 +995,22 @@ function startMeatball() {
           var autoComment = cellText
             ? "Status change: " + cellText + " to " + ele + " by " + userName
             : "Initial Status: " + ele + " by " + userName;
-          rest.makeHistoryEntry(
-            historyListGUID,
-            autoComment,
-            internalColumn,
-            rowIndex,
-            table,
-            true,
-            ctx.PortalUrl,
-            "History",
+          ims.sharepoint.chat.creatMessage(
+            {
+              listId: historyListGUID,
+              message: autoComment,
+              colName: internalColumn,
+              rowId: rowIndex,
+              tableGUID: table,
+              autoBot: true,
+              searchName: "History",
+            },
+
             null
           );
           cellText = ele; //this will change the current value of meatball for the view purposes.
         } else {
-          option.style.backgroundColor = color.get(
-            defaultHoverBackgroundColor
-          );
+          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
         }
       });
 
@@ -1076,9 +1054,7 @@ function startMeatball() {
 
     this.historyPanel = document.createElement("div");
     this.historyPanel.style.alignItems = "stretch";
-    this.historyPanel.style.backgroundColor = color.get(
-      defaultBackgroundColor
-    );
+    this.historyPanel.style.backgroundColor = color.get(defaultBackgroundColor);
     this.historyPanel.style.display = "flex";
     this.historyPanel.style.flexDirection = "column";
     this.historyPanel.style.height = windowHeight + "px";
@@ -1225,9 +1201,7 @@ function startMeatball() {
     });
 
     this.footer = document.createElement("div");
-    this.footer.style.backgroundColor = color.get(
-      defaultHoverBackgroundColor
-    );
+    this.footer.style.backgroundColor = color.get(defaultHoverBackgroundColor);
     this.footer.style.borderRadius = "0.25rem";
     this.footer.style.padding = "0.25rem";
     this.footer.style.display = "flex";
@@ -1422,15 +1396,16 @@ function startMeatball() {
       chatWindow.input.value = "";
     }
 
-    rest.makeHistoryEntry(
-      historyListGUID,
-      this.input.value,
-      internalColumn,
-      rowIndex,
-      table,
-      null,
-      ctx.PortalUrl,
-      "History",
+    ims.sharepoint.chat.chatMessage(
+      {
+        listId: historyListGUID,
+        message: this.input.value,
+        colName: internalColumn,
+        rowId: rowIndex,
+        tableGUID: table,
+        autoBot: false,
+        searchName: "History",
+      },
       cb
     );
 
@@ -1452,7 +1427,7 @@ function startMeatball() {
   function MeatballHistoryMessage(
     historyListGUID,
     table,
-    rowindex,
+    rowIndex,
     internalColumn
   ) {
     var meatballHistoryItem = this;
@@ -1500,9 +1475,7 @@ function startMeatball() {
     this.submit.style.width = "75px";
 
     this.submit.addEventListener("mouseenter", function () {
-      this.style.backgroundColor = color.get(
-        defaultButtonHoverBackgroundColor
-      );
+      this.style.backgroundColor = color.get(defaultButtonHoverBackgroundColor);
     });
 
     this.submit.addEventListener("mouseleave", function () {
@@ -1523,15 +1496,17 @@ function startMeatball() {
             newData
           );
         }
-        rest.makeHistoryEntry(
-          meatballHistoryItem.listGUID,
-          "placeholder",
-          internalColumn,
-          rowindex,
-          table,
-          false,
-          ctx.PortalUrl,
-          "History",
+        ims.sharepoint.chat.createMessage(
+          {
+            listId: meatballHistoryItem.listGUID,
+            message: "placeholder",
+            colName: internalColumn,
+            rowId: rowIndex,
+            tableGUID: table,
+            autoBot: false,
+            searchName: "History",
+          },
+
           cb
         );
       } else {
@@ -1632,19 +1607,18 @@ function startMeatball() {
           meatballHistoryItem.$ele.parentNode.removeChild(
             meatballHistoryItem.$ele
           );
-          function cb(error, listGUID) {
-            if (error) {
-              console.log(error);
-              return;
-            }
-            rest.deleteItem(
-              listGUID,
-              meatballHistoryItem.id,
-              ctx.PortalUrl,
-              "History"
-            );
-          }
-          rest.find(ctx.PortalUrl, "History", cb);
+          //Need to test but the rest call to check if history exsists doesn';t matter because if you could get this far it does exsist
+          // function cb(error) {
+          //   if (error) {
+          //     console.log(error);
+          //     return;
+          //   }
+          ims.sharepoint.chat.delete({
+            id: meatballHistoryItem.id,
+            searchName: "History",
+          });
+          // }
+          // rest.find((props: { searchName: "History" }), cb);
         }
       }
     });
@@ -1730,9 +1704,20 @@ function startMeatball() {
           return;
         }
         if (newData && newData.ID) {
-          rest.update(newData.ID, currentText, ctx.PortalUrl, "History");
+          ims.sharepoint.list.item.update({
+            column: "Message",
+            id: newData.ID,
+            text: currentText,
+            searchName: "History",
+          });
         } else {
-          rest.update(this.id, currentText, ctx.PortalUrl, "History");
+          var id = this.id;
+          ims.sharepoint.list.item.update({
+            column: "Message",
+            id: id,
+            text: currentText,
+            searchName: "History",
+          });
         }
       } else {
         this.comment.innerText = this.prevComment;
@@ -1742,9 +1727,7 @@ function startMeatball() {
       this.comment.style.backgroundColor = color.get(
         defaultButtonBackgroundColor
       );
-      this.$ele.style.backgroundColor = color.get(
-        defaultButtonBackgroundColor
-      );
+      this.$ele.style.backgroundColor = color.get(defaultButtonBackgroundColor);
       this.$ele.style.color = color.get(defaultColor);
 
       if (this.btnContainer.parentNode) {
@@ -1771,9 +1754,7 @@ function startMeatball() {
   MeatballHistoryMessage.prototype.setType = function (author) {
     if (this.author.innerText.indexOf(author) > -1) {
       this.$ele.type = "editable";
-      this.$ele.style.backgroundColor = color.get(
-        defaultButtonBackgroundColor
-      );
+      this.$ele.style.backgroundColor = color.get(defaultButtonBackgroundColor);
       this.$ele.style.color = color.get(defaultColor);
     } else {
       this.$ele.type = "disabled";
@@ -1898,9 +1879,7 @@ function startMeatball() {
     if (s0.length === s1.length) {
       return containsString(s0, s1);
     }
-    return (
-      s1.slice(0, s0.length).toLowerCase().indexOf(s0.toLowerCase()) > -1
-    );
+    return s1.slice(0, s0.length).toLowerCase().indexOf(s0.toLowerCase()) > -1;
   }
 
   /*Checks to see if s0 contains to s1*/
@@ -1921,4 +1900,3 @@ function startMeatball() {
     start();
   }, 2000);
 }
-})();

@@ -1,212 +1,121 @@
-function List() {}
+var list = {
+  //this is meant for the subsite or the page you're already on
+  choiceFields: function (props, cb) {
+    var listType = props.listId ? "lists" : "getbytitle";
+    var listName = props.listId ? props.listId : props.listName;
+    $.ajax({
+      url:
+        ctx.HttpRoot +
+        "/_api/web/" +
+        listType +
+        "('" +
+        listName +
+        "')/fields?$filter=TypeDisplayName eq 'Choice'",
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        cb(null, data.d.results);
+      },
+      error: function (e) {
+        console.error(e);
+        cb(null, []);
+      },
+    });
+  },
+  find: function (props, cb) {
+    var url =
+      ctx.PortalUrl + "_api/web/lists/getbytitle('" + props.searchName + "')";
 
-List.prototype.get = function (
-  table,
-  rowIndex,
-  internalColumn,
-  cb,
-  init,
-  path,
-  searchName,
-  queryParam
-) {
-  var url = "";
-  init
-    ? (url =
-        path +
-        "_api/web/lists/getbytitle('" +
-        searchName +
-        queryParam +
-        table +
-        " - " +
-        rowIndex +
-        " - " +
-        internalColumn +
-        "'&$expand=Author&$orderby=Created desc&$top=1")
-    : (url =
-        path +
-        "_api/web/lists/getbytitle('" +
-        searchName +
-        queryParam +
-        table +
-        " - " +
-        rowIndex +
-        " - " +
-        internalColumn +
-        "'&$expand=Author&$top=200");
+    $.ajax({
+      url: url,
+      type: "GET",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        cb(null, data.d);
+      },
+      error: function (error) {
+        cb(error, null);
+      },
+    });
+  },
+  create: function (props, cb) {
+    var data = {
+      __metadata: { type: "SP.List" },
+      AllowContentTypes: true,
+      BaseTemplate: 100,
+      ContentTypesEnabled: true,
+      Title: name,
+    };
+    var url = ctx.PortalUrl + "/_api/web/lists";
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+      },
+      success: function (data) {
+        cb(null, data);
+      },
+      error: function (error) {
+        cb(error, null);
+      },
+    });
+  },
+  //back burner - move to item
+  update: {},
+  //back burner - deleteing an entire list...
+  delete: {},
+  item: {
+    //back burner
+    create: {},
+    update: function (props, cb) {
+      var data = {
+        __metadata: { type: "SP.ListItem" },
+      };
+      data[props.column] = props.text;
 
-  $.ajax({
-    url: url,
-    type: "GET",
-    headers: {
-      Accept: "application/json; odata=verbose",
-      "Content-Type": "application/json;odata=verbose",
-      credentials: true,
-      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-    },
-    success: function (res) {
-      var data = res.d.results.map(function (item) {
-        item.Author =
-          item.Status === "Automated Message" ? "AutoBot" : item.Author.Title;
-        return item;
+      var url =
+        ctx.PortalUrl +
+        "_api/web/lists/getbytitle('" +
+        props.searchName +
+        "')/items(" +
+        props.id +
+        ")";
+
+      $.ajax({
+        url: url,
+        type: "POST",
+        data: JSON.stringify(data),
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+          "X-HTTP-Method": "MERGE",
+          "IF-MATCH": "*",
+        },
+        success: function (data) {
+          return false;
+        },
+        error: function (error) {
+          console.log("History entry update failed:", error);
+        },
       });
-
-      cb(null, data);
     },
-    error: function (error) {
-      cb(error, null);
-    },
-  });
-};
-
-List.prototype.createList = function (path, name, cb) {
-  var data = {
-    __metadata: { type: "SP.List" },
-    AllowContentTypes: true,
-    BaseTemplate: 100,
-    ContentTypesEnabled: true,
-    Title: name,
-  };
-
-  //60% of the time "ctx.PortalUrl" works every time
-  var url = path + "/_api/web/lists";
-
-  $.ajax({
-    url: url,
-    type: "POST",
-    data: JSON.stringify(data),
-    headers: {
-      Accept: "application/json; odata=verbose",
-      "Content-Type": "application/json;odata=verbose",
-      credentials: true,
-      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-    },
-    success: function (data) {
-      cb(null, data);
-      return false;
-    },
-    error: function (error) {
-      cb(error, null);
-      console.log("History list creation failed:", error);
-    },
-  });
-};
-
-List.prototype.update = function (id, message, path, searchName) {
-  var data = {
-    __metadata: { type: "SP.ListItem" },
-    Message: message,
-  };
-
-  var url =
-    path + "_api/web/lists/getbytitle('" + searchName + "')/items(" + id + ")";
-
-  $.ajax({
-    url: url,
-    type: "POST",
-    data: JSON.stringify(data),
-    headers: {
-      Accept: "application/json; odata=verbose",
-      "Content-Type": "application/json;odata=verbose",
-      credentials: true,
-      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      "X-HTTP-Method": "MERGE",
-      "IF-MATCH": "*",
-    },
-    success: function (data) {
-      return false;
-    },
-    error: function (error) {
-      console.log("History entry update failed:", error);
-    },
-  });
-};
-
-List.prototype.deleteItem = function (listId, id, path, searchName) {
-  var url =
-    path + "_api/web/lists/getbytitle('" + searchName + "')/items(" + id + ")";
-
-  $.ajax({
-    url: url,
-    type: "DELETE",
-    headers: {
-      Accept: "application/json; odata=verbose",
-      "Content-Type": "application/json;odata=verbose",
-      credentials: true,
-      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      "IF-MATCH": "*",
-    },
-    success: function (data) {
-      return false;
-    },
-    error: function (error) {
-      console.log("History entry deletion failed:", error);
-    },
-  });
-};
-
-//will find a list by name
-List.prototype.find = function (path, searchName, cb) {
-  var url = path + "_api/web/lists/getbytitle('" + searchName + "')";
-
-  $.ajax({
-    url: url,
-    type: "GET",
-    headers: {
-      Accept: "application/json; odata=verbose",
-      "Content-Type": "application/json;odata=verbose",
-      credentials: true,
-      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-    },
-    success: function (data) {
-      cb(null, data.d.Id);
-      return false;
-    },
-    error: function (error) {
-      console.log("Error in the findHistoryChat:", error);
-      cb(error, null);
-    },
-  });
-};
-
-List.prototype.makeHistoryEntry = function (
-  listId,
-  message,
-  colName,
-  rowId,
-  tableGUID,
-  autoBot,
-  path,
-  searchName,
-  cb
-) {
-  var data = {
-    __metadata: { type: "SP.ListItem" },
-    Message: message,
-    Title: tableGUID + " - " + rowId + " - " + colName,
-    Status: autoBot ? "Automated Message" : "User Generated",
-  };
-
-  var url = path + "_api/web/lists/getbytitle('" + searchName + "')/items ";
-  $.ajax({
-    url: url,
-    type: "POST",
-    data: JSON.stringify(data),
-    headers: {
-      Accept: "application/json; odata=verbose",
-      "Content-Type": "application/json;odata=verbose",
-      credentials: true,
-      "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-    },
-    success: function (data) {
-      if (autoBot) {
-        return false;
-      }
-      cb(null, data.d);
-      return false;
-    },
-    error: function (error) {
-      cb(error, null);
-    },
-  });
+    delete: {},
+  },
 };
