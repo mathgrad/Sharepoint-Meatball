@@ -41,7 +41,7 @@ function loadScripts() {
           ims.sharepoint.color = Color;
           ims.sharepoint.column = column;
           ims.sharepoint.list = list;
-          ims.sharepoint.person = Person;
+          ims.sharepoint.person = person;
           ims.sharepoint.notification = Pantry;
           ims.sharepoint.style = style;
           startMeatball();
@@ -52,10 +52,6 @@ function loadScripts() {
 loadScripts();
 
 function startMeatball() {
-  var rest = new ims.sharepoint.list();
-  var restChat = new ims.sharepoint.chat();
-  var restCol = new ims.sharepoint.column();
-  var restPerson = new ims.sharepoint.person();
   var color = new ims.sharepoint.color();
 
   var meatballDefaults = new Defaults();
@@ -145,29 +141,31 @@ function startMeatball() {
                   historyListGUID = props.d.Id;
                 }
               }
-              restCol.create(
-                (props: {
+              ims.sharepoint.column.create(
+                {
                   colTitle: "Status",
                   fieldType: 2,
                   required: "false",
                   uniqueValue: "false",
                   searchName: "History",
-                }),
+                },
+
                 cb
               );
             }
-            restCol.create(
-              (props: {
+            ims.sharepoint.column.create(
+              {
                 colTitle: "Message",
                 fieldType: 2,
                 required: "false",
                 uniqueValue: "false",
                 searchName: "History",
-              }),
+              },
+
               cb
             );
           }
-          rest.create((props: { searchName: "History" }), cb);
+          ims.sharepoint.list.create({ searchName: "History" }, cb);
           console.log(error);
           return;
         }
@@ -175,7 +173,7 @@ function startMeatball() {
           historyListGUID = props;
         }
       }
-      rest.find((props: { searchName: "History" }), cb);
+      ims.sharepoint.list.find({ searchName: "History" }, cb);
     }
 
     if (userName.length <= 0) {
@@ -185,7 +183,7 @@ function startMeatball() {
         }
         userName = name;
       }
-      restPerson.get(cb);
+      ims.sharepoint.person.get(cb);
     }
 
     //Get all the tables -- create array
@@ -231,7 +229,10 @@ function startMeatball() {
       console.log(listId, listTitle, tableKey, ims);
 
       //Step . Fetch choice fields based on list id.
-      ims.sharepoint.list.choiceFields(listId, function (results) {
+      ims.sharepoint.list.choiceFields({ listId: listId }, function (
+        error,
+        results
+      ) {
         var choiceFields = results.reduce(function (acc, props, index5) {
           acc[props.InternalName] = {
             choices: props.Choices.results,
@@ -736,16 +737,15 @@ function startMeatball() {
             });
           }
         }
-        restChat.getMessage(
+        ims.sharepoint.chat.getMessage(
           {
-            props: {
-              table: table,
-              rowIndex: rowIndex,
-              internalColumn: internalColumn,
-              searchName: "History",
-              qs: "'&$expand=Author&$orderby=Created desc&$top=1",
-            },
+            table: table,
+            rowIndex: rowIndex,
+            internalColumn: internalColumn,
+            searchName: "History",
+            qs: "'&$expand=Author&$orderby=Created desc&$top=1",
           },
+
           cb
         );
       }
@@ -783,16 +783,15 @@ function startMeatball() {
         meatball.setPosition(triangleSize);
       }
       //should only have one function -- to call one history entry
-      restChat.getMessage(
+      ims.sharepoint.chat.getMessage(
         {
-          props: {
-            table: table,
-            rowIndex: rowIndex,
-            internalColumn: internalColumn,
-            searchName: "History",
-            qs: "'&$expand=Author&$top=300",
-          },
+          table: table,
+          rowIndex: rowIndex,
+          internalColumn: internalColumn,
+          searchName: "History",
+          qs: "'&$expand=Author&$top=300",
         },
+
         cb
       );
       add = true;
@@ -996,18 +995,17 @@ function startMeatball() {
           var autoComment = cellText
             ? "Status change: " + cellText + " to " + ele + " by " + userName
             : "Initial Status: " + ele + " by " + userName;
-          restChat.creatMessage(
+          ims.sharepoint.chat.creatMessage(
             {
-              props: {
-                listId: historyListGUID,
-                message: autoComment,
-                colName: internalColumn,
-                rowId: rowIndex,
-                tableGUID: table,
-                autoBot: true,
-                searchName: "History",
-              },
+              listId: historyListGUID,
+              message: autoComment,
+              colName: internalColumn,
+              rowId: rowIndex,
+              tableGUID: table,
+              autoBot: true,
+              searchName: "History",
             },
+
             null
           );
           cellText = ele; //this will change the current value of meatball for the view purposes.
@@ -1398,8 +1396,8 @@ function startMeatball() {
       chatWindow.input.value = "";
     }
 
-    restChat.chatMessage({
-      props: {
+    ims.sharepoint.chat.chatMessage(
+      {
         listId: historyListGUID,
         message: this.input.value,
         colName: internalColumn,
@@ -1408,8 +1406,8 @@ function startMeatball() {
         autoBot: false,
         searchName: "History",
       },
-      cb,
-    });
+      cb
+    );
 
     return this;
   };
@@ -1498,8 +1496,8 @@ function startMeatball() {
             newData
           );
         }
-        restChat.createMessage(
-          (props: {
+        ims.sharepoint.chat.createMessage(
+          {
             listId: meatballHistoryItem.listGUID,
             message: "placeholder",
             colName: internalColumn,
@@ -1507,7 +1505,8 @@ function startMeatball() {
             tableGUID: table,
             autoBot: false,
             searchName: "History",
-          }),
+          },
+
           cb
         );
       } else {
@@ -1614,12 +1613,10 @@ function startMeatball() {
           //     console.log(error);
           //     return;
           //   }
-          restChat.delete(
-            (props: {
-              id: meatballHistoryItem.id,
-              searchName: "History",
-            })
-          );
+          ims.sharepoint.chat.delete({
+            id: meatballHistoryItem.id,
+            searchName: "History",
+          });
           // }
           // rest.find((props: { searchName: "History" }), cb);
         }
@@ -1707,24 +1704,20 @@ function startMeatball() {
           return;
         }
         if (newData && newData.ID) {
-          rest.item.update(
-            (props: {
-              column: "Message",
-              id: newData.ID,
-              text: currentText,
-              searchName: "History",
-            })
-          );
+          ims.sharepoint.list.item.update({
+            column: "Message",
+            id: newData.ID,
+            text: currentText,
+            searchName: "History",
+          });
         } else {
           var id = this.id;
-          rest.item.update(
-            (props: {
-              column: "Message",
-              id: id,
-              text: currentText,
-              searchName: "History",
-            })
-          );
+          ims.sharepoint.list.item.update({
+            column: "Message",
+            id: id,
+            text: currentText,
+            searchName: "History",
+          });
         }
       } else {
         this.comment.innerText = this.prevComment;

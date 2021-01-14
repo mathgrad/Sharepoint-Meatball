@@ -1,12 +1,13 @@
 var list = {
+  //this is meant for the subsite or the page you're already on
   choiceFields: function (props, cb) {
     var listType = props.listId ? "lists" : "getbytitle";
     var listName = props.listId ? props.listId : props.listName;
     $.ajax({
       url:
-        ctx.PortalUrl +
+        ctx.HttpRoot +
         "/_api/web/" +
-        props.listType +
+        listType +
         "('" +
         listName +
         "')/fields?$filter=TypeDisplayName eq 'Choice'",
