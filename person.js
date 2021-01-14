@@ -1,7 +1,8 @@
 function Person() {}
 
-Person.prototype.get = function (path, cb) {
-  var url = path + "/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
+Person.prototype.get = function (cb) {
+  var url =
+    ctx.PortalUrl + "/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
   $.ajax({
     url: url,
     type: "GET",
@@ -13,7 +14,6 @@ Person.prototype.get = function (path, cb) {
     },
     success: function (data) {
       cb(null, data.d.DisplayName);
-      return false;
     },
     error: function (error) {
       cb(error, null);
