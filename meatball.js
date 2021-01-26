@@ -100,7 +100,6 @@ function startMeatball() {
   document.getElementsByTagName("head")[0].appendChild(style);
 
   function start() {
-    console.log("Meatball Start Function Start");
     if (!window.jQuery) {
       alert("Please contact help desk. Script not properly loaded.");
       return;
@@ -202,7 +201,6 @@ function startMeatball() {
           return $th.innerText;
         });
       var $rows = [].slice.call($tbody.children);
-      //console.log("Elements of Table before filter: \n", $tcells, $rows);
 
       //Step b. Build table object.
       r["table" + index1] = $rows.reduce(function (r2, $row) {
@@ -211,6 +209,7 @@ function startMeatball() {
           if (!r2[colKey]) {
             r2[colKey] = [];
           }
+          $cell.iid = $row.getAttribute("iid").split(",")[1];
           r2[colKey].push($cell);
         });
 
@@ -219,14 +218,12 @@ function startMeatball() {
 
       return r;
     }, []);
-    console.log("Tables reorganized function: \n", organizedTables);
 
     //Grabbing the list url + Iterate through the set of tables
     tables.forEach(function ($table, index4) {
       var listId = $table.getAttribute("id").substring(1, 37);
       var listTitle = $table.summary;
       var tableKey = "table" + index4;
-      console.log(listId, listTitle, tableKey, ims);
 
       //Step . Fetch choice fields based on list id.
       ims.sharepoint.list.choiceFields({ listId: listId }, function (
@@ -255,7 +252,6 @@ function startMeatball() {
             delete tables[colKey];
           }
         }
-        console.log("Choice Fields: ", tables);
 
         var findChoiceField = function (externalName) {
           var match = Object.values(choiceFields).filter(function (props) {
@@ -263,21 +259,33 @@ function startMeatball() {
           });
           return match.length ? match[0] : false;
         };
-
+        //Step . Grab row title
+        var rowTitles = Object.keys(organizedTables[tableKey]);
+        //First column contains the row titles
+        rowTitles = organizedTables[tableKey][rowTitles[1]];
         //Step . For each remaining $cell, convert to meatball.
-        for (var colKey2 in tables[tableKey]) {
-          tables[tableKey][colKey2].forEach(function ($cell) {
+        for (var colKey2 in organizedTables[tableKey]) {
+          organizedTables[tableKey][colKey2].forEach(function ($cell, ci) {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
-            console.log("Choices Props: ", choiceProps);
-            /*
-              Should look like this = {
-                $el: $cell,
-                choices: [],
-                external: "Change Column Name...",
-                internal: "Title",
-              }
-            */
+            choiceProps.rowTitle = rowTitles[ci].innerText;
+            choiceProps.iid = $cell.iid;
+            // choiceProps.rowTitle = organizedTables[]
+            if (choiceProps) {
+              var meatball = new Meatball();
+              meatball.init(
+                choiceProps.choices,
+                choiceProps.external,
+                choiceProps.internal,
+                $cell,
+                $cell.iid,
+                listId,
+                $cell.innerText,
+                choiceProps.rowTitle + ": " + choiceProps.external,
+                listTitle,
+                "200px"
+              );
+            }
 
             //Step B. Build Meatball with these options.
             //var props = Object.assign(choiceProps, { $el: $cell });
@@ -289,93 +297,11 @@ function startMeatball() {
     });
   }
 
-  //Finds cells with known default values and replaces them with meatballs
-  function findTargets(
-    $table,
-    values,
-    externalColumn,
-    internalColumn,
-    listTitle
-  ) {
-    if (!$table || $table.childNodes.length === 0) {
-      return;
-    }
-    //Iterate over each cell and compare the inner text to the list of known defaults.
-    var $rows = [].slice.call($table.getElementsByTagName("tr"));
-    var $thead = [].slice.call($table.getElementsByTagName("th"));
-    var displayValue;
-    var text = "";
-    //var add = false;
-    $rows.map(function ($row, ri) {
-      var itemId = $row.id.split(",")[1];
-      displayValue = "";
-
-      var $cells = [].slice.call($row.getElementsByTagName("td"));
-
-      //if ($cells.length > 0) {
-      //this checks if the cell contains the text which is in user choices, selects that cell to add the meatball and popover
-      $cells.forEach(function ($cell, ci) {
-        //Comparing the thead (internal name) with the external name
-        add = false;
-        text = "";
-
-        // $thead.slice
-        //   .call($thead[ci].children)
-        //   .slice(1, -1)
-        //   .forEach(function ($th, i) {
-        //     $th.addEventListener("click", start());
-        //   });
-        //if ($thead[ci]) {
-        [].slice.call($thead[ci].children).forEach(function ($th, ti) {
-          if (add) {
-            return;
-          }
-          [].slice.call($th.children).forEach(function (item, tci) {
-            if (add) {
-              return;
-            }
-
-            if (item.innerText) {
-              add = compareString(externalColumn, item.innerText);
-            }
-          });
-        });
-        //}
-
-        if (add && $table.getAttribute("id") && $row.getAttribute("iid")) {
-          displayValue = $row.childNodes[1].innerText + ": " + externalColumn;
-
-          if (displayValue) {
-            text = $cell.innerText;
-            console.log("Meatball Init Function Start");
-            var mt = new Meatball();
-            mt.init(
-              values,
-              externalColumn,
-              internalColumn,
-              $cell,
-              $row.getAttribute("iid").split(",")[1],
-              $thead[ci],
-              $table.getAttribute("id").substring(1, 37),
-              text,
-              displayValue,
-              listTitle,
-              "200px"
-            );
-            console.log("Meatball Init Function End");
-          }
-        }
-      });
-      //}
-    });
-  }
-
   //Update target's value to user's selected value
   function updateTarget(
     ele,
     rowIndex,
     meatball,
-    header,
     table,
     externalColumn,
     internalColumn,
@@ -453,14 +379,12 @@ function startMeatball() {
     internalColumn,
     parent,
     rowIndex,
-    thead,
     table,
     cellText,
     value,
     listTitle,
     panelWidth
   ) {
-    console.log("Inside Meatball Init Function Start");
     var meatball = this;
     var triangleSize = 10;
     var meatballHistoryDisplay = new MeatballHistory(
@@ -522,7 +446,6 @@ function startMeatball() {
       defaults,
       rowIndex,
       meatball,
-      thead.innerText,
       table,
       externalColumn,
       internalColumn,
@@ -815,8 +738,6 @@ function startMeatball() {
     });
     parent.innerText = "";
     parent.appendChild(this.circle);
-    console.log(typeof parent);
-    console.log("Inside Meatball Init Function End");
   };
 
   Meatball.prototype.setPosition = function (triangleSize) {
@@ -916,7 +837,6 @@ function startMeatball() {
     defaults,
     rowIndex,
     meatball,
-    thead,
     table,
     externalColumn,
     internalColumn,
@@ -985,7 +905,6 @@ function startMeatball() {
             ele,
             rowIndex,
             meatball,
-            thead,
             table,
             externalColumn,
             internalColumn,
@@ -995,7 +914,7 @@ function startMeatball() {
           var autoComment = cellText
             ? "Status change: " + cellText + " to " + ele + " by " + userName
             : "Initial Status: " + ele + " by " + userName;
-          ims.sharepoint.chat.creatMessage(
+          ims.sharepoint.chat.createMessage(
             {
               listId: historyListGUID,
               message: autoComment,
@@ -1396,7 +1315,7 @@ function startMeatball() {
       chatWindow.input.value = "";
     }
 
-    ims.sharepoint.chat.chatMessage(
+    ims.sharepoint.chat.createMessage(
       {
         listId: historyListGUID,
         message: this.input.value,
