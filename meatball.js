@@ -287,6 +287,36 @@ function startMeatball() {
               );
             }
 
+            /*
+              $cell,
+              choiceProps{
+                choices: [],
+                external: externalColumnName,
+                internal: internalColumnName
+              }
+              var meatball = new Meatball();
+              meatball.init(
+              choiceProps.choices,
+              choiceProps.external,
+              choiceProps.internal,
+              $cell,
+              iid?,
+              listId,
+              $cell.innerText,
+              choiceProps.rowTitle + ": " + choiceProps.external,
+              listTitle,
+              "200px"
+            )
+            */
+            /*
+              Should look like this = {
+                $el: $cell,
+                choices: [],
+                external: "Change Column Name...",
+                internal: "Title",
+              }
+            */
+
             //Step B. Build Meatball with these options.
             //var props = Object.assign(choiceProps, { $el: $cell });
             //var mb = new Meatball(props);
@@ -462,16 +492,6 @@ function startMeatball() {
       "1pt solid " + color.get(defaultHoverBackgroundColor);
 
     this.popover.appendChild(this.divider1);
-
-    //Add Click Event to display Options Panel
-    this.header.addEventListener("click", function () {
-      var style = meatball.options.style.display;
-      var change = false;
-      change = style === "block";
-      change
-        ? (meatball.options.style.display = "none")
-        : (meatball.options.style.display = "block");
-    });
 
     this.popoverBody.appendChild(this.carret);
     this.popoverBody.appendChild(this.popover);
@@ -666,7 +686,7 @@ function startMeatball() {
             rowIndex: rowIndex,
             internalColumn: internalColumn,
             searchName: "History",
-            qs: "'&$expand=Author&$orderby=Created desc&$top=1",
+            qs: "'&$expand=Author&$top=300",
           },
 
           cb
@@ -712,9 +732,8 @@ function startMeatball() {
           rowIndex: rowIndex,
           internalColumn: internalColumn,
           searchName: "History",
-          qs: "'&$expand=Author&$top=300",
+          qs: "'&$expand=Author&$orderby=Created desc&$top=1",
         },
-
         cb
       );
       add = true;
@@ -911,9 +930,17 @@ function startMeatball() {
             listTitle
           );
 
+          function cb(error, data) {
+            if (error) {
+              console.log(error);
+              return;
+            }
+          }
+
           var autoComment = cellText
             ? "Status change: " + cellText + " to " + ele + " by " + userName
             : "Initial Status: " + ele + " by " + userName;
+
           ims.sharepoint.chat.createMessage(
             {
               listId: historyListGUID,
@@ -924,8 +951,7 @@ function startMeatball() {
               autoBot: true,
               searchName: "History",
             },
-
-            null
+            cb
           );
           cellText = ele; //this will change the current value of meatball for the view purposes.
         } else {
@@ -1256,6 +1282,7 @@ function startMeatball() {
     function cb(error, data) {
       if (error) {
         console.log(error);
+        return;
       }
       var item = new MeatballHistoryMessage(
         historyListGUID,

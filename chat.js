@@ -8,7 +8,7 @@ var chat = {
       Status: props.autoBot ? "Automated Message" : "User Generated",
     };
     var url =
-      ctx.Portal +
+      ctx.PortalUrl +
       "_api/web/lists/getbytitle('" +
       props.searchName +
       "')/items ";
