@@ -14,19 +14,24 @@ var requiredScripts = [
   "column.js",
 
   "person.js",
+  "polyfill.js",
   "notification.js",
   "style.js",
   "svg.js",
 ];
 
 function scriptBuilder(url) {
-  var script = document.createElement("script");
-  script.type = "text/javascript";
-  script.src = baseUrl + url;
-  script.defer = true;
-  script.async = false;
-  document.body.appendChild(script);
-  return script;
+  var run = url === "polyfill.js" ? !Object.hasOwnProperty("values") : true;
+
+  if (run) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = baseUrl + url;
+    script.defer = true;
+    script.async = false;
+    document.body.appendChild(script);
+    return script;
+  }
 }
 
 function loadScripts() {
