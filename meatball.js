@@ -14,19 +14,24 @@ var requiredScripts = [
   "column.js",
   "list.js",
   "person.js",
+  "polyfill.js",
   "notification.js",
   "style.js",
   "svg.js",
 ];
 
 function scriptBuilder(url) {
-  var script = document.createElement("script");
-  script.type = "text/javascript";
-  script.src = baseUrl + url;
-  script.defer = true;
-  script.async = false;
-  document.body.appendChild(script);
-  return script;
+  var run = url === "polyfill.js" ? !Object.hasOwnProperty("values") : true;
+
+  if (run) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = baseUrl + url;
+    script.defer = true;
+    script.async = false;
+    document.body.appendChild(script);
+    return script;
+  }
 }
 
 function loadScripts() {
@@ -278,56 +283,7 @@ function startMeatball() {
               var props = Object.assign(choiceProps, { $el: $cell });
               var mb = new Meatball();
               mb.init(props);
-
-              //mb.build().replace().listeners()
-
-              // choiceProps.rowTitle = organizedTables[] //already commented out
-              //old init meatball
-              // if (choiceProps) {
-              //   var meatball = new Meatball();
-              //   meatball.init(
-              //     choiceProps.choices,
-              //     choiceProps.external,
-              //     choiceProps.internal,
-              //     $cell,
-              //     $cell.iid,
-              //     listId,
-              //     $el.innerText,
-              //     choiceProps.rowTitle + ": " + choiceProps.external, //
-              //     listTitle,
-              //     "200px"//
-              //   );
-              // }
             }
-            /*
-              $cell,
-              choiceProps{
-                choices: [],
-                external: externalColumnName,
-                internal: internalColumnName
-              }
-              var meatball = new Meatball();
-              meatball.init(
-              choiceProps.choices,
-              choiceProps.external,
-              choiceProps.internal,
-              $cell,
-              iid?,
-              listId,
-              $el.innerText,
-              choiceProps.rowTitle + ": " + choiceProps.external,
-              listTitle,
-              "200px"
-            )
-            */
-            /*
-              Should look like this = {
-                $el: $cell,
-                choices: [],
-                external: "Change Column Name...",
-                internal: "Title",
-              }
-            */
           });
         }
       });
