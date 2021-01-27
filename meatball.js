@@ -268,60 +268,17 @@ function startMeatball() {
           organizedTables[tableKey][colKey2].forEach(function ($cell, ci) {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
-
-            if (choiceProps) {
+            if (rowTitles[ci] && choiceProps) {
               choiceProps.rowTitle = rowTitles[ci].innerText;
               choiceProps.iid = $cell.iid;
-              // choiceProps.rowTitle = organizedTables[]
-              var meatball = new Meatball();
-              meatball.init(
-                choiceProps.choices,
-                choiceProps.external,
-                choiceProps.internal,
-                $cell,
-                $cell.iid,
-                listId,
-                $cell.innerText,
-                choiceProps.rowTitle + ": " + choiceProps.external,
-                listTitle,
-                "200px"
-              );
+              choiceProps.listId = listId;
+              choiceProps.listTitle = listTitle;
+
+              //Step B. Build Meatball with these options.
+              var props = Object.assign(choiceProps, { $el: $cell });
+              var mb = new Meatball();
+              mb.init(props);
             }
-
-            /*
-              $cell,
-              choiceProps{
-                choices: [],
-                external: externalColumnName,
-                internal: internalColumnName
-              }
-              var meatball = new Meatball();
-              meatball.init(
-              choiceProps.choices,
-              choiceProps.external,
-              choiceProps.internal,
-              $cell,
-              iid?,
-              listId,
-              $cell.innerText,
-              choiceProps.rowTitle + ": " + choiceProps.external,
-              listTitle,
-              "200px"
-            )
-            */
-            /*
-              Should look like this = {
-                $el: $cell,
-                choices: [],
-                external: "Change Column Name...",
-                internal: "Title",
-              }
-            */
-
-            //Step B. Build Meatball with these options.
-            //var props = Object.assign(choiceProps, { $el: $cell });
-            //var mb = new Meatball(props);
-            //mb.build().replace().listeners()
           });
         }
       });
@@ -330,13 +287,14 @@ function startMeatball() {
 
   //Update target's value to user's selected value
   function updateTarget(
-    ele,
-    rowIndex,
-    meatball,
-    table,
-    externalColumn,
-    internalColumn,
-    listTitle
+    props,
+    ele
+    // rowIndex,
+    // meatball,
+    // table,
+    // externalColumn,
+    // internalColumn,
+    // listTitle
   ) {
     var data = {
       __metadata: { type: "SP.ListItem" },
@@ -345,11 +303,11 @@ function startMeatball() {
     var url =
       ctx.HttpRoot +
       "/_api/web/lists('" +
-      table +
+      props.listId +
       "')/items(" +
-      rowIndex +
+      props.iid +
       ")?$select=" +
-      internalColumn;
+      props.internal;
     meatball.removePopover();
     var toast = new Toast().startLoading().show();
     kitchen.show(toast);
@@ -370,7 +328,7 @@ function startMeatball() {
         toast
           .endLoading()
           .setMessage(
-            listTitle + " - " + externalColumn + " updated successfully"
+            props.listTitle + " - " + props.external + " updated successfully"
           )
           .setSuccess()
           .setListeners()
@@ -381,7 +339,9 @@ function startMeatball() {
       error: function (error) {
         toast
           .endLoading()
-          .setMessage(listTitle + " - " + externalColumn + " failed to update")
+          .setMessage(
+            props.listTitle + " - " + props.external + " failed to update"
+          )
           .setFailed()
           .setListeners()
           .show();
@@ -405,27 +365,30 @@ function startMeatball() {
   }
 
   Meatball.prototype.init = function (
-    defaults,
-    externalColumn,
-    internalColumn,
-    parent,
-    rowIndex,
-    table,
-    cellText,
-    value,
-    listTitle,
-    panelWidth
+    props
+    // defaults,          //props.choices
+    // externalColumn,    //props.external
+    // internalColumn,    //props.internal
+    // parent,            //props.$el
+    // rowIndex,          //props.iid
+    // table,             //props.listId
+    // cellText,          //props.$el.innerText
+    // value,             //NOT PASSED
+    // listTitle,         //props.listTitle
+    // panelWidth         //NOT PASSED
   ) {
+    console.log("Props:", props);
     var meatball = this;
     var triangleSize = 10;
     var meatballHistoryDisplay = new MeatballHistory(
-      table,
-      rowIndex,
-      internalColumn,
-      value
+      props
+      // table,           //props.listId
+      // rowIndex,        //props.iid
+      // internalColumn,  //props.internalColumn
+      // value            //the concatenation choiceProps.rowTitle + ": " + choiceProps.external,
     );
     meatballHistoryDisplay.listGUID = historyListGUID;
-
+    var cellText = props.$el.innerText; //pierre added
     this.circle.style.backgroundColor = color.get(
       meatballDefaults.get(cellText)
     );
@@ -441,7 +404,7 @@ function startMeatball() {
     this.popoverBody.style.display = "inline-block";
     this.popoverBody.style.margin = "0px";
     this.popoverBody.style.padding = "0px";
-    this.popoverBody.style.width = panelWidth;
+    this.popoverBody.style.width = "200px";
 
     this.carret = document.createElement("div");
     this.carret.setAttribute(
@@ -462,7 +425,7 @@ function startMeatball() {
 
     //Create Header Element
     this.header = document.createElement("div");
-    this.header.innerText = value;
+    this.header.innerText = props.rowTitle + ": " + props.external;
     this.header.style.marginBottom = ".25rem";
     this.header.style.padding = ".25rem";
     this.header.style.textAlign = "center";
@@ -473,17 +436,16 @@ function startMeatball() {
 
     //Create Options Panel Object
     this.options = new OptionPanel();
-    this.options.create(
-      defaults,
-      rowIndex,
-      meatball,
-      table,
-      externalColumn,
-      internalColumn,
-      cellText,
-      listTitle,
-      meatballHistoryDisplay
-    );
+    this.options.create(props, meatballHistoryDisplay);
+    // defaults,                //props.choices
+    // rowIndex,                //props.iid
+    // meatball,                //props.$cell
+    // table,                   //props.listId
+    // externalColumn,          //props.external
+    // internalColumn,          //props.internal
+    // cellText,                //props.$el.innerText
+    // listTitle,               //props.listTitle
+    // meatballHistoryDisplay   // pass seperate
 
     //Add Options Panel
     this.popover.appendChild(this.options.options);
@@ -661,14 +623,12 @@ function startMeatball() {
                   messages: block.map(function (item, index2) {
                     var mhItem = new MeatballHistoryMessage();
                     mhItem.setDisplay(
+                      props,
                       item.Author,
                       generateDateTime(item.Created),
                       item.Message,
                       item.ID,
                       meatballHistoryDisplay.listGUID,
-                      null,
-                      null,
-                      null,
                       index2 === 0
                     );
                     meatballHistoryDisplay.build(mhItem);
@@ -681,11 +641,12 @@ function startMeatball() {
             });
           }
         }
+        //pierre change this
         ims.sharepoint.chat.getMessage(
           {
-            table: table,
-            rowIndex: rowIndex,
-            internalColumn: internalColumn,
+            table: props.listId,
+            rowIndex: props.iid,
+            internalColumn: props.internal,
             searchName: "History",
             qs: "'&$expand=Author&$top=300",
           },
@@ -729,9 +690,9 @@ function startMeatball() {
       //should only have one function -- to call one history entry
       ims.sharepoint.chat.getMessage(
         {
-          table: table,
-          rowIndex: rowIndex,
-          internalColumn: internalColumn,
+          table: props.listId,
+          rowIndex: props.iid,
+          internalColumn: props.internal,
           searchName: "History",
           qs: "'&$expand=Author&$orderby=Created desc&$top=1",
         },
@@ -756,8 +717,8 @@ function startMeatball() {
         }
       }
     });
-    parent.innerText = "";
-    parent.appendChild(this.circle);
+    props.$el.innerText = "";
+    props.$el.appendChild(this.circle);
   };
 
   Meatball.prototype.setPosition = function (triangleSize) {
@@ -854,19 +815,21 @@ function startMeatball() {
   }
 
   OptionPanel.prototype.create = function (
-    defaults,
-    rowIndex,
-    meatball,
-    table,
-    externalColumn,
-    internalColumn,
-    cellText,
-    listTitle,
+    props,
     meatObj
+    // defaults,                //props.choices
+    // rowIndex,                //props.iid
+    // meatball,                //props.$cell
+    // table,                   //props.listId
+    // externalColumn,          //props.external
+    // internalColumn,          //props.internal
+    // cellText,                //props.$el.innerText
+    // listTitle,               //props.listTitle
+    // meatObj                  // passed seperate
   ) {
     var panel = this;
 
-    defaults.forEach(function (ele, index) {
+    props.choices.forEach(function (ele, index) {
       var option = document.createElement("div");
       option.style.borderRadius = ".25rem";
       option.style.cursor = "pointer";
@@ -887,6 +850,7 @@ function startMeatball() {
       radio.style.margin = "0px";
       radio.type = "radio";
 
+      var cellText = props.$el.innerText; //pierre added
       if (containsSubString(ele, cellText)) {
         radio.checked = true;
         option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
@@ -922,13 +886,15 @@ function startMeatball() {
           radio.checked = true;
           option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
           updateTarget(
-            ele,
-            rowIndex,
-            meatball,
-            table,
-            externalColumn,
-            internalColumn,
-            listTitle
+            props,
+            ele
+            // ele,             // passed through
+            // rowIndex,        //props.iid
+            // meatball,        //props.$cell
+            // table,           //props.listId
+            // externalColumn,  //props.external
+            // internalColumn,  //props.internal
+            // listTitle        //props.listTitle
           );
 
           function cb(error, data) {
@@ -941,14 +907,14 @@ function startMeatball() {
           var autoComment = cellText
             ? "Status change: " + cellText + " to " + ele + " by " + userName
             : "Initial Status: " + ele + " by " + userName;
-
+          //pierre change later
           ims.sharepoint.chat.createMessage(
             {
               listId: historyListGUID,
               message: autoComment,
-              colName: internalColumn,
-              rowId: rowIndex,
-              tableGUID: table,
+              colName: props.internal,
+              rowId: props.iid,
+              tableGUID: props.listId,
               autoBot: true,
               searchName: "History",
             },
@@ -967,7 +933,10 @@ function startMeatball() {
     });
   };
 
-  function MeatballHistory(table, rowIndex, internalColumn, title) {
+  function MeatballHistory(
+    props
+    // table, rowIndex, internalColumn, title
+  ) {
     var meatballHistory = this;
     var windowWidth = window.innerWidth || document.body.clientWidth;
     var windowHeight = window.innerHeight || document.body.clientHeight;
@@ -1060,7 +1029,7 @@ function startMeatball() {
     this.titleMain.style.fontWeight = "bolder";
 
     this.titleDescription = document.createElement("div");
-    this.titleDescription.innerText = title;
+    this.titleDescription.innerText = props.rowTitle + ": " + props.external; // pierre
     this.titleDescription.style.color = color.get(defaultTitleColor);
     this.titleDescription.style.fontSize = "10px";
 
@@ -1142,7 +1111,12 @@ function startMeatball() {
       }
 
       if (meatballHistory.container) {
-        meatballHistory.newItem(table, rowIndex, internalColumn);
+        meatballHistory.newItem(
+          props
+          // table,           // props.listId
+          // rowIndex,        // props.iid
+          // internalColumn  // props.internal
+        ); // change pierre
       }
     });
 
@@ -1172,7 +1146,10 @@ function startMeatball() {
         if (organized.length < 2 && organized[0].length === 0) {
           meatballHistory.reset();
         }
-        meatballHistory.newItem(table, rowIndex, internalColumn);
+        meatballHistory.newItem(
+          props
+          // table, rowIndex, internalColumn
+        ); // change pierre
       }
     });
 
@@ -1233,9 +1210,10 @@ function startMeatball() {
   };
 
   MeatballHistory.prototype.newItem = function (
-    table,
-    rowIndex,
-    internalColumn
+    props
+    // table,
+    // rowIndex,
+    // internalColumn
   ) {
     if (this.container.innerText === this.containerText) {
       this.container.innerText = "";
@@ -1285,21 +1263,26 @@ function startMeatball() {
         console.log(error);
         return;
       }
+      //change pierre
       var item = new MeatballHistoryMessage(
-        historyListGUID,
-        table,
-        rowIndex,
-        internalColumn
+        props
+        // historyListGUID, //this can be passed later since it is a higher var
+        // table,           //props.listId
+        // rowIndex,        //props.iid
+        // internalColumn   //props.internal
       );
+      //change pierre
+
       item.setDisplay(
         userName,
         generateDateTime(),
         data.Message,
         data.ID,
-        historyListGUID,
-        table,
-        rowIndex,
-        internalColumn,
+        // historyListGUID, //doesn't think this needs to be passed
+        props,
+        // table,           //props.listId
+        // rowIndex,        //props.iid
+        // internalColumn,  //props.internal
         true
       );
       item.isNew = true;
@@ -1372,10 +1355,11 @@ function startMeatball() {
   };
 
   function MeatballHistoryMessage(
-    historyListGUID,
-    table,
-    rowIndex,
-    internalColumn
+    props
+    // historyListGUID,
+    // table,
+    // rowIndex,
+    // internalColumn
   ) {
     var meatballHistoryItem = this;
     this.$ele = document.createElement("div");
@@ -1445,15 +1429,15 @@ function startMeatball() {
         }
         ims.sharepoint.chat.createMessage(
           {
-            listId: meatballHistoryItem.listGUID,
+            listId: meatballHistoryItem.listGUID, //this is the historyListGUID
             message: "placeholder",
-            colName: internalColumn,
-            rowId: rowIndex,
-            tableGUID: table,
+            props,
+            // colName: internalColumn,           //props.internal
+            // rowId: rowIndex,                   //props.iid
+            // tableGUID: table,                  //props.listId
             autoBot: false,
             searchName: "History",
           },
-
           cb
         );
       } else {
@@ -1560,6 +1544,7 @@ function startMeatball() {
           //     console.log(error);
           //     return;
           //   }
+          //change pierre -- check to fully remove cb from chat.js
           ims.sharepoint.chat.delete({
             id: meatballHistoryItem.id,
             searchName: "History",
@@ -1591,14 +1576,12 @@ function startMeatball() {
   }
 
   MeatballHistoryMessage.prototype.setDisplay = function (
+    props,
     author,
     date,
     comment,
     id,
     listGUID,
-    table,
-    rowIndex,
-    internalColumn,
     isFirst
   ) {
     if (!isFirst) {
@@ -1610,11 +1593,11 @@ function startMeatball() {
       this.comment.innerText = comment.replace(regex, "", comment);
       this.date.innerText = date;
       this.id = id;
-      this.internalColumn = internalColumn;
+      this.internalColumn = props.internal;
       this.listGUID = listGUID;
       this.prevComment = this.comment.innerText;
-      this.rowIndex = rowIndex;
-      this.table = table;
+      this.rowIndex = props.iid;
+      this.table = props.listId;
     }
     return this;
   };
