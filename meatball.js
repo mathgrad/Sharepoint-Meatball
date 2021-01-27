@@ -12,7 +12,7 @@ ims.sharepoint = {};
 var requiredScripts = [
   "chat.js",
   "column.js",
-  "list.js",
+
   "person.js",
   "notification.js",
   "style.js",
@@ -275,59 +275,9 @@ function startMeatball() {
               choiceProps.listTitle = listTitle;
 
               //Step B. Build Meatball with these options.
-              var props = Object.assign(choiceProps, { $el: $cell });
               var mb = new Meatball();
-              mb.init(props);
-
-              //mb.build().replace().listeners()
-
-              // choiceProps.rowTitle = organizedTables[] //already commented out
-              //old init meatball
-              // if (choiceProps) {
-              //   var meatball = new Meatball();
-              //   meatball.init(
-              //     choiceProps.choices,
-              //     choiceProps.external,
-              //     choiceProps.internal,
-              //     $cell,
-              //     $cell.iid,
-              //     listId,
-              //     $el.innerText,
-              //     choiceProps.rowTitle + ": " + choiceProps.external, //
-              //     listTitle,
-              //     "200px"//
-              //   );
-              // }
+              mb.init(Object.assign(choiceProps, { $el: $cell }));
             }
-            /*
-              $cell,
-              choiceProps{
-                choices: [],
-                external: externalColumnName,
-                internal: internalColumnName
-              }
-              var meatball = new Meatball();
-              meatball.init(
-              choiceProps.choices,
-              choiceProps.external,
-              choiceProps.internal,
-              $cell,
-              iid?,
-              listId,
-              $el.innerText,
-              choiceProps.rowTitle + ": " + choiceProps.external,
-              listTitle,
-              "200px"
-            )
-            */
-            /*
-              Should look like this = {
-                $el: $cell,
-                choices: [],
-                external: "Change Column Name...",
-                internal: "Title",
-              }
-            */
           });
         }
       });
@@ -335,20 +285,12 @@ function startMeatball() {
   }
 
   //Update target's value to user's selected value
-  function updateTarget(
-    props,
-    ele
-    // rowIndex,
-    // meatball,
-    // table,
-    // externalColumn,
-    // internalColumn,
-    // listTitle
-  ) {
+  function updateTarget(props) {
+    var name = props.internal;
     var data = {
       __metadata: { type: "SP.ListItem" },
     };
-    data[internalColumn] = ele;
+    data[name] = props.ele;
     var url =
       ctx.HttpRoot +
       "/_api/web/lists('" +
@@ -357,7 +299,7 @@ function startMeatball() {
       props.iid +
       ")?$select=" +
       props.internal;
-    meatball.removePopover();
+    props.meatball.removePopover();
     var toast = new Toast().startLoading().show();
     kitchen.show(toast);
     $.ajax({
@@ -373,7 +315,7 @@ function startMeatball() {
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        meatball.setColor(ele);
+        props.meatball.setColor(props.ele);
         toast
           .endLoading()
           .setMessage(
@@ -413,31 +355,13 @@ function startMeatball() {
     );
   }
 
-  Meatball.prototype.init = function (
-    props
-    // defaults,          //props.choices
-    // externalColumn,    //props.external
-    // internalColumn,    //props.internal
-    // parent,            //props.$el
-    // rowIndex,          //props.iid
-    // table,             //props.listId
-    // cellText,          //props.$el.innerText
-    // value,             //NOT PASSED
-    // listTitle,         //props.listTitle
-    // panelWidth         //NOT PASSED
-  ) {
-    console.log("Props:", props);
+  Meatball.prototype.init = function (props) {
     var meatball = this;
     var triangleSize = 10;
-    var meatballHistoryDisplay = new MeatballHistory(
-      props
-      // table,           //props.listId
-      // rowIndex,        //props.iid
-      // internalColumn,  //props.internalColumn
-      // value            //the concatenation choiceProps.rowTitle + ": " + choiceProps.external,
-    );
+    var meatballHistoryDisplay = new MeatballHistory(props);
     meatballHistoryDisplay.listGUID = historyListGUID;
-    var cellText = props.$el.innerText; //pierre added
+
+    var cellText = props.$el.innerText;
     this.circle.style.backgroundColor = color.get(
       meatballDefaults.get(cellText)
     );
@@ -485,16 +409,9 @@ function startMeatball() {
 
     //Create Options Panel Object
     this.options = new OptionPanel();
-    this.options.create(props, meatballHistoryDisplay);
-    // defaults,                //props.choices
-    // rowIndex,                //props.iid
-    // meatball,                //props.$cell
-    // table,                   //props.listId
-    // externalColumn,          //props.external
-    // internalColumn,          //props.internal
-    // cellText,                //props.$el.innerText
-    // listTitle,               //props.listTitle
-    // meatballHistoryDisplay   // pass seperate
+
+    var optPanelProps = { meatball: meatball, cellText: cellText };
+    this.options.create(Object.assign(optPanelProps, props));
 
     //Add Options Panel
     this.popover.appendChild(this.options.options);
@@ -849,6 +766,7 @@ function startMeatball() {
   };
 
   Meatball.prototype.removePopover = function () {
+    console.log("this.$ele:", this.$ele);
     if (this.$ele) {
       if (this.$ele.parentNode) {
         this.$ele.parentNode.removeChild(this.$ele);
@@ -863,19 +781,7 @@ function startMeatball() {
     this.options.style.padding = ".25rem";
   }
 
-  OptionPanel.prototype.create = function (
-    props,
-    meatObj
-    // defaults,                //props.choices
-    // rowIndex,                //props.iid
-    // meatball,                //props.$cell
-    // table,                   //props.listId
-    // externalColumn,          //props.external
-    // internalColumn,          //props.internal
-    // cellText,                //props.$el.innerText
-    // listTitle,               //props.listTitle
-    // meatObj                  // passed seperate
-  ) {
+  OptionPanel.prototype.create = function (props) {
     var panel = this;
 
     props.choices.forEach(function (ele, index) {
@@ -899,8 +805,7 @@ function startMeatball() {
       radio.style.margin = "0px";
       radio.type = "radio";
 
-      var cellText = props.$el.innerText; //pierre added
-      if (containsSubString(ele, cellText)) {
+      if (containsSubString(ele, props.cellText)) {
         radio.checked = true;
         option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
       }
@@ -934,17 +839,8 @@ function startMeatball() {
         if (!radio.checked) {
           radio.checked = true;
           option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
-          updateTarget(
-            props,
-            ele
-            // ele,             // passed through
-            // rowIndex,        //props.iid
-            // meatball,        //props.$cell
-            // table,           //props.listId
-            // externalColumn,  //props.external
-            // internalColumn,  //props.internal
-            // listTitle        //props.listTitle
-          );
+          var updateTargetProps = { ele: ele };
+          updateTarget(Object.assign(updateTargetProps, props));
 
           function cb(error, data) {
             if (error) {
@@ -952,11 +848,14 @@ function startMeatball() {
               return;
             }
           }
-
-          var autoComment = cellText
-            ? "Status change: " + cellText + " to " + ele + " by " + userName
+          var autoComment = props.cellText
+            ? "Status change: " +
+              props.cellText +
+              " to " +
+              ele +
+              " by " +
+              userName
             : "Initial Status: " + ele + " by " + userName;
-          //pierre change later
           ims.sharepoint.chat.createMessage(
             {
               listId: historyListGUID,
@@ -969,7 +868,7 @@ function startMeatball() {
             },
             cb
           );
-          cellText = ele; //this will change the current value of meatball for the view purposes.
+          props.cellText = ele; //this will change the current value of meatball for the view purposes.
         } else {
           option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
         }
@@ -982,10 +881,7 @@ function startMeatball() {
     });
   };
 
-  function MeatballHistory(
-    props
-    // table, rowIndex, internalColumn, title
-  ) {
+  function MeatballHistory(props) {
     var meatballHistory = this;
     var windowWidth = window.innerWidth || document.body.clientWidth;
     var windowHeight = window.innerHeight || document.body.clientHeight;
@@ -1160,12 +1056,7 @@ function startMeatball() {
       }
 
       if (meatballHistory.container) {
-        meatballHistory.newItem(
-          props
-          // table,           // props.listId
-          // rowIndex,        // props.iid
-          // internalColumn  // props.internal
-        ); // change pierre
+        meatballHistory.newItem(props);
       }
     });
 
@@ -1195,10 +1086,7 @@ function startMeatball() {
         if (organized.length < 2 && organized[0].length === 0) {
           meatballHistory.reset();
         }
-        meatballHistory.newItem(
-          props
-          // table, rowIndex, internalColumn
-        ); // change pierre
+        meatballHistory.newItem(props);
       }
     });
 
@@ -1258,12 +1146,7 @@ function startMeatball() {
     return this;
   };
 
-  MeatballHistory.prototype.newItem = function (
-    props
-    // table,
-    // rowIndex,
-    // internalColumn
-  ) {
+  MeatballHistory.prototype.newItem = function (props) {
     if (this.container.innerText === this.containerText) {
       this.container.innerText = "";
     }
@@ -1313,25 +1196,14 @@ function startMeatball() {
         return;
       }
       //change pierre
-      var item = new MeatballHistoryMessage(
-        props
-        // historyListGUID, //this can be passed later since it is a higher var
-        // table,           //props.listId
-        // rowIndex,        //props.iid
-        // internalColumn   //props.internal
-      );
-      //change pierre
+      var item = new MeatballHistoryMessage(props);
 
       item.setDisplay(
         userName,
         generateDateTime(),
         data.Message,
         data.ID,
-        // historyListGUID, //doesn't think this needs to be passed
         props,
-        // table,           //props.listId
-        // rowIndex,        //props.iid
-        // internalColumn,  //props.internal
         true
       );
       item.isNew = true;
@@ -1379,8 +1251,8 @@ function startMeatball() {
       {
         listId: historyListGUID,
         message: this.input.value,
-        colName: internalColumn,
-        rowId: rowIndex,
+        colName: props.internal,
+        rowId: props.iid,
         tableGUID: table,
         autoBot: false,
         searchName: "History",
@@ -1403,13 +1275,7 @@ function startMeatball() {
     return this;
   };
 
-  function MeatballHistoryMessage(
-    props
-    // historyListGUID,
-    // table,
-    // rowIndex,
-    // internalColumn
-  ) {
+  function MeatballHistoryMessage(props) {
     var meatballHistoryItem = this;
     this.$ele = document.createElement("div");
     this.$ele.style.borderRadius = ".5rem";
@@ -1478,12 +1344,9 @@ function startMeatball() {
         }
         ims.sharepoint.chat.createMessage(
           {
-            listId: meatballHistoryItem.listGUID, //this is the historyListGUID
+            listId: meatballHistoryItem.listGUID,
             message: "placeholder",
             props,
-            // colName: internalColumn,           //props.internal
-            // rowId: rowIndex,                   //props.iid
-            // tableGUID: table,                  //props.listId
             autoBot: false,
             searchName: "History",
           },
