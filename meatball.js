@@ -268,10 +268,11 @@ function startMeatball() {
           organizedTables[tableKey][colKey2].forEach(function ($cell, ci) {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
-            choiceProps.rowTitle = rowTitles[ci].innerText;
-            choiceProps.iid = $cell.iid;
-            // choiceProps.rowTitle = organizedTables[]
+
             if (choiceProps) {
+              choiceProps.rowTitle = rowTitles[ci].innerText;
+              choiceProps.iid = $cell.iid;
+              // choiceProps.rowTitle = organizedTables[]
               var meatball = new Meatball();
               meatball.init(
                 choiceProps.choices,
