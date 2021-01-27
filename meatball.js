@@ -293,14 +293,15 @@ function startMeatball() {
   //Update target's value to user's selected value
   function updateTarget(
     props,
-    ele
+    ele,
+    meatObj
+  ) {
     // rowIndex,
     // meatball,
     // table,
     // externalColumn,
     // internalColumn,
     // listTitle
-  ) {
     var data = {
       __metadata: { type: "SP.ListItem" },
     };
@@ -313,7 +314,7 @@ function startMeatball() {
       props.iid +
       ")?$select=" +
       props.internal;
-    meatball.removePopover();
+    meatObj.removePopover();
     var toast = new Toast().startLoading().show();
     kitchen.show(toast);
     $.ajax({
@@ -329,7 +330,7 @@ function startMeatball() {
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        meatball.setColor(ele);
+        meatObj.setColor(ele);
         toast
           .endLoading()
           .setMessage(
@@ -822,6 +823,7 @@ function startMeatball() {
   OptionPanel.prototype.create = function (
     props,
     meatObj
+  ) {
     // defaults,                //props.choices
     // rowIndex,                //props.iid
     // meatball,                //props.$cell
@@ -831,7 +833,6 @@ function startMeatball() {
     // cellText,                //props.$el.innerText
     // listTitle,               //props.listTitle
     // meatObj                  // passed seperate
-  ) {
     var panel = this;
 
     props.choices.forEach(function (ele, index) {
@@ -892,15 +893,16 @@ function startMeatball() {
           option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
           updateTarget(
             props,
-            ele
-            // ele,             // passed through
-            // rowIndex,        //props.iid
-            // meatball,        //props.$cell
-            // table,           //props.listId
-            // externalColumn,  //props.external
-            // internalColumn,  //props.internal
-            // listTitle        //props.listTitle
+            ele,
+            meatObj
           );
+          // ele,             // passed through
+          // rowIndex,        //props.iid
+          // meatball,        //props.$cell
+          // table,           //props.listId
+          // externalColumn,  //props.external
+          // internalColumn,  //props.internal
+          // listTitle        //props.listTitle
 
           function cb(error, data) {
             if (error) {
