@@ -42,7 +42,7 @@ function loadScripts() {
     .map(function (script, i) {
       if (i == requiredScripts.length - 1) {
         script.addEventListener("load", function () {
-          ims.sharepoint.chat = chat;
+          ims.chat = chat;
           ims.sharepoint.color = Color;
           ims.sharepoint.column = column;
           ims.sharepoint.list = list;
@@ -292,19 +292,21 @@ function startMeatball() {
 
   //Update target's value to user's selected value
   function updateTarget(props) {
-    var name = props.internal;
+    console.log("props in updateTarget:", props);
+    var name = props.meatball.list.internal;
     var data = {
       __metadata: { type: "SP.ListItem" },
     };
-    data[name] = props.ele;
+    data[name] = props.cellText;
     var url =
       ctx.HttpRoot +
       "/_api/web/lists('" +
-      props.listId +
+      props.meatball.list.id +
       "')/items(" +
-      props.iid +
+      props.meatball.item.id +
       ")?$select=" +
-      props.internal;
+      props.meatball.list.internal;
+
     props.meatball.removePopover();
     var toast = new Toast().startLoading().show();
     kitchen.show(toast);
@@ -321,11 +323,14 @@ function startMeatball() {
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        props.meatball.setColor(props.ele);
+        props.meatball.setColor(props.cellText);
         toast
           .endLoading()
           .setMessage(
-            props.listTitle + " - " + props.external + " updated successfully"
+            props.meatball.list.title +
+              " - " +
+              props.meatball.list.external +
+              " updated successfully"
           )
           .setSuccess()
           .setListeners()
@@ -337,7 +342,10 @@ function startMeatball() {
         toast
           .endLoading()
           .setMessage(
-            props.listTitle + " - " + props.external + " failed to update"
+            props.meatball.list.title +
+              " - " +
+              props.meatball.list.external +
+              " failed to update"
           )
           .setFailed()
           .setListeners()
@@ -350,7 +358,7 @@ function startMeatball() {
   //Main object
   //Replaces default text from Color object with circles with color from Color object
   //Attaches popover to the color circle along with updateTarget function
-  function Meatball() {
+  function Meatball(props) {
     this.$circle = document.createElement("div");
     this.$circle.setAttribute(
       "style",
@@ -374,12 +382,11 @@ function startMeatball() {
   }
 
   Meatball.prototype.init = function () {
-    console.log(this.list.title);
     var meatball = this;
     var triangleSize = 10;
-    var meatballHistoryDisplay = new MeatballHistory(props);
+    var meatballHistoryDisplay = new MeatballHistory(this);
     meatballHistoryDisplay.listGUID = historyListGUID;
-    var cellText = props.$el.innerText; //pierre added
+    var cellText = this.$cell.innerText; //pierre added
     this.$circle.style.backgroundColor = color.get(
       meatballDefaults.get(cellText)
     );
@@ -416,7 +423,7 @@ function startMeatball() {
 
     //Create Header Element
     this.$header = document.createElement("div");
-    this.$header.innerText = props.rowTitle + ": " + props.external;
+    this.$header.innerText = this.item.title + ": " + this.list.external;
     this.$header.style.marginBottom = ".25rem";
     this.$header.style.padding = ".25rem";
     this.$header.style.textAlign = "center";
@@ -426,16 +433,13 @@ function startMeatball() {
     this.$popover.appendChild(this.$header);
 
     //Create Options Panel Object
-    var optPanelProps = {
-      meatball: meatball,
-      cellText: cellText,
-      parentProps: this,
-    };
-    this.optionPanel = new OptionPanel(optPanelProps);
+    this.optionPanel = new OptionPanel(
+      Object.assign(this, { cellText: cellText })
+    );
     this.optionPanel.create();
 
     //Add Options Panel
-    this.$popover.appendChild(this.options.$ele);
+    this.$popover.appendChild(this.optionPanel.$ele);
 
     this.$divider1 = document.createElement("hr");
     this.$divider1.style.borderTop =
@@ -502,146 +506,131 @@ function startMeatball() {
       this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
     });
 
-    var addHistory = true;
-
     this.$showMore.addEventListener("click", function () {
-      if (!meatballHistoryDisplay.parentNode) {
-        addHistory = true;
-      }
-
-      if (addHistory) {
-        addHistory = !addHistory;
-        function cb(error, data) {
-          if (error) {
-            console.log(error);
-          }
-          if (data.length !== 0) {
-            var priorDate,
-              currentDate = null;
-            var nowDate = new Date();
-
-            meatballHistoryDisplay.query = data[0].Title;
-
-            var avatar = false;
-            var lastDay = new Date().getDay();
-
-            organized = data.reduce(
-              function (acc, props) {
-                var author = props.Author;
-                var day = new Date(props.Created).getDay();
-                var isBreak = lastDay !== day;
-                if (isBreak) {
-                  lastAuthor = "";
-                  acc.push([
-                    { type: "break", timeStamp: new Date(props.Created) },
-                  ]);
-                  lastDay = day;
-                }
-                var lastIndex = acc.length - 1;
-                if (!lastIndex && !lastAuthor) {
-                  acc[0].push(props);
-                  lastAuthor = author;
-                  lastDay = new Date(props.Created).getDay();
-                } else if (author === lastAuthor && !isBreak) {
-                  acc[lastIndex].push(props);
-                } else {
-                  acc.push([props]);
-                  lastAuthor = author;
-                }
-                return acc;
-              },
-              [[]]
-            );
-
-            organized = organized.map(function (block, index) {
-              if (block.length === 1 && block[0].type === "break") {
-                meatballHistoryDisplay.addDivider(block[0]);
-              } else if (block.length >= 1) {
-                var author = block[0].Author;
-                var isRight = author === userName;
-
-                //step 0 create mssg container
-                //determine if its left or right -- important because before this was done in the message item
-                var $messageContainer = document.createElement("div");
-                $messageContainer.style.display = "flex";
-                $messageContainer.style.flexDirection = isRight
-                  ? "row-reverse"
-                  : "row";
-                $messageContainer.style.width = "100%";
-
-                //step 1 create continer for avatar
-                var $avatarContainer = document.createElement("div");
-
-                var $avatar = document.createElement("div");
-                $avatar.setAttribute(
-                  "style",
-                  ims.sharepoint.style({
-                    type: "avatar",
-                    bgc: defaultButtonBackgroundColor,
-                  }).$ele
-                );
-                $avatar.style.margin = isRight
-                  ? "0px 0px 0px 4px"
-                  : "0px 4px 0px 0px";
-
-                var avatarAuthor = author.split(" ");
-                $avatar.innerText =
-                  avatarAuthor.length > 1
-                    ? avatarAuthor[2].charAt(0) + avatarAuthor[0].charAt(0)
-                    : author.charAt(0);
-                $avatarContainer.appendChild($avatar);
-
-                //step 2 create the message block
-                var $messageBlock = document.createElement("div");
-                $messageBlock.style.alignItems = isRight
-                  ? "flex-end"
-                  : "flex-start";
-                $messageBlock.style.display = "flex";
-                $messageBlock.style.flex = "1";
-                $messageBlock.style.flexDirection = "column";
-                $messageBlock.style.maxWidth = "75%";
-                $messageContainer.appendChild($avatarContainer);
-                $messageContainer.appendChild($messageBlock);
-                meatballHistoryDisplay.$container.appendChild(
-                  $messageContainer
-                );
-
-                //step 3 append each mssg to mssg block
-                return {
-                  block: $messageBlock,
-                  messages: block.map(function (item, index2) {
-                    var mhItem = new MeatballHistoryMessage();
-                    mhItem.setDisplay(
-                      props,
-                      item.Author,
-                      generateDateTime(item.Created),
-                      item.Message,
-                      item.ID,
-                      meatballHistoryDisplay.listGUID,
-                      index2 === 0
-                    );
-                    meatballHistoryDisplay.build(mhItem);
-                    $messageBlock.appendChild(mhItem.$ele);
-
-                    return mhItem;
-                  }),
-                };
-              }
-            });
-          }
+      function cb(error, data) {
+        if (error || !data.length) {
+          console.log(error);
+          return;
         }
-        //pierre change this
-        ims.sharepoint.chat.getMessage(
-          {
-            table: props.listId,
-            rowIndex: props.iid,
-            internalColumn: props.internal,
-            listName: "History",
-            qs: "'&$expand=Author&$top=300",
+
+        var priorDate,
+          currentDate = null;
+        var nowDate = new Date();
+
+        meatballHistoryDisplay.query = data[0].Title;
+
+        var avatar = false;
+        var lastDay = new Date().getDay();
+
+        organized = data.reduce(
+          function (acc, props) {
+            var author = props.Author;
+            var day = new Date(props.Created).getDay();
+            var isBreak = lastDay !== day;
+            if (isBreak) {
+              lastAuthor = "";
+              acc.push([{ type: "break", timeStamp: new Date(props.Created) }]);
+              lastDay = day;
+            }
+            var lastIndex = acc.length - 1;
+            if (!lastIndex && !lastAuthor) {
+              acc[0].push(props);
+              lastAuthor = author;
+              lastDay = new Date(props.Created).getDay();
+            } else if (author === lastAuthor && !isBreak) {
+              acc[lastIndex].push(props);
+            } else {
+              acc.push([props]);
+              lastAuthor = author;
+            }
+            return acc;
           },
-          cb
+          [[]]
         );
+
+        organized = organized.map(function (block, index) {
+          if (block.length === 1 && block[0].type === "break") {
+            meatballHistoryDisplay.addDivider(block[0]);
+          } else if (block.length >= 1) {
+            var author = block[0].Author;
+            var isRight = author === userName;
+
+            //step 0 create mssg container
+            //determine if its left or right -- important because before this was done in the message item
+            var $messageContainer = document.createElement("div");
+            $messageContainer.style.display = "flex";
+            $messageContainer.style.flexDirection = isRight
+              ? "row-reverse"
+              : "row";
+            $messageContainer.style.width = "100%";
+
+            //step 1 create continer for avatar
+            var $avatarContainer = document.createElement("div");
+
+            var $avatar = document.createElement("div");
+            $avatar.setAttribute(
+              "style",
+              ims.sharepoint.style({
+                type: "avatar",
+                bgc: defaultButtonBackgroundColor,
+              }).$ele
+            );
+            $avatar.style.margin = isRight
+              ? "0px 0px 0px 4px"
+              : "0px 4px 0px 0px";
+
+            var avatarAuthor = author.split(" ");
+            $avatar.innerText =
+              avatarAuthor.length > 1
+                ? avatarAuthor[2].charAt(0) + avatarAuthor[0].charAt(0)
+                : author.charAt(0);
+            $avatarContainer.appendChild($avatar);
+
+            //step 2 create the message block
+            var $messageBlock = document.createElement("div");
+            $messageBlock.style.alignItems = isRight
+              ? "flex-end"
+              : "flex-start";
+            $messageBlock.style.display = "flex";
+            $messageBlock.style.flex = "1";
+            $messageBlock.style.flexDirection = "column";
+            $messageBlock.style.maxWidth = "75%";
+            $messageContainer.appendChild($avatarContainer);
+            $messageContainer.appendChild($messageBlock);
+            meatballHistoryDisplay.$container.appendChild($messageContainer);
+
+            //step 3 append each mssg to mssg block
+            return {
+              block: $messageBlock,
+              messages: block.map(function (item, index2) {
+                var mhItem = new MeatballHistoryMessage();
+                mhItem.setDisplay(
+                  meatball,
+                  item.Author,
+                  generateDateTime(item.Created),
+                  item.Message,
+                  item.ID,
+                  meatballHistoryDisplay.listGUID,
+                  index2 === 0
+                );
+                meatballHistoryDisplay.build(mhItem);
+                $messageBlock.appendChild(mhItem.$ele);
+
+                return mhItem;
+              }),
+            };
+          }
+        });
       }
+
+      ims.chat.getMessages(
+        Object.assign(meatball, {
+          listName: "History",
+          qs: "'&$expand=Author&$top=300&$SortField=Modified&SortDir=Desc",
+        }),
+        cb
+      );
+
       document.body.appendChild(meatballHistoryDisplay.$ele);
       meatballHistoryDisplay.$container.scrollTop =
         meatballHistoryDisplay.$container.scrollHeight;
@@ -676,17 +665,14 @@ function startMeatball() {
         meatball.setPosition(triangleSize);
       }
       //should only have one function -- to call one history entry
-      ims.sharepoint.chat.getMessage(
-        {
-          internalColumn: props.internal,
+      ims.chat.getMessages(
+        Object.assign(meatball, {
           listName: "History",
-          qs: "'&$expand=Author&$orderby=Created desc&$top=1",
-          rowIndex: props.iid,
-          table: props.listId,
-        },
+          qs: "'&$expand=Author&$SortField=Created&SortDir=desc&$top=1",
+        }),
         cb
       );
-      add = true;
+
       document.body.appendChild(meatball.$ele);
       meatball.setPosition(triangleSize);
     });
@@ -705,8 +691,8 @@ function startMeatball() {
         }
       }
     });
-    props.$el.innerText = "";
-    props.$el.appendChild(this.$circle);
+    this.$cell.innerText = "";
+    this.$cell.appendChild(this.$circle);
   };
 
   Meatball.prototype.setPosition = function (triangleSize) {
@@ -788,7 +774,6 @@ function startMeatball() {
   };
 
   Meatball.prototype.removePopover = function () {
-    console.log("this.$ele:", this.$ele);
     if (this.$ele) {
       if (this.$ele.parentNode) {
         this.$ele.parentNode.removeChild(this.$ele);
@@ -798,15 +783,15 @@ function startMeatball() {
 
   //Shows list of predetermine choices for the user
   function OptionPanel(props) {
-    this.parentProps = this.props.parentProps;
+    this.parentProps = props;
   }
 
   OptionPanel.prototype.create = function () {
-    this.$panel = document.createElement("div");
-    this.$panel.style.borderRadius = ".25rem";
-    this.$panel.style.padding = ".25rem";
+    this.$ele = document.createElement("div");
+    this.$ele.style.borderRadius = ".25rem";
+    this.$ele.style.padding = ".25rem";
 
-    var $panel = this.$panel;
+    var $ele = this.$ele;
     var parentProps = this.parentProps;
 
     parentProps.list.choices.forEach(function (choice, index) {
@@ -819,7 +804,7 @@ function startMeatball() {
       $option.style.width = "100%";
 
       var $description = document.createElement("div");
-      $description.innerText = ele;
+      $description.innerText = choice;
       $description.style.display = "inline";
       $description.style.marginLeft = ".25rem";
 
@@ -830,7 +815,7 @@ function startMeatball() {
       $radio.style.margin = "0px";
       $radio.type = "radio";
 
-      if (containsSubString(choice, this.parentProps.$cell.innerText)) {
+      if (containsSubString(choice, parentProps.$cell.innerText)) {
         $radio.checked = true;
         $option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
       }
@@ -845,7 +830,7 @@ function startMeatball() {
         }
       });
       $option.addEventListener("mouseleave", function () {
-        if (radio.checked) {
+        if ($radio.checked) {
           $option.style.backgroundColor = color.get(
             defaultHoverBackgroundColor
           );
@@ -854,10 +839,12 @@ function startMeatball() {
         }
       });
 
-      $panel.addEventListener("mousedown", function () {
-        [].slice.call(panel.options.children).forEach(function (item) {
-          if (item.parentElement.querySelector(":hover") === item) {
-            item.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+      $ele.addEventListener("mousedown", function () {
+        [].slice.call($ele.children).forEach(function ($item) {
+          if ($item.parentElement.querySelector(":hover") === $item) {
+            $item.style.backgroundColor = color.get(
+              defaultHoverBackgroundColor
+            );
           } else {
             $item.style.backgroundColor = color.get(defaultBackgroundColor);
           }
@@ -870,48 +857,44 @@ function startMeatball() {
           $option.style.backgroundColor = color.get(
             defaultHoverBackgroundColor
           );
-          var updateTargetProps = { ele: ele };
-          ims.sharepoint.list.item.update(
+          updateTarget(
             {
-              data: {
-                [parentProps.list.column]: choice,
-              },
-              id: parentProps.item.id,
               listName: "History",
+              meatball: parentProps,
+              cellText: choice,
             },
             function () {}
           );
 
-          props.meatball.removePopover();
-          var toast = new Toast().startLoading().show();
-          kitchen.show(toast);
+          parentProps.removePopover();
 
-          function cb(error, data) {
-            if (error) {
-              console.log(error);
-              return;
-            }
-          }
-          var autoComment = props.cellText
+          var autoComment = parentProps.cellText
             ? "Status change: " +
-              props.cellText +
+              parentProps.cellText +
               " to " +
-              ele +
+              choice +
               " by " +
               userName
-            : "Initial Status: " + ele + " by " + userName;
-          ims.sharepoint.chat.createMessage(
+            : "Initial Status: " + choice + " by " + userName;
+
+          ims.sharepoint.list.item.create(
             {
-              message: autoComment,
-              colName: parentProps.list.internal,
-              rowId: parentProps.item.id,
-              tableGUID: parentProps.list.id,
-              autoBot: true,
+              data: {
+                Message: autoComment,
+                Status: "Automated Message",
+                Title:
+                  parentProps.list.id +
+                  "-" +
+                  parentProps.item.id +
+                  "-" +
+                  parentProps.list.internal,
+              },
               listName: "History",
             },
-            cb
+
+            function () {}
           );
-          props.cellText = ele; //this will change the current value of meatball for the view purposes.
+          parentProps.cellText = choice; //this will change the current value of meatball for the view purposes.
         } else {
           $option.style.backgroundColor = color.get(
             defaultHoverBackgroundColor
@@ -922,7 +905,7 @@ function startMeatball() {
       //Add Click Event to update list
       $option.appendChild($radio);
       $option.appendChild($description);
-      panel.$ele.appendChild($option);
+      $ele.appendChild($option);
     });
   };
 
@@ -1021,7 +1004,8 @@ function startMeatball() {
     this.$titleMain.style.fontWeight = "bolder";
 
     this.$titleDescription = document.createElement("div");
-    this.$titleDescription.innerText = props.rowTitle + ": " + props.external; // pierre
+    this.$titleDescription.innerText =
+      props.item.title + ": " + props.list.external;
     this.$titleDescription.style.color = color.get(defaultTitleColor);
     this.$titleDescription.style.fontSize = "10px";
 
@@ -1092,17 +1076,17 @@ function startMeatball() {
     });
 
     this.$send.addEventListener("click", function () {
-      if (meatballHistory.input.value.length > 0) {
-        meatballHistory.input.value = meatballHistory.input.value.replace(
+      if (meatballHistory.$input.value.length > 0) {
+        meatballHistory.$input.value = meatballHistory.$input.value.replace(
           regex,
           "",
-          meatballHistory.input.value
+          meatballHistory.$input.value
         );
       } else {
         return;
       }
 
-      if (meatballHistory.container) {
+      if (meatballHistory.$container) {
         meatballHistory.newItem(props);
       }
     });
@@ -1194,8 +1178,8 @@ function startMeatball() {
   };
 
   MeatballHistory.prototype.newItem = function (props) {
-    if (this.container.innerText === this.containerText) {
-      this.container.innerText = "";
+    if (this.$container.innerText === this.$containerText) {
+      this.$container.innerText = "";
     }
 
     if (this.$input.value.length <= 0) {
@@ -1246,11 +1230,12 @@ function startMeatball() {
       var item = new MeatballHistoryMessage(props);
 
       item.setDisplay(
+        props,
         userName,
         generateDateTime(),
         data.Message,
         data.ID,
-        props,
+        historyListGUID,
         true
       );
       item.isNew = true;
@@ -1278,7 +1263,7 @@ function startMeatball() {
         $commentRow.appendChild($commentBlock);
 
         //Step 2d. Append new comment to chat window
-        chatWindow.$container.appendChild(commentRow);
+        chatWindow.$container.appendChild($commentRow);
 
         organized.push({ block: $commentBlock, messages: [item.$ele] });
 
@@ -1290,18 +1275,20 @@ function startMeatball() {
 
       item.setEditable(item.getEditable());
 
+      console.log(chatWindow);
+
       //Step 4. Reset the input to NO value to start over.
       chatWindow.$input.value = "";
     }
 
-    ims.sharepoint.chat.createMessage(
+    ims.sharepoint.list.item.create(
       {
-        listId: historyListGUID,
-        message: this.input.value,
-        colName: props.internal,
-        rowId: props.iid,
-        tableGUID: props.listId,
-        autoBot: false,
+        data: {
+          Message: this.$input.value,
+          Title:
+            props.list.id + "-" + props.item.id + "-" + props.list.internal,
+          Status: "User Generated",
+        },
         listName: "History",
       },
       cb
@@ -1389,12 +1376,16 @@ function startMeatball() {
             newData
           );
         }
-        ims.sharepoint.chat.createMessage(
+
+        console.log("props:", props);
+        ims.sharepoint.list.item.create(
           {
-            listId: meatballHistoryItem.listGUID,
-            message: "placeholder",
-            props,
-            autoBot: false,
+            data: {
+              Message: "placeholder",
+              Status: "User Generated",
+              Title:
+                props.list.id + "-" + props.item.id + "-" + props.list.internal,
+            },
             listName: "History",
           },
           cb
@@ -1504,7 +1495,7 @@ function startMeatball() {
           //     return;
           //   }
           //change pierre -- check to fully remove cb from chat.js
-          ims.sharepoint.chat.delete({
+          ims.chat.delete({
             id: meatballHistoryItem.id,
             listName: "History",
           });
@@ -1543,7 +1534,7 @@ function startMeatball() {
     listGUID,
     isFirst
   ) {
-    console.log(props, author, date, comment, id, listGUID, isFirst);
+    // console.log(props, author, date, comment, id, listGUID, isFirst);
     if (!isFirst) {
       this.$author.parentNode.removeChild(this.$author);
       this.$buttonGroup.style.display = "block";
@@ -1594,18 +1585,21 @@ function startMeatball() {
           return;
         }
         if (newData && newData.ID) {
+          funct;
           ims.sharepoint.list.item.update({
-            column: "Message",
+            data: {
+              Message: text,
+            },
             id: newData.ID,
-            text: currentText,
             listName: "History",
           });
         } else {
           var id = this.id;
           ims.sharepoint.list.item.update({
-            column: "Message",
+            data: {
+              Message: currentText,
+            },
             id: id,
-            text: currentText,
             listName: "History",
           });
         }

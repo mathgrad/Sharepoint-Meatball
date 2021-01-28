@@ -81,8 +81,37 @@ var list = {
   delete: {},
   item: {
     //back burner
-    create: {},
-    update: function (props, cb) {
+    create: function (props, cb) {
+      var data = Object.assign(props.data, {
+        __metadata: { type: "SP.ListItem" },
+      });
+
+      var url =
+        ctx.PortalUrl +
+        "_api/web/lists/getbytitle('" +
+        props.listName +
+        "')/items";
+
+      $.ajax({
+        url: url,
+        type: "POST",
+        data: JSON.stringify(data),
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          cb(null, data);
+        },
+        error: function (error) {
+          cb(error, null);
+        },
+      });
+    },
+    update: function (props) {
+      console.log("props in the update:", props);
       var data = Object.assign(props.data, {
         __metadata: { type: "SP.ListItem" },
       });
@@ -108,10 +137,10 @@ var list = {
           "IF-MATCH": "*",
         },
         success: function (data) {
-          cb(null, data);
+          return false;
         },
         error: function (error) {
-          cb(error, null);
+          console.log(error);
         },
       });
     },
