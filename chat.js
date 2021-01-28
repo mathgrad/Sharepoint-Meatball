@@ -10,7 +10,7 @@ var chat = {
     var url =
       ctx.PortalUrl +
       "_api/web/lists/getbytitle('" +
-      props.searchName +
+      props.listName +
       "')/items ";
     $.ajax({
       url: url,
@@ -38,7 +38,7 @@ var chat = {
     var url =
       ctx.PortalUrl +
       "_api/web/lists/getbytitle('" +
-      props.searchName +
+      props.listName +
       "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
       props.table +
       " - " +
@@ -78,7 +78,7 @@ var chat = {
     var url =
       ctx.PortalUrl +
       "_api/web/lists/getbytitle('" +
-      props.searchName +
+      props.listName +
       "')/items(" +
       props.id +
       ")";

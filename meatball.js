@@ -12,7 +12,7 @@ ims.sharepoint = {};
 var requiredScripts = [
   "chat.js",
   "column.js",
-
+  "list.js",
   "person.js",
   "polyfill.js",
   "notification.js",
@@ -151,7 +151,7 @@ function startMeatball() {
                   fieldType: 2,
                   required: "false",
                   uniqueValue: "false",
-                  searchName: "History",
+                  listName: "History",
                 },
 
                 cb
@@ -163,13 +163,13 @@ function startMeatball() {
                 fieldType: 2,
                 required: "false",
                 uniqueValue: "false",
-                searchName: "History",
+                listName: "History",
               },
 
               cb
             );
           }
-          ims.sharepoint.list.create({ searchName: "History" }, cb);
+          ims.sharepoint.list.create({ listName: "History" }, cb);
           console.log(error);
           return;
         }
@@ -177,7 +177,7 @@ function startMeatball() {
           historyListGUID = props;
         }
       }
-      ims.sharepoint.list.find({ searchName: "History" }, cb);
+      ims.sharepoint.list.find({ listName: "History" }, cb);
     }
 
     if (userName.length <= 0) {
@@ -274,14 +274,15 @@ function startMeatball() {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
             if (rowTitles[ci] && choiceProps) {
+              choiceProps.colName = colKey2;
               choiceProps.rowTitle = rowTitles[ci].innerText;
               choiceProps.iid = $cell.iid;
               choiceProps.listId = listId;
               choiceProps.listTitle = listTitle;
 
               //Step B. Build Meatball with these options.
-              var mb = new Meatball();
-              mb.init(Object.assign(choiceProps, { $el: $cell }));
+              var mb = new Meatball(Object.assign(choiceProps, { $el: $cell }));
+              mb.init();
             }
           });
         }
@@ -349,7 +350,7 @@ function startMeatball() {
   //Main object
   //Replaces default text from Color object with circles with color from Color object
   //Attaches popover to the color circle along with updateTarget function
-  function Meatball() {
+  function Meatball(props) {
     this.circle = document.createElement("div");
     this.circle.setAttribute(
       "style",
@@ -358,9 +359,22 @@ function startMeatball() {
         size: "large",
       }).$ele
     );
+    this.list = {
+      choices: props.choices,
+      external: props.external,
+      id: props.listId,
+      internal: props.internal,
+      title: props.listTitle,
+    };
+    this.item = {
+      id: props.iid,
+      title: props.rowTitle,
+    };
+    this.$cell = props.$el;
   }
 
-  Meatball.prototype.init = function (props) {
+  Meatball.prototype.init = function () {
+    console.log(this.list.title);
     var meatball = this;
     var triangleSize = 10;
     var meatballHistoryDisplay = new MeatballHistory(props);
@@ -413,13 +427,16 @@ function startMeatball() {
     this.popover.appendChild(this.header);
 
     //Create Options Panel Object
-    this.options = new OptionPanel();
-
-    var optPanelProps = { meatball: meatball, cellText: cellText };
-    this.options.create(Object.assign(optPanelProps, props));
+    var optPanelProps = {
+      meatball: meatball,
+      cellText: cellText,
+      parentProps: this,
+    };
+    this.optionPanel = new OptionPanel(optPanelProps);
+    this.optionPanel.create();
 
     //Add Options Panel
-    this.popover.appendChild(this.options.options);
+    this.popover.appendChild(this.optionPanel.options);
 
     this.divider1 = document.createElement("hr");
     this.divider1.style.borderTop =
@@ -618,10 +635,9 @@ function startMeatball() {
             table: props.listId,
             rowIndex: props.iid,
             internalColumn: props.internal,
-            searchName: "History",
+            listName: "History",
             qs: "'&$expand=Author&$top=300",
           },
-
           cb
         );
       }
@@ -661,11 +677,11 @@ function startMeatball() {
       //should only have one function -- to call one history entry
       ims.sharepoint.chat.getMessage(
         {
-          table: props.listId,
-          rowIndex: props.iid,
           internalColumn: props.internal,
-          searchName: "History",
+          listName: "History",
           qs: "'&$expand=Author&$orderby=Created desc&$top=1",
+          rowIndex: props.iid,
+          table: props.listId,
         },
         cb
       );
@@ -780,57 +796,64 @@ function startMeatball() {
   };
 
   //Shows list of predetermine choices for the user
-  function OptionPanel() {
-    this.options = document.createElement("div");
-    this.options.style.borderRadius = ".25rem";
-    this.options.style.padding = ".25rem";
+  function OptionPanel(props) {
+    this.parentProps = this.props.parentProps;
   }
 
-  OptionPanel.prototype.create = function (props) {
-    var panel = this;
+  OptionPanel.prototype.create = function () {
+    this.$panel = document.createElement("div");
+    this.$panel.style.borderRadius = ".25rem";
+    this.$panel.style.padding = ".25rem";
 
-    props.choices.forEach(function (ele, index) {
-      var option = document.createElement("div");
-      option.style.borderRadius = ".25rem";
-      option.style.cursor = "pointer";
-      option.style.marginBottom = ".25rem";
-      option.style.padding = ".25rem";
-      option.style.textAlign = "left";
-      option.style.width = "100%";
+    var $panel = this.$panel;
+    var parentProps = this.parentProps;
 
-      var description = document.createElement("div");
-      description.innerText = ele;
-      description.style.display = "inline";
-      description.style.marginLeft = ".25rem";
+    parentProps.list.choices.forEach(function (choice, index) {
+      var $option = document.createElement("div");
+      $option.style.borderRadius = ".25rem";
+      $option.style.cursor = "pointer";
+      $option.style.marginBottom = ".25rem";
+      $option.style.padding = ".25rem";
+      $option.style.textAlign = "left";
+      $option.style.width = "100%";
 
-      var radio = document.createElement("input");
-      radio.name = "option";
-      radio.style.cursor = "pointer";
-      radio.style.display = "inline";
-      radio.style.margin = "0px";
-      radio.type = "radio";
+      var $description = document.createElement("div");
+      $description.innerText = ele;
+      $description.style.display = "inline";
+      $description.style.marginLeft = ".25rem";
 
-      if (containsSubString(ele, props.cellText)) {
-        radio.checked = true;
-        option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+      var $radio = document.createElement("input");
+      $radio.name = "option";
+      $radio.style.cursor = "pointer";
+      $radio.style.display = "inline";
+      $radio.style.margin = "0px";
+      $radio.type = "radio";
+
+      if (containsSubString(choice, this.parentProps.$cell.innerText)) {
+        $radio.checked = true;
+        $option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
       }
 
-      option.addEventListener("mouseenter", function () {
-        if (radio.checked) {
-          option.style.backgroundColor = color.get(defaultBackgroundColor);
+      $option.addEventListener("mouseenter", function () {
+        if ($radio.checked) {
+          $option.style.backgroundColor = color.get(defaultBackgroundColor);
         } else {
-          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+          $option.style.backgroundColor = color.get(
+            defaultHoverBackgroundColor
+          );
         }
       });
-      option.addEventListener("mouseleave", function () {
+      $option.addEventListener("mouseleave", function () {
         if (radio.checked) {
-          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+          $option.style.backgroundColor = color.get(
+            defaultHoverBackgroundColor
+          );
         } else {
-          option.style.backgroundColor = color.get(defaultBackgroundColor);
+          $option.style.backgroundColor = color.get(defaultBackgroundColor);
         }
       });
 
-      panel.options.addEventListener("mousedown", function () {
+      $panel.addEventListener("mousedown", function () {
         [].slice.call(panel.options.children).forEach(function (item) {
           if (item.parentElement.querySelector(":hover") === item) {
             item.style.backgroundColor = color.get(defaultHoverBackgroundColor);
@@ -840,12 +863,27 @@ function startMeatball() {
         });
       });
 
-      option.addEventListener("mouseup", function () {
-        if (!radio.checked) {
-          radio.checked = true;
-          option.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+      $option.addEventListener("mouseup", function () {
+        if (!$radio.checked) {
+          $radio.checked = true;
+          $option.style.backgroundColor = color.get(
+            defaultHoverBackgroundColor
+          );
           var updateTargetProps = { ele: ele };
-          updateTarget(Object.assign(updateTargetProps, props));
+          ims.sharepoint.list.item.update(
+            {
+              data: {
+                [parentProps.list.column]: choice,
+              },
+              id: parentProps.item.id,
+              listName: "History",
+            },
+            function () {}
+          );
+
+          props.meatball.removePopover();
+          var toast = new Toast().startLoading().show();
+          kitchen.show(toast);
 
           function cb(error, data) {
             if (error) {
@@ -863,13 +901,12 @@ function startMeatball() {
             : "Initial Status: " + ele + " by " + userName;
           ims.sharepoint.chat.createMessage(
             {
-              listId: historyListGUID,
               message: autoComment,
-              colName: props.internal,
-              rowId: props.iid,
-              tableGUID: props.listId,
+              colName: parentProps.list.internal,
+              rowId: parentProps.item.id,
+              tableGUID: parentProps.list.id,
               autoBot: true,
-              searchName: "History",
+              listName: "History",
             },
             cb
           );
@@ -1258,9 +1295,9 @@ function startMeatball() {
         message: this.input.value,
         colName: props.internal,
         rowId: props.iid,
-        tableGUID: table,
+        tableGUID: props.listId,
         autoBot: false,
-        searchName: "History",
+        listName: "History",
       },
       cb
     );
@@ -1353,7 +1390,7 @@ function startMeatball() {
             message: "placeholder",
             props,
             autoBot: false,
-            searchName: "History",
+            listName: "History",
           },
           cb
         );
@@ -1464,10 +1501,10 @@ function startMeatball() {
           //change pierre -- check to fully remove cb from chat.js
           ims.sharepoint.chat.delete({
             id: meatballHistoryItem.id,
-            searchName: "History",
+            listName: "History",
           });
           // }
-          // rest.find((props: { searchName: "History" }), cb);
+          // rest.find((props: { listName: "History" }), cb);
         }
       }
     });
@@ -1501,6 +1538,7 @@ function startMeatball() {
     listGUID,
     isFirst
   ) {
+    console.log(props, author, date, comment, id, listGUID, isFirst);
     if (!isFirst) {
       this.author.parentNode.removeChild(this.author);
       this.buttonGroup.style.display = "block";
@@ -1555,7 +1593,7 @@ function startMeatball() {
             column: "Message",
             id: newData.ID,
             text: currentText,
-            searchName: "History",
+            listName: "History",
           });
         } else {
           var id = this.id;
@@ -1563,7 +1601,7 @@ function startMeatball() {
             column: "Message",
             id: id,
             text: currentText,
-            searchName: "History",
+            listName: "History",
           });
         }
       } else {

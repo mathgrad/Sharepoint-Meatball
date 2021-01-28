@@ -29,7 +29,7 @@ var list = {
   },
   find: function (props, cb) {
     var url =
-      ctx.PortalUrl + "_api/web/lists/getbytitle('" + props.searchName + "')";
+      ctx.PortalUrl + "_api/web/lists/getbytitle('" + props.listName + "')";
 
     $.ajax({
       url: url,
@@ -83,15 +83,14 @@ var list = {
     //back burner
     create: {},
     update: function (props, cb) {
-      var data = {
+      var data = Object.assign(props.data, {
         __metadata: { type: "SP.ListItem" },
-      };
-      data[props.column] = props.text;
+      });
 
       var url =
         ctx.PortalUrl +
         "_api/web/lists/getbytitle('" +
-        props.searchName +
+        props.listName +
         "')/items(" +
         props.id +
         ")";
@@ -109,10 +108,10 @@ var list = {
           "IF-MATCH": "*",
         },
         success: function (data) {
-          return false;
+          cb(null, data);
         },
         error: function (error) {
-          console.log("History entry update failed:", error);
+          cb(error, null);
         },
       });
     },
