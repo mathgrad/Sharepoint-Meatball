@@ -1,0 +1,260 @@
+function meatballhistorymessage(props){
+    // var meatballHistoryItem = this;
+
+        // this.$btnContainer = document.createElement("div");
+        // this.$btnContainer.style.display = "flex";
+        //
+        // this.$submit = document.createElement("div");
+        // this.$submit.innerText = "Submit";
+        // this.$submit.setAttribute(
+        //   "style",
+        //   ims.sharepoint.style({
+        //     type: "button",
+        //     size: "",
+        //     bgc: defaultButtonBackgroundColor,
+        //     fc: defaultColor,
+        //   }).$ele
+        // );
+        // this.$submit.style.display = "inline-block";
+        // this.$submit.style.marginLeft = "4px";
+        // this.$submit.style.width = "75px";
+        //
+        // this.$submit.addEventListener("mouseenter", function () {
+        //   this.style.backgroundColor = color.get(defaultButtonHoverBackgroundColor);
+        // });
+        //
+        // this.$submit.addEventListener("mouseleave", function () {
+        //   this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
+        // });
+        //
+        // this.$submit.addEventListener("click", function () {
+        //   meatballHistoryItem.$comment.style.minWidth = "unset";
+        //   meatballHistoryItem.$ele.style.width = "auto";
+        //   meatballHistoryItem.$delete.style.marginRight = "15px";
+
+        //   function cb(error, props) {
+        //     if (error) {
+        //       console.log(error);
+        //       return;
+        //     }
+        //   }
+        //   console.log("props:", props);
+        //   ims.sharepoint.list.item.create(
+        //     {
+        //       data: {
+        //         Message: "placeholder",
+        //         Status: "User Generated",
+        //         Title:
+        //           props.list.id + "-" + props.item.id + "-" + props.list.internal,
+        //       },
+        //       listName: "History",
+        //     },
+        //     cb
+        //   );
+        // });
+        //
+        // this.$cancel = document.createElement("div");
+        // this.$cancel.innerText = "Cancel";
+        // this.$cancel.setAttribute(
+        //   "style",
+        //   ims.sharepoint.style({
+        //     type: "button",
+        //     size: "",
+        //     bgc: "transparent",
+        //     fc: defaultColor,
+        //   }).$ele
+        // );
+        // this.$cancel.style.border = "1px solid " + color.get(23);
+        // this.$cancel.style.display = "inline-block";
+        //
+        // this.$cancel.style.marginLeft = "267px";
+        // this.$cancel.style.width = "75px";
+        //
+        // this.$cancel.addEventListener("mouseenter", function () {
+        //   this.style.borderColor = color.get(25);
+        //   this.style.color = color.get(25);
+        // });
+        //
+        // this.$cancel.addEventListener("mouseleave", function () {
+        //   this.style.border = "1px solid " + color.get(23);
+        //   this.style.color = color.get(defaultColor);
+        // });
+        //
+        // this.$cancel.addEventListener("click", function () {
+        //   meatballHistoryItem.$comment.style.minWidth = "unset";
+        //   meatballHistoryItem.$comment.style.textAlign = "right";
+        //   meatballHistoryItem.$delete.style.marginRight = "15px";
+        //   meatballHistoryItem.$ele.style.width = "auto";
+        //   meatballHistoryItem.setEditable(false, false, true);
+        // });
+        //
+        // this.$buttonGroup = document.createElement("div");
+        // this.$buttonGroup.style.alignContent = "flex-start";
+        // this.$buttonGroup.style.display = "flex";
+        // this.$buttonGroup.style.justifyContent = "space-around";
+        // this.$buttonGroup.style.margin = "0px";
+        // this.$buttonGroup.style.padding = "0px";
+        // this.$buttonGroup.style.textAlign = "right";
+        //
+        // this.$author = document.createElement("div");
+        // this.$author.contentEditable = false;
+        // this.$author.style.flex = "1";
+        // this.$author.style.fontSize = "8pt";
+        // this.$author.style.marginRight = "10px";
+        // this.$author.style.padding = ".25rem";
+        // this.$author.style.textAlign = "left";
+        // this.$buttonGroup.appendChild(this.$author);
+
+        // this.$edit = new SVGGenerator({
+        //   color: color.get(6),
+        //   type: "edit",
+        //   size: "small",
+        // }).wrapper;
+        // this.$edit.style.cursor = "pointer";
+        // this.$edit.addEventListener("click", function () {
+        //   meatballHistoryItem.isNew = false;
+        //   meatballHistoryItem.$ele.style.flex = "1";
+        //   if (meatballHistoryItem.$ele.parentNode.isEdit) {
+        //     meatballHistoryItem.$ele.parentNode.isEdit = false;
+        //     meatballHistoryItem.setEditable(!meatballHistoryItem.getEditable());
+        //   }
+        // });
+        //
+        // this.$buttonGroup.appendChild(this.$edit);
+        //
+        // this.$delete = new SVGGenerator({
+        //   color: color.get(defaultColor),
+        //   type: "delete",
+        //   size: "small",
+        // }).wrapper;
+        // this.$delete.style.cursor = "pointer";
+        // this.$delete.style.marginLeft = "15px";
+        // this.$delete.style.marginRight = "15px";
+        //
+        // this.$delete.addEventListener("click", function () {
+        //   if (meatballHistoryItem.$ele) {
+        //     if (meatballHistoryItem.$ele.parentNode) {
+        //       if (!meatballHistoryItem.$ele.parentNode.addNew) {
+        //         meatballHistoryItem.$ele.parentNode.addNew = true;
+        //       }
+        //       if (!meatballHistoryItem.$ele.parentNode.isEdit) {
+        //         meatballHistoryItem.$ele.parentNode.isEdit = true;
+        //       }
+        //       meatballHistoryItem.$ele.parentNode.removeChild(
+        //         meatballHistoryItem.$ele
+        //       );
+        //       //Need to test but the rest call to check if history exsists doesn';t matter because if you could get this far it does exsist
+        //       // function cb(error) {
+        //       //   if (error) {
+        //       //     console.log(error);
+        //       //     return;
+        //       //   }
+        //       ims.chat.delete({
+        //         id: meatballHistoryItem.id,
+        //         listName: "History",
+        //       });
+        //       // }
+        //       // rest.find((props: { listName: "History" }), cb);
+        //     }
+        //   }
+        // });
+        // this.$buttonGroup.appendChild(this.$delete);
+        //
+        // this.$ele.appendChild(this.$buttonGroup);
+}
+// MeatballHistoryMessage.prototype.setEditable = function (
+//   value,
+//   newData,
+//   // oldComment
+// ) {
+//   if (value) {
+//     this.$comment.style.backgroundColor = color.get(
+//       defaultHoverBackgroundColor
+//     );
+//     this.$comment.style.minWidth = "-webkit-fill-available";
+//     this.$comment.style.textAlign = "left";
+//     this.$delete.style.marginRight = "15px";
+//     this.$ele.style.backgroundColor = color.get(defaultMHIBackgroundColor);
+//     this.$ele.style.color = color.get(defaultColor);
+//     this.$ele.style.flex = "1";
+//     this.$submit.style.backgroundColor = color.get(
+//       defaultButtonBackgroundColor
+//     );
+//
+//     this.$btnContainer.appendChild(this.$cancel);
+//     this.$btnContainer.appendChild(this.$submit);
+//     this.$display.appendChild(this.$btnContainer);
+//   } else {
+//     if (!oldComment) {
+//       var currentText = this.$comment.innerText;
+//       currentText = currentText.replace(regex, "", currentText);
+//       this.$comment.innerText = currentText;
+//       this.prevComment = currentText;
+//       if (currentText.trim().length === 0) {
+//         return;
+//       }
+//       if (newData && newData.ID) {
+//         ims.sharepoint.list.item.update({
+//           data: {
+//             Message: text,
+//           },
+//           id: newData.ID,
+//           listName: "History",
+//         });
+//       } else {
+//         var id = this.id;
+//         ims.sharepoint.list.item.update({
+//           data: {
+//             Message: currentText,
+//           },
+//           id: id,
+//           listName: "History",
+//         });
+//       }
+//     } else {
+//       this.$comment.innerText = this.prevComment;
+//     }
+//
+//     this.$comment.style.color = color.get(defaultColor);
+//     this.$comment.style.backgroundColor = color.get(
+//       defaultButtonBackgroundColor
+//     );
+//     this.$ele.style.backgroundColor = color.get(defaultButtonBackgroundColor);
+//     this.$ele.style.color = color.get(defaultColor);
+//
+//     if (this.$btnContainer.parentNode) {
+//       this.$display.removeChild(this.$btnContainer);
+//     }
+//
+//     if (!this.$ele.parentNode.addNew && this.isNew) {
+//       this.$ele.parentNode.addNew = true;
+//       this.isNew = false;
+//     }
+//     if (!this.$ele.parentNode.isEdit) {
+//       this.$ele.parentNode.isEdit = true;
+//     }
+//   }
+//   this.$comment.contentEditable = value;
+//
+//   return this;
+// };
+
+// MeatballHistoryMessage.prototype.getEditable = function () {
+//   return this.$comment.contentEditable === "true";
+// };
+//
+// MeatballHistoryMessage.prototype.setType = function (author) {
+//   if (this.$author.innerText.indexOf(author) > -1) {
+//     this.$ele.type = "editable";
+//     this.$ele.style.backgroundColor = color.get(defaultButtonBackgroundColor);
+//     this.$ele.style.color = color.get(defaultColor);
+//   } else {
+//     this.$ele.type = "disabled";
+//     this.$ele.style.backgroundColor = color.get(defaultMHIBackgroundColor);
+//     this.$ele.style.color = color.get(defaultColor);
+//   }
+//   if (this.$ele.type !== "editable") {
+//     this.$delete.parentNode.removeChild(this.$delete);
+//     this.$edit.parentNode.removeChild(this.$edit);
+//   }
+// };
