@@ -593,17 +593,13 @@ function startMeatball() {
 
             //step 2 create the message block
             var $messageBlock = document.createElement("div");
-
             $messageBlock.style.alignItems = isRight
               ? "flex-end"
               : "flex-start";
             $messageBlock.style.display = "flex";
             $messageBlock.style.flex = "1";
             $messageBlock.style.flexDirection = "column";
-            // $messageBlock.style.maxWidth = "75%";
-            $messageBlock.style.width =
-              "expression($messageBlock.parentNode.width > 376px ? 375px : auto)";
-
+            $messageBlock.style.maxWidth = "75%";
             $messageContainer.appendChild($avatarContainer);
             $messageContainer.appendChild($messageBlock);
             meatballHistoryDisplay.$container.appendChild($messageContainer);
@@ -1037,6 +1033,7 @@ function startMeatball() {
     this.$container = document.createElement("div");
     this.$container.id = "MHContainer";
     this.$container.style.color = color.get(defaultTitleColor);
+    this.$container.style.display = "flex";
     this.$container.style.flex = "1";
     this.$container.style.flexDirection = "column";
     this.$container.style.overflowX = "hidden";
