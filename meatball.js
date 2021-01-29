@@ -593,16 +593,12 @@ function startMeatball() {
 
             //step 2 create the message block
             var $messageBlock = document.createElement("div");
-
             $messageBlock.style.alignItems = isRight
               ? "flex-end"
               : "flex-start";
             $messageBlock.style.display = "flex";
             $messageBlock.style.flex = "1";
             $messageBlock.style.flexDirection = "column";
-            // $messageBlock.style.maxWidth = "75%";
-            $messageBlock.style.width =
-              "expression($messageBlock.parentNode.width > 376px ? 375px : auto)";
 
             $messageContainer.appendChild($avatarContainer);
             $messageContainer.appendChild($messageBlock);
@@ -1117,7 +1113,7 @@ function startMeatball() {
     this.$input.style.borderRadius = ".25rem";
     this.$input.style.color = color.get(defaultTitleColor);
     this.$input.style.display = "flex";
-    this.$input.style.flex = "1 1 0%";
+    this.$input.style.flex = "1 1 0";
     this.$input.style.fontSize = "9pt";
     this.$input.style.padding = ".25rem .5rem";
 
@@ -1201,7 +1197,7 @@ function startMeatball() {
     this.$newCommentContainer = document.createElement("div");
     this.$newCommentContainer.style.display = "flex";
     this.$newCommentContainer.style.flexDirection = "row-reverse";
-    this.$newCommentContainer.style.width = "100%";
+    this.$newCommentContainer.style.width = "90%";
 
     //create the avatar container + avatar
     var $avatar = document.createElement("div");
@@ -1219,7 +1215,7 @@ function startMeatball() {
     this.$newMessageBlock.style.display = "flex";
     this.$newMessageBlock.style.flex = "1";
     this.$newMessageBlock.style.flexDirection = "column";
-    this.$newMessageBlock.style.maxWidth = "75%";
+    this.$newMessageBlock.style.maxWidth = "80%";
 
     var chatWindow = this;
     var $commentBlock = this.$newMessageBlock;
@@ -1242,9 +1238,6 @@ function startMeatball() {
         Object.assign(props, { data: data })
       );
       message.buildMessage().buildDate().listeners().append();
-
-      //message.setType(meatballObj.currentUser);
-      console.log("message:", message);
       //Step 1. Determine whether to append to existing block or append to new block
       if (lastAuthor === userName) {
         //Step 1a. Find last message block and append to existing
@@ -1278,8 +1271,6 @@ function startMeatball() {
       chatWindow.scrollDown();
 
       // message.setEditable(message.getEditable());
-
-      console.log(chatWindow);
 
       //Step 4. Reset the input to NO value to start over.
       chatWindow.$input.value = "";
@@ -1489,6 +1480,7 @@ function startMeatball() {
     this.$ele.style.margin = "0px;";
     this.$ele.style.marginBottom = ".25rem";
     this.$ele.style.padding = ".25rem";
+    this.$ele.style.maxWidth = "90%";
 
     this.$ele.appendChild(this.$message);
     this.$ele.appendChild(this.$date);
@@ -1515,6 +1507,7 @@ function startMeatball() {
     this.$message.style.fontSize = "9pt";
     this.$message.style.padding = ".25rem";
     this.$message.style.verticalAlign = "right";
+    // this.$message.style.maxWidth = "75%";
     this.$message.innerText = this.data.Message;
 
     return this;
