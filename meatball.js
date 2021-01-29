@@ -626,7 +626,7 @@ function startMeatball() {
       ims.chat.getMessages(
         Object.assign(meatball, {
           listName: "History",
-          qs: "'&$expand=Author&$top=300&$SortField=Modified&SortDir=Desc",
+          qs: "'&$expand=Author&$top=300&$orderby=Created desc",
         }),
         cb
       );
@@ -668,7 +668,7 @@ function startMeatball() {
       ims.chat.getMessages(
         Object.assign(meatball, {
           listName: "History",
-          qs: "'&$expand=Author&$SortField=Created&SortDir=desc&$top=1",
+          qs: "'&$expand=Author&$orderby=Created desc&$top=1",
         }),
         cb
       );
@@ -1086,6 +1086,7 @@ function startMeatball() {
         return;
       }
 
+      console.log("props b4 the newItem:", props);
       if (meatballHistory.$container) {
         meatballHistory.newItem(props);
       }
@@ -1178,6 +1179,7 @@ function startMeatball() {
   };
 
   MeatballHistory.prototype.newItem = function (props) {
+    console.log("newItem props:", props);
     if (this.$container.innerText === this.$containerText) {
       this.$container.innerText = "";
     }
@@ -1226,9 +1228,7 @@ function startMeatball() {
         console.log(error);
         return;
       }
-      //change pierre
       var item = new MeatballHistoryMessage(props);
-
       item.setDisplay(
         props,
         userName,
@@ -1534,7 +1534,6 @@ function startMeatball() {
     listGUID,
     isFirst
   ) {
-    // console.log(props, author, date, comment, id, listGUID, isFirst);
     if (!isFirst) {
       this.$author.parentNode.removeChild(this.$author);
       this.$buttonGroup.style.display = "block";
@@ -1585,7 +1584,6 @@ function startMeatball() {
           return;
         }
         if (newData && newData.ID) {
-          funct;
           ims.sharepoint.list.item.update({
             data: {
               Message: text,
