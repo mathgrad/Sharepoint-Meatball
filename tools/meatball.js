@@ -1,61 +1,9 @@
 var scripts = [].slice.call(document.getElementsByTagName("script"));
 var meatball = scripts.filter(function (script) {
-  if (script.src.indexOf("meatball.js") > -1) {
+  if (script.src.indexOf("tools/meatball.js") > -1) {
     return script;
   }
 });
-
-meatball = meatball[0].src;
-var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
-var ims = {};
-ims.sharepoint = {};
-var requiredScripts = [
-  "api/chat.js",
-  "api/column.js",
-  "api/list.js",
-  "api/person.js",
-  "dist/js/polyfill.js",
-  "tools/notification.js",
-  "dist/css/style.js",
-  "dist/js/svg.js",
-];
-
-function scriptBuilder(url) {
-  var run =
-    url === "dist/js/polyfill.js" ? !Object.hasOwnProperty("values") : true;
-
-  if (run) {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = baseUrl + url;
-    script.defer = true;
-    script.async = false;
-    document.body.appendChild(script);
-    return script;
-  }
-}
-
-function loadScripts() {
-  requiredScripts
-    .map(function (src) {
-      return scriptBuilder(src);
-    })
-    .map(function (script, i) {
-      if (i == requiredScripts.length - 1) {
-        script.addEventListener("load", function () {
-          ims.chat = chat;
-          ims.sharepoint.color = Color;
-          ims.sharepoint.column = column;
-          ims.sharepoint.list = list;
-          ims.sharepoint.person = person;
-          ims.sharepoint.notification = Pantry;
-          ims.sharepoint.style = style;
-          startMeatball();
-        });
-      }
-    });
-}
-loadScripts();
 
 function startMeatball() {
   var color = new ims.sharepoint.color();
