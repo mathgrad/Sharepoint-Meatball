@@ -1101,7 +1101,7 @@ function startMeatball() {
     this.$footer.style.borderRadius = "0.25rem";
     this.$footer.style.padding = "0.25rem";
     this.$footer.style.display = "flex";
-    this.$footer.style.flex = "1";
+    this.$footer.style.flex = "1 1 0";
     this.$footer.style.flexDirection = "row";
 
     this.$input = document.createElement("input");
@@ -1116,6 +1116,7 @@ function startMeatball() {
     this.$input.style.flex = "1 1 0";
     this.$input.style.fontSize = "9pt";
     this.$input.style.padding = ".25rem .5rem";
+    this.$input.style.width = "400px";
 
     this.$input.addEventListener("keydown", function (e) {
       props.item.message = e.target.value;
