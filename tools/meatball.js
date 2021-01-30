@@ -10,18 +10,19 @@ var baseUrl = meatball.substring(0, meatball.indexOf("meatball"));
 var ims = {};
 ims.sharepoint = {};
 var requiredScripts = [
-  "chat.js",
-  "column.js",
-  "list.js",
-  "person.js",
-  "polyfill.js",
-  "notification.js",
-  "style.js",
-  "svg.js",
+  "api/chat.js",
+  "api/column.js",
+  "api/list.js",
+  "api/person.js",
+  "dist/js/polyfill.js",
+  "tools/notification.js",
+  "dist/css/style.js",
+  "dist/js/svg.js",
 ];
 
 function scriptBuilder(url) {
-  var run = url === "polyfill.js" ? !Object.hasOwnProperty("values") : true;
+  var run =
+    url === "dist/js/polyfill.js" ? !Object.hasOwnProperty("values") : true;
 
   if (run) {
     var script = document.createElement("script");
@@ -295,7 +296,6 @@ function startMeatball() {
 
   //Update target's value to user's selected value
   function updateTarget(props) {
-    console.log("props in updateTarget:", props);
     var name = props.meatball.list.internal;
     var data = {
       __metadata: { type: "SP.ListItem" },
@@ -1090,7 +1090,6 @@ function startMeatball() {
         return;
       }
 
-      console.log("props b4 the newItem:", props);
       if (meatballHistory.$container) {
         meatballHistory.newItem(props);
       }
@@ -1181,7 +1180,6 @@ function startMeatball() {
   };
 
   MeatballHistory.prototype.newItem = function (props) {
-    console.log("newItem props:", props);
     if (this.$container.innerText === this.$containerText) {
       this.$container.innerText = "";
     }
