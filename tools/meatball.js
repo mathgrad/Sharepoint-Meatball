@@ -39,8 +39,8 @@ function startMeatball() {
     "@keyframes spin{0%{transform: rotate(0deg);}100%{transform: rotate(360deg);}}" +
     "@-webkit-keyframes spin{0%{-webkit-transform: rotate(0deg);}100%{-webkit-transform: rotate(360deg);}}" +
     "#CommentBox:focus{outline:none;}" +
-    "#CommentBox[type=type]::-ms-clear{display:none;width:0;height:0;}" +
-    "#CommentBox[type=type]::-ms-reveal{display:none;width:0;height:0;}" +
+    "#CommentBox::-ms-clear{display:none;width:0;height:0;}" +
+    "#CommentBox::-ms-reveal{display:none;width:0;height:0;}" +
     "#MHContainer::-webkit-scrollbar-track{border-radius:10px;background-color:" +
     color.get(defaultBackgroundColor) +
     ";margin-right:5px;}" +
