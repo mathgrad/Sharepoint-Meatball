@@ -39,6 +39,8 @@ function startMeatball() {
     "@keyframes spin{0%{transform: rotate(0deg);}100%{transform: rotate(360deg);}}" +
     "@-webkit-keyframes spin{0%{-webkit-transform: rotate(0deg);}100%{-webkit-transform: rotate(360deg);}}" +
     "#CommentBox:focus{outline:none;}" +
+    "#CommentBox[type=type]::-ms-clear{display:none;width:0;height:0;}" +
+    "#CommentBox[type=type]::-ms-reveal{display:none;width:0;height:0;}" +
     "#MHContainer::-webkit-scrollbar-track{border-radius:10px;background-color:" +
     color.get(defaultBackgroundColor) +
     ";margin-right:5px;}" +
@@ -1141,7 +1143,6 @@ function startMeatball() {
     this.$newCommentContainer = document.createElement("div");
     this.$newCommentContainer.style.display = "flex";
     this.$newCommentContainer.style.flexDirection = "row-reverse";
-    this.$newCommentContainer.style.width = "90%";
 
     //create the avatar container + avatar
     var $avatar = document.createElement("div");
