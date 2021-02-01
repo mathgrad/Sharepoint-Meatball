@@ -1045,6 +1045,7 @@ function startMeatball() {
     this.$footer.style.display = "flex";
     this.$footer.style.flex = "1 1 0";
     this.$footer.style.flexDirection = "row";
+    this.$footer.style.height = "45px";
 
     this.$input = document.createElement("input");
     this.$input.id = "CommentBox";
