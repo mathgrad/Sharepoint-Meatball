@@ -27,9 +27,9 @@ var list = {
       },
     });
   },
-  find: function (props, cb) {
+  get: function (props, cb) {
     var url =
-      ctx.PortalUrl + "_api/web/lists/getbytitle('" + props.searchName + "')";
+      ctx.PortalUrl + "_api/web/lists/getbytitle('" + props.listName + "')";
 
     $.ajax({
       url: url,
@@ -81,17 +81,45 @@ var list = {
   delete: {},
   item: {
     //back burner
-    create: {},
-    update: function (props, cb) {
-      var data = {
+    create: function (props, cb) {
+      var data = Object.assign(props.data, {
         __metadata: { type: "SP.ListItem" },
-      };
-      data[props.column] = props.text;
+      });
 
       var url =
         ctx.PortalUrl +
         "_api/web/lists/getbytitle('" +
-        props.searchName +
+        props.listName +
+        "')/items";
+
+      $.ajax({
+        url: url,
+        type: "POST",
+        data: JSON.stringify(data),
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          cb(null, data.d);
+        },
+        error: function (error) {
+          cb(error, null);
+        },
+      });
+    },
+    update: function (props, cb) {
+      console.log("props in the update:", props);
+      var data = Object.assign(props.data, {
+        __metadata: { type: "SP.ListItem" },
+      });
+
+      var url =
+        ctx.PortalUrl +
+        "_api/web/lists/getbytitle('" +
+        props.listName +
         "')/items(" +
         props.id +
         ")";
@@ -109,10 +137,10 @@ var list = {
           "IF-MATCH": "*",
         },
         success: function (data) {
-          return false;
+          cb(null, data.d);
         },
         error: function (error) {
-          console.log("History entry update failed:", error);
+          cb(error, null);
         },
       });
     },

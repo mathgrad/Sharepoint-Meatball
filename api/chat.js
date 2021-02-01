@@ -1,50 +1,16 @@
 var chat = {
-  //specific to meatball
-  createMessage: function (props, cb) {
-    var data = {
-      __metadata: { type: "SP.ListItem" },
-      Message: props.message,
-      Title: props.tableGUID + " - " + props.rowId + " - " + props.colName,
-      Status: props.autoBot ? "Automated Message" : "User Generated",
-    };
-    var url =
-      ctx.PortalUrl +
-      "_api/web/lists/getbytitle('" +
-      props.searchName +
-      "')/items ";
-    $.ajax({
-      url: url,
-      type: "POST",
-      data: JSON.stringify(data),
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        credentials: true,
-        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-      },
-      success: function (data) {
-        if (props.autoBot) {
-          return false;
-        }
-        cb(null, data.d);
-      },
-      error: function (error) {
-        cb(error, null);
-      },
-    });
-  },
   //specific for meatball
-  getMessage: function (props, cb) {
+  getMessages: function (props, cb) {
     var url =
       ctx.PortalUrl +
       "_api/web/lists/getbytitle('" +
-      props.searchName +
+      props.listName +
       "')/items?$select=Created,Author/Title,ID,Message,Status,Title&$filter=Title eq '" +
-      props.table +
-      " - " +
-      props.rowIndex +
-      " - " +
-      props.internalColumn +
+      props.list.id +
+      "-" +
+      props.item.id +
+      "-" +
+      props.list.internal +
       props.qs;
 
     $.ajax({
@@ -78,7 +44,7 @@ var chat = {
     var url =
       ctx.PortalUrl +
       "_api/web/lists/getbytitle('" +
-      props.searchName +
+      props.listName +
       "')/items(" +
       props.id +
       ")";
