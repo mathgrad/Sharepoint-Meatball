@@ -6,6 +6,14 @@ var ims = {
 };
 
 (function () {
+  var scripts = [].slice.call(document.getElementsByTagName("script"));
+  var imo = scripts.filter(function (script) {
+    if (script.src.indexOf("ims.js") > -1) {
+      return script;
+    }
+  });
+  var baseUrl = imo[0].src.substring(0, imo[0].src.indexOf("ims.js"));
+
   var requiredScripts = [
     "api/chat.js",
     "api/column.js",
@@ -24,7 +32,7 @@ var ims = {
     if (run) {
       var script = document.createElement("script");
       script.type = "text/javascript";
-      script.src = ims.defaults.absoluteUrl + "/SiteAssets/ims/" + path;
+      script.src = baseUrl + path;
       script.defer = true;
       script.async = false;
       document.body.appendChild(script);
