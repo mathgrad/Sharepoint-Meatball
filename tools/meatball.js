@@ -671,7 +671,7 @@ function startMeatball() {
       this.$circle.style.position = "relative";
       this.$circle.style.width = "auto";
       this.$circle.style.border = "0px";
-      this.$circle.style.borderRadius = "auto";
+      this.$circle.style.borderRadius = "0px";
       this.$circle.style.textAlign = "center";
       this.$circle.innerText = this.$cell.innerText;
     }
