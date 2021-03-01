@@ -285,7 +285,12 @@ function startMeatball() {
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        props.meatball.setColor(props.cellText);
+        if (props.meatball.showText) {
+          props.meatball.$circle.innerText = props.cellText;
+        } else {
+          props.meatball.setColor(props.cellText);
+        }
+
         toast
           .endLoading()
           .setMessage(
@@ -657,16 +662,18 @@ function startMeatball() {
       }
     });
 
-    if (!this.showText) {
-      this.$cell.innerText = "";
-      this.$cell.appendChild(this.$circle);
-    } else {
-      this.$circle.style.opacity = "0";
+    if (this.showText) {
+      this.$circle.style.backgroundColor = "inherit";
       this.$circle.style.position = "relative";
-      this.$circle.style.top = "-17px";
       this.$circle.style.width = "auto";
-      this.$cell.appendChild(this.$circle);
+      this.$circle.style.border = "0px";
+      this.$circle.style.borderRadius = "auto";
+      this.$circle.style.textAlign = "center";
+      this.$circle.innerText = this.$cell.innerText;
     }
+
+    this.$cell.innerText = "";
+    this.$cell.appendChild(this.$circle);
   };
 
   Meatball.prototype.setPosition = function (triangleSize) {
