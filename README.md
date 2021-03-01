@@ -86,7 +86,9 @@
             </li>
             <li>
               Write the following inside the script editor:
+              </br>
               <script>
+                </br>
                   var meatball_override = [ </br>
                     { value: "", color: "" }, </br>
                     { value: "", color: "" }, </br>
@@ -100,8 +102,9 @@
               <a href="http://colorcode.is/">Color Code</a> can be helpful here.
             </li>
             <li>
-              Example:
+              Example:</br>
               <script>
+  </br>
                 var meatball_override = [</br>
                   { value: "Hi", color: "orange" },</br>
                   { value: "Editor", color: "brown" },</br>
