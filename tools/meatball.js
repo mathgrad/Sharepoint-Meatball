@@ -75,6 +75,10 @@ function startMeatball() {
       meatballDefaults.setIgnore(meatball_ignore);
     }
 
+    if (window.meatball_text) {
+      meatballDefaults.setText(meatball_text);
+    }
+
     if (historyListGUID.length <= 0) {
       function cb0(error, props0) {
         if (error) {
@@ -235,7 +239,10 @@ function startMeatball() {
 
                 //Step B. Build Meatball with these options.
                 var mb = new Meatball(
-                  Object.assign(choiceProps, { $el: $cell })
+                  Object.assign(choiceProps, {
+                    $el: $cell,
+                    showText: meatballDefaults.getText(choiceProps.external),
+                  })
                 );
                 mb.init();
               }
@@ -278,7 +285,12 @@ function startMeatball() {
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        props.meatball.setColor(props.cellText);
+        if (props.meatball.showText) {
+          props.meatball.$circle.innerText = props.cellText;
+        } else {
+          props.meatball.setColor(props.cellText);
+        }
+
         toast
           .endLoading()
           .setMessage(
@@ -334,6 +346,7 @@ function startMeatball() {
       title: props.rowTitle,
     };
     this.$cell = props.$el;
+    this.showText = props.showText;
   }
 
   Meatball.prototype.init = function () {
@@ -648,6 +661,17 @@ function startMeatball() {
         }
       }
     });
+
+    if (this.showText) {
+      this.$circle.style.backgroundColor = "inherit";
+      this.$circle.style.position = "relative";
+      this.$circle.style.width = "auto";
+      this.$circle.style.border = "0px";
+      this.$circle.style.borderRadius = "auto";
+      this.$circle.style.textAlign = "center";
+      this.$circle.innerText = this.$cell.innerText;
+    }
+
     this.$cell.innerText = "";
     this.$cell.appendChild(this.$circle);
   };
@@ -1317,6 +1341,7 @@ function startMeatball() {
     ];
 
     this.ignore = [];
+    this.text = [];
   }
 
   Defaults.prototype.get = function (props) {
@@ -1351,6 +1376,24 @@ function startMeatball() {
 
   Defaults.prototype.setIgnore = function (props) {
     this.ignore = this.ignore.concat(props);
+  };
+
+  Defaults.prototype.getText = function (props) {
+    if (this.text.length < 1) {
+      return false;
+    }
+
+    var textFound = false;
+    this.text.forEach(function (value) {
+      if (props.indexOf(value) > -1) {
+        textFound = true;
+      }
+    });
+    return textFound;
+  };
+
+  Defaults.prototype.setText = function (props) {
+    this.text = this.text.concat(props);
   };
 
   Defaults.prototype.set = function (props) {
