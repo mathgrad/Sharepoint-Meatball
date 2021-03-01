@@ -104,14 +104,14 @@
             <li>
               Example:<br />
               <script>
-  <br />
-                var meatball_override = [<br />
-                  { value: "Hi", color: "orange" },<br />
-                  { value: "Editor", color: "brown" },<br />
-                  { value: "You", color: "black" },<br />
-                  { value: "Got", color: "gray" },<br />
-                  { value: "This", color: "#ee00ee" },<br />
-                ];<br />
+                <br />
+                              var meatball_override = [<br />
+                                { value: "Hi", color: "orange" },<br />
+                                { value: "Editor", color: "brown" },<br />
+                                { value: "You", color: "black" },<br />
+                                { value: "Got", color: "gray" },<br />
+                                { value: "This", color: "#ee00ee" },<br />
+                              ];<br />
               </script>
             </li>
           </ol>
@@ -127,8 +127,10 @@
             </li>
             <li>
               Write the following into the script editor
-              <script><br />
-                var meatball_ignore = [];<br />
+              <script>
+                <br />;
+                var meatball_ignore = [];
+                <br />;
               </script>
             </li>
             <li>
@@ -139,8 +141,10 @@
               <br />
               Column name: "Test Column"
               <br />
-              <script><br />
-                var meatball_ignore = ["Test Column"];<br />
+              <script>
+                <br />;
+                var meatball_ignore = ["Test Column"];
+                <br />;
               </script>
             </li>
           </ol>
@@ -156,8 +160,10 @@
             </li>
             <li>
               Write the following into the script editor<br />
-              <script><br />
-                var meatball_text = [];<br />
+              <script>
+                <br />;
+                var meatball_text = [];
+                <br />;
               </script>
             </li>
             <li>
@@ -168,8 +174,10 @@
               <br />
               Column name: "Test Column"
               <br />
-              <script><br />
-                var meatball_text = ["Test Column"];<br />
+              <script>
+                <br />;
+                var meatball_text = ["Test Column"];
+                <br />;
               </script>
             </li>
           </ol>
@@ -185,8 +193,10 @@
             </li>
             <li>
               Write the following into the script editor<br />
-              <script><br />
-                var ims_meatball_hide = true;<br />
+              <script>
+                <br />;
+                var ims_meatball_hide = true;
+                <br />;
               </script>
             </li>
           </ol>
