@@ -31,8 +31,6 @@
           <li>100-90</li>
           <li>89-79</li>
           <li>79-10</li>
-          <li><79</li>
-          <li><10</li>
         </ul>
         It can be any combination of these values.
       </li>
