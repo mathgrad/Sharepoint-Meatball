@@ -29,7 +29,10 @@ var list = {
   },
   get: function (props, cb) {
     var url =
-      ctx.PortalUrl + "_api/web/lists/getbytitle('" + props.listName + "')";
+      _spPageContextInfo.siteAbsoluteUrl +
+      "_api/web/lists/getbytitle('" +
+      props.listName +
+      "')";
 
     $.ajax({
       url: url,
@@ -56,7 +59,7 @@ var list = {
       ContentTypesEnabled: true,
       Title: name,
     };
-    var url = ctx.PortalUrl + "/_api/web/lists";
+    var url = _spPageContextInfo.siteAbsoluteUrl + "/_api/web/lists";
     $.ajax({
       url: url,
       type: "POST",
@@ -87,7 +90,7 @@ var list = {
       });
 
       var url =
-        ctx.PortalUrl +
+        _spPageContextInfo.siteAbsoluteUrl +
         "_api/web/lists/getbytitle('" +
         props.listName +
         "')/items";
@@ -117,7 +120,7 @@ var list = {
       });
 
       var url =
-        ctx.PortalUrl +
+        _spPageContextInfo.siteAbsoluteUrl +
         "_api/web/lists/getbytitle('" +
         props.listName +
         "')/items(" +

@@ -70,6 +70,11 @@ function startMeatball() {
       });
     }
 
+    //Checks for Field getIgnore
+    if (window.meatball_ignore) {
+      meatballDefaults.setIgnore(meatball_ignore);
+    }
+
     if (historyListGUID.length <= 0) {
       function cb0(error, props0) {
         if (error) {
@@ -221,15 +226,19 @@ function startMeatball() {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
             if (rowTitles[ci] && choiceProps) {
-              choiceProps.colName = colKey2;
-              choiceProps.rowTitle = rowTitles[ci].innerText;
-              choiceProps.iid = $cell.iid;
-              choiceProps.listId = listId;
-              choiceProps.listTitle = listTitle;
+              if (!meatballDefaults.getIgnore(choiceProps.external)) {
+                choiceProps.colName = colKey2;
+                choiceProps.rowTitle = rowTitles[ci].innerText;
+                choiceProps.iid = $cell.iid;
+                choiceProps.listId = listId;
+                choiceProps.listTitle = listTitle;
 
-              //Step B. Build Meatball with these options.
-              var mb = new Meatball(Object.assign(choiceProps, { $el: $cell }));
-              mb.init();
+                //Step B. Build Meatball with these options.
+                var mb = new Meatball(
+                  Object.assign(choiceProps, { $el: $cell })
+                );
+                mb.init();
+              }
             }
           });
         }
@@ -1306,6 +1315,8 @@ function startMeatball() {
       { value: "<79", color: "red" },
       { value: "<10", color: "blue" },
     ];
+
+    this.ignore = [];
   }
 
   Defaults.prototype.get = function (props) {
@@ -1317,11 +1328,29 @@ function startMeatball() {
         return item;
       }
     });
+
     if (results[0]) {
       return results[0].color;
     } else {
       return "0";
     }
+  };
+
+  Defaults.prototype.getIgnore = function (props) {
+    if (this.ignore.length < 1) {
+      return false;
+    }
+    var ignoreFound = false;
+    this.ignore.forEach(function (value) {
+      if (props.indexOf(value) > -1) {
+        ignoreFound = true;
+      }
+    });
+    return ignoreFound;
+  };
+
+  Defaults.prototype.setIgnore = function (props) {
+    this.ignore = this.ignore.concat(props);
   };
 
   Defaults.prototype.set = function (props) {
