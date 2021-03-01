@@ -120,9 +120,9 @@
             <li>
               Write the following into the script editor
               <script>
-                <br />;
+                <br />
                 var meatball_ignore = [];
-                <br />;
+                <br />
               </script>
             </li>
             <li>
@@ -134,9 +134,9 @@
               Column name: "Test Column"
               <br />
               <script>
-                <br />;
+                <br />
                 var meatball_ignore = ["Test Column"];
-                <br />;
+                <br />
               </script>
             </li>
           </ol>
@@ -153,9 +153,9 @@
             <li>
               Write the following into the script editor<br />
               <script>
-                <br />;
+                <br />
                 var meatball_text = [];
-                <br />;
+                <br />
               </script>
             </li>
             <li>
@@ -167,9 +167,9 @@
               Column name: "Test Column"
               <br />
               <script>
-                <br />;
+                <br />
                 var meatball_text = ["Test Column"];
-                <br />;
+                <br />
               </script>
             </li>
           </ol>
@@ -186,9 +186,9 @@
             <li>
               Write the following into the script editor<br />
               <script>
-                <br />;
+                <br />
                 var ims_meatball_hide = true;
-                <br />;
+                <br />
               </script>
             </li>
           </ol>
