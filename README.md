@@ -22,7 +22,7 @@
     </dd>
     <dd>
       The meatball script requires jquery to run. If you see an error message
-      indicating an improperly loaded script, then make sure request jquery to
+      indicating an improperly loaded script, then make sure to request jquery to
       be added to your organization's main page.
     </dd>
   </h4>
@@ -48,16 +48,6 @@
       Clicking on show more, will open a history panel. It displays all
       historical changes, and comments made for that particular cell. An input
       area at the bottom allows for custom comments to be made.
-    </dd>
-    <dd>
-      Once a meatball is populated in the cell then history can be documented.
-      The latest history message will be displayed on the popover.
-    </dd>
-    <dd>
-      Clicking on the show more button will open up a new panel that looks
-      similar to a chat application.
-      <br />
-      Here you can add in new custom comments.
     </dd>
   </h4>
   <h3>
