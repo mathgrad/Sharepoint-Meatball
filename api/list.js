@@ -30,7 +30,7 @@ var list = {
   get: function (props, cb) {
     var url =
       _spPageContextInfo.siteAbsoluteUrl +
-      "_api/web/lists/getbytitle('" +
+      "/_api/web/lists/getbytitle('" +
       props.listName +
       "')";
 
