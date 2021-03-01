@@ -46,8 +46,10 @@
     </dd>
     <dd>
       Clicking on show more, will open a history panel. It displays all
-      historical changes, and comments made for that particular cell. An input
-      area at the bottom allows for custom comments to be made.
+      historical changes, and comments made for that particular cell. 
+    </dd>
+    <dd>
+      An input area at the bottom of the history panel allows for custom comments to be made.
     </dd>
   </h4>
   <h3>
@@ -118,9 +120,9 @@
             <li>
               Write the following into the script editor
               <script>
-                <br />;
+                <br />
                 var meatball_ignore = [];
-                <br />;
+                <br />
               </script>
             </li>
             <li>
@@ -132,9 +134,9 @@
               Column name: "Test Column"
               <br />
               <script>
-                <br />;
+                <br />
                 var meatball_ignore = ["Test Column"];
-                <br />;
+                <br />
               </script>
             </li>
           </ol>
@@ -151,9 +153,9 @@
             <li>
               Write the following into the script editor<br />
               <script>
-                <br />;
+                <br />
                 var meatball_text = [];
-                <br />;
+                <br />
               </script>
             </li>
             <li>
@@ -165,9 +167,9 @@
               Column name: "Test Column"
               <br />
               <script>
-                <br />;
+                <br />
                 var meatball_text = ["Test Column"];
-                <br />;
+                <br />
               </script>
             </li>
           </ol>
@@ -184,9 +186,9 @@
             <li>
               Write the following into the script editor<br />
               <script>
-                <br />;
+                <br />
                 var ims_meatball_hide = true;
-                <br />;
+                <br />
               </script>
             </li>
           </ol>
