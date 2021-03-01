@@ -46,8 +46,10 @@
     </dd>
     <dd>
       Clicking on show more, will open a history panel. It displays all
-      historical changes, and comments made for that particular cell. An input
-      area at the bottom allows for custom comments to be made.
+      historical changes, and comments made for that particular cell. 
+    </dd>
+    <dd>
+      An input area at the bottom of the history panel allows for custom comments to be made.
     </dd>
   </h4>
   <h3>
