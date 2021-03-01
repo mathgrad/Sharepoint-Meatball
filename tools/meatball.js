@@ -17,8 +17,6 @@ function startMeatball() {
   var kitchen = new ims.sharepoint.notification();
 
   var regex = /[^\d\w\s\.\?\!\@\-\:\"\']/g;
-  //Used by developers in Production to find bugs
-  var debug = false;
 
   var begin = true;
   var historyListGUID = "";
@@ -55,7 +53,7 @@ function startMeatball() {
     }
 
     window.addEventListener("error", function (msg, url, line) {
-      if (debug) {
+      if (meatballDefaults.getDebug()) {
         //Fix me. Pass message into method not prototype
         var errorToast = new Toast();
         errorToast.setMessage(msg).setListeners().show();
@@ -70,11 +68,17 @@ function startMeatball() {
       });
     }
 
-    //Checks for Field getIgnore
+    //Checks for Field DEBUG
+    if (window.meatball_debug){
+      meatballDefaults.setDebug(meatball_debug);
+    }
+
+    //Checks for Field Ignore
     if (window.meatball_ignore) {
       meatballDefaults.setIgnore(meatball_ignore);
     }
 
+    //Checks for Field Text
     if (window.meatball_text) {
       meatballDefaults.setText(meatball_text);
     }
@@ -1340,6 +1344,7 @@ function startMeatball() {
       { value: "<10", color: "blue" },
     ];
 
+    this.debug = false;
     this.ignore = [];
     this.text = [];
   }
@@ -1359,6 +1364,35 @@ function startMeatball() {
     } else {
       return "0";
     }
+  };
+
+  Defaults.prototype.set = function (props) {
+    if (this.replace(props)) {
+      return;
+    }
+    this.defaults.push({ value: props.value, color: props.color });
+  };
+
+  Defaults.prototype.replace = function (props) {
+    var found = false;
+    this.defaults.map(function (item) {
+      if (found) {
+        return;
+      }
+      if (compareString(props.value, item.value)) {
+        found = true;
+        item = { value: props.value, color: props.color };
+      }
+    });
+    return found;
+  };
+
+  Defaults.prototype.getDebug = function (props) {
+    return this.debug;
+  };
+
+  Defaults.prototype.setDebug = function (props) {
+    this.debug = props;
   };
 
   Defaults.prototype.getIgnore = function (props) {
@@ -1394,27 +1428,6 @@ function startMeatball() {
 
   Defaults.prototype.setText = function (props) {
     this.text = this.text.concat(props);
-  };
-
-  Defaults.prototype.set = function (props) {
-    if (this.replace(props)) {
-      return;
-    }
-    this.defaults.push({ value: props.value, color: props.color });
-  };
-
-  Defaults.prototype.replace = function (props) {
-    var found = false;
-    this.defaults.map(function (item) {
-      if (found) {
-        return;
-      }
-      if (compareString(props.value, item.value)) {
-        found = true;
-        item = { value: props.value, color: props.color };
-      }
-    });
-    return found;
   };
 
   function LoaderCSS(props) {
