@@ -75,6 +75,10 @@ function startMeatball() {
       meatballDefaults.setIgnore(meatball_ignore);
     }
 
+    if (window.meatball_text) {
+      meatballDefaults.setText(meatball_text);
+    }
+
     if (historyListGUID.length <= 0) {
       function cb0(error, props0) {
         if (error) {
@@ -235,7 +239,10 @@ function startMeatball() {
 
                 //Step B. Build Meatball with these options.
                 var mb = new Meatball(
-                  Object.assign(choiceProps, { $el: $cell })
+                  Object.assign(choiceProps, {
+                    $el: $cell,
+                    showText: meatballDefaults.getText(choiceProps.external),
+                  })
                 );
                 mb.init();
               }
@@ -334,6 +341,7 @@ function startMeatball() {
       title: props.rowTitle,
     };
     this.$cell = props.$el;
+    this.showText = props.showText;
   }
 
   Meatball.prototype.init = function () {
@@ -648,8 +656,17 @@ function startMeatball() {
         }
       }
     });
-    this.$cell.innerText = "";
-    this.$cell.appendChild(this.$circle);
+
+    if (!this.showText) {
+      this.$cell.innerText = "";
+      this.$cell.appendChild(this.$circle);
+    } else {
+      this.$circle.style.opacity = "0";
+      this.$circle.style.position = "relative";
+      this.$circle.style.top = "-17px";
+      this.$circle.style.width = "auto";
+      this.$cell.appendChild(this.$circle);
+    }
   };
 
   Meatball.prototype.setPosition = function (triangleSize) {
@@ -1317,6 +1334,7 @@ function startMeatball() {
     ];
 
     this.ignore = [];
+    this.text = [];
   }
 
   Defaults.prototype.get = function (props) {
@@ -1351,6 +1369,24 @@ function startMeatball() {
 
   Defaults.prototype.setIgnore = function (props) {
     this.ignore = this.ignore.concat(props);
+  };
+
+  Defaults.prototype.getText = function (props) {
+    if (this.text.length < 1) {
+      return false;
+    }
+
+    var textFound = false;
+    this.text.forEach(function (value) {
+      if (props.indexOf(value) > -1) {
+        textFound = true;
+      }
+    });
+    return textFound;
+  };
+
+  Defaults.prototype.setText = function (props) {
+    this.text = this.text.concat(props);
   };
 
   Defaults.prototype.set = function (props) {
