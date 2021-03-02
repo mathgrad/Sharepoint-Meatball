@@ -306,7 +306,7 @@
       </li>
     </ul>
   </dd>
-  <h4><dt id="5">5. Debugging</dt></4>
+  <h4><dt id="4">4. Debugging</dt></4>
   <h5>
     <dd>
       The following should help fix most issues with the script.
