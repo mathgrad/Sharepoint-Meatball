@@ -32,35 +32,40 @@
     <dd>
       <ul>
         <li>
-          <img src="./dist/media/basic.png" />
-          <br />
           All select list values, by default, will be replaced with circles of
           different colors.
+          <br />
+          <img src="./dist/media/basic.png" />
+          <br />
         </li>
         <li>
+          A popover appears when you mouse over the circle.
+          <br />
           <img src="./dist/media/basic popover.png" />
           <br />
-          A popover appears when you mouse over the circle.
         </li>
         <li>
-          <img src="./dist/media/basic popover explained.png" />
-          <br />
           The popover displays the column and row name, all available choices
           for the cell, the currently selected value, the last history change
           made, and a show more button. Clicking on any choice will update the
           list and page in real time.
+          <br />
+          <img src="./dist/media/basic popover explained.png" />
+          <br />
         </li>
         <li>
+          Clicking on show more, will open a history panel.
+          <br />
           <img src="./dist/media/history.png" />
           <br />
-          Clicking on show more, will open a history panel.
         </li>
         <li>
-          <img src="./dist/media/history explained.png" />
-          <br />
           It displays all historical changes, and comments made for that
           particular cell. An input area at the bottom of the history panel
           allows for custom comments to be made.
+          <br />
+          <img src="./dist/media/history explained.png" />
+          <br />
         </li>
       </ul>
     </dd>
