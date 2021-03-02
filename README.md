@@ -348,11 +348,11 @@
           Verify internal and external names for each column.  The solution uses the internal column names for information transfer, and the external column name for visual                 changes.
         </li>
         <li>
-          Verify column names haven't been changed.  If the external names change, then the values in the <a href="3">customization</a> script will not run correctly.
+          Verify column names haven't been changed.  If the external names change, then the values in the <a href="#3">customization</a> script will not run correctly.
         </li>
         <li>
           Verify the values in each select column and ensure they match with
-          defaults or overrides.  If the <a href="3c">colors and values</a> script lacks or contains incorrect values, then the meatballs will revert to inheriting the color from           the page.  For example, a black page will cause black meatballs.
+          defaults or overrides.  If the <a href="#3c">colors and values</a> script lacks or contains incorrect values, then the meatballs will revert to inheriting the color from the page.  For example, a black page will cause black meatballs.
         </li>
         <li>
           If error persists, then contact the developers.
