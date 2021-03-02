@@ -28,10 +28,10 @@
     <dd>
       <ul>
         <li>
-        All select list values, by default, will be replaced with circles of different colors. ![Test](./dist/media/basic.png)
+        All select list values, by default, will be replaced with circles of different colors. <img src="./dist/media/basic.png">
         </li>
         <li>
-         A popover appears when you mouse over the circle.  
+         A popover appears when you mouse over the circle.  <img src="./dist/media/basic popover.png">
         </li>
         <li>
              The popover displays the column and row name, all available choices for
@@ -43,7 +43,8 @@
         </li>
         <li>
               Clicking on show more, will open a history panel. It displays all
-      historical changes, and comments made for that particular cell. 
+      historical changes, and comments made for that particular cell. <br />
+          <img src="./dist/media/history.png">
         </li>
         <li>
          An input area at the bottom of the history panel allows for custom comments to be made.
@@ -74,6 +75,12 @@
             <li><10 => Blue</li>
           </ul>
         </h5>
+      </li>
+      <li>
+        <h4>
+          Example image
+        </h4>
+        <img src="./dist/media/customization.png">
       </li>
       <li>
         <h4>Colors and Values</h4>
