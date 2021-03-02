@@ -133,9 +133,24 @@
       </li>
       <li>
         <h4>
-          Example image
+          Example Customization Code
         </h4>
-        <img src="./dist/media/customization.png" />
+        <pre>
+          <code>
+            <script>
+              var ims_meatball_hide = false;
+              var meatball_debug = false;
+              var meatball_ignore = ["Meatball Ignore"];
+              var meatball_text = ["Meatball Text"];
+              var meatball_override = [
+                {value: "50", color: "#FF69B4"},
+                {value: "40", color: "#900C3F"},
+                {value: "30", color: "#581845"},
+                {value: "20", color: "#FFC300"}
+              ]
+            </script>
+          </code>
+        </pre>
       </li>
       <li>
         <h4>Colors and Values</h4>
