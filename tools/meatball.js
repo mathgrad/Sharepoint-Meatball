@@ -231,8 +231,13 @@ function startMeatball() {
             var choiceProps = findChoiceField(colKey2);
             if (rowTitles[ci] && choiceProps) {
               if (!meatballDefaults.getIgnore(choiceProps.external)) {
+                //To check if the row title is already in the choices array
+                if (choiceProps.choices.indexOf(rowTitles[ci].innerText) > -1) {
+                  choiceProps.rowTitle = false;
+                } else {
+                  choiceProps.rowTitle = rowTitles[ci].innerText;
+                }
                 choiceProps.colName = colKey2;
-                choiceProps.rowTitle = rowTitles[ci].innerText;
                 choiceProps.iid = $cell.iid;
                 choiceProps.listId = listId;
                 choiceProps.listTitle = listTitle;
@@ -391,7 +396,10 @@ function startMeatball() {
 
     //Create Header Element
     this.$header = document.createElement("div");
-    this.$header.innerText = this.item.title + ": " + this.list.external;
+
+    this.$header.innerText = this.item.title
+      ? this.item.title + ": " + this.list.external
+      : this.list.external;
     this.$header.style.marginBottom = ".25rem";
     this.$header.style.padding = ".25rem";
     this.$header.style.textAlign = "center";
@@ -985,8 +993,9 @@ function startMeatball() {
     this.$titleMain.style.fontWeight = "bolder";
 
     this.$titleDescription = document.createElement("div");
-    this.$titleDescription.innerText =
-      props.item.title + ": " + props.list.external;
+    this.$titleDescription.innerText = props.item.title
+      ? props.item.title + ": " + props.list.external
+      : props.list.external;
     this.$titleDescription.style.color = color.get(defaultTitleColor);
     this.$titleDescription.style.fontSize = "10px";
 
