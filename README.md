@@ -79,6 +79,9 @@
           <img src="./dist/media/history explained.png" />
           <br />
         </li>
+        <li>
+           The history feature allows users to track changes over time, and attach reasons for said change.  For example, why the production status shifted from green to yellow.            Thus reduces time needed for decisions to be made.
+        </li>
       </ul>
     </dd>
   </h4>
@@ -339,25 +342,25 @@
       The following should help fix most issues with the script.
       <ol>
         <li>
-          Check the page's lists.
+          Check the page's lists.  Ensure the proper lists are all select lists.
         </li>
         <li>
-          Check the column names, including the hidden ones.
+          Verify internal and external names for each column.  The solution uses the internal column names for information transfer, and the external column name for visual                 changes.
         </li>
         <li>
-          Verify column names haven't been changed.
+          Verify column names haven't been changed.  If the external names change, then the values in the <a href="3">customization</a> script will not run correctly.
         </li>
         <li>
           Verify the values in each select column and ensure they match with
-          defaults or overrides.
+          defaults or overrides.  If the <a href="3c">colors and values</a> script lacks or contains incorrect values, then the meatballs will revert to inheriting the color from           the page.  For example, a black page will cause black meatballs.
         </li>
         <li>
-          Verify the overrides are created correctly.
+          If error persists, then contact the developers.
         </li>
       </ol>
     </dd>
     <dd>
-      If error persists, then contact the developers.
+      For Developers
       <ol>
         <li>
           Add a script editor to the page or use one on the page.
