@@ -14,7 +14,7 @@ var ims = {
     tools: {
       meatball: {
         scripts: ["api/chat.js", "tools/meatball.js"],
-        show: !window.ims_meatball_show,
+        hide: !window.ims_meatball_hide,
       },
     },
   },
@@ -42,7 +42,7 @@ var ims = {
   function loadScripts() {
     var scriptArr = ims.defaults.scripts;
 
-    if (ims.defaults.tools.meatball.show) {
+    if (ims.defaults.tools.meatball.hide) {
       scriptArr = scriptArr.concat(ims.defaults.tools.meatball.scripts);
     }
 
