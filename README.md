@@ -11,8 +11,20 @@
   </h4>
 </dl>
 <dl>
+  <h3><dt>Table of Contents</dt></h3>
+  <h4>
+    <dd>
+      <table>
+        <tr>
+          <td><a href="#1">Execution</a></td><td><a href="#2">Features</a></td><td><a href="#3">Customizations</a></td><td><a href="#4">Debugging</a></td>
+        </tr>
+      </table>
+    </dd>
+  </h4>
+</dl>
+<dl>
   <h3>
-    <dt>Execution</dt>
+    <dt id="1">1. Execution</dt>
   </h3>
   <h4>
     <dd>
@@ -26,7 +38,7 @@
     </dd>
   </h4>
   <h3>
-    <dt>Features</dt>
+    <dt id="2">2. Features</dt>
   </h3>
   <h4>
     <dd>
@@ -71,7 +83,7 @@
     </dd>
   </h4>
   <h3>
-    <dt>Customizations</dt>
+    <dt id="3">3. Customizations</dt>
   </h3>
   <dd>
     <ul>
@@ -294,7 +306,7 @@
       </li>
     </ul>
   </dd>
-  <h4><dt>Debugging</dt></4>
+  <h4><dt id="5">5. Debugging</dt></4>
   <h5>
     <dd>
       The following should help fix most issues with the script.
