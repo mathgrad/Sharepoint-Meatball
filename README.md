@@ -28,26 +28,32 @@
     <dd>
       <ul>
         <li>
-        All select list values, by default, will be replaced with circles of different colors. <img src="./dist/media/basic.png">
+          <img src="./dist/media/basic.png">
+          <br />
+          All select list values, by default, will be replaced with circles of different colors.
         </li>
         <li>
-         A popover appears when you mouse over the circle.  <img src="./dist/media/basic popover.png">
+          <img src="./dist/media/basic popover.png">
+          <br />
+          A popover appears when you mouse over the circle.  
         </li>
         <li>
-             The popover displays the column and row name, all available choices for
-      the cell, the currently selected value, the last history change made, and
-      a show more button.
+          <img src="./dist/media/basic popover explained.png">
+          <br />
+           The popover displays the column and row name, all available choices for
+           the cell, the currently selected value, the last history change made, and
+           a show more button.  Clicking on any choice will update the list and page in real time.
         </li>
         <li>
-             Clicking on any choice will update the list and page in real time.
-        </li>
-        <li>
-              Clicking on show more, will open a history panel. It displays all
-      historical changes, and comments made for that particular cell. <br />
           <img src="./dist/media/history.png">
+          <br />
+          Clicking on show more, will open a history panel. 
         </li>
         <li>
-         An input area at the bottom of the history panel allows for custom comments to be made.
+          <img src="./dist/media/history explained.png">
+          <br />
+          It displays all historical changes, and comments made for that particular cell.
+          An input area at the bottom of the history panel allows for custom comments to be made.
         </li>
       </ul>  
     </dd>
@@ -67,7 +73,7 @@
             <li>Up => Green</li>
             <li>Down => Red</li>
             <li>Degraded => Yellow</li>
-            <li>NA => Black</li>
+            <li>NA => Inherit</li>
             <li>100-90 => Green</li>
             <li>89-79 => Yellow</li>
             <li>79-10 => Red</li>
