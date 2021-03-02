@@ -1,12 +1,11 @@
-<h1>Sharepoint-Meatball</h1>
+<h1>IMS - Meatball Solution</h1>
 <dl>
   <h2>
     <dt>Mission Statement</dt>
   </h2>
   <h3>
     <dd>
-      Allows users to change color circles (meatballs) through a popover inorder
-      to improve work productivity
+      Enable users to rapidy update and visualize a field status to affect decision making within an organization.
     </dd>
   </h3>
 </dl>
@@ -16,14 +15,10 @@
   </h3>
   <h4>
     <dd>
-      The meatball script exists on the Sharepoint main page. If you do not see
-      the script, then proceed to request it to be added to your organization's
-      main page.
+      The IMS - Meatball solution deploys through the site collection's master page.  Thus all pages natively run the solution.
     </dd>
     <dd>
-      The meatball script requires jquery to run. If you see an error message
-      indicating an improperly loaded script, then make sure to request jquery to
-      be added to your organization's main page.
+      The runtime enviornment requires jQuery, specifically Ajax, to function.  Most DoD SharePoint environments load jQuery to support other solutions.  Please edit the master page to confirm its reference.
     </dd>
   </h4>
   <h3>
@@ -31,25 +26,29 @@
   </h3>
   <h4>
     <dd>
-      All select list values will be replaced with circles of different colors.
-    </dd>
-    <dd>
-      A popover appears when you mouse over the circle.
-    </dd>
-    <dd>
-      The popover displays the column and row name, all available choices for
+      <ul>
+        <li>
+        All select list values, by default, will be replaced with circles of different colors. ![Test](./dist/media/basic.png)
+        </li>
+        <li>
+         A popover appears when you mouse over the circle.  
+        </li>
+        <li>
+             The popover displays the column and row name, all available choices for
       the cell, the currently selected value, the last history change made, and
       a show more button.
-    </dd>
-    <dd>
-      Clicking on any choice will update the list and page in real time.
-    </dd>
-    <dd>
-      Clicking on show more, will open a history panel. It displays all
+        </li>
+        <li>
+             Clicking on any choice will update the list and page in real time.
+        </li>
+        <li>
+              Clicking on show more, will open a history panel. It displays all
       historical changes, and comments made for that particular cell. 
-    </dd>
-    <dd>
-      An input area at the bottom of the history panel allows for custom comments to be made.
+        </li>
+        <li>
+         An input area at the bottom of the history panel allows for custom comments to be made.
+        </li>
+      </ul>  
     </dd>
   </h4>
   <h3>
@@ -58,19 +57,27 @@
   <dd>
     <ul>
       <li>
+        <h4>Defaults</h4>
+        <h5>
+          The script will replace text in any select list with a circle of a known color.  <br />
+          If the text isn't a default value, then a circle of the background color will appear.  <br />
+          The default values are:
+          <ul>
+            <li>Up => Green</li>
+            <li>Down => Red</li>
+            <li>Degraded => Yellow</li>
+            <li>NA => Black</li>
+            <li>100-90 => Green</li>
+            <li>89-79 => Yellow</li>
+            <li>79-10 => Red</li>
+            <li><79 => Red</li>
+            <li><10 => Blue</li>
+          </ul>
+        </h5>
+      </li>
+      <li>
         <h4>Colors and Values</h4>
         <h5>
-          Meatball recognizes the following by default.
-          <ul>
-            <li>Up</li>
-            <li>Down</li>
-            <li>Degraded</li>
-            <li>NA</li>
-            <li>100-90</li>
-            <li>89-79</li>
-            <li>79-10</li>
-          </ul>
-          <br />
           To add custom values:
           <ol>
             <li>
@@ -221,11 +228,24 @@
     </dd>
     <dd>
       If error persists, then contact the developers.
-      <br />
-      At the top of the meatball.js, a variable called debug exists. Toggle it
-      to true, and error notifications will pop up containing the error message.
-      <br />
-      Once finished, toggle it back to false.
+      <ol>
+        <li>
+          Add a script editor to the page or use one on the page.
+        </li>
+        <li>
+          Write the following into the script editor<br />
+          <script>
+            <br />
+            var meatball_debug = true;
+            <br />
+          </script>
+          <br />
+          Now, any error will appear on a notification design to remain on the page no matter what.
+        </li>
+        <li>
+          To turn off debug mode, either delete { var meatball_debug = true; } or change it to { var meatball_debug = false }
+        </li>
+      </ol>
     </dd>
   </h4>
 </dl>
