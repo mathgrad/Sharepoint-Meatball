@@ -85,10 +85,37 @@
   <h3>
     <dt id="3">3. Customizations</dt>
   </h3>
+  <h4>
+    <dd>
+      Table of Contents
+      <table>
+        <tr>
+          <td>
+            <a href="#1c">Defaults</a>
+          </td>
+          <td>
+            <a href="#2c">Example</a>
+          </td>
+          <td>
+            <a href="#3c">Colors and Values</a>
+          </td>
+          <td>
+            <a href="#4c">Ignore</a>
+          </td>
+          <td>
+            <a href="#5c">Text</a>
+          </td>
+          <td>
+            <a href="#6c">Disable</a>
+          </td>
+        </tr>
+      </table> 
+    </dd>
+  </h4>
   <dd>
     <ul>
       <li>
-        <h4>Defaults</h4>
+        <h4 id="1c">Defaults</h4>
         <h5>
           The script will replace text in any select list with a circle of a
           known color. <br />
@@ -144,7 +171,7 @@
         </h5>
       </li>
       <li>
-        <h4>
+        <h4 id="2c">
           Example Customization Code
         </h4>
         <pre>
@@ -165,7 +192,7 @@
         </pre>
       </li>
       <li>
-        <h4>Colors and Values</h4>
+        <h4 id="3c">Colors and Values</h4>
         <h5>
           To add custom values:
           <ol>
@@ -211,7 +238,7 @@
         </h5>
       </li>
       <li>
-        <h4>Ignore Columns</h4>
+        <h4  id="4c">Ignore Columns</h4>
         <h5>
           To set columns to be ignored:
           <ol>
@@ -248,7 +275,7 @@
         </h5>
       </li>
       <li>
-        <h4>Text Columns</h4>
+        <h4  id="5c">Text Columns</h4>
         <h5>
           To set columns to display text instead of a meatball:
           <ol>
@@ -284,7 +311,7 @@
         </h5>
       </li>
       <li>
-        <h4>Disable Script</h4>
+        <h4  id="6c">Disable Script</h4>
         <h5>
           To disable the script from running:
           <ol>
