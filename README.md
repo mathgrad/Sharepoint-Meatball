@@ -1,14 +1,14 @@
 <h1>IMS - Meatball Solution</h1>
 <dl>
-  <h2>
-    <dt>Mission Statement</dt>
-  </h2>
   <h3>
+    <dt>Mission Statement</dt>
+  </h3>
+  <h4>
     <dd>
       Enable users to rapidy update and visualize a field status to affect
       decision making within an organization.
     </dd>
-  </h3>
+  </h4>
 </dl>
 <dl>
   <h3>
@@ -78,17 +78,52 @@
           If the text isn't a default value, then a circle of the background
           color will appear. <br />
           The default values are:
-          <ul>
-            <li>Up => Green</li>
-            <li>Down => Red</li>
-            <li>Degraded => Yellow</li>
-            <li>NA => Inherit</li>
-            <li>100-90 => Green</li>
-            <li>89-79 => Yellow</li>
-            <li>79-10 => Red</li>
-            <li><79 => Red</li>
-            <li><10 => Blue</li>
-          </ul>
+          <table>
+            <tr>
+              <td>
+                Text
+              </td>
+              <td>
+                Color
+              </td>
+            </tr>
+            <tr>
+              <td>Up</td>
+              <td>Green</td>
+            </tr>            
+            <tr>
+              <td>Down</td>
+              <td>Red</td>
+            </tr>            
+            <tr>
+              <td>Degraded</td>
+              <td>Yellow</td>
+            </tr>            
+            <tr>
+              <td>NA</td>
+              <td>Inherit</td>
+            </tr>            
+            <tr>
+              <td>100-90</td>
+              <td>Green</td>
+            </tr>            
+            <tr>
+              <td>89-79</td>
+              <td>Yellow</td>
+            </tr>            
+            <tr>
+              <td>79-10</td>
+              <td>Red</td>
+            </tr>            
+            <tr>
+              <td><79 </td>
+              <td>Red</td>
+            </tr>
+            <tr>
+              <td><10 </td>
+              <td>Blue</td>
+            </tr>
+          </table>
         </h5>
       </li>
       <li>
@@ -108,14 +143,16 @@
             <li>
               Write the following inside the script editor:
               <br />
-              <script>
-                <br />
-                  var meatball_override = [ <br />
-                    { value: "", color: "" }, <br />
-                    { value: "", color: "" }, <br />
-                  ];
-                <br />
-              </script>
+              <pre>
+                <code>
+                  <script>
+                      var meatball_override = [
+                        { value: "", color: "" },
+                        { value: "", color: "" },
+                      ];
+                  </script>
+                </code>
+              </pre>
             </li>
             <li>
               The values must line up with the custom values. The colors can be
@@ -124,16 +161,19 @@
             </li>
             <li>
               Example:<br />
+              <pre>
+              <code>
               <script>
-                <br />
-                var meatball_override = [<br />
-                  { value: "Hi", color: "orange" },<br />
-                  { value: "Editor", color: "brown" },<br />
-                  { value: "You", color: "black" },<br />
-                  { value: "Got", color: "gray" },<br />
-                  { value: "This", color: "#ee00ee" },<br />
-                ];<br />
+                var meatball_override = [
+                  { value: "Hi", color: "orange" },
+                  { value: "Editor", color: "brown" },
+                  { value: "You", color: "black" },
+                  { value: "Got", color: "gray" },
+                  { value: "This", color: "#ee00ee" },
+                ];
               </script>
+              </code>
+              </pre>
             </li>
           </ol>
         </h5>
@@ -148,11 +188,13 @@
             </li>
             <li>
               Write the following into the script editor
+              <pre>
+              <code>
               <script>
-                <br />;
                 var meatball_ignore = [];
-                <br />;
               </script>
+              </code>
+              </pre>
             </li>
             <li>
               Inside of the array, add in the name of the column to be ignored.
@@ -162,11 +204,13 @@
               <br />
               Column name: "Test Column"
               <br />
+              <pre>
+              <code>
               <script>
-                <br />;
                 var meatball_ignore = ["Test Column"];
-                <br />;
               </script>
+              </code>
+              </pre>
             </li>
           </ol>
         </h5>
@@ -180,12 +224,14 @@
               Add a script editor to the page or use one on the page.
             </li>
             <li>
-              Write the following into the script editor<br />
+              Write the following into the script editor
+              <pre>
+              <code>
               <script>
-                <br />;
                 var meatball_text = [];
-                <br />;
               </script>
+              </code>
+              </pre>
             </li>
             <li>
               Inside of the array, add in the name of the column to be ignored.
@@ -194,12 +240,13 @@
               Example:
               <br />
               Column name: "Test Column"
-              <br />
+              <pre>
+              <code>
               <script>
-                <br />;
                 var meatball_text = ["Test Column"];
-                <br />;
               </script>
+              </code>
+              </pre>
             </li>
           </ol>
         </h5>
@@ -213,20 +260,22 @@
               Add a script editor to the page or use one on the page.
             </li>
             <li>
-              Write the following into the script editor<br />
+              Write the following into the script editor
+              <pre>
+              <code>
               <script>
-                <br />;
                 var ims_meatball_hide = true;
-                <br />;
               </script>
+              </code>
+              </pre>
             </li>
           </ol>
         </h5>
       </li>
     </ul>
   </dd>
-  <h3><dt>Debugging</dt></h3>
-  <h4>
+  <h4><dt>Debugging</dt></4>
+  <h5>
     <dd>
       The following should help fix most issues with the script.
       <ol>
@@ -255,13 +304,14 @@
           Add a script editor to the page or use one on the page.
         </li>
         <li>
-          Write the following into the script editor<br />
+          Write the following into the script editor
+          <pre>
+          <code>
           <script>
-            <br />;
             var meatball_debug = true;
-            <br />;
           </script>
-          <br />
+          </code>
+          </pre>
           Now, any error will appear on a notification design to remain on the
           page no matter what.
         </li>
@@ -271,5 +321,5 @@
         </li>
       </ol>
     </dd>
-  </h4>
+  </h5>
 </dl>
