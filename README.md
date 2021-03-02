@@ -5,7 +5,8 @@
   </h2>
   <h3>
     <dd>
-      Enable users to rapidy update and visualize a field status to affect decision making within an organization.
+      Enable users to rapidy update and visualize a field status to affect
+      decision making within an organization.
     </dd>
   </h3>
 </dl>
@@ -15,10 +16,13 @@
   </h3>
   <h4>
     <dd>
-      The IMS - Meatball solution deploys through the site collection's master page.  Thus all pages natively run the solution.
+      The IMS - Meatball solution deploys through the site collection's master
+      page. Thus all pages natively run the solution.
     </dd>
     <dd>
-      The runtime enviornment requires jQuery, specifically Ajax, to function.  Most DoD SharePoint environments load jQuery to support other solutions.  Please edit the master page to confirm its reference.
+      The runtime enviornment requires jQuery, specifically Ajax, to function.
+      Most DoD SharePoint environments load jQuery to support other solutions.
+      Please edit the master page to confirm its reference.
     </dd>
   </h4>
   <h3>
@@ -28,34 +32,37 @@
     <dd>
       <ul>
         <li>
-          <img src="./dist/media/basic.png">
+          <img src="./dist/media/basic.png" />
           <br />
-          All select list values, by default, will be replaced with circles of different colors.
+          All select list values, by default, will be replaced with circles of
+          different colors.
         </li>
         <li>
-          <img src="./dist/media/basic popover.png">
+          <img src="./dist/media/basic popover.png" />
           <br />
-          A popover appears when you mouse over the circle.  
+          A popover appears when you mouse over the circle.
         </li>
         <li>
-          <img src="./dist/media/basic popover explained.png">
+          <img src="./dist/media/basic popover explained.png" />
           <br />
-           The popover displays the column and row name, all available choices for
-           the cell, the currently selected value, the last history change made, and
-           a show more button.  Clicking on any choice will update the list and page in real time.
+          The popover displays the column and row name, all available choices
+          for the cell, the currently selected value, the last history change
+          made, and a show more button. Clicking on any choice will update the
+          list and page in real time.
         </li>
         <li>
-          <img src="./dist/media/history.png">
+          <img src="./dist/media/history.png" />
           <br />
-          Clicking on show more, will open a history panel. 
+          Clicking on show more, will open a history panel.
         </li>
         <li>
-          <img src="./dist/media/history explained.png">
+          <img src="./dist/media/history explained.png" />
           <br />
-          It displays all historical changes, and comments made for that particular cell.
-          An input area at the bottom of the history panel allows for custom comments to be made.
+          It displays all historical changes, and comments made for that
+          particular cell. An input area at the bottom of the history panel
+          allows for custom comments to be made.
         </li>
-      </ul>  
+      </ul>
     </dd>
   </h4>
   <h3>
@@ -66,8 +73,10 @@
       <li>
         <h4>Defaults</h4>
         <h5>
-          The script will replace text in any select list with a circle of a known color.  <br />
-          If the text isn't a default value, then a circle of the background color will appear.  <br />
+          The script will replace text in any select list with a circle of a
+          known color. <br />
+          If the text isn't a default value, then a circle of the background
+          color will appear. <br />
           The default values are:
           <ul>
             <li>Up => Green</li>
@@ -86,7 +95,7 @@
         <h4>
           Example image
         </h4>
-        <img src="./dist/media/customization.png">
+        <img src="./dist/media/customization.png" />
       </li>
       <li>
         <h4>Colors and Values</h4>
@@ -117,13 +126,13 @@
               Example:<br />
               <script>
                 <br />
-                              var meatball_override = [<br />
-                                { value: "Hi", color: "orange" },<br />
-                                { value: "Editor", color: "brown" },<br />
-                                { value: "You", color: "black" },<br />
-                                { value: "Got", color: "gray" },<br />
-                                { value: "This", color: "#ee00ee" },<br />
-                              ];<br />
+                var meatball_override = [<br />
+                  { value: "Hi", color: "orange" },<br />
+                  { value: "Editor", color: "brown" },<br />
+                  { value: "You", color: "black" },<br />
+                  { value: "Got", color: "gray" },<br />
+                  { value: "This", color: "#ee00ee" },<br />
+                ];<br />
               </script>
             </li>
           </ol>
@@ -140,9 +149,9 @@
             <li>
               Write the following into the script editor
               <script>
-                <br />
+                <br />;
                 var meatball_ignore = [];
-                <br />
+                <br />;
               </script>
             </li>
             <li>
@@ -154,9 +163,9 @@
               Column name: "Test Column"
               <br />
               <script>
-                <br />
+                <br />;
                 var meatball_ignore = ["Test Column"];
-                <br />
+                <br />;
               </script>
             </li>
           </ol>
@@ -173,9 +182,9 @@
             <li>
               Write the following into the script editor<br />
               <script>
-                <br />
+                <br />;
                 var meatball_text = [];
-                <br />
+                <br />;
               </script>
             </li>
             <li>
@@ -187,9 +196,9 @@
               Column name: "Test Column"
               <br />
               <script>
-                <br />
+                <br />;
                 var meatball_text = ["Test Column"];
-                <br />
+                <br />;
               </script>
             </li>
           </ol>
@@ -206,9 +215,9 @@
             <li>
               Write the following into the script editor<br />
               <script>
-                <br />
+                <br />;
                 var ims_meatball_hide = true;
-                <br />
+                <br />;
               </script>
             </li>
           </ol>
@@ -248,15 +257,17 @@
         <li>
           Write the following into the script editor<br />
           <script>
-            <br />
+            <br />;
             var meatball_debug = true;
-            <br />
+            <br />;
           </script>
           <br />
-          Now, any error will appear on a notification design to remain on the page no matter what.
+          Now, any error will appear on a notification design to remain on the
+          page no matter what.
         </li>
         <li>
-          To turn off debug mode, either delete { var meatball_debug = true; } or change it to { var meatball_debug = false }
+          To turn off debug mode, either delete { var meatball_debug = true; }
+          or change it to { var meatball_debug = false }
         </li>
       </ol>
     </dd>
