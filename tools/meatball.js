@@ -69,7 +69,7 @@ function startMeatball() {
     }
 
     //Checks for Field DEBUG
-    if (window.meatball_debug){
+    if (window.meatball_debug) {
       meatballDefaults.setDebug(meatball_debug);
     }
 
@@ -1419,7 +1419,7 @@ function startMeatball() {
 
     var textFound = false;
     this.text.forEach(function (value) {
-      if (props.indexOf(value) > -1) {
+      if (compareString(value, props)) {
         textFound = true;
       }
     });
