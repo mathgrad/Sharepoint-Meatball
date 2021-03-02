@@ -91,7 +91,7 @@ var list = {
 
       var url =
         _spPageContextInfo.siteAbsoluteUrl +
-        "_api/web/lists/getbytitle('" +
+        "/_api/web/lists/getbytitle('" +
         props.listName +
         "')/items";
 
