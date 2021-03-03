@@ -295,7 +295,7 @@ function startMeatball() {
       },
       success: function (data) {
         if (props.meatball.showText) {
-          props.meatball.$circle.innerText = props.cellText;
+          props.meatball.$circleMessage.innerText = props.cellText;
         } else {
           props.meatball.setColor(props.cellText);
         }
@@ -681,7 +681,32 @@ function startMeatball() {
       this.$circle.style.border = "0px";
       this.$circle.style.borderRadius = "0px";
       this.$circle.style.textAlign = "center";
-      this.$circle.innerText = this.$cell.innerText;
+      this.$circle.style.display = "flex";
+      this.$circle.style.flexDirection = "row";
+
+      this.$circleMessage = document.createElement("div");
+      this.$circleMessage.style.padding = "0px";
+      this.$circleMessage.style.margin = "0px";
+      this.$circleMessage.style.display = "flex";
+      this.$circleMessage.style.flexBasis = "1";
+      this.$circleMessage.style.flexGrowth = "2";
+      this.$circleMessage.style.flexShrink = "0";
+      this.$circleMessage.innerText = this.$cell.innerText;
+
+      this.$messageSVG = new SVGGenerator({
+        color: "black",
+        type: "message",
+        size: "normal",
+      }).wrapper;
+      this.$messageSVG.style.padding = "0px";
+      this.$messageSVG.style.margin = "0px";
+      this.$messageSVG.style.display = "flex";
+      this.$messageSVG.style.flexBasis = "1";
+      this.$messageSVG.style.flexGrowth = "2";
+      this.$messageSVG.style.flexShrink = "0";
+
+      this.$circle.appendChild(this.$circleMessage);
+      this.$circle.appendChild(this.$messageSVG);
     }
 
     this.$cell.innerText = "";
