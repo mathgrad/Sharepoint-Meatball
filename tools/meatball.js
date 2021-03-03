@@ -43,7 +43,20 @@ function startMeatball() {
     ";}" +
     "#MHContainer::-webkit-scrollbar-thumb:hover{background-color: " +
     color.get(4) +
+    ";}" +
+    "#OptionPanel::-webkit-scrollbar-track{border-radius:10px;background-color:" +
+    color.get(defaultBackgroundColor) +
+    ";margin-right:5px;}" +
+    "#OptionPanel::-webkit-scrollbar{width:12px;background-color:" +
+    color.get(defaultBackgroundColor) +
+    ";}" +
+    "#OptionPanel::-webkit-scrollbar-thumb{border-radius:10px;-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);background-color: " +
+    color.get(24) +
+    ";}" +
+    "#OptionPanel::-webkit-scrollbar-thumb:hover{background-color: " +
+    color.get(4) +
     "}";
+
   document.getElementsByTagName("head")[0].appendChild(style);
 
   function start() {
@@ -371,31 +384,15 @@ function startMeatball() {
     this.$ele = document.createElement("div");
     this.$ele.style.backgroundColor = "transparent";
     this.$ele.style.padding = "10px";
-
-    this.$popoverBody = document.createElement("div");
-    this.$popoverBody.style.backgroundColor = color.get(defaultBackgroundColor);
-    this.$popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
-    this.$popoverBody.style.color = color.get(defaultColor);
-    this.$popoverBody.style.display = "inline-block";
-    this.$popoverBody.style.margin = "0px";
-    this.$popoverBody.style.padding = "0px";
-    this.$popoverBody.style.width = "200px";
-
-    this.$carret = document.createElement("div");
-    this.$carret.setAttribute(
-      "style",
-      ims.sharepoint.style({
-        type: "carret",
-        size: "",
-        bgc: defaultBackgroundColor,
-      }).$ele
-    );
+    this.$ele.style.width = "200px";
+    this.$ele.style.position = "absolute";
 
     //Create Popover Element
     this.$popover = document.createElement("div");
     this.$popover.style.borderRadius = ".25rem";
     this.$popover.style.display = "inline-block";
     this.$popover.style.padding = ".5rem";
+    this.$popover.style.width = "100%";
     this.$popover.style.zIndex = "1";
 
     //Create Header Element
@@ -407,7 +404,26 @@ function startMeatball() {
     this.$header.style.marginBottom = ".25rem";
     this.$header.style.padding = ".25rem";
     this.$header.style.textAlign = "center";
-    this.$header.style.width = "100%";
+    this.$header.style.width = "90%";
+
+    this.$popoverBody = document.createElement("div");
+    this.$popoverBody.style.backgroundColor = color.get(defaultBackgroundColor);
+    this.$popoverBody.style.boxShadow = "1px 1px 4px 1px rgb(0 0 0 / 0.2)";
+    this.$popoverBody.style.color = color.get(defaultColor);
+    this.$popoverBody.style.display = "inline-block";
+    this.$popoverBody.style.margin = "0px";
+    this.$popoverBody.style.padding = "0px";
+    this.$popoverBody.style.width = "100%";
+
+    this.$carret = document.createElement("div");
+    this.$carret.setAttribute(
+      "style",
+      ims.sharepoint.style({
+        type: "carret",
+        size: "",
+        bgc: defaultBackgroundColor,
+      }).$ele
+    );
 
     //Add Header Element
     this.$popover.appendChild(this.$header);
@@ -421,11 +437,21 @@ function startMeatball() {
     //Add Options Panel
     this.$popover.appendChild(this.optionPanel.$ele);
 
-    this.$divider1 = document.createElement("hr");
-    this.$divider1.style.borderTop =
+    this.$popoverDivider = document.createElement("hr");
+    this.$popoverDivider.style.borderTop =
       "1pt solid " + color.get(defaultHoverBackgroundColor);
+    this.$popoverDivider.style.padding = "0px";
+    this.$popoverDivider.style.margin = "0px";
+    this.$popoverDivider.style.width = "calc(100% - 1rem)";
 
-    this.$popover.appendChild(this.$divider1);
+    //Add Title
+    this.$initHistoryTitle = document.createElement("div");
+    this.$initHistoryTitle.innerText = "Latest Message";
+    this.$initHistoryTitle.style.textAlign = "center";
+    this.$initHistoryTitle.style.width = "90%";
+
+    this.$popover.appendChild(this.$popoverDivider);
+    this.$popover.appendChild(this.$initHistoryTitle);
 
     this.$popoverBody.appendChild(this.$carret);
     this.$popoverBody.appendChild(this.$popover);
@@ -441,6 +467,7 @@ function startMeatball() {
     this.$initHistoryContainer.style.marginLeft = ".5rem";
     this.$initHistoryContainer.style.marginRight = ".5rem";
     this.$initHistoryContainer.style.padding = ".25rem";
+    this.$initHistoryContainer.style.width = "calc(90% - .25rem)";
 
     this.$initHistoryDate = document.createElement("div");
     this.$initHistoryDate.style.display = "block";
@@ -781,8 +808,12 @@ function startMeatball() {
 
   OptionPanel.prototype.create = function () {
     this.$ele = document.createElement("div");
+    this.$ele.id = "OptionPanel";
     this.$ele.style.borderRadius = ".25rem";
+    this.$ele.style.height = "100px";
     this.$ele.style.padding = ".25rem";
+    this.$ele.style.overflowY = "auto";
+    this.$ele.style.width = "90%";
 
     var $ele = this.$ele;
     var parentProps = this.parentProps;
@@ -794,7 +825,7 @@ function startMeatball() {
       $option.style.marginBottom = ".25rem";
       $option.style.padding = ".25rem";
       $option.style.textAlign = "left";
-      $option.style.width = "100%";
+      $option.style.width = "calc(90% - .5rem)";
 
       var $description = document.createElement("div");
       $description.innerText = choice;
