@@ -810,7 +810,7 @@ function startMeatball() {
     this.$ele = document.createElement("div");
     this.$ele.id = "OptionPanel";
     this.$ele.style.borderRadius = ".25rem";
-    this.$ele.style.height = "100px";
+    this.$ele.style.height = "150px";
     this.$ele.style.padding = ".25rem";
     this.$ele.style.overflowY = "auto";
     this.$ele.style.width = "90%";
