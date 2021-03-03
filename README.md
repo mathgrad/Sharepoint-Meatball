@@ -112,7 +112,7 @@
             <a href="#6c">Disable</a>
           </td>
         </tr>
-      </table> 
+      </table>
     </dd>
   </h4>
   <dd>
@@ -336,7 +336,7 @@
       </li>
     </ul>
   </dd>
-  <h4><dt id="4">4. Debugging</dt></4>
+  <h4><dt id="4">4. Debugging</dt></h4>
   <h5>
     <dd>
       The following should help fix most issues with the script.
