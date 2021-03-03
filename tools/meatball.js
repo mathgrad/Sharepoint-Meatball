@@ -683,6 +683,7 @@ function startMeatball() {
       this.$circle.style.textAlign = "center";
       this.$circle.style.display = "flex";
       this.$circle.style.flexDirection = "row";
+      this.$circle.style.justifyContent = "space-between";
 
       this.$circleMessage = document.createElement("div");
       this.$circleMessage.style.padding = "0px";
@@ -700,6 +701,7 @@ function startMeatball() {
       }).wrapper;
       this.$messageSVG.style.padding = "0px";
       this.$messageSVG.style.margin = "0px";
+      this.$messageSVG.style.marginLeft = ".25rem";
       this.$messageSVG.style.display = "flex";
       this.$messageSVG.style.flexBasis = "1";
       this.$messageSVG.style.flexGrowth = "2";
