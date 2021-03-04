@@ -373,9 +373,9 @@ function startMeatball() {
     var cellText = this.$cell.innerText;
 
     if (this.showText) {
+      this.$circle.className = "ms-qSuggest-hListItem";
       this.$circle.style.position = "relative";
-      this.$circle.style.backgroundColor = "#ddd";
-      this.$circle.style.width = "auto";
+      this.$circle.style.width = "100%";
       this.$circle.style.border = "0px";
       this.$circle.style.borderRadius = "0px";
       this.$circle.style.textAlign = "center";
@@ -384,19 +384,7 @@ function startMeatball() {
       this.$circle.style.justifyContent = "space-between";
       this.$circle.style.alignItems = "baseline";
       this.$circle.style.padding = ".25rem";
-      this.$circle.style.paddingLeft = ".5rem";
-      this.$circle.style.paddingRight = ".5rem";
       this.$circle.style.borderRadius = ".25rem";
-
-      this.$circle.addEventListener("mouseenter", function(){
-        this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
-        this.style.color = color.get(defaultColor);
-      });
-
-      this.$circle.addEventListener("mouseleave", function(){
-        this.style.backgroundColor = "#ddd";
-        this.style.color = "black";
-      })
 
       this.$circleMessage = document.createElement("div");
       this.$circleMessage.style.padding = "0px";
@@ -404,10 +392,11 @@ function startMeatball() {
       this.$circleMessage.style.display = "flex";
       this.$circleMessage.style.flexBasis = "1";
       this.$circleMessage.style.alignSelf = "center";
+      this.$circleMessage.style.fontWeight = "500";
       this.$circleMessage.innerText = this.$cell.innerText;
 
       this.$messageSVG = new SVGGenerator({
-        color: "white",
+        color: "black",
         type: "message",
         size: "normal",
       }).wrapper;
@@ -418,6 +407,19 @@ function startMeatball() {
       this.$messageSVG.style.flexBasis = "1";
       this.$messageSVG.style.alignSelf = "center";
       this.$messageSVG.style.marginLeft = ".5rem";
+      var messageSVGPath = this.$messageSVG.firstChild.firstChild.firstChild;
+
+      this.$circle.addEventListener("mouseenter", function () {
+        this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
+        this.style.color = color.get(defaultColor);
+        messageSVGPath.setAttribute("fill", "white");
+      });
+
+      this.$circle.addEventListener("mouseleave", function () {
+        this.style.backgroundColor = "";
+        this.style.color = "";
+        messageSVGPath.setAttribute("fill", "black");
+      });
 
       this.$circle.appendChild(this.$circleMessage);
       this.$circle.appendChild(this.$messageSVG);
