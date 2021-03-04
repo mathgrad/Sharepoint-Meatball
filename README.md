@@ -112,7 +112,7 @@
             <a href="#6c">Disable</a>
           </td>
         </tr>
-      </table> 
+      </table>
     </dd>
   </h4>
   <dd>
