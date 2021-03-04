@@ -65,15 +65,6 @@ function startMeatball() {
       return;
     }
 
-    window.addEventListener("error", function (msg, url, line) {
-      if (meatballDefaults.getDebug()) {
-        //Fix me. Pass message into method not prototype
-        var errorToast = new Toast();
-        errorToast.setMessage(msg).setListeners().show();
-        kitchen.debug(errorToast);
-      }
-    });
-
     //Checks for overrides
     if (window.meatball_override) {
       meatball_override.forEach(function (item) {
@@ -162,6 +153,18 @@ function startMeatball() {
       }
       ims.sharepoint.person.get(cb);
     }
+
+    window.addEventListener("error", function (e) {
+      if (meatballDefaults.getDebug()) {
+        console.log(e);
+        var errorToast = new Toast();
+        errorToast
+          .setMessage("Message: " + e.message + "\n File: " + e.filename + "\nLine #: " + e.lineno)
+          .setFailed()
+          .show();
+        kitchen.debug(errorToast);
+      }
+    });
 
     //Get all the tables -- create array
     var tables = [].slice.call(
