@@ -392,7 +392,7 @@ function startMeatball() {
     this.$popover.style.borderRadius = ".25rem";
     this.$popover.style.display = "inline-block";
     this.$popover.style.padding = ".5rem";
-    this.$popover.style.width = "100%";
+    this.$popover.style.width = "90%"; //pierre
     this.$popover.style.zIndex = "1";
 
     //Create Header Element
@@ -766,7 +766,7 @@ function startMeatball() {
     }
 
     if (
-      this.$popoverBody.getBoundingClientRect().width +
+      this.$popover.getBoundingClientRect().width +
         this.$circle.getBoundingClientRect().right >
       windowWidth
     ) {
@@ -775,15 +775,15 @@ function startMeatball() {
         triangleSize + "px solid " + color.get(defaultBackgroundColor);
       this.$carret.style.borderRight = "0px";
       this.$carret.style.left =
-        this.$popoverBody.getBoundingClientRect().width + triangleSize + "px";
+        this.$popover.getBoundingClientRect().width + triangleSize + "px";
       this.$ele.style.left =
         this.$circle.getBoundingClientRect().left -
-        this.$popoverBody.getBoundingClientRect().width -
+        this.$popover.getBoundingClientRect().width -
         triangleSize -
         12 +
         "px";
       this.$ele.style.width =
-        this.$popoverBody.getBoundingClientRect().width + triangleSize + "px";
+        this.$popover.getBoundingClientRect().width + triangleSize + "px";
     } else {
       this.$ele.insertBefore(this.$carret, this.$ele.firstChild);
     }
@@ -813,7 +813,7 @@ function startMeatball() {
     this.$ele.style.height = "150px";
     this.$ele.style.padding = ".25rem";
     this.$ele.style.overflowY = "auto";
-    this.$ele.style.width = "90%";
+    this.$ele.style.width = "100%";
 
     var $ele = this.$ele;
     var parentProps = this.parentProps;
