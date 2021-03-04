@@ -308,7 +308,7 @@ function startMeatball() {
       },
       success: function (data) {
         if (props.meatball.showText) {
-          props.meatball.$circle.innerText = props.cellText;
+          props.meatball.$circleMessage.innerText = props.cellText;
         } else {
           props.meatball.setColor(props.cellText);
         }
@@ -349,13 +349,7 @@ function startMeatball() {
   //Attaches popover to the color circle along with updateTarget function
   function Meatball(props) {
     this.$circle = document.createElement("div");
-    this.$circle.setAttribute(
-      "style",
-      ims.sharepoint.style({
-        type: "meatball",
-        size: "large",
-      }).$ele
-    );
+
     this.list = {
       choices: props.choices,
       external: props.external,
@@ -377,9 +371,70 @@ function startMeatball() {
     var meatballHistoryDisplay = new MeatballHistory(this);
     meatballHistoryDisplay.listGUID = historyListGUID;
     var cellText = this.$cell.innerText;
-    this.$circle.style.backgroundColor = color.get(
-      meatballDefaults.get(cellText)
-    );
+
+    if (this.showText) {
+      this.$circle.className = "ms-qSuggest-hListItem";
+      this.$circle.style.position = "relative";
+      this.$circle.style.width = "100%";
+      this.$circle.style.border = "0px";
+      this.$circle.style.borderRadius = "0px";
+      this.$circle.style.textAlign = "center";
+      this.$circle.style.display = "flex";
+      this.$circle.style.flexDirection = "row";
+      this.$circle.style.justifyContent = "space-between";
+      this.$circle.style.alignItems = "baseline";
+      this.$circle.style.padding = ".25rem";
+      this.$circle.style.borderRadius = ".25rem";
+
+      this.$circleMessage = document.createElement("div");
+      this.$circleMessage.style.padding = "0px";
+      this.$circleMessage.style.margin = "0px";
+      this.$circleMessage.style.display = "flex";
+      this.$circleMessage.style.flexBasis = "1";
+      this.$circleMessage.style.alignSelf = "center";
+      this.$circleMessage.style.fontWeight = "500";
+      this.$circleMessage.innerText = this.$cell.innerText;
+
+      this.$messageSVG = new SVGGenerator({
+        color: "black",
+        type: "message",
+        size: "normal",
+      }).wrapper;
+      this.$messageSVG.style.padding = "0px";
+      this.$messageSVG.style.margin = "0px";
+      this.$messageSVG.style.display = "flex";
+      this.$messageSVG.style.verticalAlign = "middle";
+      this.$messageSVG.style.flexBasis = "1";
+      this.$messageSVG.style.alignSelf = "center";
+      this.$messageSVG.style.marginLeft = ".5rem";
+      var messageSVGPath = this.$messageSVG.firstChild.firstChild.firstChild;
+
+      this.$circle.addEventListener("mouseenter", function () {
+        this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
+        this.style.color = color.get(defaultColor);
+        messageSVGPath.setAttribute("fill", "white");
+      });
+
+      this.$circle.addEventListener("mouseleave", function () {
+        this.style.backgroundColor = "";
+        this.style.color = "";
+        messageSVGPath.setAttribute("fill", "black");
+      });
+
+      this.$circle.appendChild(this.$circleMessage);
+      this.$circle.appendChild(this.$messageSVG);
+    } else {
+      this.$circle.setAttribute(
+        "style",
+        ims.sharepoint.style({
+          type: "meatball",
+          size: "large",
+        }).$ele
+      );
+      this.$circle.style.backgroundColor = color.get(
+        meatballDefaults.get(cellText)
+      );
+    }
 
     this.$ele = document.createElement("div");
     this.$ele.style.backgroundColor = "transparent";
@@ -700,16 +755,6 @@ function startMeatball() {
         }
       }
     });
-
-    if (this.showText) {
-      this.$circle.style.backgroundColor = "inherit";
-      this.$circle.style.position = "relative";
-      this.$circle.style.width = "auto";
-      this.$circle.style.border = "0px";
-      this.$circle.style.borderRadius = "0px";
-      this.$circle.style.textAlign = "center";
-      this.$circle.innerText = this.$cell.innerText;
-    }
 
     this.$cell.innerText = "";
     this.$cell.appendChild(this.$circle);
