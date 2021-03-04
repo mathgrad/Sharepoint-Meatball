@@ -612,6 +612,8 @@ function startMeatball() {
           [[]]
         );
 
+        console.log("Josh look: ", organized);
+
         organized = organized.map(function (block, index) {
           if (block.length === 1 && block[0].type === "break") {
             meatballHistoryDisplay.addDivider(block[0]);
@@ -961,7 +963,11 @@ function startMeatball() {
               listName: "History",
             },
 
-            function () {}
+            function (error, data) {
+              if (error) {
+                alert("Error in the update autoBot:" + JSON.stringify(error));
+              }
+            }
           );
           parentProps.cellText = choice; //this will change the current value of meatball for the view purposes.
         } else {
@@ -1410,9 +1416,11 @@ function startMeatball() {
     return this;
   };
   MeatballHistoryMessage.prototype.listeners = function () {
-    this.$message.addEventListener("focus", function () {
-      this.style.outline = "none";
-    });
+    // throw new Error("Test For Issues");
+    // this.$message.addEventListener("focus", function () {
+    //   this.style.outline = "none";
+    // });
+
     return this;
   };
 
