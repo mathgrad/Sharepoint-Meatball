@@ -415,7 +415,7 @@ function startMeatball() {
       this.$messageSVG.style.verticalAlign = "middle";
       this.$messageSVG.style.alignSelf = "center";
       this.$messageSVG.style.margin = "4px";
-      this.$messageSVG.style.marginRight = ".25rem";
+      this.$messageSVG.style.marginRight = "8px";
       var messageSVGPath = this.$messageSVG.firstChild.firstChild.firstChild;
 
       this.$entryObj.addEventListener("mouseenter", function () {
