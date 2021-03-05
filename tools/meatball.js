@@ -1,3 +1,7 @@
+var computedMSColor = getComputedStyle(
+  document.getElementsByClassName("ms-vb2")[0]
+);
+
 function startMeatball() {
   var color = new ims.sharepoint.color();
 
@@ -383,30 +387,23 @@ function startMeatball() {
     var cellText = this.$cell.innerText;
 
     if (this.showText) {
-      var computedMSColor = getComputedStyle(
-        document.getElementsByClassName("ms-vb2")[0]
-      );
+      this.$cell.style.padding = "0px";
 
       this.$circle.className = "ms-subtleEmphasis";
-      this.$circle.style.position = "relative";
-      this.$circle.style.width = "100%";
+      this.$circle.style.borderRadius = ".25rem";
+      this.$circle.style.wordBreak = "break-word";
+      this.$circle.style.width = "100px";
+      this.$circle.style.padding = "4px";
       this.$circle.style.border = "0px";
-      this.$circle.style.borderRadius = "0px";
-      this.$circle.style.textAlign = "center";
+      this.$circle.style.borderRadius = ".25rem";
       this.$circle.style.display = "flex";
       this.$circle.style.flexDirection = "row";
-      this.$circle.style.justifyContent = "space-between";
-      this.$circle.style.alignItems = "baseline";
-      this.$circle.style.padding = ".25rem";
-      this.$circle.style.borderRadius = ".25rem";
+      this.$circle.style.justifyContent = "flex-start";
+      this.$circle.style.alignItems = "space-between";
       this.$circle.style.color = computedMSColor.color;
 
       this.$circleMessage = document.createElement("div");
-      this.$circleMessage.style.padding = "0px";
-      this.$circleMessage.style.margin = "0px";
-      this.$circleMessage.style.display = "flex";
-      this.$circleMessage.style.flexBasis = "1";
-      this.$circleMessage.style.alignSelf = "center";
+      this.$circleMessage.style.cursor = "default";
       this.$circleMessage.innerText = this.$cell.innerText;
 
       this.$messageSVG = new SVGGenerator({
@@ -418,26 +415,30 @@ function startMeatball() {
       this.$messageSVG.style.margin = "0px";
       this.$messageSVG.style.display = "flex";
       this.$messageSVG.style.verticalAlign = "middle";
-      this.$messageSVG.style.flexBasis = "1";
       this.$messageSVG.style.alignSelf = "center";
-      this.$messageSVG.style.marginLeft = ".5rem";
+      this.$messageSVG.style.marginTop = "5px";
+      this.$messageSVG.style.marginLeft = ".25rem";
+      this.$messageSVG.style.marginRight = ".25rem";
       var messageSVGPath = this.$messageSVG.firstChild.firstChild.firstChild;
 
       this.$circle.addEventListener("mouseenter", function () {
+        // this.parentElement.style.backgroundColor = color.get(defaultButtonBackgroundColor);
         this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
         this.style.color = color.get(defaultColor);
         messageSVGPath.setAttribute("fill", "white");
       });
 
       this.$circle.addEventListener("mouseleave", function () {
+        // this.parentElement.style.backgroundColor = "";
         this.style.backgroundColor = "";
         this.style.color = computedMSColor.color;
         messageSVGPath.setAttribute("fill", computedMSColor.color);
       });
 
-      this.$circle.appendChild(this.$circleMessage);
       this.$circle.appendChild(this.$messageSVG);
+      this.$circle.appendChild(this.$circleMessage);
     } else {
+      this.$cell.style.padding = ".25rem";
       this.$circle.setAttribute(
         "style",
         ims.sharepoint.style({
