@@ -322,7 +322,7 @@ function startMeatball() {
       },
       success: function (data) {
         if (props.meatball.showText) {
-          props.meatball.$circleMessage.innerText = props.cellText;
+          props.meatball.$entryObjMessage.innerText = props.cellText;
         } else {
           props.meatball.setColor(props.cellText);
         }
@@ -362,7 +362,7 @@ function startMeatball() {
   //Replaces default text from Color object with circles with color from Color object
   //Attaches popover to the color circle along with updateTarget function
   function Meatball(props) {
-    this.$circle = document.createElement("div");
+    this.$entryObj = document.createElement("div");
 
     this.list = {
       choices: props.choices,
@@ -389,22 +389,22 @@ function startMeatball() {
     if (this.showText) {
       this.$cell.style.padding = "0px";
 
-      this.$circle.className = "ms-subtleEmphasis";
-      this.$circle.style.borderRadius = ".25rem";
-      this.$circle.style.wordBreak = "break-word";
-      this.$circle.style.width = "100px";
-      this.$circle.style.padding = "4px";
-      this.$circle.style.border = "0px";
-      this.$circle.style.borderRadius = ".25rem";
-      this.$circle.style.display = "flex";
-      this.$circle.style.flexDirection = "row";
-      this.$circle.style.justifyContent = "flex-start";
-      this.$circle.style.alignItems = "space-between";
-      this.$circle.style.color = computedMSColor.color;
+      this.$entryObj.className = "ms-subtleEmphasis";
+      this.$entryObj.style.borderRadius = ".25rem";
+      this.$entryObj.style.wordBreak = "break-word";
+      this.$entryObj.style.width = "100px";
+      this.$entryObj.style.padding = "4px";
+      this.$entryObj.style.border = "0px";
+      this.$entryObj.style.borderRadius = ".25rem";
+      this.$entryObj.style.display = "flex";
+      this.$entryObj.style.flexDirection = "row";
+      this.$entryObj.style.justifyContent = "flex-start";
+      this.$entryObj.style.alignItems = "space-between";
+      this.$entryObj.style.color = computedMSColor.color;
 
-      this.$circleMessage = document.createElement("div");
-      this.$circleMessage.style.cursor = "default";
-      this.$circleMessage.innerText = this.$cell.innerText;
+      this.$entryObjMessage = document.createElement("div");
+      this.$entryObjMessage.style.cursor = "default";
+      this.$entryObjMessage.innerText = this.$cell.innerText;
 
       this.$messageSVG = new SVGGenerator({
         color: computedMSColor.color,
@@ -421,32 +421,32 @@ function startMeatball() {
       this.$messageSVG.style.marginRight = ".25rem";
       var messageSVGPath = this.$messageSVG.firstChild.firstChild.firstChild;
 
-      this.$circle.addEventListener("mouseenter", function () {
+      this.$entryObj.addEventListener("mouseenter", function () {
         // this.parentElement.style.backgroundColor = color.get(defaultButtonBackgroundColor);
         this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
         this.style.color = color.get(defaultColor);
         messageSVGPath.setAttribute("fill", "white");
       });
 
-      this.$circle.addEventListener("mouseleave", function () {
+      this.$entryObj.addEventListener("mouseleave", function () {
         // this.parentElement.style.backgroundColor = "";
         this.style.backgroundColor = "";
         this.style.color = computedMSColor.color;
         messageSVGPath.setAttribute("fill", computedMSColor.color);
       });
 
-      this.$circle.appendChild(this.$messageSVG);
-      this.$circle.appendChild(this.$circleMessage);
+      this.$entryObj.appendChild(this.$messageSVG);
+      this.$entryObj.appendChild(this.$entryObjMessage);
     } else {
       this.$cell.style.padding = ".25rem";
-      this.$circle.setAttribute(
+      this.$entryObj.setAttribute(
         "style",
         ims.sharepoint.style({
           type: "meatball",
           size: "large",
         }).$ele
       );
-      this.$circle.style.backgroundColor = color.get(
+      this.$entryObj.style.backgroundColor = color.get(
         meatballDefaults.get(cellText)
       );
     }
@@ -725,7 +725,7 @@ function startMeatball() {
     this.$ele.appendChild(this.$popoverBody);
 
     //Add Mouse Enter Event to display
-    this.$circle.addEventListener("mouseenter", function () {
+    this.$entryObj.addEventListener("mouseenter", function () {
       meatball.$initHistoryMessage.innerText = "Loading...";
       function cb(error, data) {
         if (error) {
@@ -756,7 +756,7 @@ function startMeatball() {
       meatball.setPosition(triangleSize);
     });
 
-    this.$circle.addEventListener("mouseleave", function (e) {
+    this.$entryObj.addEventListener("mouseleave", function (e) {
       if (!e.toElement.parentNode.contains(meatball.$ele)) {
         meatball.$ele.parentNode.removeChild(meatball.$ele);
       }
@@ -772,14 +772,14 @@ function startMeatball() {
     });
 
     this.$cell.innerText = "";
-    this.$cell.appendChild(this.$circle);
+    this.$cell.appendChild(this.$entryObj);
   };
 
   Meatball.prototype.setPosition = function (triangleSize) {
     this.$ele.style.position = "fixed";
     this.$ele.style.right = "0px";
     this.$ele.style.left =
-      this.$circle.getBoundingClientRect().right - 12 + triangleSize + "px";
+      this.$entryObj.getBoundingClientRect().right - 12 + triangleSize + "px";
 
     this.$carret.setAttribute(
       "style",
@@ -796,14 +796,14 @@ function startMeatball() {
     var windowWidth = window.innerWidth || document.body.clientWidth;
 
     if (
-      this.$ele.offsetHeight + this.$circle.getBoundingClientRect().top <
+      this.$ele.offsetHeight + this.$entryObj.getBoundingClientRect().top <
       windowHeight
     ) {
       this.$ele.style.top =
-        this.$circle.getBoundingClientRect().top - 40 + triangleSize + "px";
+        this.$entryObj.getBoundingClientRect().top - 40 + triangleSize + "px";
     } else {
       var meatballHeight =
-        this.$circle.getBoundingClientRect().top - 40 + triangleSize;
+        this.$entryObj.getBoundingClientRect().top - 40 + triangleSize;
       var meatballDifferenceHeight = Math.abs(
         meatballHeight - (windowHeight - this.$ele.offsetHeight)
       );
@@ -827,7 +827,7 @@ function startMeatball() {
 
     if (
       this.$popoverBody.getBoundingClientRect().width +
-        this.$circle.getBoundingClientRect().right >
+        this.$entryObj.getBoundingClientRect().right >
       windowWidth
     ) {
       this.$ele.appendChild(this.$carret);
@@ -837,7 +837,7 @@ function startMeatball() {
       this.$carret.style.left =
         this.$popoverBody.getBoundingClientRect().width + triangleSize + "px";
       this.$ele.style.left =
-        this.$circle.getBoundingClientRect().left -
+        this.$entryObj.getBoundingClientRect().left -
         this.$popoverBody.getBoundingClientRect().width -
         triangleSize -
         12 +
@@ -850,7 +850,7 @@ function startMeatball() {
   };
 
   Meatball.prototype.setColor = function (value) {
-    this.$circle.style.backgroundColor = color.get(meatballDefaults.get(value));
+    this.$entryObj.style.backgroundColor = color.get(meatballDefaults.get(value));
   };
 
   Meatball.prototype.removePopover = function () {
