@@ -383,7 +383,11 @@ function startMeatball() {
     var cellText = this.$cell.innerText;
 
     if (this.showText) {
-      this.$circle.className = "ms-qSuggest-hListItem";
+      var computedMSColor = getComputedStyle(
+        document.getElementsByClassName("ms-vb2")[0]
+      );
+
+      this.$circle.className = "ms-subtleEmphasis";
       this.$circle.style.position = "relative";
       this.$circle.style.width = "100%";
       this.$circle.style.border = "0px";
@@ -395,6 +399,7 @@ function startMeatball() {
       this.$circle.style.alignItems = "baseline";
       this.$circle.style.padding = ".25rem";
       this.$circle.style.borderRadius = ".25rem";
+      this.$circle.style.color = computedMSColor.color;
 
       this.$circleMessage = document.createElement("div");
       this.$circleMessage.style.padding = "0px";
@@ -402,15 +407,10 @@ function startMeatball() {
       this.$circleMessage.style.display = "flex";
       this.$circleMessage.style.flexBasis = "1";
       this.$circleMessage.style.alignSelf = "center";
-      this.$circleMessage.style.fontWeight = "500";
       this.$circleMessage.innerText = this.$cell.innerText;
 
-      var computedTest = getComputedStyle(
-        document.getElementsByClassName("ms-vb2")[0]
-      );
-
       this.$messageSVG = new SVGGenerator({
-        color: computedTest.color,
+        color: computedMSColor.color,
         type: "message",
         size: "normal",
       }).wrapper;
@@ -431,8 +431,8 @@ function startMeatball() {
 
       this.$circle.addEventListener("mouseleave", function () {
         this.style.backgroundColor = "";
-        this.style.color = "";
-        messageSVGPath.setAttribute("fill", computedTest.color);
+        this.style.color = computedMSColor.color;
+        messageSVGPath.setAttribute("fill", computedMSColor.color);
       });
 
       this.$circle.appendChild(this.$circleMessage);
