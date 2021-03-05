@@ -396,14 +396,13 @@ function startMeatball() {
       this.$entryObj.style.padding = "4px";
       this.$entryObj.style.border = "0px";
       this.$entryObj.style.borderRadius = ".25rem";
-      this.$entryObj.style.display = "flex";
-      this.$entryObj.style.flexDirection = "row";
-      this.$entryObj.style.justifyContent = "flex-start";
+      this.$entryObj.style.display = "inline-flex";
       this.$entryObj.style.alignItems = "space-between";
       this.$entryObj.style.color = computedMSColor.color;
 
       this.$entryObjMessage = document.createElement("div");
       this.$entryObjMessage.style.cursor = "default";
+      this.$entryObjMessage.style.width = "calc(100% - .5rem)";
       this.$entryObjMessage.innerText = this.$cell.innerText;
 
       this.$messageSVG = new SVGGenerator({
@@ -413,11 +412,9 @@ function startMeatball() {
       }).wrapper;
       this.$messageSVG.style.padding = "0px";
       this.$messageSVG.style.margin = "0px";
-      this.$messageSVG.style.display = "flex";
       this.$messageSVG.style.verticalAlign = "middle";
       this.$messageSVG.style.alignSelf = "center";
-      this.$messageSVG.style.marginTop = "5px";
-      this.$messageSVG.style.marginLeft = ".25rem";
+      this.$messageSVG.style.margin = "4px";
       this.$messageSVG.style.marginRight = ".25rem";
       var messageSVGPath = this.$messageSVG.firstChild.firstChild.firstChild;
 
