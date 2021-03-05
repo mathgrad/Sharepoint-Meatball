@@ -159,7 +159,14 @@ function startMeatball() {
         console.log(e);
         var errorToast = new Toast();
         errorToast
-          .setMessage("Message: " + e.message + "\n File: " + e.filename + "\nLine #: " + e.lineno)
+          .setMessage(
+            "Message: " +
+              e.message +
+              "\n File: " +
+              e.filename +
+              "\nLine #: " +
+              e.lineno
+          )
           .setFailed()
           .show();
         kitchen.debug(errorToast);
@@ -398,8 +405,12 @@ function startMeatball() {
       this.$circleMessage.style.fontWeight = "500";
       this.$circleMessage.innerText = this.$cell.innerText;
 
+      var computedTest = getComputedStyle(
+        document.getElementsByClassName("ms-vb2")[0]
+      );
+
       this.$messageSVG = new SVGGenerator({
-        color: "black",
+        color: computedTest.color,
         type: "message",
         size: "normal",
       }).wrapper;
@@ -421,7 +432,7 @@ function startMeatball() {
       this.$circle.addEventListener("mouseleave", function () {
         this.style.backgroundColor = "";
         this.style.color = "";
-        messageSVGPath.setAttribute("fill", "black");
+        messageSVGPath.setAttribute("fill", computedTest.color);
       });
 
       this.$circle.appendChild(this.$circleMessage);
