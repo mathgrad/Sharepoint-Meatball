@@ -399,9 +399,10 @@ function startMeatball() {
       this.$entryObj.style.display = "inline-flex";
       this.$entryObj.style.alignItems = "space-between";
       this.$entryObj.style.color = computedMSColor.color;
+      this.$entryObj.style.cursor = "pointer";
 
       this.$entryObjMessage = document.createElement("div");
-      this.$entryObjMessage.style.cursor = "default";
+      this.$entryObjMessage.style.cursor = "pointer";
       this.$entryObjMessage.style.width = "calc(100% - .5rem)";
       this.$entryObjMessage.innerText = this.$cell.innerText;
 
@@ -1062,24 +1063,28 @@ function startMeatball() {
 
     this.$x = document.createElement("div");
     this.$x.innerText = "X";
-    this.$x.style.alignSelf = "center";
+    this.$x.style.display = "flex";
+    this.$x.style.justifyContent = "center";
+    this.$x.style.alignItems = "center";
     this.$x.style.cursor = "pointer";
     this.$x.style.fontWeight = "bolder";
-    this.$x.style.height = "calc(10px + .5rem)";
-    this.$x.style.padding = ".25rem";
-    this.$x.style.right = "10px";
-    this.$x.style.textAlign = "right";
+    this.$x.style.height = "2.5rem";
+    this.$x.style.width = "2.5rem";
+    this.$x.style.borderRadius = ".25rem";
     this.$x.style.textSize = "16pt";
 
     this.$x.style.color = color.get(defaultTitleColor);
     this.$x.style.backgroundColor = color.get(defaultBackgroundColor);
 
     this.$x.addEventListener("mouseenter", function () {
+      // this.style.backgroundColor = color.get(defaultHoverBackgroundColor);
       this.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+      this.style.color = color.get(0);
     });
 
     this.$x.addEventListener("mouseleave", function () {
       this.style.backgroundColor = color.get(defaultBackgroundColor);
+      this.style.color = color.get(defaultTitleColor);
     });
 
     this.$x.addEventListener("click", function () {
