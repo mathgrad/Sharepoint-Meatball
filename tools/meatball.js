@@ -481,6 +481,7 @@ function startMeatball() {
     this.$popoverBody.style.margin = "0px";
     this.$popoverBody.style.padding = "0px";
     this.$popoverBody.style.width = "100%";
+    this.$popoverBody.style.borderRadius = ".25rem";
 
     this.$carret = document.createElement("div");
     this.$carret.setAttribute(
@@ -796,8 +797,13 @@ function startMeatball() {
       this.$ele.offsetHeight + this.$entryObj.getBoundingClientRect().top <
       windowHeight
     ) {
-      this.$ele.style.top =
-        this.$entryObj.getBoundingClientRect().top - 40 + triangleSize + "px";
+      this.$ele.style.top = this.showText
+        ? this.$entryObj.getBoundingClientRect().top -
+          40 +
+          triangleSize +
+          5 +
+          "px"
+        : this.$entryObj.getBoundingClientRect().top - 40 + triangleSize + "px";
     } else {
       var meatballHeight =
         this.$entryObj.getBoundingClientRect().top - 40 + triangleSize;
@@ -809,7 +815,7 @@ function startMeatball() {
         if (meatballDifferenceHeight > this.$ele.offsetHeight) {
           this.$carret.style.top = meatballHeight + "px";
         } else {
-          this.$carret.style.top = "29px";
+          this.$carret.style.top = this.showText ? "34px" : "29px";
         }
         this.$ele.style.top =
           windowHeight -
@@ -817,7 +823,9 @@ function startMeatball() {
           meatballDifferenceHeight +
           "px";
       } else {
-        this.$carret.style.top = 29 + meatballDifferenceHeight + "px";
+        this.$carret.style.top = this.showText
+          ? 34 + meatballDifferenceHeight + "px"
+          : 29 + meatballDifferenceHeight + "px";
         this.$ele.style.top = windowHeight - this.$ele.offsetHeight + "px";
       }
     }
@@ -847,7 +855,9 @@ function startMeatball() {
   };
 
   Meatball.prototype.setColor = function (value) {
-    this.$entryObj.style.backgroundColor = color.get(meatballDefaults.get(value));
+    this.$entryObj.style.backgroundColor = color.get(
+      meatballDefaults.get(value)
+    );
   };
 
   Meatball.prototype.removePopover = function () {
