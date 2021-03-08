@@ -383,5 +383,15 @@
         </li>
       </ol>
     </dd>
+    <h4><dt id="5">5.  Deployment</dt></h4>
+    <dd>
+      To deploy a new version of the meatball solution
+      <ol>
+        <li>Download a copy of current meatball</li>
+        <li>Unless changes were made to the start function, copy and paste the start function over the new version's start function (Environmental differences apply)</li>
+        <li>In the meatball init function, this.$popoverBody's padding needs to be adjusted to .5rem (Environmental differences apply)</li>
+        <li>If new idiosyncrasies emerge, please update the documents</li>
+      </ol>
+    </dd>
   </h5>
 </dl>
