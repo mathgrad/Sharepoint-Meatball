@@ -1077,7 +1077,6 @@ function startMeatball() {
     this.$x.style.backgroundColor = color.get(defaultBackgroundColor);
 
     this.$x.addEventListener("mouseenter", function () {
-      // this.style.backgroundColor = color.get(defaultHoverBackgroundColor);
       this.style.backgroundColor = color.get(defaultHoverBackgroundColor);
       this.style.color = color.get(0);
     });
