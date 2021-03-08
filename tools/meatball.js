@@ -518,6 +518,7 @@ function startMeatball() {
     this.$initHistoryTitle.innerText = "Latest Message";
     this.$initHistoryTitle.style.textAlign = "center";
     this.$initHistoryTitle.style.width = "90%";
+    this.$initHistoryTitle.style.marginTop = ".25rem";
 
     this.$popover.appendChild(this.$popoverDivider);
     this.$popover.appendChild(this.$initHistoryTitle);
