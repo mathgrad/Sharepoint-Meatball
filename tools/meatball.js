@@ -794,6 +794,7 @@ function startMeatball() {
     var windowHeight = window.innerHeight || document.body.clientHeight;
     var windowWidth = window.innerWidth || document.body.clientWidth;
 
+    //Sets the Vertical Location
     if (
       this.$ele.offsetHeight + this.$entryObj.getBoundingClientRect().top <
       windowHeight
@@ -831,6 +832,7 @@ function startMeatball() {
       }
     }
 
+    //Sets the Horizontal Location
     if (
       this.$popoverBody.getBoundingClientRect().width +
         this.$entryObj.getBoundingClientRect().right >
@@ -848,8 +850,6 @@ function startMeatball() {
         triangleSize -
         12 +
         "px";
-      this.$ele.style.width =
-        this.$popoverBody.getBoundingClientRect().width + triangleSize + "px";
     } else {
       this.$ele.insertBefore(this.$carret, this.$ele.firstChild);
     }
