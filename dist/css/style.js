@@ -113,6 +113,8 @@ function style(props) {
 function Color() {
   this.blue = "#0075ff";
   this.green = "#27e833";
+  this.orange = "#f96816";
+  this.purple = "#8e24aa";
   this.red = "#d71010";
   this.yellow = "#f6de1c";
   this.colors = [
@@ -162,6 +164,10 @@ Color.prototype.get = function (value) {
         return this.blue;
       } else if (compareString(value, "green")) {
         return this.green;
+      } else if (compareString(value, "orange")) {
+        return this.orange;
+      } else if (compareString(value, "purple")) {
+        return this.purple;
       } else if (compareString(value, "red")) {
         return this.red;
       } else if (compareString(value, "yellow")) {
@@ -203,6 +209,12 @@ Color.prototype.replaceValue = function (value, color) {
     return true;
   } else if (compareString(value, "green")) {
     this.green = color;
+    return true;
+  } else if (compareString(value, "orange")) {
+    this.orange = color;
+    return true;
+  } else if (compareString(value, "purple")) {
+    this.purple = color;
     return true;
   } else if (compareString(value, "red")) {
     this.red = color;
