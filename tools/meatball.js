@@ -187,6 +187,11 @@ function startMeatball() {
       //Step a. Get $rows of this table.
       var $thead = $table.getElementsByTagName("thead")[0];
       var $tbody = $table.getElementsByTagName("tbody")[0];
+
+      if (typeof $thead === "undefined") {
+        return r;
+      }
+
       var $tcells = [].slice
         .call($thead.getElementsByTagName("th"))
         .map(function ($th) {
@@ -201,8 +206,11 @@ function startMeatball() {
           if (!r2[colKey]) {
             r2[colKey] = [];
           }
-          $cell.iid = $row.getAttribute("iid").split(",")[1];
-          r2[colKey].push($cell);
+
+          if ($row.getAttribute("iid")) {
+            $cell.iid = $row.getAttribute("iid").split(",")[1];
+            r2[colKey].push($cell);
+          }
         });
 
         return r2;

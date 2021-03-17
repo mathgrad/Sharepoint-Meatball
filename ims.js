@@ -8,10 +8,21 @@ var ims = {
       "dist/js/polyfill.js",
       "dist/css/style.js",
       "dist/js/svg.js",
+      "dist/js/modal/modal.js",
       "tools/notification.js",
     ],
     show: !window.ims_show,
     tools: {
+      easy: {
+        scripts: [
+          "dist/js/modal/meatball/color.js",
+          "dist/js/modal/meatball/toggle.js",
+          "dist/js/modal/meatball/type.js",
+          "tools/menu/menu.js",
+          "tools/easy.js",
+        ],
+        hide: !window.ims_easy_hide,
+      },
       meatball: {
         scripts: ["api/chat.js", "tools/meatball.js"],
         hide: !window.ims_meatball_hide,
@@ -41,6 +52,10 @@ var ims = {
 
   function loadScripts() {
     var scriptArr = ims.defaults.scripts;
+
+    if (ims.defaults.tools.easy.hide) {
+      scriptArr = scriptArr.concat(ims.defaults.tools.easy.scripts);
+    }
 
     if (ims.defaults.tools.meatball.hide) {
       scriptArr = scriptArr.concat(ims.defaults.tools.meatball.scripts);
