@@ -66,6 +66,10 @@ function easyStart() {
       this.cvMIContent.footer.push(this.cvSubmit);
 
       this.cvMI.addModal({ modal: modal, content: this.cvMIContent });
+
+      this.cvMI.$ele.addEventListener("click", function () {
+        mmcs.updateChoices();
+      });
       return this.cvMI.$ele;
     }
 

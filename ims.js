@@ -25,6 +25,7 @@ var ims = {
       },
       meatball: {
         scripts: ["api/chat.js", "tools/meatball.js"],
+        defaults: [],
         hide: !window.ims_meatball_hide,
       },
     },
@@ -80,7 +81,9 @@ var ims = {
           ims.sharepoint.person = person;
           ims.sharepoint.notification = Pantry;
           ims.sharepoint.style = style;
+
           startMeatball();
+          easyStart();
         });
       }
     });

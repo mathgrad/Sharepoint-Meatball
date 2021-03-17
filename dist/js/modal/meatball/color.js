@@ -76,7 +76,35 @@ MeatballMenuColorSelector.prototype.getValues = function () {
   return this.content;
 };
 
-MeatballMenuColorSelector.prototype.setValues = function (props) {};
+MeatballMenuColorSelector.prototype.updateChoices = function () {
+  var practiceColumns = [];
+
+  ims.defaults.tools.meatball.defaults.forEach(function (d) {
+    var cn = { name: d.external };
+    var v = [];
+    d.choices.forEach(function (choice) {
+      v.push({ text: choice, value: "blue" });
+    });
+    cn.values = v;
+    practiceColumns.push(cn);
+  });
+
+  if (practiceColumns.length == 0) return;
+
+  this.content.columns = practiceColumns;
+
+  this.$select.innerText = "";
+  var $select = this.$select;
+
+  practiceColumns.forEach(function (column) {
+    this.$option = document.createElement("option");
+    this.$option.innerText = column.name;
+    this.$option.value = column.name;
+    $select.appendChild(this.$option);
+  });
+
+  updateCurrent();
+};
 
 MeatballMenuColorSelector.prototype.updateCurrent = function () {
   var sv = this.$select.value;

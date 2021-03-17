@@ -1,6 +1,6 @@
-var computedMSColor = getComputedStyle(
-  document.getElementsByClassName("ms-vb2")[0]
-);
+var computedMSColor = document.getElementsByClassName("ms-vb2")
+  ? getComputedStyle(document.getElementsByClassName("ms-vb2")[0])
+  : "";
 
 function startMeatball() {
   var color = new ims.sharepoint.color();
@@ -280,6 +280,7 @@ function startMeatball() {
                 choiceProps.iid = $cell.iid;
                 choiceProps.listId = listId;
                 choiceProps.listTitle = listTitle;
+                ims.defaults.tools.meatball.defaults.push(choiceProps);
 
                 //Step B. Build Meatball with these options.
                 var mb = new Meatball(
