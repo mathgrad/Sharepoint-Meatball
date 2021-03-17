@@ -143,6 +143,7 @@ function MeatballMenuColorItem(props) {
   this.$input.type = "text";
   this.$input.style = mmccstyle.child;
   this.$input.style.border = "0px";
+  this.$input.style.width = "50%";
   this.$input.value = props.text;
 
   this.$ele.appendChild(this.$input);
@@ -150,7 +151,7 @@ function MeatballMenuColorItem(props) {
   this.$select = document.createElement("select");
   this.$select.name = "color";
   this.$select.style.minWidth = "50px";
-  this.$select.style.width = "5vw";
+  this.$select.style.width = "30%";
   this.$select.style.maxWidth = "200px";
   this.$select.style.border = "0px";
   this.$select.style.padding = ".5rem";

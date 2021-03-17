@@ -14,7 +14,7 @@ var modalStyle = {
   wrap:
     "bottom: 0px; left: 0px; position: fixed; right: 0px; top: 0px; outline: 0px; overflow: auto; -webkit-overflow-scrolling: touch; z-index: 1000;",
   modal:
-    "box-sizing: border-box; color: rgba(0, 0, 0, 0.85); font-size: 14pt; line-height: 1rem; list-style: none; margin: 0px auto; padding: 0 0 .25rem; position: relative; top: 100px; min-width: 275px; width: 25vw; max-width: calc(100vw - .5rem); -webkit-box-sizing: border-box;",
+    "box-sizing: border-box; color: rgba(0, 0, 0, 0.85); font-size: 14pt; line-height: 1rem; list-style: none; margin: 0px auto; padding: 0 0 .25rem; position: relative; top: 100px; min-width: 275px; width: 400px; max-width: 95vw; -webkit-box-sizing: border-box;",
   content:
     "background-color: #fff; background-clip: padding-box; border: 0px; border-radius: .25rem; box-shadow: 0 3px 6px -4px rgb(0 0 0 / 12%), 0 6px 16px 0 rgb(0 0 0 / 8%), 0 9px 28px 8px rgb(0 0 0 / 5%); -webkit-box-shadow: 0 3px 6px -4px rgb(0 0 0 / 12%),  0 6px 16px 0 rgb(0 0 0 / 8%), 0 9px 28px 8px rgb(0 0 0 / 5%);",
   header:
