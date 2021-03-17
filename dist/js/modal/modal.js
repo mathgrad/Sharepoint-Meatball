@@ -53,7 +53,7 @@ function Modal() {
   this.$header.style = modalStyle.header;
 
   this.$title = document.createElement("div");
-  this.$title.style = modalStyle.style;
+  this.$title.style = modalStyle.title;
 
   this.$close = document.createElement("div");
   this.$close.innerText = "X";
