@@ -105,8 +105,6 @@ MeatballMenuColorSelector.prototype.updateChoices = function () {
   });
 
   this.mmcc.setValues({ values: practiceColumns[0].values });
-
-  this.updateCurrent();
 };
 
 MeatballMenuColorSelector.prototype.updateCurrent = function () {
