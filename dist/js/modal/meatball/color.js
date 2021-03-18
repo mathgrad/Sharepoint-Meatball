@@ -90,7 +90,7 @@ MeatballMenuColorSelector.prototype.getValues = function () {
 };
 
 MeatballMenuColorSelector.prototype.updateChoices = function () {
-  var practiceColumns = [];
+  var formatColumns = [];
 
   ims.defaults.tools.meatball.defaults.forEach(function (d) {
     var cn = { name: d.external };
@@ -99,24 +99,24 @@ MeatballMenuColorSelector.prototype.updateChoices = function () {
       v.push({ text: choice, value: "" });
     });
     cn.values = v;
-    practiceColumns.push(cn);
+    formatColumns.push(cn);
   });
 
-  if (practiceColumns.length == 0) return;
+  if (formatColumns.length == 0) return;
 
-  this.content.columns = practiceColumns;
+  this.content.columns = formatColumns;
 
   this.$select.innerText = "";
   var $select = this.$select;
 
-  practiceColumns.forEach(function (column) {
+  formatColumns.forEach(function (column) {
     this.$option = document.createElement("option");
     this.$option.innerText = column.name;
     this.$option.value = column.name;
     $select.appendChild(this.$option);
   });
 
-  this.mmcc.setValues({ values: practiceColumns[0].values });
+  this.mmcc.setValues({ values: formatColumns[0].values });
 };
 
 MeatballMenuColorSelector.prototype.updateCurrent = function () {
