@@ -39,6 +39,22 @@ MeatballMenuTypeContent.prototype.setValues = function (props) {
   });
 };
 
+MeatballMenuTypeContent.prototype.updateValues = function () {
+  var formatColumns = [];
+
+  ims.defaults.tools.meatball.defaults.forEach(function (d) {
+    formatColumns.push({
+      name: d.external,
+      internal: d.internal,
+      value: d.type || "circle",
+    });
+  });
+
+  if (formatColumns.length == 0) return;
+  this.$ele.innerText = "";
+  this.setValues({ columns: formatColumns });
+};
+
 function MeatballMenuTypeItem(props) {
   this.$ele = document.createElement("div");
   this.$ele.style = mmtstyle.item;

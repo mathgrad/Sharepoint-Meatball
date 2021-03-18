@@ -77,6 +77,7 @@ function easyStart() {
       };
 
       this.cvMIBody = new MeatballMenuTypeContent();
+      var cvmibody = this.cvMIBody;
       this.cvMIBody.setValues({
         columns: [
           {
@@ -101,6 +102,11 @@ function easyStart() {
       this.cvMIContent.footer.push(this.cvSubmit);
 
       this.cvMI.addModal({ modal: modal, content: this.cvMIContent });
+
+      this.cvMI.$ele.addEventListener("click", function () {
+        cvmibody.updateValues();
+      });
+
       return this.cvMI.$ele;
     }
 
