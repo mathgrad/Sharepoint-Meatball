@@ -8,6 +8,18 @@ var mmccstyle = {
     "border-radius: 100%; height: 15px; margin: .25rem auto; padding: .5rem; width: 15px;",
 };
 
+var colorDefaults = [
+  { text: "Up", color: "green" },
+  { text: "Down", color: "red" },
+  { text: "Degraded", color: "yellow" },
+  { text: "NA", color: "blue" },
+  { text: "100-90", color: "green" },
+  { text: "89-79", color: "yellow" },
+  { text: "79-10", color: "red" },
+  { text: "<79", color: "red" },
+  { text: "<10", color: "blue" },
+];
+
 var colorChoices = [
   { color: "blue", value: "#0075ff" },
   { color: "green", value: "#27e833" },
@@ -84,7 +96,7 @@ MeatballMenuColorSelector.prototype.updateChoices = function () {
     var cn = { name: d.external };
     var v = [];
     d.choices.forEach(function (choice) {
-      v.push({ text: choice, value: "blue" });
+      v.push({ text: choice, value: "" });
     });
     cn.values = v;
     practiceColumns.push(cn);
@@ -138,6 +150,13 @@ MeatballMenuColorContent.prototype.getValues = function () {
 MeatballMenuColorContent.prototype.setValues = function (props) {
   var mmcc = this;
   props.values.forEach(function (item) {
+    if (item.value.length == 0) {
+      colorDefaults.forEach(function (d) {
+        if (compareString(item.text, d.text)) {
+          item.value = d.color;
+        }
+      });
+    }
     this.temp = new MeatballMenuColorItem({
       text: item.text,
       value: item.value,
@@ -233,3 +252,10 @@ MeatballMenuColorItem.prototype.setValues = function (props) {
   this.$input.value = props.text;
   this.$select.value = props.value;
 };
+
+function compareString(s0, s1) {
+  s0 = s0.toLowerCase();
+  s1 = s1.toLowerCase();
+
+  return ~s0.indexOf(s1) < 0 && ~s1.indexOf(s0) < 0;
+}
