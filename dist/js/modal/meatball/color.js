@@ -187,14 +187,15 @@ function MeatballMenuColorItem(props) {
   this.$ele = document.createElement("div");
   this.$ele.style = mmccstyle.item;
 
-  this.$input = document.createElement("input");
-  this.$input.type = "text";
-  this.$input.style = mmccstyle.child;
-  this.$input.style.border = "0px";
-  this.$input.style.width = "50%";
-  this.$input.value = props.text;
+  this.$text = document.createElement("div");
+  this.$text.type = "text";
+  this.$text.style = mmccstyle.child;
+  this.$text.style.border = "0px";
+  this.$text.style.width = "50%";
+  this.$text.style.wordWrap = "break-word";
+  this.$text.innerText = props.text;
 
-  this.$ele.appendChild(this.$input);
+  this.$ele.appendChild(this.$text);
 
   this.$select = document.createElement("select");
   this.$select.name = "color";
@@ -245,11 +246,11 @@ function MeatballMenuColorItem(props) {
 }
 
 MeatballMenuColorItem.prototype.getValues = function () {
-  return { text: this.$input.value, value: this.$select.value };
+  return { text: this.$text.innerText, value: this.$select.value };
 };
 
 MeatballMenuColorItem.prototype.setValues = function (props) {
-  this.$input.value = props.text;
+  this.$text.innerText = props.text;
   this.$select.value = props.value;
 };
 
