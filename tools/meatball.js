@@ -268,20 +268,27 @@ function startMeatball() {
           organizedTables[tableKey][colKey2].forEach(function ($cell, ci) {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
-            if (rowTitles[ci] && choiceProps) {
-              if (!meatballDefaults.getIgnore(choiceProps.external)) {
-                //To check if the row title is already in the choices array
-                if (choiceProps.choices.indexOf(rowTitles[ci].innerText) > -1) {
-                  choiceProps.rowTitle = false;
-                } else {
-                  choiceProps.rowTitle = rowTitles[ci].innerText;
-                }
-                choiceProps.colName = colKey2;
-                choiceProps.iid = $cell.iid;
-                choiceProps.listId = listId;
-                choiceProps.listTitle = listTitle;
-                ims.defaults.tools.meatball.defaults.push(choiceProps);
 
+            if (rowTitles[ci] && choiceProps) {
+              //To check if the row title is already in the choices array
+              if (choiceProps.choices.indexOf(rowTitles[ci].innerText) > -1) {
+                choiceProps.rowTitle = false;
+              } else {
+                choiceProps.rowTitle = rowTitles[ci].innerText;
+              }
+              choiceProps.colName = colKey2;
+              choiceProps.iid = $cell.iid;
+              choiceProps.listId = listId;
+              choiceProps.listTitle = listTitle;
+
+              //~ flips the sign of an integer and makes -1 be 0
+              ~ims.defaults.tools.meatball.defaults.indexOf(choiceProps) < 0
+                ? (ims.defaults.tools.meatball.defaults[
+                    ims.defaults.tools.meatball.defaults.indexOf(choiceProps)
+                  ] = choiceProps)
+                : ims.defaults.tools.meatball.defaults.push(choiceProps);
+
+              if (!meatballDefaults.getIgnore(choiceProps.external)) {
                 //Step B. Build Meatball with these options.
                 var mb = new Meatball(
                   Object.assign(choiceProps, {
@@ -407,7 +414,7 @@ function startMeatball() {
       this.$entryObj.style.borderRadius = ".25rem";
       this.$entryObj.style.display = "inline-flex";
       this.$entryObj.style.alignItems = "space-between";
-      this.$entryObj.style.color = computedMSColor.color;
+      this.$entryObj.style.color = computedMSColor.color || "";
       this.$entryObj.style.cursor = "pointer";
 
       this.$entryObjMessage = document.createElement("div");
@@ -416,7 +423,7 @@ function startMeatball() {
       this.$entryObjMessage.innerText = this.$cell.innerText;
 
       this.$messageSVG = new SVGGenerator({
-        color: computedMSColor.color,
+        color: computedMSColor.color || "",
         type: "message",
         size: "normal",
       }).wrapper;
@@ -438,8 +445,8 @@ function startMeatball() {
       this.$entryObj.addEventListener("mouseleave", function () {
         // this.parentElement.style.backgroundColor = "";
         this.style.backgroundColor = "";
-        this.style.color = computedMSColor.color;
-        messageSVGPath.setAttribute("fill", computedMSColor.color);
+        this.style.color = computedMSColor.color || "";
+        messageSVGPath.setAttribute("fill", computedMSColor.color || "");
       });
 
       this.$entryObj.appendChild(this.$messageSVG);

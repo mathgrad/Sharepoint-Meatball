@@ -28,7 +28,8 @@ function MeatballMenuColorSelector(props) {
   this.$ele = document.createElement("div");
   this.mmcc = new MeatballMenuColorContent();
   var mmcc = this.mmcc;
-  mmcc.setValues({ values: props.columns[0].values });
+  if (props.columns.length > 0)
+    mmcc.setValues({ values: props.columns[0].values });
 
   this.$content = document.createElement("div");
   this.$content.appendChild(mmcc.$ele);
@@ -103,7 +104,9 @@ MeatballMenuColorSelector.prototype.updateChoices = function () {
     $select.appendChild(this.$option);
   });
 
-  updateCurrent();
+  this.mmcc.setValues({ values: practiceColumns[0].values });
+
+  this.updateCurrent();
 };
 
 MeatballMenuColorSelector.prototype.updateCurrent = function () {

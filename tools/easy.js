@@ -39,14 +39,7 @@ function easyStart() {
       };
 
       this.cvMIBody = new MeatballMenuColorSelector({
-        columns: [
-          { name: "test", values: [{ text: "test", value: "blue" }] },
-          { name: "test0", values: [{ text: "test0", value: "green" }] },
-          { name: "test1", values: [{ text: "test1", value: "orange" }] },
-          { name: "test2", values: [{ text: "test2", value: "purple" }] },
-          { name: "test3", values: [{ text: "test3", value: "red" }] },
-          { name: "test4", values: [{ text: "test4", value: "yellow" }] },
-        ],
+        columns: [],
       });
       var mmcs = this.cvMIBody;
 
