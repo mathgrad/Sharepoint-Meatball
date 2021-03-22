@@ -24,7 +24,7 @@ var column = {
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        cb(null, data);
+        cb(null, data.d);
       },
       error: function (error) {
         cb(error, null);
