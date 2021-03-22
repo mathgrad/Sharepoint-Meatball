@@ -57,7 +57,7 @@ var list = {
       AllowContentTypes: true,
       BaseTemplate: 100,
       ContentTypesEnabled: true,
-      Title: name,
+      Title: props.name,
     };
     var url = _spPageContextInfo.siteAbsoluteUrl + "/_api/web/lists";
     $.ajax({
@@ -79,7 +79,33 @@ var list = {
     });
   },
   //back burner - move to item
-  update: {},
+  update: function (props, cb) {
+    var url =
+      _spPageContextInfo.siteAbsoluteUrl +
+      "/_api/web/lists/getbytitle('" +
+      props.listName +
+      "')";
+
+    $.ajax({
+      url: url,
+      type: "PATCH",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "X-Http-Method": "PATCH",
+        "If-Match": props.oldItem.__metadata.etag,
+      },
+      data: JSON.stringify(props.data),
+      success: function (data) {
+        cb(null, data);
+      },
+      error: function (error) {
+        cb(error, null);
+      },
+    });
+  },
   //back burner - deleteing an entire list...
   delete: {},
   item: {
@@ -114,7 +140,6 @@ var list = {
       });
     },
     update: function (props, cb) {
-      console.log("props in the update:", props);
       var data = Object.assign(props.data, {
         __metadata: { type: "SP.ListItem" },
       });
