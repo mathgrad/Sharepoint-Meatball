@@ -1634,8 +1634,9 @@ function startMeatball() {
   function generateId() {
     return Math.floor(Math.random() * 1000);
   }
-
-  setTimeout(function () {
-    start();
-  }, 2000);
+  // Random timer function.  No Idea why it's here.
+  // setTimeout(function () {
+  //   start();
+  // }, 2000);
+  start();
 }
