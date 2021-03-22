@@ -3,20 +3,20 @@ var column = {
     //FieldTypeKind values go to: https://docs.microsoft.com/en-us/previous-versions/office/sharepoint-server/ee540543(v=office.15)
     var data = {
       __metadata: { type: "SP.Field" },
-      Title: colTitle,
-      FieldTypeKind: fieldType,
-      Required: required,
-      EnforceUniqueValues: uniqueValue,
-      StaticName: colTitle,
+      Title: props.colTitle,
+      FieldTypeKind: props.fieldType,
+      Required: props.required,
+      EnforceUniqueValues: props.uniqueValue,
+      StaticName: props.colTitle,
     };
 
     var url =
-      ctx.PortalUrl + "_api/web/lists/getbytitle('" + searchName + "')/Fields";
+      ctx.PortalUrl + "_api/web/lists/getbytitle('" + props.searchName + "')/Fields";
 
     $.ajax({
-      url: url,
+      url: props.url,
       type: "POST",
-      data: JSON.stringify(data),
+      data: JSON.stringify(props.data),
       headers: {
         Accept: "application/json; odata=verbose",
         "Content-Type": "application/json;odata=verbose",
@@ -24,7 +24,7 @@ var column = {
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        cb(null, error);
+        cb(null, data);
       },
       error: function (error) {
         cb(error, null);
