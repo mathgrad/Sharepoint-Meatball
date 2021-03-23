@@ -57,7 +57,7 @@ var list = {
       AllowContentTypes: true,
       BaseTemplate: 100,
       ContentTypesEnabled: true,
-      Title: props.name,
+      Title: props.listName,
     };
     var url = _spPageContextInfo.siteAbsoluteUrl + "/_api/web/lists";
     $.ajax({
@@ -165,7 +165,7 @@ var list = {
           "IF-MATCH": "*",
         },
         success: function (data) {
-          cb(null, data.d);
+          cb(null, data);
         },
         error: function (error) {
           cb(error, null);

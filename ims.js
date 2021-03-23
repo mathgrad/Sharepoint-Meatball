@@ -81,12 +81,94 @@ var ims = {
           ims.sharepoint.person = person;
           ims.sharepoint.notification = Pantry;
           ims.sharepoint.style = style;
-
+          getDefaults();
           startMeatball();
           easyStart();
         });
       }
     });
   }
-  loadScripts();
+
+  function getDefaults() {
+    function cbFinal(error, props) {
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      ims.sharepoint.list.get({ listName: "IMS_SHAREPOINT" }, cbCreateList);
+    }
+
+    function cbCreateOverrides(error, props) {
+      if (error) {
+        return;
+      }
+
+      ims.sharepoint.column.create(
+        {
+          colTitle: "Overrides",
+          fieldType: 3,
+          required: "false",
+          uniqueValue: "false",
+          listName: "IMS_SHAREPOINT",
+        },
+        cbFinal
+      );
+    }
+
+    function cbCreateStatus(error, props) {
+      if (error) {
+        console.error(error);
+        return;
+      }
+      ims.sharepoint.column.create(
+        {
+          colTitle: "Status",
+          fieldType: 2,
+          required: "false",
+          uniqueValue: "false",
+          listName: "IMS_SHAREPOINT",
+        },
+        cbCreateOverrides
+      );
+    }
+
+    function cbCreateMessage(error, props) {
+      if (error) {
+        console.error(error);
+      }
+      ims.sharepoint.column.create(
+        {
+          colTitle: "Message",
+          fieldType: 2,
+          required: "false",
+          uniqueValue: "false",
+          listName: "IMS_SHAREPOINT",
+        },
+        cbCreateStatus
+      );
+    }
+
+    function cbCreateList(error, props) {
+      if (error) {
+        ims.sharepoint.list.create(
+          { listName: "IMS_SHAREPOINT" },
+          cbCreateMessage
+        );
+        console.error(error);
+        return;
+      }
+
+      if (props) {
+        if (props.hasOwnProperty("Id")) {
+          ims.defaults.listGUID = props.Id;
+          return;
+        }
+      }
+    }
+
+    ims.sharepoint.list.get({ listName: "IMS_SHAREPOINT" }, cbCreateList);
+  }
+
+  window.addEventListener("load", loadScripts);
 })();

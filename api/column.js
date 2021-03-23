@@ -11,12 +11,15 @@ var column = {
     };
 
     var url =
-      ctx.PortalUrl + "_api/web/lists/getbytitle('" + props.searchName + "')/Fields";
+      ctx.PortalUrl +
+      "_api/web/lists/getbytitle('" +
+      props.listName +
+      "')/Fields";
 
     $.ajax({
-      url: props.url,
+      url: url,
       type: "POST",
-      data: JSON.stringify(props.data),
+      data: JSON.stringify(data),
       headers: {
         Accept: "application/json; odata=verbose",
         "Content-Type": "application/json;odata=verbose",
@@ -24,7 +27,7 @@ var column = {
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        cb(null, data.d);
+        cb(null, data);
       },
       error: function (error) {
         cb(error, null);
