@@ -45,7 +45,7 @@ var list = {
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        cb(null, data.d);
+        cb(null, data);
       },
       error: function (error) {
         cb(error, null);
@@ -132,7 +132,7 @@ var list = {
           "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         },
         success: function (data) {
-          cb(null, data.d);
+          cb(null, data);
         },
         error: function (error) {
           cb(error, null);
@@ -142,7 +142,7 @@ var list = {
     get: function (props, cb) {
       var url =
         _spPageContextInfo.siteAbsoluteUrl +
-        "_api/web/lists/getbytitle('" +
+        "/_api/web/lists/getbytitle('" +
         props.listName +
         "')/getitembyid('" +
         props.id +
@@ -158,7 +158,31 @@ var list = {
           "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         },
         success: function (data) {
-          cb(null, data.d);
+          cb(null, data);
+        },
+        error: function (error) {
+          cb(error, null);
+        },
+      });
+    },
+    gets: function (props, cb) {
+      var url =
+        _spPageContextInfo.siteAbsoluteUrl +
+        "/_api/web/lists/getbytitle('" +
+        props.listName +
+        "')/items";
+
+      $.ajax({
+        url: url,
+        type: "GET",
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          cb(null, data);
         },
         error: function (error) {
           cb(error, null);
@@ -216,7 +240,7 @@ var list = {
           "If-Match": props.oldItem.__metadata.etag,
         },
         success: function (data) {
-          cb(null, data.d);
+          cb(null, data);
         },
         error: function (error) {
           cb(error, null);

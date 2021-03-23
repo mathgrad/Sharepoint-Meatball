@@ -160,6 +160,7 @@ var ims = {
       }
 
       if (props) {
+        console.log(props);
         if (props.hasOwnProperty("Id")) {
           ims.defaults.listGUID = props.Id;
           return;
@@ -167,7 +168,7 @@ var ims = {
       }
     }
 
-    ims.sharepoint.list.get({ listName: "IMS_SHAREPOINT" }, cbCreateList);
+    ims.sharepoint.list.item.gets({ listName: "IMS_SHAREPOINT" }, cbCreateList);
   }
 
   window.addEventListener("load", loadScripts);
