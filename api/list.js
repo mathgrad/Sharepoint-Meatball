@@ -1,3 +1,4 @@
+//https://www.codeproject.com/Articles/990131/CRUD-Operation-to-List-Using-SharePoint-Rest-API
 var list = {
   //this is meant for the subsite or the page you're already on
   choiceFields: function (props, cb) {
@@ -139,6 +140,32 @@ var list = {
         },
       });
     },
+    get: function (props, cb) {
+      var url =
+        _spPageContextInfo.siteAbsoluteUrl +
+        "_api/web/lists/getbytitle('" +
+        props.listName +
+        "')/getitembyid('" +
+        props.id +
+        "')";
+
+      $.ajax({
+        url: url,
+        type: "GET",
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          cb(null, data.d);
+        },
+        error: function (error) {
+          cb(error, null);
+        },
+      });
+    },
     update: function (props, cb) {
       var data = Object.assign(props.data, {
         __metadata: { type: "SP.ListItem" },
@@ -148,21 +175,21 @@ var list = {
         _spPageContextInfo.siteAbsoluteUrl +
         "_api/web/lists/getbytitle('" +
         props.listName +
-        "')/items(" +
+        "')/getitembyid(" +
         props.id +
         ")";
 
       $.ajax({
         url: url,
-        type: "POST",
+        type: "PATCH",
         data: JSON.stringify(data),
         headers: {
           Accept: "application/json; odata=verbose",
           "Content-Type": "application/json;odata=verbose",
           credentials: true,
           "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-          "X-HTTP-Method": "MERGE",
-          "IF-MATCH": "*",
+          "X-HTTP-Method": "PATCH",
+          "IF-MATCH": props.oldItem.__metadata.etag,
         },
         success: function (data) {
           cb(null, data);
@@ -172,6 +199,30 @@ var list = {
         },
       });
     },
-    delete: {},
+    delete: function (props, cb) {
+      var url =
+        _spPageContextInfo.siteAbsoluteUrl +
+        "_api/web/lists/getbytitle('" +
+        props.listName +
+        "')/getitembyid(" +
+        props.id +
+        ")";
+
+      $.ajax({
+        url: url,
+        type: "DELETE",
+        headers: {
+          Accept: "application/json;odata=verbose",
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+          "If-Match": props.oldItem.__metadata.etag,
+        },
+        success: function (data) {
+          cb(null, data.d);
+        },
+        error: function (error) {
+          cb(error, null);
+        },
+      });
+    },
   },
 };

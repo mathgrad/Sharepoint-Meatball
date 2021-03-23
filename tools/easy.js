@@ -9,6 +9,39 @@ function easyStart() {
   var meatballCustomizationMenuStyle =
     "align-items: center; background-color: #ddd; border: .25rem solid #000; border-radius: 1.5rem; bottom: 104px; color: #222; display: flex; flex-direction: column; height: 200px; justify-content: space-between: overflow: hidden auto; padding: .25rem; position: fixed; right: calc(155px + 5.5vw); width: 150px;";
 
+  function cbObject(error, props) {
+    if (error) {
+      console.error(error);
+    }
+
+    if (props) {
+      console.log(props);
+    }
+  }
+
+  function cbCreate(error, props) {
+    if (error) {
+      console.error(error);
+    }
+    if (props) {
+      console.log(props);
+    }
+
+    this.create = {
+      data: {
+        Message: "",
+        Title: "",
+        Status: "Override",
+      },
+      listName: "IMS_SHAREPOINT",
+    };
+
+    ims.sharepoint.list.item.create(this.create, cbObject);
+  }
+
+  ims.sharepoint.list.item.get({ listName: "IMS_SHAREPOINT" }, cbCreate);
+
+
   var cv = {
     main:
       "align-item: center; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between;",
