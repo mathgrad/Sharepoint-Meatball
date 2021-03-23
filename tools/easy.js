@@ -21,7 +21,7 @@ function easyStart() {
 
   function cbCreate(error, props) {
     if (error) {
-      console.error(error);
+      console.error(error.message);
     }
     if (props) {
       console.log(props);
@@ -29,8 +29,9 @@ function easyStart() {
 
     this.create = {
       data: {
-        Message: "",
-        Title: "",
+        Message: "Test",
+        Overrides: JSON.stringify(ims.defaults.tools.meatball.defaults),
+        Title: _spPageContextInfo.webServerRelativeUrl,
         Status: "Override",
       },
       listName: "IMS_SHAREPOINT",
@@ -39,7 +40,7 @@ function easyStart() {
     ims.sharepoint.list.item.create(this.create, cbObject);
   }
 
-  ims.sharepoint.list.item.get({ listName: "IMS_SHAREPOINT" }, cbCreate);
+  ims.sharepoint.list.get({ listName: "IMS_SHAREPOINT" }, cbCreate);
 
 
   var cv = {

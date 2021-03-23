@@ -263,6 +263,8 @@ function startMeatball() {
         rowTitles = organizedTables[tableKey][rowTitles[1]];
         //Step . For each remaining $cell, convert to meatball.
         for (var colKey2 in organizedTables[tableKey]) {
+          var meatballOverrides = {};
+          var addMO = true;
           organizedTables[tableKey][colKey2].forEach(function ($cell, ci) {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
@@ -279,12 +281,25 @@ function startMeatball() {
               choiceProps.listId = listId;
               choiceProps.listTitle = listTitle;
 
-              //~ flips the sign of an integer and makes -1 be 0
-              ~ims.defaults.tools.meatball.defaults.indexOf(choiceProps) < 0
-                ? (ims.defaults.tools.meatball.defaults[
-                    ims.defaults.tools.meatball.defaults.indexOf(choiceProps)
-                  ] = choiceProps)
-                : ims.defaults.tools.meatball.defaults.push(choiceProps);
+              if (addMO) {
+                meatballOverrides.color = [];
+                meatballOverrides.external = choiceProps.external;
+                meatballOverrides.iid = choiceProps.iid;
+                meatballOverrides.internal = choiceProps.internal;
+                meatballOverrides.listId = choiceProps.listId;
+                meatballOverrides.listTitle = choiceProps.listTitle;
+                meatballOverrides.type = "circle";
+
+                choiceProps.choices.forEach(function (choice) {
+                  meatballOverrides.color.push({
+                    text: choice,
+                    value: meatballDefaults.get(choice),
+                  });
+                });
+
+                ims.defaults.tools.meatball.defaults.push(meatballOverrides);
+                addMO = false;
+              }
 
               if (!meatballDefaults.getIgnore(choiceProps.external)) {
                 //Step B. Build Meatball with these options.

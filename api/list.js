@@ -110,7 +110,6 @@ var list = {
   //back burner - deleteing an entire list...
   delete: {},
   item: {
-    //back burner
     create: function (props, cb) {
       var data = Object.assign(props.data, {
         __metadata: { type: "SP.ListItem" },
