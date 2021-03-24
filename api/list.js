@@ -139,7 +139,35 @@ var list = {
         },
       });
     },
-    get: function (props, cb) {
+    getByFilter: function (props, cb) {
+      var url =
+        _spPageContextInfo.siteAbsoluteUrl +
+        "/_api/web/lists/getbytitle('" +
+        props.listName +
+        "')/items?$filter=" +
+        props.colName +
+        " eq '" +
+        props.keys +
+        "'";
+
+      $.ajax({
+        url: url,
+        type: "GET",
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          cb(null, data);
+        },
+        error: function (error) {
+          cb(error, null);
+        },
+      });
+    },
+    getById: function (props, cb) {
       var url =
         _spPageContextInfo.siteAbsoluteUrl +
         "/_api/web/lists/getbytitle('" +
