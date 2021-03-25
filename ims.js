@@ -80,7 +80,7 @@ var listName = "ims-sharepoint";
           ims.sharepoint.style = style;
 
           getDefaults(function () {
-            if (!window.ims_meatball_show) {
+            if (ims.defaults.tools.meatball.hide) {
               ims.chat = chat;
               startMeatball();
             }

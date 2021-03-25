@@ -162,7 +162,7 @@ function easyStart() {
       );
     });
 
-    this.cvSubmit.addEventListener("click", function () {
+    this.cvMI.$ele.addEventListener("click", function () {
       cvmibody.updateValue();
     });
 
