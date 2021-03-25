@@ -35,6 +35,7 @@ function easyStart() {
 
   function cbCreate(error, props) {
     if (error) {
+      ims.defaults.tools.meatball.defaults.toggle = true;
       this.create = {
         data: {
           Message: "Override",
@@ -49,6 +50,7 @@ function easyStart() {
     }
     if (props) {
       if (props.d.results.length == 0) {
+        ims.defaults.tools.meatball.defaults.toggle = true;
         this.create = {
           data: {
             Message: "Override",
@@ -131,6 +133,12 @@ function easyStart() {
     this.cvSubmit.className += "MenuButton";
     this.cvSubmit.addEventListener("click", function (e) {
       e.stopPropagation();
+
+      var mmcsNV = mmcs.getValues().columns;
+      ims.defaults.tools.meatball.defaults.forEach(function (d, i) {
+        if (compareString(d.external, mmcsNV[i].name))
+          d.color = mmcsNV[i].values;
+      });
       updateOverrides();
       this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(
         this.parentNode.parentNode.parentNode.parentNode.parentNode
@@ -159,22 +167,24 @@ function easyStart() {
 
     this.cvMIBody = new MeatballMenuTypeContent();
     var cvmibody = this.cvMIBody;
-    this.cvMIBody.setValues({
-      columns: [
-        {
-          name: "Text",
-          value: "circle",
-        },
-        { name: "Test", value: "ignore" },
-        { name: "Hi", value: "text" },
-      ],
+    var columns = [];
+
+    ims.defaults.tools.meatball.defaults.forEach(function (d) {
+      columns.push({ name: d.external, value: d.type });
     });
+    this.cvMIBody.setValues({ columns: columns });
     this.cvMIContent.body.push(this.cvMIBody.$ele);
     this.cvSubmit = document.createElement("button");
     this.cvSubmit.innerText = "Submit";
     this.cvSubmit.className += "MenuButton";
     this.cvSubmit.addEventListener("click", function (e) {
       e.stopPropagation();
+      var cvMIBodyNV = cvmibody.getValues();
+      ims.defaults.tools.meatball.defaults.forEach(function (d, i) {
+        if (compareString(d.external, cvMIBodyNV[i].column))
+          d.type = cvMIBodyNV[i].value;
+      });
+      updateOverrides();
       this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(
         this.parentNode.parentNode.parentNode.parentNode.parentNode
       );
@@ -201,13 +211,16 @@ function easyStart() {
       footer: [],
     };
 
-    this.cvMIBody = new MeatballMenuToggleContent(true);
+    this.cvMIBody = new MeatballMenuToggleContent(
+      ims.defaults.tools.meatball.defaults.toggle
+    );
     this.cvMIContent.body.push(this.cvMIBody.$ele);
     this.cvSubmit = document.createElement("button");
     this.cvSubmit.innerText = "Submit";
     this.cvSubmit.className += "MenuButton";
     this.cvSubmit.addEventListener("click", function (e) {
       e.stopPropagation();
+      updateOverrides();
       this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(
         this.parentNode.parentNode.parentNode.parentNode.parentNode
       );

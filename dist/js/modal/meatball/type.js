@@ -29,14 +29,17 @@ MeatballMenuTypeContent.prototype.getValues = function () {
 //  value is a string from the choice array
 MeatballMenuTypeContent.prototype.setValues = function (props) {
   var mmic = this;
-  props.columns.forEach(function (item) {
-    this.temp = new MeatballMenuTypeItem({
-      column: item.name,
-      value: item.value,
+
+  if (props.columns) {
+    props.columns.forEach(function (item) {
+      this.temp = new MeatballMenuTypeItem({
+        column: item.name,
+        value: item.value,
+      });
+      mmic.content.push(this.temp);
+      mmic.$ele.appendChild(this.temp.$ele);
     });
-    mmic.content.push(this.temp);
-    mmic.$ele.appendChild(this.temp.$ele);
-  });
+  }
 };
 
 MeatballMenuTypeContent.prototype.updateValues = function () {

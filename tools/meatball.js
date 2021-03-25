@@ -276,6 +276,7 @@ function startMeatball() {
         //First column contains the row titles
         rowTitles = organizedTables[tableKey][rowTitles[1]];
         //Step . For each remaining $cell, convert to meatball.
+        ims.defaults.tools.meatball.defaults.toggle = true;
         for (var colKey2 in organizedTables[tableKey]) {
           var meatballOverrides = {};
           var addMO = true;
