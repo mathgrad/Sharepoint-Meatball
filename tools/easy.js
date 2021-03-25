@@ -92,8 +92,8 @@ function easyStart() {
     this.update = {
       data: ims.defaults.tools.meatball.defaults,
       colName: "Overrides",
-      etag: originalItem.etag,
-      // etag: "*",
+      // etag: originalItem.etag,
+      etag: "*",
       id: originalItem.id,
       listName: listName,
     };
