@@ -35,11 +35,10 @@ function easyStart() {
 
   function cbCreate(error, props) {
     if (error) {
-      ims.defaults.tools.meatball.defaults.toggle = true;
       this.create = {
         data: {
           Message: "Override",
-          Overrides: JSON.stringify(ims.defaults.tools.meatball.defaults),
+          Overrides: JSON.stringify(ims.defaults.tools.meatball),
           Title: window.location.href,
           Status: "Override",
         },
@@ -50,11 +49,10 @@ function easyStart() {
     }
     if (props) {
       if (props.d.results.length == 0) {
-        ims.defaults.tools.meatball.defaults.toggle = true;
         this.create = {
           data: {
             Message: "Override",
-            Overrides: JSON.stringify(ims.defaults.tools.meatball.defaults),
+            Overrides: JSON.stringify(ims.defaults.tools.meatball),
             Title: window.location.href,
             Status: "Override",
           },
@@ -65,9 +63,7 @@ function easyStart() {
       } else {
         originalItem.id = props.d.results[0].Id;
         originalItem.etag = props.d.results[0].__metadata.etag;
-        ims.defaults.tools.meatball.defaults = JSON.parse(
-          props.d.results[0].Overrides
-        );
+        ims.defaults.tools.meatball = JSON.parse(props.d.results[0].Overrides);
       }
     }
   }
@@ -91,8 +87,10 @@ function easyStart() {
       }
     }
 
+    ims.defaults.tools.meatball.hide;
+
     this.update = {
-      data: ims.defaults.tools.meatball.defaults,
+      data: ims.defaults.tools.meatball,
       colName: "Overrides",
       // etag: originalItem.etag,
       etag: "*",
@@ -212,18 +210,24 @@ function easyStart() {
     };
 
     this.cvMIBody = new MeatballMenuToggleContent(
-      ims.defaults.tools.meatball.defaults.toggle
+      ims.defaults.tools.meatball.hide
     );
+    var cvmibody = this.cvMIBody;
     this.cvMIContent.body.push(this.cvMIBody.$ele);
     this.cvSubmit = document.createElement("button");
     this.cvSubmit.innerText = "Submit";
     this.cvSubmit.className += "MenuButton";
     this.cvSubmit.addEventListener("click", function (e) {
       e.stopPropagation();
+      ims.defaults.tools.meatball.hide = cvmibody.getValue();
       updateOverrides();
       this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(
         this.parentNode.parentNode.parentNode.parentNode.parentNode
       );
+    });
+
+    this.cvSubmit.addEventListener("click", function () {
+      cvmibody.updateValue();
     });
 
     this.cvMIContent.footer.push(this.cvSubmit);

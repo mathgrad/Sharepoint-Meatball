@@ -36,3 +36,7 @@ MeatballMenuToggleContent.prototype.getValue = function () {
 MeatballMenuToggleContent.prototype.setValue = function (props) {
   this.$check.checked = props;
 };
+
+MeatballMenuToggleContent.prototype.updateValue = function () {
+  this.$check.checked = ims.defaults.tools.meatball.hide;
+};
