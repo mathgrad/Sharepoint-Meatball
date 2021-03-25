@@ -27,7 +27,6 @@ function easyStart() {
     }
 
     if (props) {
-      console.log("cbObject props:\n", props);
       originalItem.id = props.d.Id;
       originalItem.etag = props.d.__metadata.etag;
       return;
@@ -62,7 +61,6 @@ function easyStart() {
 
         ims.sharepoint.list.item.create(this.create, cbObject);
       } else {
-        console.log(props);
         originalItem.id = props.d.results[0].Id;
         originalItem.etag = props.d.results[0].__metadata.etag;
         ims.defaults.tools.meatball.defaults = JSON.parse(
@@ -87,7 +85,6 @@ function easyStart() {
       }
 
       if (props) {
-        console.log(props);
         return;
       }
     }
