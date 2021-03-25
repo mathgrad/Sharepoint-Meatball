@@ -155,7 +155,8 @@ function easyStart() {
     this.cvSubmit.className += "MenuButton";
     this.cvSubmit.addEventListener("click", function (e) {
       e.stopPropagation();
-      ims.defaults.tools.meatball.hide = cvmibody.getValue();
+      ims.defaults.tools.meatball.hide = cvmibody.getValue().toggle;
+      ims.defaults.tools.meatball.debug = cvmibody.getValue().debug;
       updateOverrides();
       this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(
         this.parentNode.parentNode.parentNode.parentNode.parentNode

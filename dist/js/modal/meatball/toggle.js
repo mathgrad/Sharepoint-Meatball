@@ -10,33 +10,51 @@ function MeatballMenuToggleContent(props) {
   this.$ele = document.createElement("div");
   this.$ele.style = mmtstyle.content;
 
-  this.$container = document.createElement("div");
-  this.$container.style = mmtstyle.item;
+  this.$containerToggle = document.createElement("div");
+  this.$containerToggle.style = mmtstyle.item;
 
-  this.$label = document.createElement("label");
-  this.$label.innerText = "Toggle Meatball";
-  this.$label.style = mmtstyle.child;
+  this.$labelToggle = document.createElement("label");
+  this.$labelToggle.innerText = "Toggle Meatball";
+  this.$labelToggle.style = mmtstyle.child;
 
-  this.$container.appendChild(this.$label);
+  this.$containerToggle.appendChild(this.$labelToggle);
 
-  this.$check = document.createElement("input");
-  this.$check.type = "checkbox";
-  this.$check.checked = props;
-  this.$check.style = mmtstyle.child;
+  this.$checkToggle = document.createElement("input");
+  this.$checkToggle.type = "checkbox";
+  this.$checkToggle.checked = props;
+  this.$checkToggle.style = mmtstyle.child;
 
-  this.$container.appendChild(this.$check);
+  this.$containerToggle.appendChild(this.$checkToggle);
 
-  this.$ele.appendChild(this.$container);
+  this.$containerDebug = document.createElement("div");
+  this.$containerDebug.style = mmtstyle.item;
+
+  this.$labelDebug = document.createElement("label");
+  this.$labelDebug.innerText = "Debug Meatball";
+  this.$labelDebug.style = mmtstyle.child;
+
+  this.$containerDebug.appendChild(this.$labelDebug);
+
+  this.$checkDebug = document.createElement("input");
+  this.$checkDebug.type = "checkbox";
+  this.$checkDebug.checked = false;
+  this.$checkDebug.style = mmtstyle.child;
+
+  this.$containerDebug.appendChild(this.$checkDebug);
+
+  this.$ele.appendChild(this.$containerToggle);
+  this.$ele.appendChild(this.$containerDebug);
 }
 
 MeatballMenuToggleContent.prototype.getValue = function () {
-  return this.$check.checked;
+  return { toggle: this.$checkToggle.checked, debug: this.$checkDebug.checked };
 };
 
 MeatballMenuToggleContent.prototype.setValue = function (props) {
-  this.$check.checked = props;
+  this.$checkToggle.checked = props;
 };
 
 MeatballMenuToggleContent.prototype.updateValue = function () {
-  this.$check.checked = ims.defaults.tools.meatball.hide;
+  this.$checkToggle.checked = ims.defaults.tools.meatball.hide;
+  this.$checkDebug.checked = ims.defaults.tools.meatball.debug;
 };
