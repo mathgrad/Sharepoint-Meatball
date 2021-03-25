@@ -258,3 +258,68 @@ function meatballhistorymessage(props){
 //     this.$edit.parentNode.removeChild(this.$edit);
 //   }
 // };
+
+//Code from tools/easy.js
+// var cv = {
+//   main:
+//     "align-item: center; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between;",
+//   child:
+//     "display: flex; flex-shrink: 1; flex-grow: 2; line-height: 1.5rem; padding: .25rem;",
+//   circle:
+//     "border-radius: 100%; height: 15px; margin: .25rem auto; padding: .25rem; width: 15px;",
+// };
+
+// function cbObject(error, props) {
+//   if (error) {
+//     console.error("cbObject error:\n", error);
+//     return;
+//   }
+//
+//   if (props) {
+//     originalItem.id = props.d.Id;
+//     originalItem.etag = props.d.__metadata.etag;
+//     return;
+//   }
+// }
+//
+// function cbCreate(error, props) {
+//   if (error) {
+//     this.create = {
+//       data: {
+//         Message: "Override",
+//         Overrides: JSON.stringify(ims.defaults.tools.meatball),
+//         Title: window.location.href,
+//         Status: "Override",
+//       },
+//       listName: listName,
+//     };
+//
+//     ims.sharepoint.list.item.create(this.create, cbObject);
+//   }
+//   if (props) {
+//     if (props.d.results.length == 0) {
+//       this.create = {
+//         data: {
+//           Message: "Override",
+//           Overrides: JSON.stringify(ims.defaults.tools.meatball),
+//           Title: window.location.href,
+//           Status: "Override",
+//         },
+//         listName: listName,
+//       };
+//
+//       ims.sharepoint.list.item.create(this.create, cbObject);
+//     } else {
+//       originalItem.id = props.d.results[0].Id;
+//       originalItem.etag = props.d.results[0].__metadata.etag;
+//       ims.defaults.tools.meatball = JSON.parse(props.d.results[0].Overrides);
+//     }
+//   }
+// }
+//
+// this.filter = {
+//   colName: "Title",
+//   listName: listName,
+//   keys: window.location.href,
+// };
+// ims.sharepoint.list.item.getByFilter(this.filter, cbCreate);

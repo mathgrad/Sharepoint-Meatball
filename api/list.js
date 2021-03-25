@@ -1,3 +1,4 @@
+//https://www.codeproject.com/Articles/990131/CRUD-Operation-to-List-Using-SharePoint-Rest-API
 var list = {
   //this is meant for the subsite or the page you're already on
   choiceFields: function (props, cb) {
@@ -44,7 +45,7 @@ var list = {
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
       },
       success: function (data) {
-        cb(null, data.d);
+        cb(null, data);
       },
       error: function (error) {
         cb(error, null);
@@ -57,7 +58,7 @@ var list = {
       AllowContentTypes: true,
       BaseTemplate: 100,
       ContentTypesEnabled: true,
-      Title: name,
+      Title: props.listName,
     };
     var url = _spPageContextInfo.siteAbsoluteUrl + "/_api/web/lists";
     $.ajax({
@@ -79,11 +80,36 @@ var list = {
     });
   },
   //back burner - move to item
-  update: {},
+  update: function (props, cb) {
+    var url =
+      _spPageContextInfo.siteAbsoluteUrl +
+      "/_api/web/lists/getbytitle('" +
+      props.listName +
+      "')";
+
+    $.ajax({
+      url: url,
+      type: "PATCH",
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        credentials: true,
+        "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        "X-Http-Method": "PATCH",
+        "If-Match": props.etag,
+      },
+      data: JSON.stringify(props.data),
+      success: function (data) {
+        cb(null, data);
+      },
+      error: function (error) {
+        cb(error, null);
+      },
+    });
+  },
   //back burner - deleteing an entire list...
   delete: {},
   item: {
-    //back burner
     create: function (props, cb) {
       var data = Object.assign(props.data, {
         __metadata: { type: "SP.ListItem" },
@@ -106,7 +132,85 @@ var list = {
           "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         },
         success: function (data) {
-          cb(null, data.d);
+          cb(null, data);
+        },
+        error: function (error) {
+          cb(error, null);
+        },
+      });
+    },
+    getByFilter: function (props, cb) {
+      var url =
+        _spPageContextInfo.siteAbsoluteUrl +
+        "/_api/web/lists/getbytitle('" +
+        props.listName +
+        "')/items?$filter=" +
+        props.colName +
+        " eq '" +
+        props.keys +
+        "'";
+
+      $.ajax({
+        url: url,
+        type: "GET",
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          cb(null, data);
+        },
+        error: function (error) {
+          cb(error, null);
+        },
+      });
+    },
+    getById: function (props, cb) {
+      var url =
+        _spPageContextInfo.siteAbsoluteUrl +
+        "/_api/web/lists/getbytitle('" +
+        props.listName +
+        "')/getitembyid('" +
+        props.id +
+        "')";
+
+      $.ajax({
+        url: url,
+        type: "GET",
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          cb(null, data);
+        },
+        error: function (error) {
+          cb(error, null);
+        },
+      });
+    },
+    gets: function (props, cb) {
+      var url =
+        _spPageContextInfo.siteAbsoluteUrl +
+        "/_api/web/lists/getbytitle('" +
+        props.listName +
+        "')/items";
+
+      $.ajax({
+        url: url,
+        type: "GET",
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          credentials: true,
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+        },
+        success: function (data) {
+          cb(null, data);
         },
         error: function (error) {
           cb(error, null);
@@ -114,14 +218,14 @@ var list = {
       });
     },
     update: function (props, cb) {
-      console.log("props in the update:", props);
-      var data = Object.assign(props.data, {
+      var data = {
         __metadata: { type: "SP.ListItem" },
-      });
+      };
+      data[props.colName] = JSON.stringify(props.data);
 
       var url =
         _spPageContextInfo.siteAbsoluteUrl +
-        "_api/web/lists/getbytitle('" +
+        "/_api/web/lists/getbytitle('" +
         props.listName +
         "')/items(" +
         props.id +
@@ -137,16 +241,40 @@ var list = {
           credentials: true,
           "X-RequestDigest": $("#__REQUESTDIGEST").val(),
           "X-HTTP-Method": "MERGE",
-          "IF-MATCH": "*",
+          "IF-MATCH": props.etag,
         },
         success: function (data) {
-          cb(null, data.d);
+          cb(null, data);
         },
         error: function (error) {
           cb(error, null);
         },
       });
     },
-    delete: {},
+    delete: function (props, cb) {
+      var url =
+        _spPageContextInfo.siteAbsoluteUrl +
+        "_api/web/lists/getbytitle('" +
+        props.listName +
+        "')/getitembyid(" +
+        props.id +
+        ")";
+
+      $.ajax({
+        url: url,
+        type: "DELETE",
+        headers: {
+          Accept: "application/json;odata=verbose",
+          "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+          "If-Match": props.oldItem.__metadata.etag,
+        },
+        success: function (data) {
+          cb(null, data);
+        },
+        error: function (error) {
+          cb(error, null);
+        },
+      });
+    },
   },
 };

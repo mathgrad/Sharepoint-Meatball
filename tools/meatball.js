@@ -1,3 +1,7 @@
+var computedMSColor = document.getElementsByClassName("ms-vb2")
+  ? getComputedStyle(document.getElementsByClassName("ms-vb2")[0])
+  : "";
+
 function startMeatball() {
   var color = new ims.sharepoint.color();
 
@@ -65,6 +69,22 @@ function startMeatball() {
       return;
     }
 
+    if (ims.defaults.tools.meatball.defaults) {
+      ims.defaults.tools.meatball.defaults.forEach(function (d) {
+        meatballDefaults.columns.push({ name: d.external, color: d.color });
+        switch (d.type) {
+          case "circle":
+            break;
+          case "ignore":
+            meatballDefaults.setIgnore(d.external);
+            break;
+          case "text":
+            meatballDefaults.setText(d.external);
+            break;
+        }
+      });
+    }
+
     //Checks for overrides
     if (window.meatball_override) {
       meatball_override.forEach(function (item) {
@@ -88,43 +108,45 @@ function startMeatball() {
     }
 
     if (historyListGUID.length <= 0) {
-      function cb0(error, props0) {
+      function cb3(error, props) {
         if (error) {
+          console.error("cb3 error: ", error);
           return;
         }
-        if (props0.hasOwnProperty("Id")) {
-          historyListGUID = props0.Id;
-          return;
-        }
-        function cb1(error, props1) {
-          if (error) {
-            console.log(error);
-            return;
-          }
-          function cb2(error, props2) {
-            if (error) {
-              console.log(error);
-              return;
-            }
-            function cb3(error, props3) {
-              if (error) {
-                console.log(error);
-                return;
-              }
-              historyListGUID = props3.Id;
-            }
-            ims.sharepoint.column.create(
-              {
-                colTitle: "Status",
-                fieldType: 2,
-                required: "false",
-                uniqueValue: "false",
-                listName: "History",
-              },
 
-              cb3
-            );
-          }
+        if (props) {
+          historyListGUID = props.Id;
+          return;
+        }
+      }
+
+      function cb2(error, props2) {
+        if (error) {
+          console.error("cb2 error: ", error);
+          return;
+        }
+
+        if (props) {
+          ims.sharepoint.column.create(
+            {
+              colTitle: "Status",
+              fieldType: 2,
+              required: "false",
+              uniqueValue: "false",
+              listName: "History",
+            },
+            cb3
+          );
+          return;
+        }
+      }
+
+      function cb1(error, props) {
+        if (error) {
+          console.error("cb1 error: ", error);
+          return;
+        }
+        if (props) {
           ims.sharepoint.column.create(
             {
               colTitle: "Message",
@@ -133,14 +155,24 @@ function startMeatball() {
               uniqueValue: "false",
               listName: "History",
             },
-
             cb2
           );
+          return;
         }
-        ims.sharepoint.list.create({ listName: "History" }, cb1);
-        console.log(error);
-        return;
       }
+
+      function cb0(error, props) {
+        if (error) {
+          console.error("cb0 error: ", error);
+          ims.sharepoint.list.create({ listName: "History" }, cb1);
+          return;
+        }
+        if (props.hasOwnProperty("Id")) {
+          historyListGUID = props.Id;
+          return;
+        }
+      }
+
       ims.sharepoint.list.get({ listName: "History" }, cb0);
     }
 
@@ -159,7 +191,14 @@ function startMeatball() {
         console.log(e);
         var errorToast = new Toast();
         errorToast
-          .setMessage("Message: " + e.message + "\n File: " + e.filename + "\nLine #: " + e.lineno)
+          .setMessage(
+            "Message: " +
+              e.message +
+              "\n File: " +
+              e.filename +
+              "\nLine #: " +
+              e.lineno
+          )
           .setFailed()
           .show();
         kitchen.debug(errorToast);
@@ -176,6 +215,11 @@ function startMeatball() {
       //Step a. Get $rows of this table.
       var $thead = $table.getElementsByTagName("thead")[0];
       var $tbody = $table.getElementsByTagName("tbody")[0];
+
+      if (typeof $thead === "undefined") {
+        return r;
+      }
+
       var $tcells = [].slice
         .call($thead.getElementsByTagName("th"))
         .map(function ($th) {
@@ -190,8 +234,11 @@ function startMeatball() {
           if (!r2[colKey]) {
             r2[colKey] = [];
           }
-          $cell.iid = $row.getAttribute("iid").split(",")[1];
-          r2[colKey].push($cell);
+
+          if ($row.getAttribute("iid")) {
+            $cell.iid = $row.getAttribute("iid").split(",")[1];
+            r2[colKey].push($cell);
+          }
         });
 
         return r2;
@@ -246,22 +293,50 @@ function startMeatball() {
         rowTitles = organizedTables[tableKey][rowTitles[1]];
         //Step . For each remaining $cell, convert to meatball.
         for (var colKey2 in organizedTables[tableKey]) {
+          var meatballOverrides = {};
+          var addMO;
+          if (ims.defaults.tools.meatball.defaults) {
+            addMO = false;
+          } else {
+            addMO = true;
+          }
           organizedTables[tableKey][colKey2].forEach(function ($cell, ci) {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
-            if (rowTitles[ci] && choiceProps) {
-              if (!meatballDefaults.getIgnore(choiceProps.external)) {
-                //To check if the row title is already in the choices array
-                if (choiceProps.choices.indexOf(rowTitles[ci].innerText) > -1) {
-                  choiceProps.rowTitle = false;
-                } else {
-                  choiceProps.rowTitle = rowTitles[ci].innerText;
-                }
-                choiceProps.colName = colKey2;
-                choiceProps.iid = $cell.iid;
-                choiceProps.listId = listId;
-                choiceProps.listTitle = listTitle;
 
+            if (rowTitles[ci] && choiceProps) {
+              //To check if the row title is already in the choices array
+              if (choiceProps.choices.indexOf(rowTitles[ci].innerText) > -1) {
+                choiceProps.rowTitle = false;
+              } else {
+                choiceProps.rowTitle = rowTitles[ci].innerText;
+              }
+              choiceProps.colName = colKey2;
+              choiceProps.iid = $cell.iid;
+              choiceProps.listId = listId;
+              choiceProps.listTitle = listTitle;
+
+              if (addMO) {
+                meatballOverrides.color = [];
+                meatballOverrides.external = choiceProps.external;
+                meatballOverrides.iid = choiceProps.iid;
+                meatballOverrides.internal = choiceProps.internal;
+                meatballOverrides.listId = choiceProps.listId;
+                meatballOverrides.listTitle = choiceProps.listTitle;
+                meatballOverrides.type = "circle";
+
+                choiceProps.choices.forEach(function (choice) {
+                  meatballOverrides.color.push({
+                    text: choice,
+                    value: meatballDefaults.get(choice),
+                  });
+                });
+
+                ims.defaults.tools.meatball.defaults.push(meatballOverrides);
+                addMO = false;
+              }
+
+              if (!meatballDefaults.getIgnore(choiceProps.external)) {
                 //Step B. Build Meatball with these options.
                 var mb = new Meatball(
                   Object.assign(choiceProps, {
@@ -311,7 +386,7 @@ function startMeatball() {
       },
       success: function (data) {
         if (props.meatball.showText) {
-          props.meatball.$circleMessage.innerText = props.cellText;
+          props.meatball.$entryObjMessage.innerText = props.cellText;
         } else {
           props.meatball.setColor(props.cellText);
         }
@@ -351,7 +426,7 @@ function startMeatball() {
   //Replaces default text from Color object with circles with color from Color object
   //Attaches popover to the color circle along with updateTarget function
   function Meatball(props) {
-    this.$circle = document.createElement("div");
+    this.$entryObj = document.createElement("div");
 
     this.list = {
       choices: props.choices,
@@ -376,66 +451,64 @@ function startMeatball() {
     var cellText = this.$cell.innerText;
 
     if (this.showText) {
-      this.$circle.className = "ms-qSuggest-hListItem";
-      this.$circle.style.position = "relative";
-      this.$circle.style.width = "100%";
-      this.$circle.style.border = "0px";
-      this.$circle.style.borderRadius = "0px";
-      this.$circle.style.textAlign = "center";
-      this.$circle.style.display = "flex";
-      this.$circle.style.flexDirection = "row";
-      this.$circle.style.justifyContent = "space-between";
-      this.$circle.style.alignItems = "baseline";
-      this.$circle.style.padding = ".25rem";
-      this.$circle.style.borderRadius = ".25rem";
+      this.$cell.style.padding = "0px";
 
-      this.$circleMessage = document.createElement("div");
-      this.$circleMessage.style.padding = "0px";
-      this.$circleMessage.style.margin = "0px";
-      this.$circleMessage.style.display = "flex";
-      this.$circleMessage.style.flexBasis = "1";
-      this.$circleMessage.style.alignSelf = "center";
-      this.$circleMessage.style.fontWeight = "500";
-      this.$circleMessage.innerText = this.$cell.innerText;
+      this.$entryObj.className = "ms-subtleEmphasis";
+      this.$entryObj.style.borderRadius = ".25rem";
+      this.$entryObj.style.wordBreak = "break-word";
+      this.$entryObj.style.width = "100px";
+      this.$entryObj.style.padding = "4px";
+      this.$entryObj.style.border = "0px";
+      this.$entryObj.style.borderRadius = ".25rem";
+      this.$entryObj.style.display = "inline-flex";
+      this.$entryObj.style.alignItems = "space-between";
+      this.$entryObj.style.color = computedMSColor.color || "";
+      this.$entryObj.style.cursor = "pointer";
+
+      this.$entryObjMessage = document.createElement("div");
+      this.$entryObjMessage.style.cursor = "pointer";
+      this.$entryObjMessage.style.width = "calc(100% - .5rem)";
+      this.$entryObjMessage.innerText = this.$cell.innerText;
 
       this.$messageSVG = new SVGGenerator({
-        color: "black",
+        color: computedMSColor.color || "",
         type: "message",
         size: "normal",
       }).wrapper;
       this.$messageSVG.style.padding = "0px";
       this.$messageSVG.style.margin = "0px";
-      this.$messageSVG.style.display = "flex";
       this.$messageSVG.style.verticalAlign = "middle";
-      this.$messageSVG.style.flexBasis = "1";
       this.$messageSVG.style.alignSelf = "center";
-      this.$messageSVG.style.marginLeft = ".5rem";
+      this.$messageSVG.style.margin = "4px";
+      this.$messageSVG.style.marginRight = "8px";
       var messageSVGPath = this.$messageSVG.firstChild.firstChild.firstChild;
 
-      this.$circle.addEventListener("mouseenter", function () {
+      this.$entryObj.addEventListener("mouseenter", function () {
         this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
         this.style.color = color.get(defaultColor);
         messageSVGPath.setAttribute("fill", "white");
       });
 
-      this.$circle.addEventListener("mouseleave", function () {
+      this.$entryObj.addEventListener("mouseleave", function () {
         this.style.backgroundColor = "";
-        this.style.color = "";
-        messageSVGPath.setAttribute("fill", "black");
+        this.style.color = computedMSColor.color || "";
+        messageSVGPath.setAttribute("fill", computedMSColor.color || "");
       });
 
-      this.$circle.appendChild(this.$circleMessage);
-      this.$circle.appendChild(this.$messageSVG);
+      this.$entryObj.appendChild(this.$messageSVG);
+      this.$entryObj.appendChild(this.$entryObjMessage);
     } else {
-      this.$circle.setAttribute(
+      this.$cell.style.padding = ".25rem";
+      this.$entryObj.setAttribute(
         "style",
         ims.sharepoint.style({
           type: "meatball",
           size: "large",
         }).$ele
       );
-      this.$circle.style.backgroundColor = color.get(
-        meatballDefaults.get(cellText)
+      var ext = this.list.external;
+      this.$entryObj.style.backgroundColor = color.get(
+        meatballDefaults.get({ col: ext, text: cellText })
       );
     }
 
@@ -472,6 +545,7 @@ function startMeatball() {
     this.$popoverBody.style.margin = "0px";
     this.$popoverBody.style.padding = "0px";
     this.$popoverBody.style.width = "100%";
+    this.$popoverBody.style.borderRadius = ".25rem";
 
     this.$carret = document.createElement("div");
     this.$carret.setAttribute(
@@ -715,21 +789,23 @@ function startMeatball() {
     this.$ele.appendChild(this.$popoverBody);
 
     //Add Mouse Enter Event to display
-    this.$circle.addEventListener("mouseenter", function () {
+    this.$entryObj.addEventListener("mouseenter", function () {
       meatball.$initHistoryMessage.innerText = "Loading...";
       function cb(error, data) {
         if (error) {
           console.log(error);
         }
-        if (data.length === 1) {
-          meatball.$initHistoryDate.innerText = generateDateTime(
-            data[0].Created
-          );
-          meatball.$initHistoryMessage.innerText = data[0].Message;
-          meatball.$initHistoryName.innerText = data[0].Author;
-        } else {
-          meatball.$initHistoryMessage.innerText = "No History Found";
-          meatball.$initHistoryContainer.style.textAlign = "center";
+        if (data) {
+          if (data.length === 1) {
+            meatball.$initHistoryDate.innerText = generateDateTime(
+              data[0].Created
+            );
+            meatball.$initHistoryMessage.innerText = data[0].Message;
+            meatball.$initHistoryName.innerText = data[0].Author;
+          } else {
+            meatball.$initHistoryMessage.innerText = "No History Found";
+            meatball.$initHistoryContainer.style.textAlign = "center";
+          }
         }
         meatball.setPosition(triangleSize);
       }
@@ -746,7 +822,7 @@ function startMeatball() {
       meatball.setPosition(triangleSize);
     });
 
-    this.$circle.addEventListener("mouseleave", function (e) {
+    this.$entryObj.addEventListener("mouseleave", function (e) {
       if (!e.toElement.parentNode.contains(meatball.$ele)) {
         meatball.$ele.parentNode.removeChild(meatball.$ele);
       }
@@ -762,14 +838,14 @@ function startMeatball() {
     });
 
     this.$cell.innerText = "";
-    this.$cell.appendChild(this.$circle);
+    this.$cell.appendChild(this.$entryObj);
   };
 
   Meatball.prototype.setPosition = function (triangleSize) {
     this.$ele.style.position = "fixed";
     this.$ele.style.right = "0px";
     this.$ele.style.left =
-      this.$circle.getBoundingClientRect().right - 12 + triangleSize + "px";
+      this.$entryObj.getBoundingClientRect().right - 12 + triangleSize + "px";
 
     this.$carret.setAttribute(
       "style",
@@ -785,15 +861,21 @@ function startMeatball() {
     var windowHeight = window.innerHeight || document.body.clientHeight;
     var windowWidth = window.innerWidth || document.body.clientWidth;
 
+    //Sets the Vertical Location
     if (
-      this.$ele.offsetHeight + this.$circle.getBoundingClientRect().top <
+      this.$ele.offsetHeight + this.$entryObj.getBoundingClientRect().top <
       windowHeight
     ) {
-      this.$ele.style.top =
-        this.$circle.getBoundingClientRect().top - 40 + triangleSize + "px";
+      this.$ele.style.top = this.showText
+        ? this.$entryObj.getBoundingClientRect().top -
+          40 +
+          triangleSize +
+          5 +
+          "px"
+        : this.$entryObj.getBoundingClientRect().top - 40 + triangleSize + "px";
     } else {
       var meatballHeight =
-        this.$circle.getBoundingClientRect().top - 40 + triangleSize;
+        this.$entryObj.getBoundingClientRect().top - 40 + triangleSize;
       var meatballDifferenceHeight = Math.abs(
         meatballHeight - (windowHeight - this.$ele.offsetHeight)
       );
@@ -802,7 +884,7 @@ function startMeatball() {
         if (meatballDifferenceHeight > this.$ele.offsetHeight) {
           this.$carret.style.top = meatballHeight + "px";
         } else {
-          this.$carret.style.top = "29px";
+          this.$carret.style.top = this.showText ? "34px" : "29px";
         }
         this.$ele.style.top =
           windowHeight -
@@ -810,14 +892,17 @@ function startMeatball() {
           meatballDifferenceHeight +
           "px";
       } else {
-        this.$carret.style.top = 29 + meatballDifferenceHeight + "px";
+        this.$carret.style.top = this.showText
+          ? 34 + meatballDifferenceHeight + "px"
+          : 29 + meatballDifferenceHeight + "px";
         this.$ele.style.top = windowHeight - this.$ele.offsetHeight + "px";
       }
     }
 
+    //Sets the Horizontal Location
     if (
-      this.$popover.getBoundingClientRect().width +
-        this.$circle.getBoundingClientRect().right >
+      this.$popoverBody.getBoundingClientRect().width +
+        this.$entryObj.getBoundingClientRect().right >
       windowWidth
     ) {
       this.$ele.appendChild(this.$carret);
@@ -827,20 +912,21 @@ function startMeatball() {
       this.$carret.style.left =
         this.$popover.getBoundingClientRect().width + triangleSize + "px";
       this.$ele.style.left =
-        this.$circle.getBoundingClientRect().left -
-        this.$popover.getBoundingClientRect().width -
+        this.$entryObj.getBoundingClientRect().left -
+        this.$popoverBody.getBoundingClientRect().width -
         triangleSize -
         12 +
         "px";
-      this.$ele.style.width =
-        this.$popover.getBoundingClientRect().width + triangleSize + "px";
     } else {
       this.$ele.insertBefore(this.$carret, this.$ele.firstChild);
     }
   };
 
   Meatball.prototype.setColor = function (value) {
-    this.$circle.style.backgroundColor = color.get(meatballDefaults.get(value));
+    var ext = this.list.external;
+    this.$entryObj.style.backgroundColor = color.get(
+      meatballDefaults.get({ col: ext, text: value })
+    );
   };
 
   Meatball.prototype.removePopover = function () {
@@ -1049,13 +1135,14 @@ function startMeatball() {
 
     this.$x = document.createElement("div");
     this.$x.innerText = "X";
-    this.$x.style.alignSelf = "center";
+    this.$x.style.display = "flex";
+    this.$x.style.justifyContent = "center";
+    this.$x.style.alignItems = "center";
     this.$x.style.cursor = "pointer";
     this.$x.style.fontWeight = "bolder";
-    this.$x.style.height = "calc(10px + .5rem)";
-    this.$x.style.padding = ".25rem";
-    this.$x.style.right = "10px";
-    this.$x.style.textAlign = "right";
+    this.$x.style.height = "2.5rem";
+    this.$x.style.width = "2.5rem";
+    this.$x.style.borderRadius = ".25rem";
     this.$x.style.textSize = "16pt";
 
     this.$x.style.color = color.get(defaultTitleColor);
@@ -1063,10 +1150,12 @@ function startMeatball() {
 
     this.$x.addEventListener("mouseenter", function () {
       this.style.backgroundColor = color.get(defaultHoverBackgroundColor);
+      this.style.color = color.get(0);
     });
 
     this.$x.addEventListener("mouseleave", function () {
       this.style.backgroundColor = color.get(defaultBackgroundColor);
+      this.style.color = color.get(defaultTitleColor);
     });
 
     this.$x.addEventListener("click", function () {
@@ -1440,6 +1529,8 @@ function startMeatball() {
       { value: "<10", color: "blue" },
     ];
 
+    this.columns = [];
+
     this.debug = false;
     this.ignore = [];
     this.text = [];
@@ -1449,16 +1540,33 @@ function startMeatball() {
     if (!props) {
       return "0";
     }
-    var results = this.defaults.filter(function (item) {
-      if (containsSubString(item.value, props)) {
-        return item;
+    var results;
+    this.columns.forEach(function (col) {
+      if (compareString(col.name, props.col)) {
+        col.color.map(function (c) {
+          if (compareString(c.text, props.text)) {
+            results = c.value;
+            return;
+          }
+        });
+        return;
       }
     });
 
-    if (results[0]) {
-      return results[0].color;
+    if (results) {
+      return results;
     } else {
-      return "0";
+      results = this.defaults.filter(function (item) {
+        if (containsSubString(item.value, props.text)) {
+          return item;
+        }
+      });
+
+      if (results[0]) {
+        return results[0].color;
+      } else {
+        return "0";
+      }
     }
   };
 
@@ -1604,7 +1712,5 @@ function startMeatball() {
     return Math.floor(Math.random() * 1000);
   }
 
-  setTimeout(function () {
-    start();
-  }, 2000);
+  start();
 }
