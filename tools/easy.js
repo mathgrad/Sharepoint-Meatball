@@ -1,5 +1,7 @@
 function easyStart() {
+  var listName = "ims-sharepoint";
   var styleSheet = document.createElement("style");
+  var originalItem = { id: null, etag: null };
   styleSheet.type = "text/css";
   styleSheet.textContent =
     ".MenuButton{background-color: #1890ff; border: 0px; border-radius: .25rem; color: #ddd; cursor: pointer; font-weight: bold; padding: .25rem;}" +
@@ -9,48 +11,98 @@ function easyStart() {
   var meatballCustomizationMenuStyle =
     "align-items: center; background-color: #ddd; border: .25rem solid #000; border-radius: 1.5rem; bottom: 104px; color: #222; display: flex; flex-direction: column; height: 200px; justify-content: space-between: overflow: hidden auto; padding: .25rem; position: fixed; right: calc(155px + 5.5vw); width: 150px;";
 
+  // var cv = {
+  //   main:
+  //     "align-item: center; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between;",
+  //   child:
+  //     "display: flex; flex-shrink: 1; flex-grow: 2; line-height: 1.5rem; padding: .25rem;",
+  //   circle:
+  //     "border-radius: 100%; height: 15px; margin: .25rem auto; padding: .25rem; width: 15px;",
+  // };
+
   function cbObject(error, props) {
     if (error) {
-      console.error(error);
+      console.error("cbObject error:\n", error);
+      return;
     }
 
     if (props) {
-      console.log(props);
+      console.log("cbObject props:\n", props);
+      originalItem.id = props.d.Id;
+      originalItem.etag = props.d.__metadata.etag;
+      return;
     }
   }
 
   function cbCreate(error, props) {
     if (error) {
-      console.error(error.message);
+      this.create = {
+        data: {
+          Message: "Override",
+          Overrides: JSON.stringify(ims.defaults.tools.meatball.defaults),
+          Title: window.location.href,
+          Status: "Override",
+        },
+        listName: listName,
+      };
+
+      ims.sharepoint.list.item.create(this.create, cbObject);
     }
     if (props) {
-      console.log(props);
+      if (props.d.results.length == 0) {
+        this.create = {
+          data: {
+            Message: "Override",
+            Overrides: JSON.stringify(ims.defaults.tools.meatball.defaults),
+            Title: window.location.href,
+            Status: "Override",
+          },
+          listName: listName,
+        };
+
+        ims.sharepoint.list.item.create(this.create, cbObject);
+      } else {
+        console.log(props);
+        originalItem.id = props.d.results[0].Id;
+        originalItem.etag = props.d.results[0].__metadata.etag;
+        ims.defaults.tools.meatball.defaults = JSON.parse(
+          props.d.results[0].Overrides
+        );
+      }
     }
-
-    this.create = {
-      data: {
-        Message: "Test",
-        Overrides: JSON.stringify(ims.defaults.tools.meatball.defaults),
-        Title: _spPageContextInfo.webServerRelativeUrl,
-        Status: "Override",
-      },
-      listName: "IMS_SHAREPOINT",
-    };
-
-    ims.sharepoint.list.item.create(this.create, cbObject);
   }
 
-  ims.sharepoint.list.get({ listName: "IMS_SHAREPOINT" }, cbCreate);
-
-
-  var cv = {
-    main:
-      "align-item: center; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between;",
-    child:
-      "display: flex; flex-shrink: 1; flex-grow: 2; line-height: 1.5rem; padding: .25rem;",
-    circle:
-      "border-radius: 100%; height: 15px; margin: .25rem auto; padding: .25rem; width: 15px;",
+  this.filter = {
+    listName: listName,
+    colName: "Title",
+    keys: window.location.href,
   };
+  ims.sharepoint.list.item.getByFilter(this.filter, cbCreate);
+
+  function updateOverrides() {
+    function cbObject(error, props) {
+      if (error) {
+        console.error("Update Override error:\n", error);
+        return;
+      }
+
+      if (props) {
+        console.log(props);
+        return;
+      }
+    }
+
+    this.update = {
+      data: ims.defaults.tools.meatball.defaults,
+      colName: "Overrides",
+      etag: originalItem.etag,
+      // etag: "*",
+      id: originalItem.id,
+      listName: listName,
+    };
+
+    ims.sharepoint.list.item.update(this.update, cbObject);
+  }
 
   var start = new Menu();
   var meatballItem = new MenuItem("Meatball");
@@ -82,8 +134,7 @@ function easyStart() {
     this.cvSubmit.className += "MenuButton";
     this.cvSubmit.addEventListener("click", function (e) {
       e.stopPropagation();
-      mmcs.updateCurrent();
-      console.log(mmcs.getValues());
+      updateOverrides();
       this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(
         this.parentNode.parentNode.parentNode.parentNode.parentNode
       );

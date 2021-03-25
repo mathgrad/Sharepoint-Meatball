@@ -95,8 +95,8 @@ MeatballMenuColorSelector.prototype.updateChoices = function () {
   ims.defaults.tools.meatball.defaults.forEach(function (d) {
     var cn = { name: d.external };
     var v = [];
-    d.choices.forEach(function (choice) {
-      v.push({ text: choice, value: "" });
+    d.color.forEach(function (choice) {
+      v.push({ text: choice.text, value: choice.value });
     });
     cn.values = v;
     formatColumns.push(cn);

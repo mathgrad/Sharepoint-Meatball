@@ -102,17 +102,17 @@ function startMeatball() {
         }
         function cb1(error, props1) {
           if (error) {
-            console.log(error);
+            console.error(error);
             return;
           }
           function cb2(error, props2) {
             if (error) {
-              console.log(error);
+              console.error(error);
               return;
             }
             function cb3(error, props3) {
               if (error) {
-                console.log(error);
+                console.error(error);
                 return;
               }
               historyListGUID = props3.Id;
@@ -140,7 +140,6 @@ function startMeatball() {
           );
         }
         ims.sharepoint.list.create({ listName: "History" }, cb1);
-        console.log(error);
         return;
       }
       ims.sharepoint.list.get({ listName: "History" }, cb0);
@@ -759,15 +758,17 @@ function startMeatball() {
         if (error) {
           console.log(error);
         }
-        if (data.length === 1) {
-          meatball.$initHistoryDate.innerText = generateDateTime(
-            data[0].Created
-          );
-          meatball.$initHistoryMessage.innerText = data[0].Message;
-          meatball.$initHistoryName.innerText = data[0].Author;
-        } else {
-          meatball.$initHistoryMessage.innerText = "No History Found";
-          meatball.$initHistoryContainer.style.textAlign = "center";
+        if (data) {
+          if (data.length === 1) {
+            meatball.$initHistoryDate.innerText = generateDateTime(
+              data[0].Created
+            );
+            meatball.$initHistoryMessage.innerText = data[0].Message;
+            meatball.$initHistoryName.innerText = data[0].Author;
+          } else {
+            meatball.$initHistoryMessage.innerText = "No History Found";
+            meatball.$initHistoryContainer.style.textAlign = "center";
+          }
         }
         meatball.setPosition(triangleSize);
       }

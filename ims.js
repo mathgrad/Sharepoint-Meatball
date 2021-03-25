@@ -32,7 +32,7 @@ var ims = {
   },
   sharepoint: {},
 };
-
+var listName = "ims-sharepoint";
 (function () {
   var scripts = [].slice.call(document.getElementsByTagName("script"));
   var imo = scripts.filter(function (script) {
@@ -72,17 +72,19 @@ var ims = {
     scriptArr.map(scriptBuilder).map(function (script, i) {
       if (i == scriptArr.length - 1) {
         script.addEventListener("load", function () {
-          if (!window.ims_meatball_show) {
-            ims.chat = chat;
-          }
           ims.sharepoint.color = Color;
           ims.sharepoint.column = column;
           ims.sharepoint.list = list;
           ims.sharepoint.person = person;
           ims.sharepoint.notification = Pantry;
           ims.sharepoint.style = style;
+
+          if (!window.ims_meatball_show) {
+            ims.chat = chat;
+            startMeatball();
+          }
+
           getDefaults();
-          startMeatball();
           easyStart();
         });
       }
@@ -96,7 +98,7 @@ var ims = {
         return;
       }
 
-      ims.sharepoint.list.get({ listName: "IMS_SHAREPOINT" }, cbCreateList);
+      ims.sharepoint.list.get({ listName: listName }, cbCreateList);
     }
 
     function cbCreateOverrides(error, props) {
@@ -110,7 +112,7 @@ var ims = {
           fieldType: 3,
           required: "false",
           uniqueValue: "false",
-          listName: "IMS_SHAREPOINT",
+          listName: listName,
         },
         cbFinal
       );
@@ -127,7 +129,7 @@ var ims = {
           fieldType: 2,
           required: "false",
           uniqueValue: "false",
-          listName: "IMS_SHAREPOINT",
+          listName: listName,
         },
         cbCreateOverrides
       );
@@ -143,7 +145,7 @@ var ims = {
           fieldType: 2,
           required: "false",
           uniqueValue: "false",
-          listName: "IMS_SHAREPOINT",
+          listName: listName,
         },
         cbCreateStatus
       );
@@ -152,7 +154,7 @@ var ims = {
     function cbCreateList(error, props) {
       if (error) {
         ims.sharepoint.list.create(
-          { listName: "IMS_SHAREPOINT" },
+          { listName: "ims-sharepoint" },
           cbCreateMessage
         );
         console.error(error);
@@ -160,7 +162,6 @@ var ims = {
       }
 
       if (props) {
-        console.log(props);
         if (props.hasOwnProperty("Id")) {
           ims.defaults.listGUID = props.Id;
           return;
@@ -168,7 +169,14 @@ var ims = {
       }
     }
 
-    ims.sharepoint.list.item.gets({ listName: "IMS_SHAREPOINT" }, cbCreateList);
+    ims.sharepoint.list.item.getByFilter(
+      {
+        colName: "Title",
+        keys: window.location.href,
+        listName: listName,
+      },
+      cbCreateList
+    );
   }
 
   window.addEventListener("load", loadScripts);

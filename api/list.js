@@ -96,7 +96,7 @@ var list = {
         credentials: true,
         "X-RequestDigest": $("#__REQUESTDIGEST").val(),
         "X-Http-Method": "PATCH",
-        "If-Match": props.oldItem.__metadata.etag,
+        "If-Match": props.etag,
       },
       data: JSON.stringify(props.data),
       success: function (data) {
@@ -218,29 +218,30 @@ var list = {
       });
     },
     update: function (props, cb) {
-      var data = Object.assign(props.data, {
+      var data = {
         __metadata: { type: "SP.ListItem" },
-      });
+      };
+      data[props.colName] = JSON.stringify(props.data);
 
       var url =
         _spPageContextInfo.siteAbsoluteUrl +
-        "_api/web/lists/getbytitle('" +
+        "/_api/web/lists/getbytitle('" +
         props.listName +
-        "')/getitembyid(" +
+        "')/items(" +
         props.id +
         ")";
 
       $.ajax({
         url: url,
-        type: "PATCH",
+        type: "POST",
         data: JSON.stringify(data),
         headers: {
           Accept: "application/json; odata=verbose",
           "Content-Type": "application/json;odata=verbose",
           credentials: true,
           "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-          "X-HTTP-Method": "PATCH",
-          "IF-MATCH": props.oldItem.__metadata.etag,
+          "X-HTTP-Method": "MERGE",
+          "IF-MATCH": props.etag,
         },
         success: function (data) {
           cb(null, data);
