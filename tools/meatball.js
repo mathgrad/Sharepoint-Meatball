@@ -69,6 +69,22 @@ function startMeatball() {
       return;
     }
 
+    if (ims.defaults.tools.meatball.defaults) {
+      ims.defaults.tools.meatball.defaults.forEach(function (d) {
+        meatballDefaults.columns.push({ name: d.external, color: d.color });
+        switch (d.type) {
+          case "circle":
+            break;
+          case "ignore":
+            meatballDefaults.setIgnore(d.external);
+            break;
+          case "text":
+            meatballDefaults.setText(d.external);
+            break;
+        }
+      });
+    }
+
     //Checks for overrides
     if (window.meatball_override) {
       meatball_override.forEach(function (item) {
@@ -276,10 +292,14 @@ function startMeatball() {
         //First column contains the row titles
         rowTitles = organizedTables[tableKey][rowTitles[1]];
         //Step . For each remaining $cell, convert to meatball.
-        ims.defaults.tools.meatball.defaults.toggle = true;
         for (var colKey2 in organizedTables[tableKey]) {
           var meatballOverrides = {};
-          var addMO = true;
+          var addMO;
+          if (ims.defaults.tools.meatball.defaults) {
+            addMO = false;
+          } else {
+            addMO = true;
+          }
           organizedTables[tableKey][colKey2].forEach(function ($cell, ci) {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
@@ -464,14 +484,12 @@ function startMeatball() {
       var messageSVGPath = this.$messageSVG.firstChild.firstChild.firstChild;
 
       this.$entryObj.addEventListener("mouseenter", function () {
-        // this.parentElement.style.backgroundColor = color.get(defaultButtonBackgroundColor);
         this.style.backgroundColor = color.get(defaultButtonBackgroundColor);
         this.style.color = color.get(defaultColor);
         messageSVGPath.setAttribute("fill", "white");
       });
 
       this.$entryObj.addEventListener("mouseleave", function () {
-        // this.parentElement.style.backgroundColor = "";
         this.style.backgroundColor = "";
         this.style.color = computedMSColor.color || "";
         messageSVGPath.setAttribute("fill", computedMSColor.color || "");
@@ -488,8 +506,9 @@ function startMeatball() {
           size: "large",
         }).$ele
       );
+      var ext = this.list.external;
       this.$entryObj.style.backgroundColor = color.get(
-        meatballDefaults.get(cellText)
+        meatballDefaults.get({ col: ext, text: cellText })
       );
     }
 
@@ -902,8 +921,9 @@ function startMeatball() {
   };
 
   Meatball.prototype.setColor = function (value) {
+    var ext = this.list.external;
     this.$entryObj.style.backgroundColor = color.get(
-      meatballDefaults.get(value)
+      meatballDefaults.get({ col: ext, text: value })
     );
   };
 
@@ -1501,6 +1521,8 @@ function startMeatball() {
       { value: "<10", color: "blue" },
     ];
 
+    this.columns = [];
+
     this.debug = false;
     this.ignore = [];
     this.text = [];
@@ -1510,16 +1532,33 @@ function startMeatball() {
     if (!props) {
       return "0";
     }
-    var results = this.defaults.filter(function (item) {
-      if (containsSubString(item.value, props)) {
-        return item;
+    var results;
+    this.columns.forEach(function (col) {
+      if (compareString(col.name, props.col)) {
+        col.color.map(function (c) {
+          if (compareString(c.text, props.text)) {
+            results = c.value;
+            return;
+          }
+        });
+        return;
       }
     });
 
-    if (results[0]) {
-      return results[0].color;
+    if (results) {
+      return results;
     } else {
-      return "0";
+      results = this.defaults.filter(function (item) {
+        if (containsSubString(item.value, props.text)) {
+          return item;
+        }
+      });
+
+      if (results[0]) {
+        return results[0].color;
+      } else {
+        return "0";
+      }
     }
   };
 
@@ -1664,9 +1703,6 @@ function startMeatball() {
   function generateId() {
     return Math.floor(Math.random() * 1000);
   }
-  // Random timer function.  No Idea why it's here.
-  // setTimeout(function () {
-  //   start();
-  // }, 2000);
+
   start();
 }
