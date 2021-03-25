@@ -97,6 +97,10 @@ function startMeatball() {
       meatballDefaults.setDebug(meatball_debug);
     }
 
+    if (ims.defaults.tools.meatball.debug) {
+      meatballDefaults.setDebug(ims.defaults.tools.meatball.debug);
+    }
+
     //Checks for Field Ignore
     if (window.meatball_ignore) {
       meatballDefaults.setIgnore(meatball_ignore);
