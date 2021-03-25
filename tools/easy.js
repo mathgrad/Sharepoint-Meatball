@@ -11,70 +11,6 @@ function easyStart() {
   var meatballCustomizationMenuStyle =
     "align-items: center; background-color: #ddd; border: .25rem solid #000; border-radius: 1.5rem; bottom: 104px; color: #222; display: flex; flex-direction: column; height: 200px; justify-content: space-between: overflow: hidden auto; padding: .25rem; position: fixed; right: calc(155px + 5.5vw); width: 150px;";
 
-  // var cv = {
-  //   main:
-  //     "align-item: center; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between;",
-  //   child:
-  //     "display: flex; flex-shrink: 1; flex-grow: 2; line-height: 1.5rem; padding: .25rem;",
-  //   circle:
-  //     "border-radius: 100%; height: 15px; margin: .25rem auto; padding: .25rem; width: 15px;",
-  // };
-
-  function cbObject(error, props) {
-    if (error) {
-      console.error("cbObject error:\n", error);
-      return;
-    }
-
-    if (props) {
-      originalItem.id = props.d.Id;
-      originalItem.etag = props.d.__metadata.etag;
-      return;
-    }
-  }
-
-  function cbCreate(error, props) {
-    if (error) {
-      this.create = {
-        data: {
-          Message: "Override",
-          Overrides: JSON.stringify(ims.defaults.tools.meatball),
-          Title: window.location.href,
-          Status: "Override",
-        },
-        listName: listName,
-      };
-
-      ims.sharepoint.list.item.create(this.create, cbObject);
-    }
-    if (props) {
-      if (props.d.results.length == 0) {
-        this.create = {
-          data: {
-            Message: "Override",
-            Overrides: JSON.stringify(ims.defaults.tools.meatball),
-            Title: window.location.href,
-            Status: "Override",
-          },
-          listName: listName,
-        };
-
-        ims.sharepoint.list.item.create(this.create, cbObject);
-      } else {
-        originalItem.id = props.d.results[0].Id;
-        originalItem.etag = props.d.results[0].__metadata.etag;
-        ims.defaults.tools.meatball = JSON.parse(props.d.results[0].Overrides);
-      }
-    }
-  }
-
-  this.filter = {
-    listName: listName,
-    colName: "Title",
-    keys: window.location.href,
-  };
-  ims.sharepoint.list.item.getByFilter(this.filter, cbCreate);
-
   function updateOverrides() {
     function cbObject(error, props) {
       if (error) {
@@ -92,9 +28,9 @@ function easyStart() {
     this.update = {
       data: ims.defaults.tools.meatball,
       colName: "Overrides",
-      // etag: originalItem.etag,
+      // etag: ims.defaults.etag,
       etag: "*",
-      id: originalItem.id,
+      id: ims.defaults.listGUID,
       listName: listName,
     };
 
