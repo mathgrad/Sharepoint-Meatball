@@ -79,19 +79,20 @@ var listName = "ims-sharepoint";
           ims.sharepoint.notification = Pantry;
           ims.sharepoint.style = style;
 
-          if (!window.ims_meatball_show) {
-            ims.chat = chat;
-            startMeatball();
-          }
+          getDefaults(function () {
+            if (!window.ims_meatball_show) {
+              ims.chat = chat;
+              startMeatball();
+            }
+          });
 
-          getDefaults();
           easyStart();
         });
       }
     });
   }
 
-  function getDefaults() {
+  function getDefaults(cb) {
     function cbFinal(error, props) {
       if (error) {
         console.error(error);
@@ -162,10 +163,11 @@ var listName = "ims-sharepoint";
       }
 
       if (props) {
-        if (props.hasOwnProperty("Id")) {
-          ims.defaults.listGUID = props.Id;
-          return;
-        }
+        ims.defaults.listGUID = props.d.results[0].Id;
+        ims.defaults.etag = props.d.results[0].__metadata.etag;
+        ims.defaults.tools.meatball = JSON.parse(props.d.results[0].Overrides);
+        cb();
+        return;
       }
     }
 
