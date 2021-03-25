@@ -92,42 +92,45 @@ function startMeatball() {
     }
 
     if (historyListGUID.length <= 0) {
-      function cb0(error, props0) {
+      function cb3(error, props) {
         if (error) {
+          console.error("cb3 error: ", error);
           return;
         }
-        if (props0.hasOwnProperty("Id")) {
-          historyListGUID = props0.Id;
+
+        if (props) {
+          historyListGUID = props.Id;
           return;
         }
-        function cb1(error, props1) {
-          if (error) {
-            console.error(error);
-            return;
-          }
-          function cb2(error, props2) {
-            if (error) {
-              console.error(error);
-              return;
-            }
-            function cb3(error, props3) {
-              if (error) {
-                console.error(error);
-                return;
-              }
-              historyListGUID = props3.Id;
-            }
-            ims.sharepoint.column.create(
-              {
-                colTitle: "Status",
-                fieldType: 2,
-                required: "false",
-                uniqueValue: "false",
-                listName: "History",
-              },
-              cb3
-            );
-          }
+      }
+
+      function cb2(error, props2) {
+        if (error) {
+          console.error("cb2 error: ", error);
+          return;
+        }
+
+        if (props) {
+          ims.sharepoint.column.create(
+            {
+              colTitle: "Status",
+              fieldType: 2,
+              required: "false",
+              uniqueValue: "false",
+              listName: "History",
+            },
+            cb3
+          );
+          return;
+        }
+      }
+
+      function cb1(error, props) {
+        if (error) {
+          console.error("cb1 error: ", error);
+          return;
+        }
+        if (props) {
           ims.sharepoint.column.create(
             {
               colTitle: "Message",
@@ -138,10 +141,22 @@ function startMeatball() {
             },
             cb2
           );
+          return;
         }
-        ims.sharepoint.list.create({ listName: "History" }, cb1);
-        return;
       }
+
+      function cb0(error, props) {
+        if (error) {
+          console.error("cb0 error: ", error);
+          ims.sharepoint.list.create({ listName: "History" }, cb1);
+          return;
+        }
+        if (props.hasOwnProperty("Id")) {
+          historyListGUID = props.Id;
+          return;
+        }
+      }
+
       ims.sharepoint.list.get({ listName: "History" }, cb0);
     }
 
