@@ -116,7 +116,13 @@ MeatballMenuColorSelector.prototype.updateChoices = function () {
     $select.appendChild(this.$option);
   });
 
-  this.mmcc.setValues({ values: formatColumns[0].values });
+  if (formatColumns[0].values) {
+    this.$content.innerText = "";
+    mmcc = new MeatballMenuColorContent();
+    mmcc.setValues({ values: formatColumns[0].values });
+    this.mmcc = mmcc;
+    this.$content.appendChild(mmcc.$ele);
+  }
 };
 
 MeatballMenuColorSelector.prototype.updateCurrent = function () {
