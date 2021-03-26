@@ -175,15 +175,12 @@ var listName = "ims-sharepoint";
         return;
       }
     }
-
-    ims.sharepoint.list.item.getByFilter(
-      {
-        colName: "Title",
-        keys: window.location.href,
-        listName: listName,
-      },
-      cbCreateList
-    );
+    this.filter = {
+      colName: "Title",
+      listName: listName,
+      keys: window.location.href,
+    };
+    ims.sharepoint.list.item.getByFilter(this.filter, cbCreateList);
   }
 
   window.addEventListener("load", loadScripts);
