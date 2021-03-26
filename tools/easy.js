@@ -11,6 +11,50 @@ function easyStart() {
   var meatballCustomizationMenuStyle =
     "align-items: center; background-color: #ddd; border: .25rem solid #000; border-radius: 1.5rem; bottom: 104px; color: #222; display: flex; flex-direction: column; height: 200px; justify-content: space-between: overflow: hidden auto; padding: .25rem; position: fixed; right: calc(155px + 5.5vw); width: 150px;";
 
+  function cbmd(error, props) {
+    if (error) {
+      console.error("cbmd error: \n", error);
+    }
+    if (props) {
+      ims.defaults.listGUID = props.d.Id;
+      ims.defaults.etag = props.d.__metadata.etag;
+    }
+  }
+
+  function createMeatballDefaults() {
+    this.create = {
+      data: {
+        Message: "Override",
+        Overrides: JSON.stringify(ims.defaults.tools.meatball),
+        Title: window.location.href,
+        Status: "Override",
+      },
+      listName: "ims-sharepoint",
+    };
+    ims.sharepoint.list.item.create(this.create, cbmd);
+  }
+
+  function cbFI(error, results) {
+    if (error) {
+      console.error(error);
+      createMeatballDefaults();
+    }
+    if (results) {
+      if (results.d.results.length < 1) {
+        createMeatballDefaults();
+      } else {
+        ims.defaults.tools.meatball = JSON.parse(results[0].Overrides);
+      }
+    }
+  }
+
+  this.filter = {
+    colName: "Title",
+    listName: listName,
+    keys: window.location.href,
+  };
+  ims.sharepoint.list.item.getByFilter(this.filter, cbFI);
+
   function updateOverrides() {
     function cbObject(error, props) {
       if (error) {

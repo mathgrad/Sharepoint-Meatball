@@ -63,26 +63,19 @@ function startMeatball() {
 
   document.getElementsByTagName("head")[0].appendChild(style);
 
+  var create = false;
+  if (ims.defaults.tools.meatball.defaults) {
+    if (ims.defaults.tools.meatball.defaults.length > 0) {
+      addDefaults();
+    } else {
+      create = true;
+    }
+  }
+
   function start() {
     if (!window.jQuery) {
       alert("Please contact help desk. Script not properly loaded.");
       return;
-    }
-
-    if (ims.defaults.tools.meatball.defaults) {
-      ims.defaults.tools.meatball.defaults.forEach(function (d) {
-        meatballDefaults.columns.push({ name: d.external, color: d.color });
-        switch (d.type) {
-          case "circle":
-            break;
-          case "ignore":
-            meatballDefaults.setIgnore(d.external);
-            break;
-          case "text":
-            meatballDefaults.setText(d.external);
-            break;
-        }
-      });
     }
 
     //Checks for overrides
@@ -183,7 +176,7 @@ function startMeatball() {
     if (userName.length <= 0) {
       function cb(error, name) {
         if (error) {
-          console.log(error);
+          console.error(error);
         }
         userName = name;
       }
@@ -192,7 +185,7 @@ function startMeatball() {
 
     window.addEventListener("error", function (e) {
       if (meatballDefaults.getDebug()) {
-        console.log(e);
+        console.error(e);
         var errorToast = new Toast();
         errorToast
           .setMessage(
@@ -298,12 +291,8 @@ function startMeatball() {
         //Step . For each remaining $cell, convert to meatball.
         for (var colKey2 in organizedTables[tableKey]) {
           var meatballOverrides = {};
-          var addMO;
-          if (ims.defaults.tools.meatball.defaults) {
-            addMO = false;
-          } else {
-            addMO = true;
-          }
+          // var addMO = !meatballDefaults.hasCol(colKey2);
+          var addMO = true;
           organizedTables[tableKey][colKey2].forEach(function ($cell, ci) {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
@@ -332,11 +321,12 @@ function startMeatball() {
                 choiceProps.choices.forEach(function (choice) {
                   meatballOverrides.color.push({
                     text: choice,
-                    value: meatballDefaults.get(choice),
+                    value: meatballDefaults.getColorString(choice),
                   });
                 });
 
                 ims.defaults.tools.meatball.defaults.push(meatballOverrides);
+                addDefaults();
                 addMO = false;
               }
 
@@ -511,9 +501,15 @@ function startMeatball() {
         }).$ele
       );
       var ext = this.list.external;
-      this.$entryObj.style.backgroundColor = color.get(
-        meatballDefaults.get({ col: ext, text: cellText })
-      );
+      if (!create) {
+        this.$entryObj.style.backgroundColor = color.get(
+          meatballDefaults.getColorArray({ col: ext, text: cellText })
+        );
+      } else {
+        this.$entryObj.style.backgroundColor = color.get(
+          meatballDefaults.getColorString(cellText)
+        );
+      }
     }
 
     this.$ele = document.createElement("div");
@@ -652,7 +648,7 @@ function startMeatball() {
     this.$showMore.addEventListener("click", function () {
       function cb(error, data) {
         if (error || !data.length) {
-          console.log(error);
+          console.error(error);
           return;
         }
         if (data.length) {
@@ -795,7 +791,7 @@ function startMeatball() {
       meatball.$initHistoryMessage.innerText = "Loading...";
       function cb(error, data) {
         if (error) {
-          console.log(error);
+          console.error(error);
         }
         if (data) {
           if (data.length === 1) {
@@ -926,9 +922,15 @@ function startMeatball() {
 
   Meatball.prototype.setColor = function (value) {
     var ext = this.list.external;
-    this.$entryObj.style.backgroundColor = color.get(
-      meatballDefaults.get({ col: ext, text: value })
-    );
+    if (!create) {
+      this.$entryObj.style.backgroundColor = color.get(
+        meatballDefaults.getColorArray({ col: ext, text: value })
+      );
+    } else {
+      this.$entryObj.style.backgroundColor = color.get(
+        meatballDefaults.getColorString(value)
+      );
+    }
   };
 
   Meatball.prototype.removePopover = function () {
@@ -1387,7 +1389,7 @@ function startMeatball() {
 
     function cb(error, data) {
       if (error) {
-        console.log(error);
+        console.error(error);
         return;
       }
       data.Author = userName;
@@ -1532,7 +1534,23 @@ function startMeatball() {
     this.text = [];
   }
 
-  Defaults.prototype.get = function (props) {
+  Defaults.prototype.hasCol = function (props) {
+    if (this.columns.length < 0) {
+      return false;
+    }
+    var has = false;
+    this.columns.filter(function (item) {
+      if (compareString(item.name, props)) {
+        has = true;
+      }
+      if (has) {
+        return has;
+      }
+    });
+    return has;
+  };
+
+  Defaults.prototype.getColorArray = function (props) {
     if (!props) {
       return "0";
     }
@@ -1548,21 +1566,28 @@ function startMeatball() {
         return;
       }
     });
-
     if (results) {
       return results;
     } else {
-      results = this.defaults.filter(function (item) {
-        if (containsSubString(item.value, props.text)) {
-          return item;
-        }
-      });
+      return "0";
+    }
+  };
 
-      if (results[0]) {
-        return results[0].color;
-      } else {
-        return "0";
+  Defaults.prototype.getColorString = function (props) {
+    if (!props) {
+      return "0";
+    }
+
+    results = this.defaults.filter(function (item) {
+      if (compareString(item.value, props)) {
+        return item;
       }
+    });
+
+    if (results[0]) {
+      return results[0].color;
+    } else {
+      return "0";
     }
   };
 
@@ -1706,6 +1731,22 @@ function startMeatball() {
 
   function generateId() {
     return Math.floor(Math.random() * 1000);
+  }
+
+  function addDefaults() {
+    ims.defaults.tools.meatball.defaults.forEach(function (d) {
+      meatballDefaults.columns.push({ name: d.external, color: d.color });
+      switch (d.type) {
+        case "circle":
+          break;
+        case "ignore":
+          meatballDefaults.setIgnore(d.external);
+          break;
+        case "text":
+          meatballDefaults.setText(d.external);
+          break;
+      }
+    });
   }
 
   start();

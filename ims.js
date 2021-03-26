@@ -163,9 +163,13 @@ var listName = "ims-sharepoint";
       }
 
       if (props) {
-        ims.defaults.listGUID = props.d.results[0].Id;
-        ims.defaults.etag = props.d.results[0].__metadata.etag;
-        ims.defaults.tools.meatball = JSON.parse(props.d.results[0].Overrides);
+        if (props.d.results[0]) {
+          ims.defaults.listGUID = props.d.results[0].Id;
+          ims.defaults.etag = props.d.results[0].__metadata.etag;
+          ims.defaults.tools.meatball = JSON.parse(
+            props.d.results[0].Overrides
+          );
+        }
         cb();
         return;
       }
