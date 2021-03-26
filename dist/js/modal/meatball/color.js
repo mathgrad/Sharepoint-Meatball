@@ -210,6 +210,7 @@ function MeatballMenuColorItem(props) {
   this.$select.style.maxWidth = "200px";
   this.$select.style.border = "0px";
   this.$select.style.padding = ".5rem";
+  this.$select.style.backgroundColor = "#0075ff";
   this.$select.value = props.value;
   var $select = this.$select;
 
