@@ -106,6 +106,7 @@ function easyStart() {
     var mmcs = this.cvMIBody;
 
     this.cvMIContent.body.push(this.cvMIBody.$ele);
+
     this.cvSubmit = document.createElement("button");
     this.cvSubmit.innerText = "Submit";
     this.cvSubmit.className += "MenuButton";
@@ -194,6 +195,7 @@ function easyStart() {
     );
     var cvmibody = this.cvMIBody;
     this.cvMIContent.body.push(this.cvMIBody.$ele);
+
     this.cvSubmit = document.createElement("button");
     this.cvSubmit.innerText = "Submit";
     this.cvSubmit.className += "MenuButton";
@@ -218,6 +220,50 @@ function easyStart() {
   }
 
   meatballSubMenu.menuItems.push(new CTM());
+
+  function CDM() {
+    this.cvMI = new MenuItem("Delete Column");
+    this.cvMIContent = {
+      title: "Delete Column Defaults",
+      body: [],
+      footer: [],
+    };
+
+    this.cvMIBody = new MeatballMenuDeleteContent();
+    var mmcd = this.cvMIBody;
+
+    this.cvMIContent.body.push(this.cvMIBody.$ele);
+
+    this.cdSubmit = document.createElement("button");
+    this.cdSubmit.innerText = "Submit";
+    this.cdSubmit.className += "MenuButton";
+    this.cdSubmit.addEventListener("click", function (e) {
+      e.stopPropagation();
+
+      var mmcdNV = mmcd.getValues();
+      ims.defaults.tools.meatball.defaults.forEach(function (d, i) {
+        if (mmcdNV.indexOf(d.external) > -1) {
+          ims.defaults.tools.meatball.defaults.splice(i, 1);
+        }
+      });
+      updateOverrides();
+      this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(
+        this.parentNode.parentNode.parentNode.parentNode.parentNode
+      );
+    });
+
+    this.cvMI.$ele.addEventListener("click", function () {
+      mmcd.updateValues();
+    });
+
+    this.cvMIContent.footer.push(this.cdSubmit);
+
+    this.cvMI.addModal({ modal: modal, content: this.cvMIContent });
+
+    return this.cvMI.$ele;
+  }
+
+  meatballSubMenu.menuItems.push(new CDM());
 
   meatballItem.addSubMenu(meatballSubMenu);
 

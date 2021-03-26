@@ -16,6 +16,7 @@ var ims = {
       easy: {
         scripts: [
           "dist/js/modal/meatball/color.js",
+          "dist/js/modal/meatball/delete.js",
           "dist/js/modal/meatball/toggle.js",
           "dist/js/modal/meatball/type.js",
           "tools/menu/menu.js",
