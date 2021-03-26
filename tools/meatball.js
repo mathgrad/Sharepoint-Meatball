@@ -63,6 +63,24 @@ function startMeatball() {
 
   document.getElementsByTagName("head")[0].appendChild(style);
 
+  function cbFI(error, props) {
+    if (error) {
+      console.error(error);
+    }
+    if (props) {
+      if (props.d.results.length > 0) {
+        ims.defaults.tools.meatball = JSON.parse(props.d.results[0].Overrides);
+      }
+    }
+  }
+
+  this.filter = {
+    colName: "Title",
+    listName: listName,
+    keys: window.location.href,
+  };
+  ims.sharepoint.list.item.getByFilter(this.filter, cbFI);
+
   var create = false;
   if (ims.defaults.tools.meatball.defaults) {
     if (ims.defaults.tools.meatball.defaults.length > 0) {
@@ -1554,6 +1572,7 @@ function startMeatball() {
     if (!props) {
       return "0";
     }
+
     var results;
     this.columns.forEach(function (col) {
       if (compareString(col.name, props.col)) {
@@ -1740,10 +1759,10 @@ function startMeatball() {
         case "circle":
           break;
         case "ignore":
-          meatballDefaults.setIgnore(d.external);
+          meatballDefaults.ignore.push(d.external);
           break;
         case "text":
-          meatballDefaults.setText(d.external);
+          meatballDefaults.text.push(d.external);
           break;
       }
     });
