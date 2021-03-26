@@ -309,8 +309,8 @@ function startMeatball() {
         //Step . For each remaining $cell, convert to meatball.
         for (var colKey2 in organizedTables[tableKey]) {
           var meatballOverrides = {};
-          var addMO = !meatballDefaults.hasCol(colKey2);
-          // var addMO = true;
+          var addMO = true;
+
           organizedTables[tableKey][colKey2].forEach(function ($cell, ci) {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
@@ -328,23 +328,32 @@ function startMeatball() {
               choiceProps.listTitle = listTitle;
 
               if (addMO) {
-                meatballOverrides.color = [];
-                meatballOverrides.external = choiceProps.external;
-                meatballOverrides.iid = choiceProps.iid;
-                meatballOverrides.internal = choiceProps.internal;
-                meatballOverrides.listId = choiceProps.listId;
-                meatballOverrides.listTitle = choiceProps.listTitle;
-                meatballOverrides.type = "circle";
+                var contains = false;
 
-                choiceProps.choices.forEach(function (choice) {
-                  meatballOverrides.color.push({
-                    text: choice,
-                    value: meatballDefaults.getColorString(choice),
-                  });
+                ims.defaults.tools.meatball.defaults.forEach(function (d) {
+                  if (d.internal === choiceProps.internal) {
+                    contains = true;
+                  }
                 });
 
-                ims.defaults.tools.meatball.defaults.push(meatballOverrides);
-                addDefaults();
+                if (!contains) {
+                  meatballOverrides.color = [];
+                  meatballOverrides.external = choiceProps.external;
+                  meatballOverrides.iid = choiceProps.iid;
+                  meatballOverrides.internal = choiceProps.internal;
+                  meatballOverrides.listId = choiceProps.listId;
+                  meatballOverrides.listTitle = choiceProps.listTitle;
+                  meatballOverrides.type = "circle";
+
+                  choiceProps.choices.forEach(function (choice) {
+                    meatballOverrides.color.push({
+                      text: choice,
+                      value: meatballDefaults.getColorString(choice),
+                    });
+                  });
+                  ims.defaults.tools.meatball.defaults.push(meatballOverrides);
+                  addDefaults();
+                }
                 addMO = false;
               }
 
@@ -1767,6 +1776,6 @@ function startMeatball() {
       }
     });
   }
-  
+
   start();
 }
