@@ -69,7 +69,13 @@ function startMeatball() {
     }
     if (props) {
       if (props.d.results.length > 0) {
-        ims.defaults.tools.meatball = JSON.parse(props.d.results[0].Overrides);
+        if (ims.defaults.tools.meatball.defaults.length > 0) {
+          return;
+        } else {
+          ims.defaults.tools.meatball = JSON.parse(
+            props.d.results[0].Overrides
+          );
+        }
       }
     }
   }

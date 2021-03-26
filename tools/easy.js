@@ -48,12 +48,14 @@ function easyStart() {
     }
   }
 
-  this.filter = {
-    colName: "Title",
-    listName: listName,
-    keys: window.location.href,
-  };
-  ims.sharepoint.list.item.getByFilter(this.filter, cbFI);
+  if (!ims.defaults.tools.meatball) {
+    this.filter = {
+      colName: "Title",
+      listName: listName,
+      keys: window.location.href,
+    };
+    ims.sharepoint.list.item.getByFilter(this.filter, cbFI);
+  }
 
   function updateOverrides() {
     function cbObject(error, props) {
