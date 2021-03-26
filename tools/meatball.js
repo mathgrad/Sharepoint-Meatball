@@ -309,8 +309,8 @@ function startMeatball() {
         //Step . For each remaining $cell, convert to meatball.
         for (var colKey2 in organizedTables[tableKey]) {
           var meatballOverrides = {};
-          // var addMO = !meatballDefaults.hasCol(colKey2);
-          var addMO = true;
+          var addMO = !meatballDefaults.hasCol(colKey2);
+          // var addMO = true;
           organizedTables[tableKey][colKey2].forEach(function ($cell, ci) {
             //Step A. Define the choice column in question.
             var choiceProps = findChoiceField(colKey2);
@@ -1767,6 +1767,6 @@ function startMeatball() {
       }
     });
   }
-
+  
   start();
 }
