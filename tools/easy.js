@@ -34,16 +34,16 @@ function easyStart() {
     ims.sharepoint.list.item.create(this.create, cbmd);
   }
 
-  function cbFI(error, results) {
+  function cbFI(error, props) {
     if (error) {
       console.error(error);
       createMeatballDefaults();
     }
-    if (results) {
-      if (results.d.results.length < 1) {
+    if (props) {
+      if (props.d.results.length < 1) {
         createMeatballDefaults();
       } else {
-        ims.defaults.tools.meatball = JSON.parse(results[0].Overrides);
+        ims.defaults.tools.meatball = JSON.parse(props.d.results[0].Overrides);
       }
     }
   }
